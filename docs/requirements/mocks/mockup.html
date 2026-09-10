@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>OCTG · 基本設計モック</title><style>
+:root{
+--color-bg:#ffffff;--color-surface:#f5f5f7;--color-paper:#ffffff;--color-text:#0c0e0f;--color-accent:#5980a6;
+--color-divider:color-mix(in srgb,#1d1f20 16%,transparent);--color-hair:color-mix(in srgb,#1d1f20 8%,transparent);
+--n100:#f5f5f8;--n200:#e7e7ea;--n300:#d4d4d7;--n400:#b7b7ba;--n500:#6f6f73;--n600:#575759;--n700:#3c3c3e;--n800:#282829;--n900:#2b2b2d;
+--a100:#eef6ff;--a200:#d6ebff;--a300:#b5d9fd;--a400:#94bce3;--a500:#749dc4;--a600:#597ea3;--a700:#416180;--a800:#2c455d;--a900:#1d2d3d;
+/* status hues: same chroma/lightness family as the steel accent */
+--ok:oklch(0.55 0.09 155);--ok-100:oklch(0.95 0.03 155);--ok-800:oklch(0.35 0.07 155);
+--warn:oklch(0.62 0.11 70);--warn-100:oklch(0.96 0.035 80);--warn-800:oklch(0.40 0.08 65);
+--danger:oklch(0.52 0.15 25);--danger-100:oklch(0.95 0.03 25);--danger-800:oklch(0.36 0.12 25);
+--font-body:Meiryo,"メイリオ","Hiragino Kaku Gothic ProN","ヒラギノ角ゴ ProN W3","MS PGothic",sans-serif;
+--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+--s1:4px;--s2:8px;--s3:12px;--s4:16px;--s5:20px;--s6:24px;--s8:32px;
+--radius-sm:4px;--radius-md:6px;--radius-lg:10px;--shadow-sm:0 1px 2px color-mix(in srgb,#2b2b2d 14%,transparent);--shadow-md:0 3px 10px color-mix(in srgb,#2b2b2d 16%,transparent);--shadow-lg:0 12px 32px color-mix(in srgb,#2b2b2d 22%,transparent);
+--nav-width:232px;--shell-h:72px;
+--z-sticky:2;--z-nav:3;--z-header:4;--z-pop:5;--z-toast:10;--z-tip:20;
+font-family:var(--font-body);font-size:14px;line-height:1.55;color:var(--color-text);background:var(--color-bg)}
+*,*::before,*::after{box-sizing:border-box}body{margin:0;font-feature-settings:"palt"}
+[hidden]{display:none!important}
+:focus{outline:none}:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+::selection{background:color-mix(in srgb,var(--color-accent) 30%,transparent)}
+a{color:var(--a700);text-underline-offset:3px}a:hover{color:var(--a800)}
+
+/* ── shell: light rail with hairline, numbered items, steel indicator ── */
+header{position:fixed;top:0;left:0;width:var(--nav-width);height:var(--shell-h);z-index:var(--z-header);display:flex;flex-direction:column;justify-content:center;gap:2px;padding:0 var(--s8) 0 var(--s4);background:var(--a100);border-right:1px solid var(--a200);border-bottom:1px solid var(--a200)}
+header b{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;letter-spacing:.02em;line-height:1.1}
+header b em{font-style:normal;font-weight:400;color:var(--n600)}
+.brand-mark{display:grid;place-items:center;width:26px;height:26px;border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);background:var(--color-accent);color:#fff;font-weight:700;font-size:13px;letter-spacing:0;flex:none;position:relative}
+.brand-mark::before,.brand-mark::after{content:"";position:absolute;width:7px;height:7px;background:linear-gradient(var(--n700),var(--n700)) center/1px 100% no-repeat,linear-gradient(var(--n700),var(--n700)) center/100% 1px no-repeat}
+.brand-mark::before{top:-4px;left:-4px}.brand-mark::after{bottom:-4px;right:-4px}
+header>span{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--n600);padding-left:36px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav-toggle{position:absolute;right:var(--s2);top:50%;transform:translateY(-50%);width:26px;height:26px;padding:0;border:1px solid var(--color-divider);border-radius:var(--radius-sm);background:transparent;color:var(--n700);font-size:14px;line-height:1;cursor:pointer}
+.nav-toggle:hover{background:var(--color-surface)}
+nav{position:fixed;top:var(--shell-h);bottom:0;left:0;width:var(--nav-width);z-index:var(--z-nav);display:flex;flex-direction:column;gap:2px;padding:var(--s4) var(--s2);overflow-y:auto;background:var(--a100);border-right:1px solid var(--a200);box-shadow:var(--shadow-sm)}
+nav a{position:relative;display:flex;align-items:center;gap:10px;padding:10px 10px 10px 12px;border-radius:var(--radius-md);font-size:13.5px;color:var(--n700);text-decoration:none;line-height:1.35;border-left:2px solid transparent}
+nav a:hover{background:color-mix(in srgb,var(--color-accent) 12%,transparent);color:var(--color-text)}
+nav a:active{background:color-mix(in srgb,var(--color-text) 10%,transparent)}
+nav a.active{color:var(--a800);background:var(--a200);border-left-color:var(--color-accent);font-weight:600}
+.nav-num{font-family:var(--mono);font-size:11px;color:var(--n500);min-width:20px;letter-spacing:.02em}
+nav a.active .nav-num{color:var(--color-accent)}
+.nav-tip{display:none}
+body.nav-collapsed{--nav-width:60px}
+body.nav-collapsed header{padding:0;align-items:center}
+body.nav-collapsed header b,body.nav-collapsed header>span{display:none}
+body.nav-collapsed .nav-toggle{position:static;transform:none}
+body.nav-collapsed nav{overflow:visible;padding:var(--s4) var(--s1)}
+body.nav-collapsed nav a{justify-content:center;padding:12px 0}
+body.nav-collapsed .nav-num{min-width:0}
+body.nav-collapsed .nav-name{display:none}
+body.nav-collapsed nav a:hover .nav-tip,body.nav-collapsed nav a:focus-visible .nav-tip{display:block;position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);background:var(--n900);color:#fff;white-space:nowrap;padding:6px 10px;font-size:12px;z-index:var(--z-tip);pointer-events:none}
+
+main{margin-left:var(--nav-width);padding:var(--s5) var(--s8) var(--s8)}
+.banner{display:flex;gap:10px;padding:8px 12px;margin-bottom:var(--s5);border:1px solid var(--color-divider);border-radius:var(--radius-md);background:var(--color-paper);box-shadow:var(--shadow-sm);border-left:3px solid var(--color-accent);font-size:12px;line-height:1.6;color:var(--n700)}
+footer{padding:var(--s6) 0 0;font-size:11px;color:var(--n500);letter-spacing:.02em}
+
+/* ── type ── */
+.heading{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--s5);margin:0 0 var(--s5);padding-bottom:var(--s4);border-bottom:1px solid var(--a200)}
+.heading>div{min-width:0}
+.eyebrow{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--color-accent)}
+h1{font-size:26px;font-weight:700;letter-spacing:-.01em;line-height:1.15;margin:6px 0 4px}
+h2{font-size:15px;font-weight:600;letter-spacing:.01em;margin:0 0 var(--s3);padding-bottom:6px;border-bottom:1px solid var(--a200)}
+h3{font-size:14px;font-weight:600;margin:var(--s3) 0 var(--s2)}
+p{margin:4px 0 var(--s2);color:var(--n800);font-size:13px;line-height:1.7;text-wrap:pretty}
+.small{font-size:12px;color:var(--n700)}
+.muted,td.muted{color:var(--n500)}
+.num{text-align:right;font-variant-numeric:tabular-nums}
+
+/* ── blueprint panel: transparent, hairline, + registration marks ── */
+.panel{position:relative;padding:var(--s5);margin-bottom:var(--s4);border:1px solid var(--color-divider);border-radius:var(--radius-lg);background:var(--color-paper);box-shadow:var(--shadow-sm);min-width:0}
+.panel::before,.panel::after{content:"";position:absolute;width:11px;height:11px;pointer-events:none;background:linear-gradient(currentColor,currentColor) center/1px 100% no-repeat,linear-gradient(currentColor,currentColor) center/100% 1px no-repeat;color:color-mix(in srgb,var(--color-text) 55%,transparent)}
+.panel::before{top:-6px;left:-6px}.panel::after{bottom:-6px;right:-6px}
+.grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:var(--s4)}
+.meta{display:flex;flex-wrap:wrap;gap:var(--s3) var(--s8);padding:0 0 var(--s4);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--n500)}
+.meta strong{display:block;margin-top:3px;font-size:13.5px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--color-text)}
+.kpis{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s8);padding:var(--s3) var(--s4);margin-bottom:var(--s3);background:var(--a100);border:1px solid var(--a200);border-radius:var(--radius-md);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--n500)}
+.kpis>div{white-space:nowrap}.kpis b{display:block;margin:2px 0 0;font-size:24px;font-weight:600;letter-spacing:-.02em;color:var(--color-text);font-variant-numeric:tabular-nums}
+.note{position:relative;margin:var(--s3) 0;padding:10px 14px;border:1px solid var(--a200);background:var(--a100);border-radius:var(--radius-md);border-left:3px solid var(--color-accent);font-size:12.5px;line-height:1.7;color:var(--n700)}
+.note b{color:var(--color-text)}
+blockquote{margin:var(--s2) 0;padding:12px 14px;border-radius:var(--radius-md);border-left:3px solid var(--color-accent);background:var(--a100);font-family:var(--mono);font-size:12px;line-height:1.7;white-space:pre-wrap;color:var(--n800)}
+.tools{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;margin:var(--s3) 0}
+.head-actions{display:flex;flex-wrap:wrap;gap:var(--s2);align-items:center;justify-content:flex-end}
+
+/* ── controls ── */
+button,select,input,textarea{font:inherit;font-size:13px;color:var(--color-text)}
+button,.button{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:7px 12px;border:1px solid var(--color-divider);border-radius:var(--radius-md);background:transparent;color:var(--color-text);font-weight:500;line-height:1.2;text-decoration:none;cursor:pointer;white-space:nowrap}
+button:hover,.button:hover{background:color-mix(in srgb,var(--color-text) 7%,transparent)}
+button:active,.button:active{background:color-mix(in srgb,var(--color-text) 14%,transparent)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.primary,button.primary{background:var(--color-accent);border-color:var(--color-accent);color:#fff;position:relative;box-shadow:var(--shadow-sm)}
+.primary:hover{background:var(--a600)}.primary:active{background:var(--a700)}
+.primary::before,.primary::after{content:"";position:absolute;width:9px;height:9px;pointer-events:none;background:linear-gradient(currentColor,currentColor) center/1px 100% no-repeat,linear-gradient(currentColor,currentColor) center/100% 1px no-repeat;color:color-mix(in srgb,var(--color-text) 55%,transparent)}
+.primary::before{top:-5px;left:-5px}.primary::after{bottom:-5px;right:-5px}
+td button{padding:4px 8px;font-size:12px}
+label{display:block;font-size:12px;color:var(--n700);margin:var(--s3) 0 5px}
+select,textarea,input[type=text]{padding:7px 10px;min-height:34px;border:1px solid var(--color-divider);border-radius:var(--radius-md);background:var(--color-surface);max-width:100%;caret-color:var(--color-accent)}
+select,textarea{width:100%}
+select:hover,textarea:hover,input[type=text]:hover{border-color:color-mix(in srgb,var(--color-text) 45%,transparent)}
+select:focus-visible,textarea:focus-visible,input[type=text]:focus-visible{border-color:var(--color-accent);outline-offset:0}
+input[type=checkbox]{width:16px;height:16px;margin:0;accent-color:var(--color-accent);cursor:pointer}
+[aria-invalid="true"]{border-color:var(--danger)!important;box-shadow:0 0 0 1px var(--danger)}
+.case-pick{display:flex;align-items:center;gap:var(--s2);margin-top:var(--s2);flex-wrap:wrap}
+.case-pick label{margin:0;white-space:nowrap;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--n500)}
+.case-pick select{width:auto;min-height:30px;padding:4px 8px;font-size:12.5px}
+.drop{padding:var(--s6);text-align:center;border:1px dashed var(--a400);background:var(--a100);border-radius:var(--radius-md)}
+.drop p{margin:6px 0 0;font-size:12px}
+details summary{cursor:pointer}
+
+/* ── column filters ── */
+.column-filters{display:flex;align-items:flex-end;flex-wrap:wrap;gap:var(--s2) var(--s3);padding:var(--s3) var(--s3);margin:var(--s2) 0;background:var(--a100);border:1px solid var(--a200);border-radius:var(--radius-md)}
+.column-filters label{margin:0;min-width:130px;font-size:11px;letter-spacing:.04em;color:var(--n600)}
+.column-filters label:first-child{flex:1;min-width:210px}
+.column-filters input,.column-filters select{display:block;margin-top:4px;width:100%;height:34px;padding-top:0;padding-bottom:0;background:var(--color-paper)}.column-filters button{background:var(--color-paper)}
+.column-filters #clear-filters{height:34px}
+.column-filters #filter-count,.column-filters [role=status]{font-family:var(--mono);font-size:11.5px;color:var(--n600);min-width:72px;padding-bottom:9px}
+
+/* ── tables ── */
+.scroll{overflow:auto;border:1px solid var(--a200);border-radius:var(--radius-md)}
+table{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap}
+th,td{text-align:left;padding:10px var(--s2);border-bottom:1px solid var(--color-hair);vertical-align:top}
+th{position:sticky;top:0;font-size:10.5px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--a800);background:var(--a100);border-bottom:1px solid var(--a300)}
+tbody tr:hover{background:color-mix(in srgb,var(--color-accent) 6%,transparent)}
+tbody tr:last-child td{border-bottom:0}
+td small{display:block;margin-top:3px;font-size:11.5px;color:var(--n600)}
+td b{font-weight:600;font-variant-numeric:tabular-nums}
+tr.dim{opacity:.5}
+tr.row-hl td{background:var(--a100);box-shadow:inset 0 0 0 1px var(--color-accent)}
+.summary-cell{white-space:normal;min-width:240px;max-width:340px;line-height:1.6}
+#SCR-03 td:first-child,#SCR-03 th:first-child{text-align:center}
+#SCR-03 td,#SCR-06 td{vertical-align:top}
+#SCR-03 th{white-space:nowrap}
+#SCR-03 tr[data-item-row],#SCR-06 tr[data-approve-row]{cursor:pointer}
+#SCR-03 tr[data-item-row]:focus-visible,#SCR-06 tr[data-approve-row]:focus-visible{outline:2px solid var(--color-accent);outline-offset:-2px}
+select[data-q-status],select[data-q-resolve]{width:auto;min-width:max-content;padding-right:26px}
+td:has(select[data-q-status]),td:has(select[data-q-resolve]){min-width:8em}
+.column-filters select[data-q-status],.column-filters select[data-q-resolve]{margin-top:4px}
+td[data-tone]{font-weight:500}td[data-tone=ok]{color:var(--ok-800)}td[data-tone=warn]{color:var(--warn-800)}td[data-tone=danger]{color:var(--danger-800)}td[data-tone=neutral]{color:var(--n500)}
+
+/* ── pills (status-tinted via data-tone) ── */
+.pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:var(--radius-sm);font-size:11px;letter-spacing:.02em;line-height:1.5;white-space:nowrap;background:var(--n200);color:var(--n800);border:1px solid transparent}
+.pill[data-tone=accent]{background:var(--a100);color:var(--a800)}
+.pill[data-tone=ok]{background:var(--ok-100);color:var(--ok-800)}
+.pill[data-tone=warn]{background:var(--warn-100);color:var(--warn-800)}
+.pill[data-tone=danger]{background:var(--danger-100);color:var(--danger-800)}
+.pill[data-tone=neutral]{background:transparent;color:var(--n600);border-color:var(--color-divider)}
+
+/* ── progress: 4 segments, steel fill ── */
+.prog{display:flex;flex-direction:column;gap:5px;white-space:nowrap}
+.prog b{font-weight:600;font-size:12.5px;color:var(--color-text)}
+.prog-pips{display:inline-flex;gap:3px;margin:0}
+.prog-pips i{display:block;width:22px;height:4px;border-radius:2px;background:var(--n300)}
+.prog-pips i.done{background:var(--a400)}
+.prog-pips i.cur{background:var(--color-accent)}
+td .prog+small{margin-top:5px}
+
+/* ── version popover ── */
+.ver{position:relative}
+.ver>summary{list-style:none;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border:1px solid var(--color-divider);border-radius:var(--radius-md);font-size:13px;font-weight:500;white-space:nowrap}
+.ver>summary::-webkit-details-marker{display:none}
+.ver>summary::after{content:'▾';font-size:10px;color:var(--n600)}.ver[open]>summary::after{content:'▴'}
+.ver>summary:hover{background:color-mix(in srgb,var(--color-text) 7%,transparent)}
+.ver-body{position:absolute;right:0;top:calc(100% + 8px);z-index:var(--z-pop);width:min(640px,86vw);padding:var(--s4);text-align:left;background:var(--color-paper);border-radius:var(--radius-lg);border:1px solid var(--color-divider);box-shadow:var(--shadow-lg)}
+.ver-body table{white-space:nowrap}.ver-body .tools{margin:var(--s2) 0}
+
+/* ── approval ── */
+.approve-wrap{display:flex;gap:var(--s3);align-items:stretch;flex-wrap:wrap;margin-bottom:var(--s2)}
+.approve-meta{font-size:11.5px;color:var(--n600);margin:var(--s2) 0 0}
+.approve-status{flex:0 1 auto;min-width:0;display:flex;flex-direction:column;padding:10px 14px;border:1px solid var(--a200);border-radius:var(--radius-md);background:var(--a100)}
+.approve-status .kpis{display:grid;grid-template-columns:repeat(3,auto);gap:4px var(--s4);align-content:flex-start;padding:0;border:0;margin:0;background:transparent}
+.approve-status .kpis div{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:10.5px;white-space:nowrap;line-height:1.4}
+.approve-status .kpis b{display:inline;font-size:14px;margin:0}
+.approve{display:flex;flex-flow:row nowrap;gap:var(--s3);align-items:stretch;flex:1 1 700px;min-width:0}
+.approve-box{flex:1 1 50%;min-width:0;display:flex;flex-direction:column;padding:10px 14px;border:1px solid var(--color-divider);border-radius:var(--radius-md);box-shadow:var(--shadow-sm)}
+.approve-cap{display:block;font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--a800);margin-bottom:8px}
+.approve-row{display:flex;gap:6px;align-items:center;flex-wrap:nowrap}
+.approve-row label{margin:0;font-size:12px;color:var(--n600);white-space:nowrap;flex:0 0 auto}
+.approve-row input{width:7em;flex:0 1 auto;min-width:4.5em}
+.approve-row #sendoff-reason{width:8em}
+.approve-row select{width:7em;flex:0 0 auto}
+.approve-row button{flex:0 0 auto}
+.approve-hint{font-size:11.5px;color:var(--n600);margin:auto 0 0;padding-top:8px;line-height:1.5}
+.approve-lists{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3);margin:var(--s3) 0}
+.approve-lists ul{margin:0;padding-left:var(--s4);font-size:12.5px;line-height:1.6}
+.approve-lists li{margin:6px 0}.approve-lists li small{display:block;color:var(--n600)}
+.approve-lists .panel{margin:0}
+.drawer .approve-lists{grid-template-columns:1fr}
+
+/* ── drawer ── */
+dialog{position:fixed;inset:0 0 0 auto;margin:0;width:min(600px,94vw);height:100dvh;max-height:100dvh;padding:0;border:0;border-left:1px solid var(--color-divider);border-radius:var(--radius-lg) 0 0 var(--radius-lg);background:var(--color-paper);color:var(--color-text);box-shadow:var(--shadow-lg);overflow:auto}
+dialog::backdrop{background:color-mix(in srgb,var(--n900) 45%,transparent)}
+.drawer{padding:var(--s5) var(--s6)}
+.drawer table{white-space:normal}.drawer .summary-cell{min-width:0}
+.drawer-head{position:sticky;top:0;z-index:var(--z-sticky);display:flex;justify-content:space-between;align-items:center;margin:calc(-1 * var(--s5)) calc(-1 * var(--s6)) var(--s3);padding:var(--s3) var(--s6);background:var(--a100);border-bottom:1px solid var(--a200)}
+.drawer h1{font-size:20px}
+
+/* ── toast ── */
+#toast{position:fixed;bottom:var(--s6);left:calc(50% + var(--nav-width)/2);transform:translateX(-50%);z-index:var(--z-toast);max-width:min(90vw,560px);padding:12px 18px;border-radius:var(--radius-md);background:var(--n900);color:#fff;font-size:13px;line-height:1.5;box-shadow:var(--shadow-lg);border-left:3px solid var(--color-accent)}
+#toast.is-error{background:var(--danger-800);border-left-color:var(--danger-100)}
+
+@media(max-width:1180px){.approve-row{flex-wrap:wrap}.approve{flex-flow:row wrap}.approve-box,.approve-status{flex:1 1 100%}}
+@media(max-width:1000px){:root{--nav-width:190px}.grid{grid-template-columns:1fr}main{padding:var(--s4)}}
+@media(max-width:850px){.approve-lists{grid-template-columns:1fr}.heading{flex-direction:column}}
+@media(max-width:600px){:root{--nav-width:60px}header b,header>span{display:none}header{padding:0;align-items:center}.nav-toggle{position:static;transform:none}.nav-name{display:none}nav a{justify-content:center}main{padding:var(--s3)}h1{font-size:20px}.panel{padding:var(--s3)}}
+</style></head><body><header><button id="nav-toggle" class="nav-toggle" aria-label="ナビゲーションを閉じる" aria-expanded="true" aria-controls="nav" title="ナビゲーションを閉じる">‹</button><b><span class="brand-mark" aria-hidden="true">O</span>OCTG <em>Item List</em></b><span>SPRINT 3 · 構造モック</span></header><nav id="nav" aria-label="左ナビゲーション"></nav><main><div class="banner">固定サンプルによる画面モックです。AI読取・外部送信・業務承認は実行しません。照合・訂正・判断・状態の記録はアプリ内で動作しますが、ページ内に保持するだけで保存・送信はしません（再読み込みで消えます）。出力した.xlsxは書き出した時点の写しで、編集してもアプリ側には戻りません。</div><div id="pages"></div><footer>01 / 02 / 03 / 06 に基づくローカルモック · デザイントークンは 03-spec.md 3章で確定（本ファイルの :root はそのミラー）</footer></main><dialog id="drawer"><div class="drawer"><div class="drawer-head"><span id="drawer-title" class="eyebrow">根拠詳細</span><button id="close">閉じる ×</button></div><div id="detail"></div></div></dialog><div id="toast" role="status" hidden=""></div><script>// 固定デモデータ。AI抽出結果・業務承認済み正解データではない。
+const row=(id,kind,od,weight,grade,connection,length,qty,unit,where,quote,note='',group='')=>({id,kind,od,weight,grade,connection,length,qty,unit,where,quote,note,group})
+// 元資料側のインベントリ。maps=[] は明細にしなかった要素（除外）。
+const cv=(pos,no,text,maps,tag,detail='')=>({pos,no,text,maps,tag,detail});
+const srcLabel=x=>x.pos+(x.maps.length?' #'+x.no:' '+x.no);
+const isMissing=x=>!x.maps.length&&!x.tag.startsWith('除外');;
+const CASES={
+S04:{name:'南邦石油 / タイ湾沖 追加坑井',file:'sample-04-nanpo-sekiyu-hikiai-mail.eml',type:'EML',focus:'P.S.による数量変更',due:'2027年2月',place:'レムチャバン港 CIF',deadline:'2026年7月17日',ref:'記載なし',common:'メール本文「条件」：納地 レムチャバン港（タイ）CIF、希望納期 2027年2月。回答は2026年7月17日まで。',cov:[
+cv('本文','1','9-5/8"（244.48mm）× 47.0# L80 VAM TOP R3 240本',['1'],'対応済み','数量はP.S.で320本に変更'),
+cv('本文','2','7"（177.80mm）× 29.0# L80 VAM TOP R3 180本',['2'],'対応済み'),
+cv('本文','3','5-1/2"（139.70mm）× 23.0# P110 VAM TOP R3 120本',['3'],'対応済み'),
+cv('本文','4','2-7/8"（73.03mm）× 6.5# L80-13Cr VAM 21 R2 260本',['4'],'対応済み'),
+cv('本文','条件','納地 レムチャバン港（タイ）CIF／希望納期 2027年2月／見積有効期限 60日以上',[],'除外（共通条件）','案件共通条件。明細行にしない'),
+cv('本文','P.S.','明細1行目（9-5/8" 47.0#）は240本ではなく320本でお願いします',[],'除外（変更指示）','明細1への数量変更。新規行にしない'),
+cv('本文','署名','南邦石油株式会社 資材部 田口 秀郎／本メールは研修用の架空データです',[],'除外（署名・注記）')
+],rows:[
+row('1','ケーシング','9-5/8 in','47.0 lb/ft','L80','VAM TOP','R3',320,'本','本文 明細1 / 末尾 P.S.','9-5/8"（244.48mm）× 47.0# L80 VAM TOP R3 240本\nP.S. 240本ではなく 320本 でお願いします。','数量変更 240 → 320本。P.S.を採用。'),
+row('2','ケーシング','7 in','29.0 lb/ft','L80','VAM TOP','R3',180,'本','本文 明細2','7"（177.80mm）× 29.0# L80 VAM TOP R3 180本'),
+row('3','ケーシング','5-1/2 in','23.0 lb/ft','P110','VAM TOP','R3',120,'本','本文 明細3','5-1/2"（139.70mm）× 23.0# P110 VAM TOP R3 120本'),
+row('4','チュービング','2-7/8 in','6.5 lb/ft','L80-13Cr','VAM 21','R2',260,'本','本文 明細4','2-7/8"（73.03mm）× 6.5# L80-13Cr VAM 21 R2 260本')]},
+S06:{name:'南海LNG / 生産井掘削キャンペーン2027',file:'sample-06-nankai-lng-nyusatsu-meisai.pdf',type:'PDF · 4ページ',focus:'択一・TBA・長さ別分割',due:'2027年5月',place:'袖ケ浦資材ヤード DDP',deadline:'2026年8月28日 17時 日本時間',ref:'NKL-BID-2026-07',common:'p1 入札条件：2027年5月一括納入。袖ケ浦資材ヤード渡し（DDP）。見積提出期限2026年8月28日17時（日本時間）。',cov:[
+cv('p.2','1','ケーシング 13-3/8″ × 68.0 lb/ft K55 BTC R-3 300本（約3,700m）',['1'],'対応済み','約3,700mは参考長で主数量にしない'),
+cv('p.2','2','ケーシング 9-5/8″ × 53.5 lb/ft SM95TT（*1） VAM TOP R-3 420本',['2'],'対応済み'),
+cv('p.2','3','ケーシング 9-5/8″ × 47.0 lb/ft SM95TT（*1） VAM TOP R-3 140本',['3'],'対応済み'),
+cv('p.2','4','ケーシング 7″ × 32.0 lb/ft 13CR-95 VAM TOP または VAM 21 R-3 260本',['4a','4b'],'分割: 接続の択一（2行）','数量は合算しない'),
+cv('p.3','5','チュービング 4-1/2″ × 12.6 lb/ft 13CR-95 VAM TOP または VAM 21 R-2 380本',['5a','5b'],'分割: 接続の択一（2行）','数量は合算しない'),
+cv('p.3','6','チュービング 3-1/2″ × 9.2 lb/ft 13CR-95 VAM TOP R-2 TBA（別途連絡）',['6'],'対応済み','数量TBAを状態として保持'),
+cv('p.3','7','パップジョイント 7″ × 32.0 lb/ft 13CR-95 VAM TOP 5FT／10FT（各6本） 12本',['7a','7b'],'分割: 定尺長（2行）','5FT×6本／10FT×6本'),
+cv('p.3','8','カップリング 9-5/8″ × 53.5 lb/ft SM95TT（*1） VAM TOP 30個',['8'],'対応済み','予備品・単位「個」'),
+cv('p.1','条件','袖ケ浦資材ヤード渡し（DDP）／2027年5月 一括納入／見積提出期限 2026年8月28日17時',[],'除外（共通条件）','明細行にしない'),
+cv('p.3','注)','項番7（PUP JT）は 5FT×6本 ＋ 10FT×6本 の計12本。',[],'除外（再掲・注記）','項番7の内訳。独立行にしない'),
+cv('p.3','注)','項番8（CPLG）は予備品であり、数量単位は「個」。',[],'除外（注記）','項番8の単位注記。備考へ反映'),
+cv('p.4','脚注','*1 SM95TTはL80相当品の代替提案可／*2 接続は択一・入札段階は両方の単価／*3 13CR-95はNACE MR0175準拠',[],'除外（脚注・条件）','各行の条件。備考・確認事項へ反映')
+],rows:[
+row('1','ケーシング','13-3/8 in','68.0 lb/ft','K55','BTC','R3',300,'本','p2 項番1','13-3/8″ × 68.0 lb/ft K55 BTC R-3 300本（約3,700m）','約3,700mは参考長。'),
+row('2','ケーシング','9-5/8 in','53.5 lb/ft','SM95TT','VAM TOP','R3',420,'本','p2 項番2 / p4 脚注*1','9-5/8″ × 53.5 lb/ft SM95TT VAM TOP R-3 420本（約5,200m）','L80相当品の代替提案可。自動置換しない。'),
+row('3','ケーシング','9-5/8 in','47.0 lb/ft','SM95TT','VAM TOP','R3',140,'本','p2 項番3 / p4 脚注*1','9-5/8″ × 47.0 lb/ft SM95TT VAM TOP R-3 140本（約1,700m）','L80相当品の代替提案可。自動置換しない。'),
+...['VAM TOP','VAM 21'].map((c,i)=>row('4'+(i?'b':'a'),'ケーシング','7 in','32.0 lb/ft','13CR-95',c,'R3',260,'本','p2 項番4 / p4 脚注*2・*3','7″ × 32.0 lb/ft 13CR-95 VAM TOP または VAM 21 R-3 260本','両方見積・採用は一方。NACE MR0175準拠条件を保持。','ALT-4')),
+...['VAM TOP','VAM 21'].map((c,i)=>row('5'+(i?'b':'a'),'チュービング','4-1/2 in','12.6 lb/ft','13CR-95',c,'R2',380,'本','p3 項番5 / p4 脚注*2・*3','4-1/2″ × 12.6 lb/ft 13CR-95 VAM TOP または VAM 21 R-2 380本','両方見積・採用は一方。NACE MR0175準拠条件を保持。','ALT-5')),
+row('6','チュービング','3-1/2 in','9.2 lb/ft','13CR-95','VAM TOP','R2',null,'本','p3 項番6 / p1 条件5 / p4 *3','3-1/2″ × 9.2 lb/ft 13CR-95 VAM TOP R-2 TBA（別途連絡）','数量TBA。単価のみ提示。NACE条件を保持。'),
+...['5FT','10FT'].map((l,i)=>row('7'+(i?'b':'a'),'パップジョイント','7 in','32.0 lb/ft','13CR-95','VAM TOP',l,6,'本','p3 項番7・注記 / p4 *3','5FT×6本 ＋ 10FT×6本 の計12本。','長さ別に分割。NACE MR0175準拠条件を保持。')),
+row('8','カップリング','9-5/8 in','53.5 lb/ft','SM95TT','VAM TOP','適用なし',30,'個','p3 項番8 / p4 脚注*1','カップリング 9-5/8″ × 53.5 lb/ft SM95TT VAM TOP 30個','予備品。L80相当品の代替提案可。')]},
+S08:{name:'豊洲海洋掘削 / GTB-7号井',file:'sample-08-toyosu-kaiyo-hikiai-list.xlsx',type:'XLSX · 1シート',focus:'Rev.2・択一・参考本数',due:'2027年2月〜3月（各行別）',place:'横浜本牧ヤード渡し',deadline:'記載なし',ref:'記載なし',common:'引合リスト A2：横浜本牧ヤード渡し。E列：Item 1・2・6・7は2027年2月、Item 3・4・5a・5bは2027年3月。',cov:[
+cv('A6:F6','1','CSG 13-3/8" 68.00# K55 BTC R-3 / 260 JTS',['1'],'対応済み'),
+cv('A7:F7','2','CSG SMLS 9-5/8" 53.50# L80 VAM TOP R-3 DOPELESS / 320 JTS',['2'],'対応済み','SMLS・DOPELESSを備考に保持'),
+cv('A8:F8','3','CSG 7" 32.00# P110 VAM TOP R-3 / C8:180 JTS',['3'],'対応済み','A3のRev.2で240本に変更'),
+cv('A9:F9','4','TBG SMLS 3-1/2" 9.20# L80-13CR VAM TOP R-2 / 150 MT（約1,150本相当）',['4'],'対応済み','150MTを主数量、約1,150本は参考値'),
+cv('A10:F10','5a','TBG 2-7/8" 6.50# L80-13CR VAM 21 R-2 / 280 JTS',['5a'],'対応済み','元資料で5a/5bが別行。5bと択一'),
+cv('A11:F11','5b','TBG 2-7/8" 6.50# L80-13CR VAM TOP R-2 / 280 JTS',['5b'],'対応済み','5aと択一。数量は合算しない'),
+cv('A12:F12','6','PUP JT 9-5/8" 53.50# L80 VAM TOP 10FT / 12 PCS',['6'],'対応済み','Rev.2で追加された明細を1回だけ抽出'),
+cv('A13:F13','7','XO 9-5/8" VAM TOP (BOX) x 7" VAM TOP (PIN) L80 / 4 PCS',['7'],'対応済み','両端の径とBOX/PINを保持'),
+cv('A2','条件','横浜本牧ヤード渡し',[],'除外（共通条件）','納地。明細行にしない'),
+cv('A3','Rev.2','Rev.2：Item 3 数量 180→240 に変更。Item 6 を追加。',[],'除外（変更指示）','明細3・6へ反映し独立行にしない'),
+cv('A15','注記','単位注記（Item 6・7 の数量単位は「個」）',[],'除外（注記）','備考へ反映')
+],rows:[
+row('1','ケーシング','13-3/8 in','68.00 lb/ft','K55','BTC','R3',260,'本','引合リスト A6:F6 / A15','CSG 13-3/8" 68.00# K55 BTC R-3 / 260 JTS'),
+row('2','ケーシング','9-5/8 in','53.50 lb/ft','L80','VAM TOP','R3',320,'本','引合リスト A7:F7 / A15','CSG SMLS 9-5/8" 53.50# L80 VAM TOP R-3 DOPELESS / 320 JTS','SMLS・DOPELESSを備考に保持。'),
+row('3','ケーシング','7 in','32.00 lb/ft','P110','VAM TOP','R3',240,'本','引合リスト A8:F8 / A3 / A15','CSG 7" 32.00# P110 VAM TOP R-3 / C8:180 JTS\nA3 Rev.2：Item 3 数量 180→240 に変更。','数量変更 180 → 240本。Rev.2を採用。'),
+row('4','チュービング','3-1/2 in','9.20 lb/ft','L80-13CR','VAM TOP','R2',150,'MT','引合リスト A9:F9 / A15','TBG SMLS 3-1/2" 9.20# L80-13CR VAM TOP R-2 / 150 MT / 約1,150本相当','約1,150本は参考値。本数へ置換しない。SMLSを保持。'),
+...['VAM 21','VAM TOP'].map((c,i)=>row('5'+(i?'b':'a'),'チュービング','2-7/8 in','6.50 lb/ft','L80-13CR',c,'R2',280,'本','引合リスト '+(i?'A11:F11':'A10:F10')+' / A15','TBG 2-7/8" 6.50# L80-13CR '+c+' R-2 / 280 JTS','5a/5bは択一。両方見積。','ALT-5')),
+row('6','パップジョイント','9-5/8 in','53.50 lb/ft','L80','VAM TOP','10FT',12,'個','引合リスト A12:F12 / A3 / A15','PUP JT 9-5/8" 53.50# L80 VAM TOP 10FT / 12 PCS','Rev.2で追加。資料の単位注記に従い個。'),
+row('7','クロスオーバー','9-5/8 × 7 in','適用なし','L80','VAM TOP BOX × VAM TOP PIN','記載なし',4,'個','引合リスト A13:F13 / A15','XO 9-5/8" VAM TOP (BOX) x 7" VAM TOP (PIN) L80 / 4 PCS','両端の径とBOX/PINを保持。')]},
+S10:{name:'GulfTex Energy / GTX West Basin',file:'sample-10-gulftex-energy-email-thread.eml',type:'EML · 引用スレッド',focus:'後続メール・追加見積候補',due:'2027年2月末',place:'Houston yard',deadline:'Friday COB（時刻帯未確定）',ref:'GTX-RFQ-26-085',common:'引用本文：Delivery: our Houston yard by end of Feb 2027. 最新本文：Need pricing by Friday COB. 時刻・タイムゾーンは確認事項。',cov:[
+cv('引用本文','item 1','13-3/8 72# P110HP BTC R3 - 240 jts',['1a'],'対応済み','最新本文で300本に変更'),
+cv('最新本文','追加見積','Also add an alternate quote for the 13-3/8 in 68# - same qty, we will pick one or the other.',['1b'],'対応済み','追加見積候補。item 1と択一・合算しない'),
+cv('引用本文','item 2','9-5/8 47# HCL80 VAMTOP R3 - 160 jts（if HC not available, quote L80 and advise）',['2'],'対応済み','HCL80を保持し自動置換しない'),
+cv('引用本文','item 3','2-7/8 6.5# J55 EUE 8rd R2 - 500 jts（FCA mill acceptable for this one）',['3'],'対応済み','FCA mill可はこの行のみ'),
+cv('最新本文','Update','pls make item 1 300 jts (was 240).',[],'除外（変更指示）','item 1への数量変更。新規行にしない'),
+cv('引用本文','Delivery','Delivery: our Houston yard by end of Feb 2027.',[],'除外（共通条件）','納期・納地'),
+cv('最新本文','期限','Need pricing by Friday COB.',[],'除外（共通条件）','見積期限。時刻・タイムゾーンは確認事項')
+],rows:[
+row('1a','ケーシング','13-3/8 in','72 lb/ft','P110HP','BTC','R3',300,'本','最新本文 / 引用 item 1','13-3/8 72# P110HP BTC R3 - 240 jts\nUpdate: pls make item 1 300 jts (was 240).','数量変更240 → 300本。68#候補と択一。','ALT-1'),
+row('1b','ケーシング','13-3/8 in','68 lb/ft','P110HP（継承候補）','BTC（継承候補）','R3（継承候補）',300,'本','最新本文 追加見積 / 引用 item 1','Also add an alternate quote for the 13-3/8 in 68# - same qty, we’ll pick one or the other.','省略仕様は継承候補。材質・接続・レンジを要確認。','ALT-1'),
+row('2','ケーシング','9-5/8 in','47 lb/ft','HCL80','VAM TOP','R3',160,'本','引用本文 item 2','9-5/8 47# HCL80 VAMTOP R3 - 160 jts\n(if HC not available, quote L80 and advise)','HCL80を保持。入手不可時のL80提案は人が判断。'),
+row('3','チュービング','2-7/8 in','6.5 lb/ft','J55','EUE 8rd','R2',500,'本','引用本文 item 3','2-7/8 6.5# J55 EUE 8rd R2 - 500 jts (FCA mill acceptable for this one)','FCA mill可はこの行のみ。')]}
+};
+for(const [key,c] of Object.entries(CASES)){for(const r of c.rows){r.due=key==='S08'?(['1','2','6','7'].includes(r.id)?'2027年2月':'2027年3月'):c.due;r.place=c.place;}}
+
+// Dependency-free, uncompressed ZIP + OOXML writer for the local mock.
+function xml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c])).replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g,'');}
+function zipFiles(files){const enc=new TextEncoder(),parts=[],central=[];let offset=0;function num(n,len){let a=new Uint8Array(len);for(let i=0;i<len;i++)a[i]=(n>>>i*8)&255;return a;}function join(a){let r=new Uint8Array(a.reduce((n,x)=>n+x.length,0)),p=0;for(let x of a){r.set(x,p);p+=x.length;}return r;}function crc(bytes){let c=0xffffffff;for(const b of bytes){c^=b;for(let i=0;i<8;i++)c=(c>>>1)^((c&1)?0xedb88320:0);}return(c^0xffffffff)>>>0;}
+for(const [name,content] of Object.entries(files)){let n=enc.encode(name),b=enc.encode(content),c=crc(b);let local=join([num(0x04034b50,4),num(20,2),num(0x800,2),num(0,2),num(0,2),num(33,2),num(c,4),num(b.length,4),num(b.length,4),num(n.length,2),num(0,2),n,b]);parts.push(local);central.push(join([num(0x02014b50,4),num(20,2),num(20,2),num(0x800,2),num(0,2),num(0,2),num(33,2),num(c,4),num(b.length,4),num(b.length,4),num(n.length,2),num(0,2),num(0,2),num(0,2),num(0,2),num(0,4),num(offset,4),n]));offset+=local.length;}let cent=join(central);return join([...parts,cent,num(0x06054b50,4),num(0,2),num(0,2),num(central.length,2),num(central.length,2),num(cent.length,4),num(offset,4),num(0,2)]);}
+function workbookBytes(sheets){const head='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',ns='http://schemas.openxmlformats.org/spreadsheetml/2006/main';let f={};f['[Content_Types].xml']=head+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+sheets.map((s,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')+'</Types>';
+f['_rels/.rels']=head+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+f['xl/workbook.xml']=head+`<workbook xmlns="${ns}" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>`+sheets.map((s,i)=>`<sheet name="${xml(s.name)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join('')+'</sheets></workbook>';
+f['xl/_rels/workbook.xml.rels']=head+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+sheets.map((s,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join('')+`<Relationship Id="styles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+f['xl/styles.xml']=head+`<styleSheet xmlns="${ns}"><fonts count="2"><font><sz val="11"/><name val="Yu Gothic"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Yu Gothic"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF006D75"/><bgColor indexed="64"/></patternFill></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf/></cellStyleXfs><cellXfs count="2"><xf fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf><xf fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`;
+function col(i){let s='';for(i++;i;i=Math.floor((i-1)/26))s=String.fromCharCode(65+(i-1)%26)+s;return s;}
+sheets.forEach((s,i)=>{const widths=s.widths||s.rows[0].map(()=>22);f[`xl/worksheets/sheet${i+1}.xml`]=head+`<worksheet xmlns="${ns}"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>`+widths.map((w,k)=>`<col min="${k+1}" max="${k+1}" width="${w}" customWidth="1"/>`).join('')+'</cols><sheetData>'+s.rows.map((r,j)=>`<row r="${j+1}" ht="${j===0?32:64}" customHeight="1">`+r.map((v,k)=>`<c r="${col(k)}${j+1}" s="${j===0?1:0}" ${typeof v==='number'?'t="n"':'t="inlineStr"'}>`+(typeof v==='number'?`<v>${v}</v>`:`<is><t xml:space="preserve">${xml(v)}</t></is>`)+`</c>`).join('')+'</row>').join('')+'</sheetData></worksheet>';});return zipFiles(f);}
+function getSheets(c,k){const fields=[['品種','kind'],['外径','od'],['単重','weight'],['グレード','grade'],['接続','connection'],['長さ','length'],['数量','qty'],['数量単位','unit']];
+const R=rec(k),V=(r,f)=>gv(k,r,f),ed=liveEdits(k),
+qrows=qIds(k).map((qi,n)=>{const q=qOf(k,qi),src=c.rows.find(r=>r.id===qi);
+return ['Q'+(n+1),qi,src?src.note:'Friday COBの時刻・タイムゾーンを確認',q.status,q.resolve,q.text,q.by,q.at]}),
+chrows=c.rows.map(r=>[r.id,R.checked[r.id]?'一致確認 済':'未照合',R.checked[r.id]?R.staff:'',R.checked[r.id]?(R.at['check_'+r.id]||''):'']);
+return [
+{name:'案件情報',widths:[25,95],rows:[['項目','内容'],['用途','画面モックの固定データ / AI抽出・業務承認未実施'],['案件ID',k+'-mock'],['案件名',c.name],['入力資料',c.file],['照会番号',c.ref],['要求納期',c.due],['納地・受渡条件',c.place],['見積期限',c.deadline],['評価状態',STATE_LABEL[R.state]],['送付可否',R.sendoff.status],['送付判断の理由・条件',R.sendoff.reason],['送付判断者',R.sendoff.by],['担当者',R.staff],['担当者確認日時',R.at.staff||''],['確認者（上司）',R.reviewer],['確認日時',R.at.review||''],['一致確認',nChecked(k)+' / '+c.rows.length+' 行'],['網羅性確認',R.cov?'済（'+R.cov.by+' / '+R.cov.at+'）':'未'],['未解決の確認事項',nUnresolved(k)+' 件'],['訂正件数',ed.length+' 件'],['差し戻し',R.bounces.length?R.bounces.length+' 回':'なし'],['前版からの引き継ぎ',R.prev?'なし（前版に訂正'+R.prev.edits+'件・照合'+R.prev.checked+'行の記録あり）':'—'],['注記','この.xlsxは出力時点の写しです。編集してもアプリ内の記録は変わりません。']]},
+{name:'Item List',rows:[['行ID','原項番','品種','外径','肉厚','単重','グレード','接続','レンジ・定尺長','数量','単位','要求納期','納地','備考・確認事項','選択グループ','数量状態','訂正'],...c.rows.map(r=>[r.id,r.id.replace(/[ab]$/,''),V(r,'kind'),V(r,'od'),'記載なし／適用なし',V(r,'weight'),V(r,'grade'),V(r,'connection'),V(r,'length'),V(r,'qty')??'',V(r,'unit'),V(r,'due'),V(r,'place'),V(r,'note'),r.group,typeof V(r,'qty')==='number'?'記載あり':qtyText(V(r,'qty')),ed.some(x=>x.row===r.id)?'訂正あり':''])]},
+{name:'根拠',widths:[12,18,32,55,38,95],rows:[['行ID','項目','採用値','資料名','位置','原文・根拠'],...c.rows.flatMap(r=>[...fields.map(([label,f])=>[r.id,label,V(r,f)??'TBA',c.file,r.where,r.quote]),[r.id,'納期・納地',V(r,'due')+' / '+V(r,'place'),c.file,'共通条件・各行納期',c.common]])]},
+{name:'確認事項',widths:[15,15,95,18,18,42,20,25],rows:[['確認ID','対象行','内容','対応状況','解決状態','判断内容','判断者','判断日時'],...qrows]},
+{name:'変更・確認記録',widths:[16,20,28,28,44,20,25],rows:[['対象','項目','変更前','変更後','理由・内容','記録者','日時'],
+...ed.map(x=>[x.row,x.label,x.field==='qty'?qtyText(x.old):x.old,x.field==='qty'?qtyText(x.val):x.val,x.reason,x.by,x.at]),
+...R.edits.filter(x=>x.undone).map(x=>[x.row,x.label+'（取消済み）',x.field==='qty'?qtyText(x.old):x.old,x.field==='qty'?qtyText(x.val):x.val,x.reason+' / 取消',x.by,x.at]),
+...chrows.filter(r=>r[1]==='一致確認 済').map(r=>[r[0],'一致確認','','',r[1],r[2],r[3]]),
+...(R.cov?[['案件','網羅性確認','','','原資料の明細一覧との突合を完了',R.cov.by,R.cov.at]]:[]),
+...Object.entries(R.rowBounce||{}).filter(([,v])=>v.text).map(([rid,v])=>[rid,'上司コメント（差し戻し）','','',v.text,v.by,v.at]),
+...R.bounces.map(b=>['案件','差し戻し（要修正）','','',b.reason,b.by,b.at]),
+...(R.state!=='draft'?[['案件','状態遷移','','担当者確認済み','一致確認'+nChecked(k)+'/'+c.rows.length+'行・網羅性確認'+(R.cov?'済':'未'),R.staff,R.at.staff||'']]:[]),
+...(R.state==='review'?[['案件','状態遷移','担当者確認済み','評価確認済み','未解決'+nUnresolved(k)+'件を含む',R.reviewer,R.at.review||'']]:[]),
+...(R.sendoff.status!=='未判断'?[['案件','送付可否','','',R.sendoff.status+' / '+R.sendoff.reason,R.sendoff.by,R.sendoff.at]]:[]),
+['','','','','実作業時間（分）は06の記録表へ手動記入','','']]}
+];}
+
+
+const $=id=>document.getElementById(id),e=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const titles=['案件一覧','資料投入・読取結果','Item List 確認','根拠詳細','網羅性照合','引合書承認'];
+let columnFilters={q:'',kind:'',grade:'',connection:''};let key='S06',selected=0,filter='all',approveFilter='all',raw=false,busy=false,versions=[],registered=[],returnPage='SCR-03',drawerMode='evidence',hl='';
+const C=()=>CASES[key],id=n=>'SCR-'+String(n).padStart(2,'0');
+// ---- 人手記録（Scope 1）。ページ内のみに保持し、保存も外部送信もしない ----
+const REC={};const now=()=>new Date().toLocaleString('ja-JP');
+const fresh=()=>({staff:'',reviewer:'',checked:{},edits:[],cov:null,q:{},state:'draft',at:{},sendoff:{status:'未判断',reason:'',by:'',at:''},bounces:[],rowBounce:{},prev:null});
+function rec(k=key){return REC[k]||(REC[k]=fresh())}
+const gen=k=>versions.some(v=>v.key===k);
+const STATE_LABEL={draft:'作成案',staff:'担当者確認済み',review:'評価確認済み'};
+const stateOf=k=>gen(k)?STATE_LABEL[rec(k).state]:'—';
+const nChecked=k=>CASES[k].rows.filter(x=>rec(k).checked[x.id]).length;
+const qIds=k=>CASES[k].rows.filter(r=>r.note).map(r=>r.id).concat(k==='S10'?['案件']:[]);
+const qOf=(k,i)=>rec(k).q[i]||{status:'未対応',resolve:'未解決',text:'',by:'',at:''};
+const nUnresolved=k=>qIds(k).filter(i=>qOf(k,i).resolve==='未解決').length;
+const liveEdits=k=>rec(k).edits.filter(x=>!x.undone);
+const recSnap=k=>({edits:liveEdits(k).length,checked:nChecked(k),cov:!!rec(k).cov,qs:Object.keys(rec(k).q||{}).length});
+const hadRec=k=>{const n=recSnap(k);return gen(k)&&!!(n.edits||n.checked||n.cov||n.qs)};
+const rbOf=(k,id)=>(rec(k).rowBounce||(rec(k).rowBounce={}))[id]||{text:'',by:'',at:''};
+const rbList=k=>Object.entries(rec(k).rowBounce||{}).filter(([,v])=>v.text);
+const stepOf=k=>!gen(k)?1:rec(k).state==='review'?4:rec(k).state==='staff'?3:2;
+const staffDone=k=>gen(k)&&nChecked(k)===CASES[k].rows.length&&!!rec(k).cov;
+function lastEdit(k,row,field){let last=null;rec(k).edits.forEach(x=>{if(x.row===row&&x.field===field&&!x.undone)last=x});return last}
+const qtyText=v=>v===null?'TBA':v;
+const gv=(k,r,f)=>{const x=lastEdit(k,r.id,f);return x?x.val:r[f]};
+const cur=(r,f)=>gv(key,r,f);
+function cellv(r,f){const x=lastEdit(key,r.id,f),v=f==='qty'?qtyText(cur(r,f)):cur(r,f);
+return x?`${e(v)}<small>訂正 · 旧 ${e(f==='qty'?qtyText(x.old):x.old)}</small>`:e(v)}
+const EDITABLE=[['kind','品種・用途'],['od','外径'],['weight','単重'],['grade','材質'],['connection','接続'],['length','レンジ・定尺長'],['qty','数量'],['unit','数量単位'],['due','要求納期'],['place','納地'],['note','備考']];
+const QTY_STATES=['数値','TBA','記載なし','適用なし'];
+
+function toast(t,err=false){$('toast').textContent=t;$('toast').classList.toggle('is-error',!!err);$('toast').hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>$('toast').hidden=true,4000)}
+const warn=t=>toast(t,true);
+document.addEventListener('input',ev=>{if(ev.target.getAttribute&&ev.target.getAttribute('aria-invalid'))ev.target.removeAttribute('aria-invalid')});
+function goto(n){location.hash=typeof n==='number'?id(n):n}
+function link(n,t){return `<a class="button" href="#${id(n)}">${t}</a>`}
+function head(n,desc,actions='',after=''){return `<div class="heading"><div><span class="eyebrow">${id(n)} / ${n<=2?'DOCUMENTS':'WORKSPACE'}</span><h1>${titles[n-1]}</h1><p>${desc}</p>${after}</div><div>${actions}</div></div>`}
+const caseSel=n=>`<div class="case-pick"><label for="case-sel-${n}">対象案件</label><select id="case-sel-${n}" data-case-select>${Object.entries(CASES).map(([k,x])=>`<option value="${k}" ${k===key?'selected':''}>${k} / ${e(x.name)}</option>`).join('')}</select></div>`;
+function meta(){let c=C();return `<div class="meta">${[['案件',c.name],['要求納期',c.due],['納地',c.place],['見積期限',c.deadline],['表示状態',stateOf(key)+' / 送付'+rec().sendoff.status]].map(([a,b])=>`<div>${a}<strong>${e(b)}</strong></div>`).join('')}</div>`}
+function wrap(n,s){return `<section id="${id(n)}" hidden>${s}</section>`}
+function generate(){if(busy)return;const k0=key,snap=recSnap(k0),had=hadRec(k0),t0=Date.now();
+busy=true;render();toast('固定サンプルの表示を準備しています…');
+setTimeout(()=>{versions.push({v:versions.length+1,key:k0,time:now(),elapsed:((Date.now()-t0)/1000).toFixed(1)+'秒',input:CASES[k0].file,config:'mock-fixed-v2'});
+if(had){REC[k0]=fresh();REC[k0].prev=snap;toast('新しい生成版を作成しました。前版の修正・確認記録は引き継がれていません。');}
+busy=false;render();goto(3)},600)}
+const STEPS=['資料投入','案の確認','担当者確認','上司の評価確認'];
+function progressCell(k,x){const step=stepOf(k),
+pips=STEPS.map((_,i)=>`<i class="${i+1<step?'done':i+1===step?'cur':''}"></i>`).join('');
+let sub;
+if(!gen(k))sub='固定サンプルを投入して案を生成します';
+else{const parts=[`照合 ${nChecked(k)}/${x.rows.length}行`,rec(k).cov?'網羅性確認 済':'網羅性確認 未',`未解決 ${nUnresolved(k)}件`];
+if(liveEdits(k).length)parts.push(`訂正 ${liveEdits(k).length}件`);
+if(rec(k).bounces.length)parts.push('差し戻しあり');
+sub=parts.join(' · ');}
+return `<div class="prog"><b>${step}/4 ${STEPS[step-1]}</b><span class="prog-pips" aria-hidden="true">${pips}</span></div><small>${e(sub)}</small>`;}
+function filterControls(){return `<div class="column-filters"><label>キーワード<input id="list-search" type="text" placeholder="径・原項番・確認内容など" value="${e(columnFilters.q)}"></label>${[['kind','品種'],['grade','材質'],['connection','接続']].map(([f,label])=>`<label>${label}<select data-column-filter="${f}"><option value="">すべて</option>${[...new Set(C().rows.map(r=>gv(key,r,f)))].map(v=>`<option value="${e(v)}" ${columnFilters[f]===v?'selected':''}>${e(v)}</option>`).join('')}</select></label>`).join('')}<label>状態<select id="filter" aria-label="明細絞り込み" style="width:auto">${[['all','全件'],['warn','確認事項あり'],['tba','数量TBA'],['group','択一候補'],['unchecked','未照合のみ'],['edited','訂正済みのみ'],['unresolved','未解決のみ']].map(([v,t])=>`<option value="${v}" ${v===filter?'selected':''}>${t}</option>`).join('')}</select></label><button id="clear-filters">条件をクリア</button><span id="filter-count" role="status"></span></div>`;}
+function applyColumnFilters(){let count=0;document.querySelectorAll('#SCR-03 [data-item-row]').forEach(tr=>{let r=C().rows[Number(tr.dataset.itemRow)],hay=Object.keys(r).map(f=>String(gv(key,r,f)??'')).join(' ')+' '+liveEdits(key).filter(x=>x.row===r.id).map(x=>x.label+' '+x.reason).join(' '),ok=Object.entries(columnFilters).every(([k,v])=>!v||(k==='q'?hay.toLowerCase().includes(v.toLowerCase().trim()):gv(key,r,k)===v));tr.hidden=!ok;if(ok)count++;});$('filter-count').textContent=count+' / '+C().rows.length+'行';$('filter-empty').hidden=count!==0;}
+const changeTags=r=>{const t=[];if(/変更/.test(r.note))t.push(/P\.S\./.test(r.note)?'P.S.採用':/Rev\./.test(r.note)?'Rev.訂正':'変更採用');if(r.group)t.push('択一 '+r.group);if(r.qty===null)t.push('数量TBA');if(/継承候補/.test(r.grade+r.connection+r.length+r.note))t.push('継承候補');return t};
+const judged=(k,r)=>{const q=qOf(k,r.id);return r.note&&(q.status!=='未対応'||q.resolve!=='未解決'||q.text)};
+const unrIds=k=>qIds(k).filter(qi=>qOf(k,qi).resolve==='未解決');
+const chgRows=k=>{const eds=liveEdits(k);return CASES[k].rows.filter(r=>changeTags(r).length||judged(k,r)||eds.some(x=>x.row===r.id))};
+// 引合書承認の索引。読取専用のためドロワーに置いても SCR-04 と要素IDが衝突しない。
+function approveLists(k,rowId=''){const c=CASES[k],EDS=liveEdits(k);
+ let CHG=chgRows(k),UNR=unrIds(k),head='',tools='';
+ if(rowId){const row=c.rows.find(x=>x.id===rowId),ri=c.rows.findIndex(x=>x.id===rowId),
+  caseUnr=unrIds(k).filter(qi=>!c.rows.some(r=>r.id===qi)).length;
+  CHG=CHG.filter(r=>r.id===rowId);UNR=UNR.filter(qi=>qi===rowId);
+  head=`<h1>行 ${e(rowId)} の変更・判断事項と未解決事項</h1><p>${row?e(gv(k,row,'kind'))+' ／ ':''}この行に紐づく事項だけを表示しています（変更・判断事項 ${CHG.length}件／未解決 ${UNR.length}件）。</p>`
+   +(caseUnr?`<div class="note">行に紐づかない<b>案件レベルの未解決 ${caseUnr}件</b>があります。下の「全行の索引を開く」で確認してください。</div>`:'');
+  tools=`<div class="tools"><button data-evidence="${ri}">この行の根拠を開く</button><button data-lists-all>全行の索引を開く →</button></div>`;
+ }else{head=`<h1>変更・判断事項と未解決事項</h1><p>どの行を見るべきかを示す索引です。${c.rows.length}行のうち 変更・判断事項 ${CHG.length}行／未解決 ${UNR.length}件。判断の入力は表または Item List 確認画面で行います。表の行をクリックすると、その行の事項だけを表示します。</p>`}
+ const li=r=>{const q=qOf(k,r.id),eds=EDS.filter(x=>x.row===r.id);return `<li><b>行 ${e(r.id)}</b> ${changeTags(r).map(t=>`<span class="pill">${e(t)}</span>`).join(' ')}${eds.length?` <span class="pill">担当者訂正 ${eds.length}件</span>`:''}${judged(k,r)?` <span class="pill">担当者判断 ${e(q.status)}／${e(q.resolve)}</span>`:''}<small>${e(r.note||eds.map(x=>x.label+'：'+x.reason).join('／'))}${q.text?` ／ 判断：${e(q.text)}`:''}</small></li>`};
+ const liU=qi=>{const r=c.rows.find(x=>x.id===qi),q=qOf(k,qi);return `<li><b>${r?'行 '+e(qi):'案件レベル'}</b> <span class="pill">${e(q.status)}</span><small>${e(r?r.note:(k==='S10'?'Friday COB の時刻・タイムゾーンが不足':'—'))}${q.text?` ／ 判断：${e(q.text)}`:''}</small></li>`};
+ return head+tools+`<div class="approve-lists"><article class="panel"><h2>変更・判断事項（${CHG.length}${rowId?'件':'行'}）</h2>${CHG.length?`<ul>${CHG.map(li).join('')}</ul>`:`<p class="small">${rowId?'この行に変更・判断事項はありません。原資料との照合は必要です。':'変更・択一・TBA・継承候補・訂正・判断のある行はありません。'}</p>`}</article><article class="panel"><h2>未解決事項（${UNR.length}件）</h2>${UNR.length?`<ul>${UNR.map(liU).join('')}</ul>`:`<p class="small">${rowId?'この行に未解決の確認事項はありません。':'未解決の確認事項はありません。'}</p>`}<p class="small">「照会中」「保留」と判断しても客先回答が無い限り未解決です。件数は評価確認の記録と .xlsx に残ります。</p></article></div>`}
+function render(){let c=C(),qs=c.rows.filter(r=>r.note),vs=versions.filter(v=>v.key===key);let pages='';
+pages+=wrap(1,head(1,'生成版を選んで確認します。状態と記録の真実源はアプリ内で、出力した .xlsx は書き出した時点の写しです。',`<button class="primary" data-new>新規案件の投入画面 →</button>`)+`<article class="panel"><div class="scroll"><table><thead><tr><th>サンプル</th><th>案件</th><th>明細</th><th>進捗ステータス</th><th>表示状態</th><th>送付可否</th><th>操作</th></tr></thead><tbody>${Object.entries(CASES).map(([k,x])=>`<tr><td>${k}</td><td><b>${e(x.name)}</b><small>${e(x.focus)}</small></td><td>${x.rows.length}行（固定例）</td><td>${progressCell(k,x)}</td><td>${gen(k)?stateOf(k)+(rec(k).at[rec(k).state]?`<small>${e(rec(k).at[rec(k).state])}${rec(k).state==='review'&&rec(k).reviewer?' / '+e(rec(k).reviewer):rec(k).state==='staff'&&rec(k).staff?' / '+e(rec(k).staff):''}</small>`:''):'未生成'}</td><td>${gen(k)?e(rec(k).sendoff.status)+(rec(k).sendoff.by?`<small>${e(rec(k).sendoff.by)}</small>`:''):'—'}</td><td><button data-case="${k}">案件を開く →</button></td></tr>`).join('')}</tbody></table></div><p>進捗ステータスは①資料投入 → ②案の確認 → ③担当者確認 → ④上司の評価確認の4段階です。③は Item List 確認・網羅性照合での記録、④は引合書承認での記録から判定します（状態による絞り込み・集計は Scope 2）。</p><p><b>「表示状態」と「送付可否」は別の列です。</b>上司の評価確認（表示状態）は原資料への適合を確認した状態で、対外送付の承認ではありません。送付可否は引合書承認画面で上司が別に判断して記録し、出力する .xlsx の案件情報シートにも写しが残ります。</p></article>`);
+pages+=wrap(2,head(2,'同じ案件の本文・添付・変更連絡をそろえます。')+`<div class="grid"><article class="panel"><h2>サンプルを選ぶ</h2><label for="case-select">デモ案件</label><select id="case-select">${Object.entries(CASES).map(([k,x])=>`<option value="${k}" ${k===key?'selected':''}>${k} / ${e(x.name)}</option>`).join('')}</select>${meta()}<div class="note">${e(c.file)}<br>固定データ準備済み · ${e(c.type)}</div>${hadRec(key)?`<div class="note"><b>この案件には既存版の記録があります。</b>案を作成すると<b>新版は作成案から始まり</b>、現在の版の記録（訂正 ${recSnap(key).edits}件・照合 ${recSnap(key).checked}/${c.rows.length}行・網羅性確認 ${rec(key).cov?'済':'未'}・確認事項の判断 ${recSnap(key).qs}件）は<b>新版へ引き継がれません</b>（自動マージは対象外）。既存版は保全され、上書きされません。</div>`:''}<button class="primary" data-generate ${busy?'disabled':''}>${busy?'準備中…':'固定サンプルで案を作成 →'}</button><p class="small">実ファイルを抽出する処理ではありません。再実行は別の生成版になります。${gen(key)?'':'この案件はまだ未生成です。'}</p></article><article class="panel"><h2>任意ファイルの受付表示を試す</h2><div class="drop"><input type="file" id="files" multiple aria-label="受付表示用ファイル"><p>PDF / XLSX / EML / TXT</p></div><p class="small">仮上限：5ファイル・各10MB。D02の確定値ではありません。本文は読み取りません。</p><div id="registered">${registered.map(t=>`<p>${e(t)}</p>`).join('')}</div><label for="text">本文テキスト</label><textarea id="text" rows="3" placeholder="受付イメージのみ。サンプル出力には反映されません。"></textarea><details><summary>例外表示を確認する</summary><p>一部読取不能（p.2）／参照不足（本文3.2項）／添付は別ファイルとして投入／日時不足</p><p class="small">上記は表示例です。選択ファイルの判定結果ではありません。</p></details></article></div>`);
+const shown=c.rows.map((r,i)=>({r,i})).filter(({r})=>filter==='all'||filter==='warn'&&r.note||filter==='tba'&&r.qty===null||filter==='group'&&r.group||filter==='unchecked'&&!rec().checked[r.id]||filter==='edited'&&liveEdits(key).some(x=>x.row===r.id)||filter==='unresolved'&&r.note&&qOf(key,r.id).resolve==='未解決');
+pages+=wrap(3,head(3,c.name,`<div class="head-actions"><button class="primary" data-staff-ok ${gen(key)?'':'disabled'}>担当者確認済みにする →</button><button data-save ${gen(key)?'':'disabled'}>↓ 現在の記録を出力</button><details class="ver"><summary>版の履歴（${vs.length}）</summary><div class="ver-body"><div class="scroll"><table><thead><tr><th>版</th><th>作成日時</th><th>生成所要</th><th>状態</th><th>未解決</th><th>出力</th></tr></thead><tbody>${vs.map(v=>`<tr><td>v${v.v}<small>${e(v.config)}</small></td><td>${e(v.time)}</td><td>${e(v.elapsed||'—')}<small>AI待ちは人の作業時間に含めない</small></td><td>${e(stateOf(v.key))}<small>送付${e(rec(v.key).sendoff.status)}</small></td><td class="num">${nUnresolved(v.key)}</td><td><button data-version="${v.v}">出力</button></td></tr>`).join('')||'<tr><td colspan="6">未生成。資料投入画面で案を作成してください。</td></tr>'}</tbody></table></div><div class="tools"><button data-generate ${busy?'disabled':''}>固定データで再実行・新版</button>${link(2,'資料投入へ')}</div>${liveEdits(key).length||nChecked(key)||rec().cov?'<p class="small"><b>再実行すると新版は作成案から始まります。</b>この版の訂正・照合・判断の記録は新版へ引き継がれません（自動マージは対象外）。既存版は保全されます。</p>':''}${rec().prev?`<p class="small">この版は再実行で作成されました。前版の訂正${rec().prev.edits}件・照合${rec().prev.checked}行の記録は引き継がれていません。</p>`:''}<p class="small">出力シート：案件情報／Item List／根拠／確認事項／変更・確認記録。評価状態＝${e(STATE_LABEL[rec().state])}／送付可否＝${e(rec().sendoff.status)}。サンプル用の簡略書式で正式メーカー書式ではありません（D01）。出力した.xlsxは書き出した時点の写しで、編集してもアプリ内の記録は変わりません。</p><div class="tools"><span class="pill">Scope 2</span><button disabled>2版を比較</button><span class="small">初版は版を別に保持して人が比較します。</span></div></div></details></div>`,caseSel(3))+`<article class="panel">${meta()}${rec().bounces.length&&rec().state==='staff'?`<div class="note"><b>差し戻し中（作成案には戻りません）。</b><span class="small"> ${e(rec().bounces.at(-1).by)} / ${e(rec().bounces.at(-1).at)}</span>${rbList(key).length?`<br>${rbList(key).map(([rid,v])=>`行 <b>${e(rid)}</b>：${e(v.text)}`).join('<br>')}`:`<br>${e(rec().bounces.at(-1).reason)}`}</div>`:''}<div class="kpis"><div>明細<b>${c.rows.length}</b></div><div>確認事項のある行<b>${qs.length}</b></div><div>数量TBA<b>${c.rows.filter(r=>cur(r,'qty')===null).length}</b></div><div>択一グループ<b>${new Set(c.rows.filter(r=>r.group).map(r=>r.group)).size}</b></div><div>照合済み<b>${nChecked(key)} / ${c.rows.length}</b></div><div>訂正<b>${liveEdits(key).length}</b></div><div>未解決の確認事項<b>${nUnresolved(key)}</b></div></div><div class="column-filters"><label for="staff-name">担当者名（照合・訂正の記録者・必須）<input id="staff-name" type="text" value="${e(rec().staff)}" placeholder="入力必須。AIは補完しません"></label><span class="small">網羅性確認：${rec().cov?`済（${e(rec().cov.by)}）`:`未 → ${link(5,'網羅性照合へ')}`}</span></div>${filterControls()}<div class="scroll"><table><thead><tr><th>照合</th><th>行ID</th><th>品種</th><th>外径</th><th>単重</th><th>材質</th><th>接続</th><th>長さ</th><th>数量</th><th>単位</th><th>納期</th><th>選択グループ</th><th>状態</th><th>確認事項の要約</th><th>根拠の要約</th><th>対応状況</th><th>解決状態</th><th>判断内容</th><th>詳細</th></tr></thead><tbody>${shown.map(({r,i})=>`<tr data-item-row="${i}"${hl===r.id?' class="row-hl"':''} tabindex="0" role="row" aria-label="行${r.id}の原表記・根拠・確認事項を開く"><td><input type="checkbox" data-check="${e(r.id)}" ${rec().checked[r.id]?'checked':''} aria-label="行${r.id}の重要項目を出典と照合した"></td><td>${r.id}</td><td>${cellv(r,'kind')}</td><td>${cellv(r,'od')}</td><td>${cellv(r,'weight')}</td><td>${cellv(r,'grade')}</td><td>${cellv(r,'connection')}</td><td>${cellv(r,'length')}</td><td><b>${cellv(r,'qty')}</b></td><td>${cellv(r,'unit')}</td><td>${cellv(r,'due')}</td><td>${e(r.group||'—')}</td><td>${cur(r,'qty')===null?'数量未確定':r.group?'択一':r.note?'要確認':'警告なし'}${liveEdits(key).some(x=>x.row===r.id)?'<small>訂正あり</small>':''}${rec().checked[r.id]?'<small>照合済み</small>':''}</td><td class="summary-cell">${e(cur(r,'note')||'個別の確認事項なし。原資料との照合は必要です。')}</td><td class="summary-cell">${e(r.where)}：${e(r.quote.replace(/\n/g,' / '))}</td>${r.note?`<td><select data-q-status="${e(r.id)}">${['未対応','対応中','判断済み'].map(v=>`<option ${v===qOf(key,r.id).status?'selected':''}>${v}</option>`).join('')}</select></td><td><select data-q-resolve="${e(r.id)}">${['未解決','解決'].map(v=>`<option ${v===qOf(key,r.id).resolve?'selected':''}>${v}</option>`).join('')}</select></td><td><input type="text" data-q-text="${e(r.id)}" value="${e(qOf(key,r.id).text)}" placeholder="判断内容">${qOf(key,r.id).by?`<small>${e(qOf(key,r.id).by)} / ${e(qOf(key,r.id).at)}</small>`:''}</td>`:'<td class="muted">—</td><td class="muted">—</td><td class="muted">確認事項なし</td>'}<td><button data-row="${i}">詳細を見る</button></td></tr>${raw?`<tr><td colspan="19" style="white-space:normal">原文抜粋：${e(r.quote)}</td></tr>`:''}`).join('')||'<tr><td colspan="19">該当行なし</td></tr>'}</tbody></table></div><p id="filter-empty" class="note" hidden>条件に一致する明細はありません。フィルターを変更するか、条件をクリアしてください。</p>${qIds(key).filter(qi=>!c.rows.some(r=>r.id===qi)).map(qi=>`<div class="note"><b>案件レベルの確認事項（${e(qi)}）</b><br>${e(key==='S10'?'Friday COB の時刻・タイムゾーンが不足しています。勝手に補いません。':'—')}<div class="column-filters"><label>対応状況<select data-q-status="${e(qi)}">${['未対応','対応中','判断済み'].map(v=>`<option ${v===qOf(key,qi).status?'selected':''}>${v}</option>`).join('')}</select></label><label>解決状態<select data-q-resolve="${e(qi)}">${['未解決','解決'].map(v=>`<option ${v===qOf(key,qi).resolve?'selected':''}>${v}</option>`).join('')}</select></label><label>判断内容<input type="text" data-q-text="${e(qi)}" value="${e(qOf(key,qi).text)}" placeholder="判断内容"></label><span class="small">${qOf(key,qi).by?`${e(qOf(key,qi).by)} / ${e(qOf(key,qi).at)}`:'判断者は上の担当者名を使います'}</span></div></div>`).join('')}<div class="note">「照会する」「保留する」と判断を記録しても、客先回答が無い限り解決状態は<b>未解決</b>です。対応状況（着手したか）と解決状態（解決したか）を分けて記録してください。</div><p>照合チェックと訂正の記録はアプリ内に保持します（このモックはページを閉じると消えます）。訂正は「詳細を見る」から項目・新値・理由を指定して記録します。原表記・出典は編集対象外で、未承認の換算は行いません。</p></article>`);
+pages+=wrap(4,head(4,'明細の原値・採用値・根拠を確認します。')+`<article class="panel"><button data-row="${selected}">選択行の根拠を開く</button><p>ドロワーを閉じると呼び出し元へ戻ります。</p></article>`);
+const cov=(c.cov||[]).slice().sort((a,b)=>(isMissing(b)?0:1)-(isMissing(a)?0:1)),
+det=cov.filter(x=>x.maps.length),exc=cov.filter(x=>!x.maps.length&&!isMissing(x)),miss=cov.filter(isMissing),
+nSrc=det.length+miss.length,nRows=c.rows.length,dif=nRows-nSrc,splits=det.filter(x=>x.maps.length>1),
+nAlt=splits.filter(x=>x.tag.includes('択一')).length,nLen=splits.filter(x=>x.tag.includes('定尺')).length,
+why=[nAlt?`接続の択一 ${nAlt}件`:'',nLen?`定尺長 ${nLen}件`:''].filter(Boolean).join('・'),
+owner=rid=>cov.find(x=>x.maps.includes(rid)),
+orphan=c.rows.filter(r=>!owner(r.id)),
+cand=(x,rid)=>{const r=c.rows.find(z=>z.id===rid);
+ if(x&&x.maps.length>1)return x.tag.includes('択一')?String.fromCharCode(65+x.maps.indexOf(rid)):(r?r.length:'—');
+ return r&&r.group?(rid.endsWith('a')?'A':rid.endsWith('b')?'B':'—'):'—'},
+lead=dif>0
+?`元資料 ${nSrc}項目 → Item List ${nRows}行。増えた${dif}行の理由（${why}）と、明細にしなかった${exc.length}件を確認します。`
+:`元資料 ${nSrc}項目 → Item List ${nRows}行（増減なし）。1行ずつの対応と、明細にしなかった${exc.length}件を確認します。`;
+pages+=wrap(5,head(5,lead,'',caseSel(5))+`<div class="note"><b>「対応なし0件」は網羅性の保証ではありません。</b><br>この対応表は抽出できた範囲どうしの突合です。抽出処理が最初から読まなかったページ・別紙・後続メールは、元資料側にも出力側にも現れないため表では検出できません。全ページ・別紙・追加明細を元資料で確認してください。</div><div class="grid"><article class="panel"><h2>照合する範囲</h2><p>${key==='S06'?'p1 共通条件 → p2〜3 全8項目 → p4 脚注。接続候補と長さを分けて出力11行。':e(c.common)}</p><div class="tools"><button id="source-open">元資料を開く</button><span class="small">${e(c.file)}</span></div><p class="small">全ページ・全シート・本文と、追加・別紙・脚注の有無を確認します。この対応表に抽出漏れ検出機能はありません。</p></article><article class="panel"><h2>網羅性確認の記録</h2><div class="tools"><label for="cov-by" style="margin:0">確認者（必須）</label><input id="cov-by" type="text" value="${rec().cov?e(rec().cov.by):e(rec().staff)}" placeholder="入力必須" style="width:12em"><button data-cov-save>${rec().cov?'更新':'記録'}</button>${rec().cov?'<button data-cov-clear>取消</button>':''}</div><p class="small">${rec().cov?`記録済み：${e(rec().cov.by)} / ${e(rec().cov.at)}`:'未記録。担当者確認済みにするには本記録が必要です。'}</p></article></div><div class="grid"><article class="panel"><h2>原明細一覧（資料側）</h2><div class="scroll"><table><thead><tr><th>位置</th><th>原項番</th><th>原文行（抜粋）</th><th>対応</th><th>状態</th></tr></thead><tbody>${cov.map(x=>`<tr><td>${e(x.pos)}</td><td>${e(x.no)}</td><td class="summary-cell">${e(x.text)}</td><td>${x.maps.length?x.maps.join(', '):'—'}</td><td><span class="pill">${e(isMissing(x)?'対応なし（欠落の可能性）':x.tag)}</span>${x.detail?`<small>${e(x.detail)}</small>`:''}</td></tr>`).join('')||'<tr><td colspan="5">対応表の固定データがありません。</td></tr>'}</tbody></table></div><p class="small">明細 ${nSrc}件 → 出力 ${nRows}行（うち分割 ${splits.length}件）／除外 ${exc.length}件／対応なし ${miss.length}件。「対応なし（欠落の可能性）」は先頭に表示されます。参考例（他案件）：sample-02 の小計380／46・合計426 は「除外（合計行）」。</p></article><article class="panel"><h2>Item List 対応表</h2><div class="scroll"><table><thead><tr><th>行ID</th><th>原項番</th><th>候補</th><th>対応元</th><th>状態</th></tr></thead><tbody>${c.rows.map(r=>{const x=owner(r.id);return `<tr><td>${e(r.id)}</td><td>${e(x?x.no:'—')}</td><td>${e(cand(x,r.id))}</td><td>${e(x?srcLabel(x):'—')}</td><td><span class="pill">${x?'対応あり':'対応なし（余分の可能性）'}</span></td></tr>`}).join('')}</tbody></table></div><p class="small">元資料に対応元がない出力行 ${orphan.length}件。この固定例は正しい対応で作ってあるため、欠落・余分・重複は発生しません。「対応なし」は、状態に除外の根拠があれば意図した除外、根拠がなければ欠落として扱います。</p></article></div>`);
+const R=rec(),EDS=liveEdits(key),UNR=unrIds(key),RB=rbList(key),CHG=chgRows(key),
+APPROVE_FILTERS=[['all','全行'],['changes','変更・判断事項のある行'],['edited','訂正あり'],['unresolved','未解決のみ'],['bounce','差し戻しコメントあり']],
+approveShown=r=>approveFilter==='all'||approveFilter==='changes'&&CHG.includes(r)||approveFilter==='edited'&&EDS.some(x=>x.row===r.id)||approveFilter==='unresolved'&&UNR.includes(r.id)||approveFilter==='bounce'&&!!rbOf(key,r.id).text,
+AROWS=c.rows.filter(approveShown),
+APPROVE=`<div class="approve"><div class="approve-box"><span class="approve-cap">① 評価確認 — 原資料への適合を確認する</span><div class="approve-row"><label for="reviewer-name">確認者</label><input id="reviewer-name" type="text" value="${e(R.reviewer)}" placeholder="必須"><button class="primary" data-review-ok ${R.state==='draft'?'disabled':''}>評価確認済みにする</button><button data-bounce ${R.state==='draft'?'disabled':''}>差し戻す</button></div><p class="approve-hint">${R.state==='draft'?'担当者の確認が完了すると押せます。':`差し戻しは表右端の行コメント（${RB.length}行）を理由にします。評価確認済みは送付承認ではありません。`}</p></div><div class="approve-box"><span class="approve-cap">② 送付可否 — 対外送付の判断（①とは別の記録）</span><div class="approve-row"><label for="sendoff-status">判断</label><select id="sendoff-status">${['未判断','保留','承認'].map(v=>`<option ${v===R.sendoff.status?'selected':''}>${v}</option>`).join('')}</select><label for="sendoff-reason">理由・条件</label><input id="sendoff-reason" type="text" value="${e(R.sendoff.reason)}" placeholder="保留・承認は必須"><label for="sendoff-by">判断者</label><input id="sendoff-by" type="text" value="${e(R.sendoff.by)}" placeholder="必須"><button data-sendoff>記録</button></div><p class="approve-hint">現在：${e(R.sendoff.status)}${R.sendoff.by?` ／ ${e(R.sendoff.by)} ／ ${e(R.sendoff.at)}`:''}</p></div></div>`;
+pages+=wrap(6,head(6,'担当者が確定した Item List を、修正と判断がわかる状態で確認し、承認または差し戻しを記録します。','',caseSel(6))+`<article class="panel"><div class="approve-wrap"><div class="approve-status"><span class="approve-cap">状態の要約 — 担当者の確認結果</span><div class="kpis"><div>評価状態<b>${e(STATE_LABEL[R.state])}</b></div><div>送付可否<b>${e(R.sendoff.status)}</b></div><div>一致確認<b>${nChecked(key)} / ${c.rows.length}</b></div><div>網羅性確認<b>${R.cov?'済':'未'}</b></div><div>訂正<b>${EDS.length}</b></div><div>未解決<b>${UNR.length}</b></div><div>差し戻しコメント<b>${RB.length}</b></div></div></div>${APPROVE}</div><p class="approve-meta">担当者：${e(R.staff||'未記録')}${R.at.staff?' / '+e(R.at.staff):''}${R.cov?` ／ 網羅性確認：${e(R.cov.by)} / ${e(R.cov.at)}`:''}${R.at.review?` ／ 評価確認：${e(R.reviewer)} / ${e(R.at.review)}`:''}</p><div class="note"><b>評価確認済みは送付承認ではありません。</b>${R.state==='draft'?'<br>担当者の確認が未完了です（照合 '+nChecked(key)+'/'+c.rows.length+'行・網羅性確認 '+(R.cov?'済':'未')+'）。':''}${UNR.length?'<br>未解決 '+UNR.length+'件を含めて評価確認を終えられます。件数は記録と出力に残ります。':''}</div><div class="column-filters"><label>表示<select id="approve-filter" style="width:auto">${APPROVE_FILTERS.map(([v,t])=>`<option value="${v}" ${v===approveFilter?'selected':''}>${t}</option>`).join('')}</select></label><span class="small" role="status">${AROWS.length} / ${c.rows.length}行</span><button data-approve-lists>変更・判断事項 ${CHG.length}行 ／ 未解決 ${UNR.length}件 を開く →</button></div><div class="scroll"><table><thead><tr><th>行ID</th><th>品種</th><th>仕様（外径／単重／材質／接続／長さ）</th><th>数量</th><th>納期</th><th>グループ</th><th>担当者の訂正</th><th>担当者の判断</th><th>根拠</th><th>上司の差し戻しコメント</th></tr></thead><tbody>${c.rows.map((r,i)=>{if(!approveShown(r))return '';const eds=EDS.filter(x=>x.row===r.id),q=qOf(key,r.id),rb=rbOf(key,r.id);
+return `<tr data-approve-row="${e(r.id)}" tabindex="0" role="row" aria-label="行${e(r.id)}の変更・判断事項と未解決事項を開く"${rb.text?' class="row-hl"':''}><td>${e(r.id)}${rec().checked[r.id]?'<small>照合済み</small>':'<small>未照合</small>'}</td><td>${e(cur(r,'kind'))}</td><td class="summary-cell">${[cur(r,'od'),cur(r,'weight'),cur(r,'grade'),cur(r,'connection'),cur(r,'length')].map(v=>e(v)).join(' / ')}</td><td class="num"><b>${e(qtyText(cur(r,'qty')))}</b> ${e(cur(r,'unit'))}</td><td>${e(cur(r,'due'))}</td><td>${e(r.group||'—')}${r.group?'<small>合算しない</small>':''}</td><td class="summary-cell">${eds.length?eds.map(x=>`${e(x.label)}：${e(x.field==='qty'?qtyText(x.old):x.old)} → <b>${e(x.field==='qty'?qtyText(x.val):x.val)}</b><small>${e(x.reason)} ／ ${e(x.by)}</small>`).join('<br>'):'—'}</td><td class="summary-cell">${r.note?`<span class="pill">${e(q.status)}</span> <span class="pill">${e(q.resolve)}</span>${q.text?`<br>${e(q.text)}`:''}<small>${e(r.note)}${q.by?` ／ ${e(q.by)}`:''}</small>`:'—'}</td><td><button data-row="${i}">根拠</button></td><td><input type="text" data-bounce-row="${e(r.id)}" value="${e(rb.text)}" placeholder="差し戻す点">${rb.by?`<small>${e(rb.by)} / ${e(rb.at)}</small>`:''}</td></tr>`}).join('')||'<tr><td colspan="10">条件に一致する行はありません。表示を「全行」に戻してください。</td></tr>'}</tbody></table></div><p class="small">仕様・数量は担当者の訂正を反映した確定値です。訂正欄に旧値・新値・理由、判断欄に対応状況・解決状態・判断内容が出ます。差し戻す行にコメントを入れ、右上の「差し戻し」で記録してください。</p></article>`);
+$('pages').innerHTML=pages;bind();route();}
+function details(){ $('drawer-title').textContent='行の詳細 / 原表記・根拠・訂正';const c=C(),r=c.rows[selected],R=rec(),
+eds=R.edits.filter(x=>x.row===r.id),live=eds.filter(x=>!x.undone),
+fld=EDITABLE.map(([f,label])=>`<option value="${f}">${label}</option>`).join('');
+$('detail').innerHTML=`<h1>行 ${r.id} · ${e(cur(r,'kind'))}</h1><p>${e(c.file)}<br>${e(r.where)}</p>
+<div class="tools"><button data-prev ${selected<=0?'disabled':''}>‹ 前の行</button><button data-next ${selected>=c.rows.length-1?'disabled':''}>次の行 ›</button></div>
+<h2>原表記（編集対象外）</h2><blockquote>${e(r.quote)}</blockquote>
+<h2>採用値</h2><table><thead><tr><th>項目</th><th>採用値</th><th>訂正前</th></tr></thead><tbody>${EDITABLE.map(([f,label])=>{const x=lastEdit(key,r.id,f),v=f==='qty'?qtyText(cur(r,f)):cur(r,f);return `<tr><td>${label}</td><td>${e(v)}</td><td>${x?e(f==='qty'?qtyText(x.old):x.old):'—'}</td></tr>`}).join('')}</tbody></table>
+<details><summary>共通条件の根拠</summary><blockquote>${e(c.common)}</blockquote></details>
+<h2>出典との一致確認</h2><p><label><input type="checkbox" data-check="${e(r.id)}" ${R.checked[r.id]?'checked':''}> この行の重要項目を出典と照合した</label></p><p class="small">${R.checked[r.id]?`記録：${e(R.staff)} / ${e(R.at['check_'+r.id]||'')}`:'担当者名（Item List 確認画面）を入力してからチェックしてください。'}</p>
+<h2>値を訂正する</h2><label for="ed-field">対象項目</label><select id="ed-field">${fld}</select>
+<div id="ed-qty-box" hidden><label for="ed-qty-state">数量の状態</label><select id="ed-qty-state">${QTY_STATES.map(v=>`<option>${v}</option>`).join('')}</select><label for="ed-qty">数値（状態が「数値」のとき必須）</label><input id="ed-qty" type="text" inputmode="numeric"><label for="ed-qty-unit">単位（状態が「数値」のとき必須）</label><input id="ed-qty-unit" type="text" value="${e(cur(r,'unit'))}"></div>
+<div id="ed-text-box"><label for="ed-value">新しい値</label><input id="ed-value" type="text"></div>
+<label for="ed-reason">修正理由（必須）</label><textarea id="ed-reason" rows="2" placeholder="例: 原資料 p.2 項番4 と照合し数量を訂正"></textarea>
+<label for="ed-by">修正者（必須）</label><input id="ed-by" type="text" value="${e(R.staff)}">
+<div class="tools"><button class="primary" data-edit-save>訂正を記録</button></div>
+<p class="small">原表記・出典・原項番・選択グループ・候補区分は編集対象外です。数量は「数値＋単位」または未確定の状態として記録し、択一候補の合算はできません。</p>
+${eds.length?`<h2>この行の訂正履歴</h2><table><thead><tr><th>項目</th><th>旧 → 新</th><th>理由</th><th>記録者・日時</th><th></th></tr></thead><tbody>${eds.map((x,n)=>`<tr${x.undone?' class="dim"':''}><td>${e(x.label)}${x.undone?'<small>取消済み</small>':''}</td><td>${e(x.field==='qty'?qtyText(x.old):x.old)} → ${e(x.field==='qty'?qtyText(x.val):x.val)}</td><td style="white-space:normal">${e(x.reason)}</td><td>${e(x.by)}<small>${e(x.at)}</small></td><td>${x.undone?'':`<button data-edit-undo="${R.edits.indexOf(x)}">取り消す</button>`}</td></tr>`).join('')}</tbody></table>`:''}
+${rbOf(key,r.id).text?`<h2>上司の差し戻しコメント</h2><div class="note">${e(rbOf(key,r.id).text)}<br><span class="small">${e(rbOf(key,r.id).by)} / ${e(rbOf(key,r.id).at)}</span></div>`:''}
+<h2>この行の確認事項</h2>${r.note?`<div class="note">${e(r.note)}</div><p>対応状況：${e(qOf(key,r.id).status)} / 解決状態：${e(qOf(key,r.id).resolve)}${qOf(key,r.id).text?` / 判断：${e(qOf(key,r.id).text)}`:''}${qOf(key,r.id).by?`<br><span class="small">${e(qOf(key,r.id).by)} / ${e(qOf(key,r.id).at)}</span>`:''}</p><p class="small">判断の記録は Item List 確認画面の右側（対応状況・解決状態・判断内容）で行います。</p><button data-question="${e(r.id)}">該当行を表示して記録する</button>`:'<p>個別の確認事項はありません。原資料との照合は必要です。</p>'}`;}
+function route(){const h=location.hash.slice(1)||'SCR-01',valid=titles.map((_,i)=>id(i+1)).includes(h)?h:'SCR-01';document.querySelectorAll('main section').forEach(s=>s.hidden=s.id!==valid);document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active',a.hash==='#'+valid));if(valid==='SCR-04'){document.querySelectorAll('main section').forEach(x=>x.hidden=x.id!=='SCR-03');openDrawer('evidence');}else if($('drawer').open)$('drawer').close();}
+function save(v){if(!v){warn('先に案を作成してください。');return;}let sheets=getSheets(CASES[v.key],v.key);sheets[0].rows.push(['生成版','v'+v.v],['モック生成日時',v.time],['生成所要（経過時間・参考）',v.elapsed||'—'],['モック設定',v.config]);let blob=new Blob([workbookBytes(sheets)],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=v.key+'-v'+v.v+'-'+stateOf(v.key)+'-未解決'+nUnresolved(v.key)+'-mock.xlsx';a.click();setTimeout(()=>URL.revokeObjectURL(u),15000);toast('アプリ内の記録を反映した写しを出力しました。以後この.xlsxを編集してもアプリ側は変わりません。')}
+function bind(){ $('list-search').oninput=ev=>{columnFilters.q=ev.target.value;applyColumnFilters();};document.querySelectorAll('[data-column-filter]').forEach(el=>el.onchange=()=>{columnFilters[el.dataset.columnFilter]=el.value;applyColumnFilters();});$('clear-filters').onclick=()=>{columnFilters={q:'',kind:'',grade:'',connection:''};filter='all';render();};applyColumnFilters();document.querySelectorAll('[data-item-row]').forEach(r=>{const open=()=>{selected=Number(r.dataset.itemRow);returnPage='SCR-03';openDrawer('evidence');};r.onclick=ev=>{if(!ev.target.closest('button,a,input,select,textarea,label'))open();};r.onkeydown=ev=>{if(ev.target===r&&(ev.key==='Enter'||ev.key===' ')){ev.preventDefault();open();}};});document.querySelectorAll('[data-case]').forEach(b=>b.onclick=()=>{key=b.dataset.case;columnFilters={q:'',kind:'',grade:'',connection:''};selected=0;filter='all';approveFilter='all';render();goto(versions.some(v=>v.key===key)?3:2)});document.querySelector('[data-new]').onclick=()=>goto(2);$('case-select').onchange=x=>{key=x.target.value;columnFilters={q:'',kind:'',grade:'',connection:''};selected=0;filter='all';approveFilter='all';render()};document.querySelectorAll('[data-case-select]').forEach(el=>el.onchange=ev=>{key=ev.target.value;columnFilters={q:'',kind:'',grade:'',connection:''};selected=0;filter='all';approveFilter='all';hl='';render();toast(`対象案件を ${key} / ${C().name} に切り替えました。`)});document.querySelectorAll('[data-generate]').forEach(b=>b.onclick=generate);$('filter').onchange=x=>{filter=x.target.value;render()};$('approve-filter').onchange=x=>{approveFilter=x.target.value;render()};document.querySelectorAll('[data-approve-lists]').forEach(b=>b.onclick=()=>{returnPage='SCR-06';openDrawer('lists')});
+document.querySelectorAll('[data-approve-row]').forEach(tr=>{const open=()=>{returnPage='SCR-06';openDrawer('lists',tr.dataset.approveRow)};
+ tr.onclick=ev=>{if(!ev.target.closest('button,a,input,select,textarea,label'))open()};
+ tr.onkeydown=ev=>{if(ev.target===tr&&(ev.key==='Enter'||ev.key===' ')){ev.preventDefault();open()}}});document.querySelectorAll('[data-row]').forEach(b=>b.onclick=()=>{selected=Number(b.dataset.row);returnPage=location.hash.slice(1)||'SCR-03';openDrawer('evidence')});document.querySelectorAll('[data-question]').forEach(b=>b.onclick=ev=>{ev.preventDefault();hl=b.dataset.question;if($('drawer').open)$('drawer').close();filter='all';render();goto(3);toast(`${hl} の行を表示しました。右側の対応状況・解決状態・判断内容で記録してください。`)});$('source-open').onclick=()=>{const a=document.createElement('a');a.href='sources/'+C().file;a.target='_blank';a.rel='noopener';a.click()};document.querySelector('[data-save]').onclick=()=>save(versions.filter(v=>v.key===key).at(-1));document.querySelectorAll('[data-version]').forEach(b=>b.onclick=()=>save(versions.find(v=>v.v==b.dataset.version)));$('files').onchange=x=>{let seen=new Set();registered=Array.from(x.target.files).map((f,i)=>{let k=f.name+'|'+f.size,st=i>=5?'上限超過':f.size>10485760?'容量超過':!/\.(pdf|xlsx|eml|txt)$/i.test(f.name)?'未対応形式':seen.has(k)?'同名・同容量の重複候補':'受付表示のみ・本文未読取';seen.add(k);return f.name+' / '+st});$('registered').replaceChildren(...registered.map(t=>{let p=document.createElement('p');p.textContent=t;return p}))};bindRecords();}
+function need(id,label){const v=($(id)?.value||'').trim();if(!v){warn(label+'を入力してください。AIは補完しません。');$(id)?.setAttribute('aria-invalid','true');$(id)?.focus();return null}return v}
+function bindRecords(){
+$('staff-name').oninput=ev=>{rec().staff=ev.target.value};
+document.querySelectorAll('#SCR-03 [data-check]').forEach(cb=>cb.onchange=ev=>{
+ ev.stopPropagation();const by=need('staff-name','担当者名');if(!by){ev.target.checked=!ev.target.checked;return}
+ const rid=ev.target.dataset.check,R=rec();R.staff=by;
+ if(ev.target.checked){R.checked[rid]=true;R.at['check_'+rid]=now()}else{delete R.checked[rid];delete R.at['check_'+rid]}
+ render();toast(`行${rid} を${R.checked[rid]?'照合済みにしました':'未照合に戻しました'}（${nChecked(key)}/${C().rows.length}）`)});
+document.querySelector('[data-cov-save]').onclick=()=>{const by=need('cov-by','確認者');if(!by)return;rec().cov={by,at:now()};render();toast('網羅性確認を記録しました。')};
+const covClear=document.querySelector('[data-cov-clear]');if(covClear)covClear.onclick=()=>{rec().cov=null;if(rec().state!=='draft'){rec().state='draft';rec().at={...rec().at,staff:''}}render();toast('網羅性確認の記録を取り消しました。担当者確認済みも解除されます。')};
+const saveQ=(qi,patch,msg)=>{const by=need('staff-name','担当者名');if(!by)return false;
+ const q=qOf(key,qi);rec().staff=by;rec().q[qi]={status:q.status,resolve:q.resolve,text:q.text,...patch,by,at:now()};
+ if(rec().state==='review'){rec().state='staff';rec().at.review=''}
+ render();toast(msg);return true};
+document.querySelectorAll('[data-q-status]').forEach(el=>el.onchange=ev=>{const qi=el.dataset.qStatus,v=ev.target.value;
+ if(!saveQ(qi,{status:v},`${qi} の対応状況を「${v}」にしました。解決状態は別に記録します。`))render()});
+document.querySelectorAll('[data-q-resolve]').forEach(el=>el.onchange=ev=>{const qi=el.dataset.qResolve,v=ev.target.value;
+ if(!saveQ(qi,{resolve:v},`${qi} の解決状態を「${v}」にしました（未解決 ${v==='解決'?nUnresolved(key)-1:nUnresolved(key)}件）。`))render()});
+document.querySelectorAll('[data-q-text]').forEach(el=>el.onchange=ev=>{const qi=el.dataset.qText,v=ev.target.value.trim();
+ if(!saveQ(qi,{text:v},`${qi} の判断内容を記録しました。`))render()});
+document.querySelector('[data-staff-ok]').onclick=()=>{const c=C(),R=rec(),by=need('staff-name','担当者名');if(!by)return;
+ const un=c.rows.filter(r=>!R.checked[r.id]).map(r=>r.id);
+ if(un.length){warn(`未照合 ${un.length}行（${un.slice(0,5).join(', ')}${un.length>5?' …':''}）。すべて照合してください。`);return}
+ if(!R.cov){warn('網羅性確認が未記録です。網羅性照合画面で記録してください。');goto(5);return}
+ R.staff=by;R.state='staff';R.at.staff=now();render();goto(6);toast('担当者確認済みにしました。引合書承認へ引き渡します。')};
+$('reviewer-name').oninput=ev=>{rec().reviewer=ev.target.value};
+document.querySelector('[data-review-ok]').onclick=()=>{const R=rec();if(R.state==='draft'){warn('担当者の確認が未完了です。');return}
+ const by=need('reviewer-name','確認者名');if(!by)return;R.reviewer=by;R.state='review';R.at.review=now();render();
+ toast(`評価確認済みにしました（未解決 ${nUnresolved(key)}件を含む）。送付可否は別に判断してください。`)};
+document.querySelectorAll('[data-bounce-row]').forEach(el=>el.onchange=ev=>{
+ const by=need('reviewer-name','確認者名');if(!by){render();return}
+ const rid=el.dataset.bounceRow,t=(ev.target.value||'').trim(),R=rec();R.reviewer=by;R.rowBounce=R.rowBounce||{};
+ if(t)R.rowBounce[rid]={text:t,by,at:now()};else delete R.rowBounce[rid];
+ render();toast(t?`行${rid} に差し戻しコメントを記録しました。右上の「差し戻し」で確定します。`:`行${rid} のコメントを取り消しました。`)});
+document.querySelector('[data-bounce]').onclick=()=>{const R=rec();if(R.state==='draft'){warn('担当者の確認が未完了です。');return}
+ const by=need('reviewer-name','確認者名');if(!by)return;const rb=rbList(key);
+ if(!rb.length){warn('差し戻す行にコメントを入力してください（表の右端の列）。');return}
+ const reason=rb.map(([rid,v])=>`行${rid}: ${v.text}`).join('／');
+ R.reviewer=by;R.bounces.push({reason,by,at:now()});if(R.state==='review'){R.state='staff';R.at.review=''}render();goto(3);
+ toast(`差し戻しを記録しました（${rb.length}行）。状態は担当者確認済みのままです。`)};
+document.querySelector('[data-sendoff]').onclick=()=>{const R=rec(),st=$('sendoff-status').value,reason=($('sendoff-reason').value||'').trim(),by=need('sendoff-by','判断者');
+ if(!by)return;if(st!=='未判断'&&!reason){warn('保留・承認は理由・条件の入力が必要です。');$('sendoff-reason').setAttribute('aria-invalid','true');$('sendoff-reason').focus();return}
+ if(st==='承認'&&nUnresolved(key)>0&&!reason){warn('未解決事項があるため、承認の理由・条件が必要です。');return}
+ R.sendoff={status:st,reason,by,at:now()};render();toast(`送付可否を「${st}」として記録しました。評価確認とは別の記録です。`)};}
+function bindDrawer(){const d=$('detail');
+d.querySelectorAll('[data-check]').forEach(cb=>cb.onchange=ev=>{const by=(rec().staff||'').trim();
+ if(!by){warn('先に Item List 確認画面で担当者名を入力してください。');ev.target.checked=!ev.target.checked;return}
+ const rid=ev.target.dataset.check,R=rec();
+ if(ev.target.checked){R.checked[rid]=true;R.at['check_'+rid]=now()}else{delete R.checked[rid];delete R.at['check_'+rid]}
+ details();bindDrawer();toast(`行${rid} を${R.checked[rid]?'照合済みにしました':'未照合に戻しました'}`)});
+const fs=$('ed-field');if(fs){const sync=()=>{const q=fs.value==='qty';$('ed-qty-box').hidden=!q;$('ed-text-box').hidden=q};fs.onchange=sync;sync()}
+const sv=d.querySelector('[data-edit-save]');if(sv)sv.onclick=()=>{const c=C(),r=c.rows[selected],f=$('ed-field').value,
+ label=(EDITABLE.find(x=>x[0]===f)||[])[1]||f,reason=($('ed-reason').value||'').trim(),by=($('ed-by').value||'').trim();
+ if(!reason){warn('修正理由を入力してください。');$('ed-reason').setAttribute('aria-invalid','true');$('ed-reason').focus();return}
+ if(!by){warn('修正者を入力してください。AIは補完しません。');$('ed-by').setAttribute('aria-invalid','true');$('ed-by').focus();return}
+ let val;
+ if(f==='qty'){const st=$('ed-qty-state').value;
+  if(st==='数値'){const n=($('ed-qty').value||'').trim(),u=($('ed-qty-unit').value||'').trim();
+   if(!/^\d+(\.\d+)?$/.test(n)){warn('数量は数値で入力してください。');$('ed-qty').focus();return}
+   if(!u){warn('数量を訂正するときは単位が必須です（数値と単位は分離して保持します）。');$('ed-qty-unit').focus();return}
+   val=Number(n);
+   const uo=cur(r,'unit');if(u!==uo){rec().edits.push({row:r.id,field:'unit',label:'数量単位',old:uo,val:u,reason,by,at:now(),undone:false})}
+  }else{val=st}
+ }else{val=($('ed-value').value||'').trim();if(!val){warn('新しい値を入力してください。');$('ed-value').focus();return}}
+ const old=f==='qty'?cur(r,'qty'):cur(r,f);
+ if(String(old)===String(val)){warn('現在の値と同じです。訂正は記録しません。');return}
+ rec().staff=rec().staff||by;
+ rec().edits.push({row:r.id,field:f,label,old,val,reason,by,at:now(),undone:false});
+ if(rec().state!=='draft'){rec().state='staff';rec().at.review=''}
+ render();openDrawer('evidence');toast(`行${r.id} ${label} を訂正しました（旧値は履歴に残ります）。`)};
+d.querySelectorAll('[data-edit-undo]').forEach(b=>b.onclick=()=>{const n=Number(b.dataset.editUndo);rec().edits[n].undone=true;render();openDrawer('evidence');toast('訂正を取り消しました。履歴は残ります。')});}
+function closeDrawer(){ $('drawer').close();if(location.hash==='#SCR-04')goto(returnPage);}
+function openDrawer(mode,target=''){drawerMode=mode;const c=C();if(mode==='lists'){$('drawer-title').textContent=target?`行 ${target} の変更・判断事項`:'変更・判断事項と未解決事項';$('detail').innerHTML=approveLists(key,target);}else if(mode==='raw'){$('drawer-title').textContent='原表記を併記';$('detail').innerHTML='<h1>原表記と整理後の値</h1><p>元の表記を保ったまま、整理後の値と見比べます。</p>'+c.rows.map(r=>`<article class="panel"><h2>行 ${r.id} · ${e(cur(r,'kind'))}</h2><p>${e(cur(r,'od'))} / ${e(cur(r,'weight'))} / ${e(cur(r,'grade'))} / ${e(cur(r,'connection'))} / ${e(cur(r,'length'))} / ${qtyText(cur(r,'qty'))} ${e(cur(r,'unit'))}</p><blockquote>${e(r.quote)}</blockquote><p class="small">${e(r.where)}</p></article>`).join('');}else{details();}$('drawer').scrollTop=0;if(!$('drawer').open)$('drawer').showModal();bindDrawer();}
+$('nav').innerHTML=(()=>{let n=0;return titles.map((t,i)=>{if(i===3)return '';n++;const num=String(n).padStart(2,'0');return `<a href="#${id(i+1)}" aria-label="${num} ${t}"><span class="nav-num">${num}</span><span class="nav-name">${t}</span><span class="nav-tip" aria-hidden="true">${t}</span></a>`;}).join('');})();$('close').onclick=closeDrawer;$('drawer').addEventListener('cancel',ev=>{ev.preventDefault();closeDrawer()});$('detail').onclick=ev=>{if(ev.target.closest('[data-lists-all]')){openDrawer('lists');return;}const evidenceButton=ev.target.closest('[data-evidence]');if(evidenceButton){selected=Number(evidenceButton.dataset.evidence);openDrawer('evidence');return;}if(ev.target.closest('[data-prev]')&&selected>0){selected--;details();bindDrawer();}if(ev.target.closest('[data-next]')&&selected<C().rows.length-1){selected++;details();bindDrawer();}};$('nav-toggle').onclick=()=>{const closed=document.body.classList.toggle('nav-collapsed');$('nav-toggle').textContent=closed?'›':'‹';$('nav-toggle').setAttribute('aria-expanded',String(!closed));$('nav-toggle').setAttribute('aria-label',closed?'ナビゲーションを開く':'ナビゲーションを閉じる');$('nav-toggle').title=closed?'ナビゲーションを開く':'ナビゲーションを閉じる';};window.addEventListener('hashchange',route);render();
+</script><script>
+// Status color-coding: derive a tone from the label text after each render.
+(()=>{const T=[[/対応なし|欠落|上限超過|容量超過|未対応形式/,'danger'],[/対応済み|解決$|^解決|判断済み|照合済み|承認|警告なし|網羅性確認 済/,'ok'],[/択一|TBA|継承候補|P\.S\.|Rev\.|変更採用|要確認|数量未確定|未解決|未対応|対応中|保留|差し戻し|訂正|未照合/,'warn'],[/^除外|Scope/,'neutral'],[/担当者|案件レベル/,'accent']];
+const tone=t=>{for(const [re,k] of T)if(re.test(t))return k;return ''};
+const apply=root=>{root.querySelectorAll('.pill').forEach(p=>{const k=tone(p.textContent.trim());if(k)p.dataset.tone=k});
+ root.querySelectorAll('#SCR-03 tbody td:nth-child(13)').forEach(td=>{const k=tone(td.firstChild&&td.firstChild.textContent||'');if(k)td.dataset.tone=k});};
+const mo=new MutationObserver(ms=>{for(const m of ms)if(m.target.id==='pages'||m.target.id==='detail'){apply(document.body);return}});
+mo.observe(document.body,{childList:true,subtree:true});apply(document.body);})();
+</script></body></html>
