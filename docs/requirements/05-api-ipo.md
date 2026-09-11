@@ -538,7 +538,7 @@
 | — | （1 の進捗ステータスの導出元） | — | ①資料投入=案件があり確定版なし ②案の確認=確定版あり ③担当者確認=`versions.current_state='staff_checked'` ④上司の評価確認=`'review_checked'`（③2章。**①②は業務状態ではなく UI の表示区分**であり状態遷移の記録対象にしない） | — |
 | 2 | `POST /cases` | 案件ID・名称 | 案件 | 409 `E_DUPLICATE_CASE_CODE` |
 | 4 | `GET /cases/{id}/documents` | 案件ID | 資料一覧・読取状態 | 404 |
-| 5 | `POST /cases/{id}/documents` | ファイル | 受付結果・読取状態 | 413 `E_LIMIT_EXCEEDED` / 415 `E_UNSUPPORTED_FORMAT` |
+| 5 | `POST /cases/{id}/documents` | ファイル | 受付結果・読取状態 | 413 `E_LIMIT_EXCEEDED` / 415 `E_UNSUPPORTED_FORMAT`（**投入の事実は記録したうえで 415 を返す**。②FUNC-01 X01「未対応形式でも投入の事実は資料一覧に残す」と両立させるため、`details.documentId` に作成した資料IDを入れ、④`documents` は `kind='unsupported'` / `read_status='unsupported'` で1行残る。**413 は記録を残さない**＝上限超過は受け付け自体を拒否する） |
 | 6 | `GET /documents/{id}/content` | 範囲 | テキスト・セル値＋**ページごとの `readStatus`** | 409 `E_UNREADABLE`（**要求範囲が全体として読取不能のときのみ**。一部ページが読めない場合は 200 で返し当該ページを `unreadable` と示す。`agent-plan` の `read_document` が「画像のみページは `unreadable` を返す」契約であり、読めたページまで落とさない・N03） |
 | 7 | `GET /documents/{id}/email` | — | ヘッダ・本文・引用部・添付一覧 | 409 `E_NOT_EMAIL` |
 | 8 | `GET /cases/{id}/search` | 検索語・`limit` | 該当箇所（資料ID・位置・抜粋） | 400 `E_QUERY_REQUIRED` |

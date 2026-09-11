@@ -1,0 +1,51 @@
+[project]
+name = "training-sprint3-backend"
+version = "0.1.0"
+description = "R2B Sprint 3 backend (FastAPI + PostgreSQL + Claude Agent SDK, local)"
+# 依存の固定版に wheel がある Python に固定する（新しすぎる Python で wheel 欠落を防ぐ）
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    # FastAPI Framework
+    # 注: fastapi>=0.115 が必須（0.104 は anyio<4 を固定し claude-agent-sdk(anyio>=4) と競合する）
+    "fastapi==0.115.6",
+    "uvicorn[standard]==0.32.1",
+    # Configuration
+    # 注: pydantic/pydantic-settings を古く固定すると、uv が claude-agent-sdk / mcp を
+    #     黙って旧バージョンに降格させ、実行時に Pydantic 検証エラーで壊れる。下限で管理する
+    "python-dotenv==1.0.0",
+    "pydantic>=2.11.0",
+    "pydantic-settings>=2.7.0",
+    # Database
+    "sqlalchemy==2.0.23",
+    "psycopg[binary]==3.1.13",
+    "alembic==1.13.0",
+    # Authentication & Security
+    "python-jose[cryptography]==3.3.0",
+    "passlib[bcrypt]==1.7.4",
+    # AI Agent（Claude Agent SDK）
+    # 注: 下限必須。無ピンだと uv が他の固定に合わせて 0.1 系へ降格させることがある
+    #     （import は通るが疎通テスト時に mcp 層の Pydantic 検証エラーで壊れる）
+    "claude-agent-sdk>=0.2.119",
+    # 防御ピン（SDK 側の mcp 下限宣言が緩い場合の保険）
+    "mcp>=1.5",
+    "pypdf>=5.1.0",
+    "openpyxl>=3.1.5",
+]
+
+[dependency-groups]
+# uv sync はデフォルトで dev を含める。本番/コンテナは `uv sync --no-dev`
+dev = [
+    "pytest==7.4.3",
+    "pytest-asyncio==0.21.1",
+    "httpx==0.28.1",
+    "ruff==0.1.6",
+]
+
+[tool.uv]
+# アプリケーション（配布パッケージではない）。ルートをビルド対象にしない
+package = false
+
+[tool.pytest.ini_options]
+# T-101: Repository/Service 層の非同期テストを @pytest.mark.asyncio 無しで書けるようにする。
+asyncio_mode = "auto"
+

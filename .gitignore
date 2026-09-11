@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+*.egg-info/
+dist/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Frontend
+node_modules/
+.next/
+out/
+
+# Generated
+frontend/src/shared/api/generated/
+backend/openapi.json
+
+# Agent traces（エージェント実行トレース。設計との突き合わせ用ローカルログ）
+backend/traces/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# WSL のダウンロード由来メタデータ
+*:Zone.Identifier
