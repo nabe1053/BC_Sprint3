@@ -73,11 +73,12 @@ async def test_create_case_propagates_duplicate_from_repository_on_race() -> Non
     service, repo = _make_service(existing_case=None)
     repo.create.side_effect = DuplicateCaseCodeError(
         "case_code 'CASE-001' は既に使用されています",
-        details={"case_code": "CASE-001"},
+        details={"caseCode": "CASE-001"},
     )
 
     with pytest.raises(DuplicateCaseCodeError) as exc_info:
         await service.create_case(case_code="CASE-001", customer_name=None, title=None)
 
     assert exc_info.value.code == "E_DUPLICATE_CASE_CODE"
-    assert exc_info.value.details.get("case_code") == "CASE-001"
+    # 中-8: details のキーは camelCase（05-api-ipo.md 0.4）。
+    assert exc_info.value.details.get("caseCode") == "CASE-001"

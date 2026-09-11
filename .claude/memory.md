@@ -20,6 +20,10 @@
   標準ライブラリ email（.eml）。理由: 画像 PDF の OCR は範囲外（②FUNC-01）、マクロ・外部リンクは
   実行しない。影響範囲: openpyxl は `data_only=True` で読み、保存済み値が無いセルは
   読めた値として扱わず確認事項の材料にする。
+- [AD-007] API の表現規約を確定（`05-api-ipo.md` 0.4 に追記済み）: JSON は camelCase /
+  進捗ステータスは `intake`/`draft_review`/`staff_checked`/`review_checked` /
+  #6 の範囲指定は `fromSeq`・`toSeq`（locator は形式ごとに表記が違うため範囲指定に使わない）/
+  原本の保存先は `{STORAGE_ROOT}/{caseId}/{uuid4}{拡張子}`（元のファイル名を使わない・git 管理外）。
 - [AD-005] 未対応形式は **投入の事実を記録したうえで 415 `E_UNSUPPORTED_FORMAT` を返す**
   （`details.documentId` に資料IDを入れる）。上限超過の 413 は記録を残さない。理由: ②FUNC-01 X01
   「未対応形式でも投入の事実を残す」と 05-api-ipo 5章#5 の 415 契約を両立させるため。
@@ -48,13 +52,24 @@
 - [CV-007] 転送メールの注記（`forward_note`）は「※ で始まる行」に限って分離する。厳密な注記分離は
   FUNC-02 = AGENT-01 の責務であり reader では踏み込まない。
 - [CV-008] **境界値の受入基準は「ちょうど通る」「+1 で落ちる」の2本セット**で書く（X09 型の基準）。
+- [CV-009] **Presentation 層は入出力の変換と HTTP ステータスだけを持つ。**永続化（ファイル書き込み・
+  パス生成）・閾値判定・データ事実の生成（`received_at` 等）は必ず Service 以下に置く。
+- [CV-010] **DB の CHECK 制約で表現された語彙は、API スキーマ側にも `Literal` として二重に書く。**
+  DB まで落として IntegrityError（500）にしない。応答 DTO の状態値も `str` でなく `Literal`。
+- [CV-011] **`details` のキーも応答 JSON の一部。camelCase で統一する**（05-api-ipo 0.4）。
+  例外ハンドラは `details` を DTO に通さず素通しするため、alias 変換が効かない点に注意。
+- [CV-012] リクエスト DTO は `CamelRequestModel`（`validate_by_name=False`・camelCase のみ受理）、
+  レスポンス DTO は `CamelModel`（snake_case kwargs で構築）。使い分けを崩さない。
+- [CV-013] **統合ポイントの OpenAPI 出力先は `backend/openapi.json`**（`frontend/orval.config.ts` の
+  target がここを読む）。別の場所へ出力すると orval が古いスキーマを読み、新規エンドポイントが
+  1つもフック生成されないという気づきにくい失敗になる。
 
 ## 3. 実装バックログ（プラン状態＝ループの制御表）
 
 | ID | スライス | 種別 | 依存 | Status | レビュー | 最終更新 |
 |----|---------|------|------|--------|---------|---------|
 | T-101 | G1 案件・資料の保存と読取処理（BE） | web | - | DONE | 3回+確認 | 2026-09-12 |
-| T-102 | G1 案件・資料 API #1-10（API） | web | T-101 | PLANNED | - | 2026-09-11 |
+| T-102 | G1 案件・資料 API #1-10（API） | web | T-101 | DONE | 2回+確認 | 2026-09-12 |
 | T-103 | G1 SCR-01 案件一覧 / SCR-02 資料投入（FE） | web | T-102 | PLANNED | - | 2026-09-11 |
 | T-201 | G2 成果物の保存＋完了条件の機械判定（BE） | web | T-101 | IMPLEMENTING | - | 2026-09-12 |
 | T-202 | G2 エージェント書込 API #15-21 / 起動・監視 #12-14（API・jobs 経由） | web | T-201 | PLANNED | - | 2026-09-11 |
@@ -86,6 +101,13 @@
   開けなかった xlsx の `page_count=0` / 空の `latest_body` パート / Service の .eml 分岐が無テスト）+ 軽微6
   → 全件修正。`IntegrityError` の無条件翻訳は **CV-006 へ昇格**。
 - [RV-004] T-101 確認レビュー: **指摘なし（DONE 可）**。109 テスト PASS。
+- [RV-005] T-102 1回目: 重大3（資料投入の上限判定・保存パス生成・ファイル書込が Presentation にある /
+  空白のみ `caseCode` が 500 / 語彙外 `issueType` が DB まで到達して 500）+ 中8 + 軽微7 → 全件修正。
+  層の責務漏れが3件同根 → **CV-009 へ昇格**。語彙の二重定義漏れ → **CV-010 へ昇格**。
+- [RV-006] T-102 2回目: 中1（`details` が snake_case のまま漏れていた。implementer の「直っている」
+  という報告が**誤り**で、実応答を見た reviewer が検出）+ 軽微3 → 全件修正。**CV-011 へ昇格**。
+- [RV-007] T-102 確認レビュー: **指摘なし（DONE 可）**。167 テスト PASS。reviewer が
+  `realpath`→`abspath` の変異検査まで行い、テストの強度を確認。
 
 ## 5. 学び・ハマりどころ（再発防止）
 
@@ -99,6 +121,15 @@
   「どの文字コードでも読めない」テストデータには `\x81\x00` のような不正マルチバイト先頭バイトを使う。
 - [LN-005] 「記録は残したうえでエラーを返す」設計（415）と「受付自体を拒否する」設計（413）は非対称。
   API 層はこの2つを別々に扱う必要がある。
+- [LN-006] **「直した」という自己申告を信じない。**T-102 で implementer が「details は camelCase で出ている」
+  と報告したが、片側のコードしか見ておらず実際は snake_case で漏れていた。**実応答（HTTP レスポンス）を
+  アサートするテストが無い箇所は、直っていないと疑う。**
+- [LN-007] Pydantic の `min_length=1` は**空白のみの文字列を通す**。必須文字列は
+  `StringConstraints(strip_whitespace=True, min_length=1)` とセットで使う。
+- [LN-008] **ファイルを書く統合テストは `STORAGE_ROOT` を `tmp_path` に差し替える。**DB は TRUNCATE
+  されてもディスクは残り、実行のたびに孤児ファイルが溜まる。
+- [LN-009] パス検証のテストは「変異させたら落ちるか」で強度を測る（`realpath`→`abspath` に戻したら
+  落ちること）。通るだけのテストは退行を検知しない。
 
 ## 6. 未解決 / BLOCKED / TODO
 
@@ -106,6 +137,11 @@
 - [TODO-002] **eml には `document_pages` が無い**ため、04-db.md の完了条件の機械判定
   （`document_pages` − `document_issues` を `(document_id, locator)` で差し引く）が eml に適用できない。
   `email_parts` の `part_role`/`seq` 単位で判定するのか、設計側の方針を **T-201（完了条件の機械判定）の前に**決める。
+- [TODO-004] **別セッションが T-201 を並行実装している**（`backend/tests/t201/`・`app/services/draft_*`・
+  `alembic/versions/t201_*`）。memory §3 のバックログと二重進行になっており、memory の編集者を1つに
+  限る取り決めとも衝突する。**どちらが T-201 を持つか研修者が決める必要がある**（2026-09-12 時点で未解決）。
+- [TODO-005] 05-api-ipo 0.2 に「エラーコード不要の 422（標準バリデーション扱い）」の指針が無い。
+  T-102 では `fromSeq > toSeq` を 422（コードなし）とした。同種の入力検証が増えるなら明文化する。
 - [TODO-003] `document_issues.issue_type` の語彙（特に `reference_missing` / `not_scanned`）の
   意味づけが 04-db.md に無い。T-101 では「付随情報の欠落（引用元の日付が解釈できない等）」に
   `reference_missing` を割り当てた。設計書に用語定義を追記するとよい。

@@ -44,6 +44,16 @@
 
 この分離は `backend/tests/unit/test_api_path_separation.py` が機械的に検査する（版プレフィックスの一元化／全業務 API が `agent` か `ui` に属すること／人の記録（F群）と出力（G群）が `/agent/*` 配下に無いこと）。**このテストを消さない。**
 
+### 0.4 フィールド命名・列挙値・範囲指定（T-102 で確定）
+
+| 項目 | 決定 |
+|------|------|
+| JSON のフィールド名 | **camelCase**（`caseId` / `caseCode` / `documentId` / `readStatus` / `partRole` / `issueType`）。本書1章以降の表記に合わせる。DB の列名（snake_case）をそのまま外に出さない |
+| #1 の進捗ステータスの値 | `intake`（①資料投入＝確定版なし）/ `draft_review`（②案の確認＝確定版あり）/ `staff_checked`（③）/ `review_checked`（④）。**③④は `versions.current_state` と同じ語彙**、①②は UI の表示区分（状態遷移の記録対象にしない） |
+| #6 の範囲指定 | `fromSeq` / `toSeq`（`document_pages.seq`。1始まり・両端を含む・省略時は資料全体）。**locator は形式ごとに表記が違う（`p.N` / シート名 / `body:N`）ため範囲指定には使わない**。応答は locator と `readStatus` をページごとに返す |
+| #9 のリクエスト本文 | `locator`（省略＝資料全体）/ `issueType`（④`document_issues.issue_type` の語彙）/ `detail`（**空不可**・`E_DETAIL_REQUIRED`） |
+| 原本の保存先 | `documents.storage_path` は `{STORAGE_ROOT}/{caseId}/{uuid4}{拡張子}`。`STORAGE_ROOT` はアプリ設定（既定 `backend/storage`・git 管理外）。**元のファイル名をパスに使わない**（衝突と混入を防ぐ）。#10 は `STORAGE_ROOT` 配下であることを検証してから返す |
+
 ## 1. API一覧
 
 ### A. 案件・資料（FUNC-01, FUNC-02）
@@ -377,6 +387,8 @@
 | ステータス | 意味 | エラーコード |
 |-----------|------|------------|
 | 404 | 版が存在しない | `E_NOT_FOUND` |
+
+> **T-201補足（2026-09-12）**: 未走査判定にはメールの `email_parts` も含める。メール locator、issue の適用範囲、TBA・両端仕様の根拠項目名は `04-db.md` §3.3「T-201 補足」の契約に従う。
 
 ### 3.5 版を作成案として確定する
 

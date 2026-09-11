@@ -54,7 +54,7 @@ class CaseRepository:
                 raise
             raise DuplicateCaseCodeError(
                 f"case_code '{case.case_code}' は既に使用されています",
-                details={"case_code": case.case_code},
+                details={"caseCode": case.case_code},
             ) from exc
         await self.session.refresh(case)
         return case

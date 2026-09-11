@@ -212,6 +212,8 @@ training-sprint3/
 │   ├── scripts/export_openapi.py    # OpenAPI スキーマ出力
 │   ├── tests/
 │   ├── traces/                      # 実行トレース（{run_id}.jsonl・git管理外）
+│   ├── openapi.json                 # OpenAPI スキーマ（自動生成・git管理外）。
+│   │                                #   orval.config.ts の target がここを読む
 │   ├── pyproject.toml               # uv 依存管理（claude-agent-sdk 含む）
 │   └── .env                         # ANTHROPIC_API_KEY 等
 ├── frontend/                        # Next.js 15（App Router / FSD）
@@ -223,7 +225,6 @@ training-sprint3/
 ├── docs/
 │   ├── requirements/                # 設計ドキュメント（01〜06 + agent-plan.md。実装の入力）
 │   └── env/                         # 開発環境カスタマイズ台帳（Env フェーズ）
-├── openapi.json                     # OpenAPI スキーマ（自動生成）
 └── docker-compose.yml               # PostgreSQL 開発環境
 ```
 

@@ -8,8 +8,16 @@ build-loop の Web スライスが endpoints/ 配下にモジュールを追加�
 
 from fastapi import APIRouter
 
+from app.api.common.endpoints_reference import router as reference_router
+from app.api.ui.endpoints import cases, documents
+
 router = APIRouter(prefix="/ui", tags=["ui"])
 
-# build-loop がここに endpoints を追加していく（例）:
-# from app.api.ui.endpoints import cases, edits, confirmations, ...
-# router.include_router(cases.router)
+router.include_router(cases.router)
+router.include_router(documents.router)
+# #4・#6・#7 は UI/AGENT 共通ハンドラ（05-api-ipo.md 0.3）。
+router.include_router(reference_router)
+
+# 次のスライスがここに endpoints を追加していく（例）:
+# from app.api.ui.endpoints import edits, confirmations, ...
+# router.include_router(edits.router)

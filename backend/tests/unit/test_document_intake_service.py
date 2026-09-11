@@ -1,13 +1,14 @@
 """DocumentIntakeService（Business Logic層）の単体テスト。Repository は mock する。
 
 期待インタフェース:
-    app.services.document_intake_service.DocumentIntakeService(document_repository)
+    app.services.document_intake_service.DocumentIntakeService(
+        document_repository, storage_gateway=...
+    )
         async def intake_document(
             case_id: int,
             file_name: str,
             file_bytes: bytes,
-            received_at: datetime,
-            storage_path: str,
+            received_at: datetime | None = None,
         ) -> Document
 
     流れ: 上限判定（ファイル数／サイズ／PDFページ数／xlsxシート数）
@@ -20,9 +21,9 @@
     のため Business Logic の責務。呼び出し側が数え上げをしない。orchestrator の
     指示により、当初案の `existing_document_count` 引数を廃し、この形に修正した）。
 
-    `storage_path`（原本の保存先パス）は呼び出し側（API 層・T-102）が決定し
-    引数で渡す。Service はファイル名を流用せず、受け取った値をそのまま
-    `documents.storage_path` に入れる（reviewer 指摘 中-3）。
+    `storage_path`（原本の保存先パス）は Service が `DocumentStorageGateway`
+    （Data Access層。テストでは fake に差し替え）を呼んで決定する。ファイル名を
+    流用しない（reviewer 指摘 中-3・重-1）。
 
     app.services.exceptions.LimitExceededError:
         code == "E_LIMIT_EXCEEDED"。details にどの上限を何で超えたかを持つ
@@ -70,6 +71,22 @@ MAX_PDF_PAGES = settings.MAX_PDF_PAGES
 MAX_XLSX_SHEETS = settings.MAX_XLSX_SHEETS
 
 
+class _FakeStorageGateway:
+    """`DocumentStorageGateway` の fake（reviewer 指摘 重-1）。
+
+    実ディスクに書き込まず、`save()` の呼び出し引数を記録して決定的なパスを
+    返す（本物と同様 uuid 相当の一意な値にするため呼び出し回数を使う）。
+    """
+
+    def __init__(self) -> None:
+        self.calls: list[tuple[int, str, bytes]] = []
+
+    def save(self, case_id: int, file_name: str, file_bytes: bytes) -> str:
+        self.calls.append((case_id, file_name, file_bytes))
+        ext = file_name.rsplit(".", 1)[-1] if "." in file_name else "bin"
+        return f"/fake-storage/{case_id}/{len(self.calls)}.{ext}"
+
+
 def _make_service(
     existing_document_count: int = 0,
     **limit_overrides,
@@ -82,7 +99,11 @@ def _make_service(
         return document
 
     repo.create_with_details.side_effect = _fake_create_with_details
-    return DocumentIntakeService(repo, **limit_overrides), repo
+    storage_gateway = _FakeStorageGateway()
+    return (
+        DocumentIntakeService(repo, storage_gateway=storage_gateway, **limit_overrides),
+        repo,
+    )
 
 
 def _pdf_bytes(num_pages: int) -> bytes:
@@ -114,7 +135,6 @@ async def test_document_count_at_limit_is_processed() -> None:
         file_name="body.txt",
         file_bytes=data,
         received_at=datetime.now(UTC),
-        storage_path="/data/cases/1/body.txt",
     )
 
     repo.create_with_details.assert_awaited_once()
@@ -133,12 +153,13 @@ async def test_document_count_exceeding_limit_raises_and_does_not_call_repositor
             file_name="body.txt",
             file_bytes=data,
             received_at=datetime.now(UTC),
-            storage_path="/data/cases/1/body.txt",
         )
 
     assert exc_info.value.code == "E_LIMIT_EXCEEDED"
     assert exc_info.value.details.get("limit") == "document_count"
     repo.create_with_details.assert_not_awaited()
+    # 軽微1: 件数超過でもディスクに保存しない（storage_gateway.save 未呼び出し）。
+    assert service.storage_gateway.calls == []
 
 
 async def test_file_size_at_limit_is_processed() -> None:
@@ -151,7 +172,6 @@ async def test_file_size_at_limit_is_processed() -> None:
         file_name="just-at-limit.txt",
         file_bytes=data,
         received_at=datetime.now(UTC),
-        storage_path="/data/cases/1/just-at-limit.txt",
     )
 
     repo.create_with_details.assert_awaited_once()
@@ -168,12 +188,13 @@ async def test_file_size_exceeding_limit_raises_and_does_not_call_repository() -
             file_name="huge.txt",
             file_bytes=oversized,
             received_at=datetime.now(UTC),
-            storage_path="/data/cases/1/huge.txt",
         )
 
     assert exc_info.value.code == "E_LIMIT_EXCEEDED"
     assert exc_info.value.details.get("limit") == "file_size"
     repo.create_with_details.assert_not_awaited()
+    # 軽微1: サイズ超過でもディスクに保存しない（storage_gateway.save 未呼び出し）。
+    assert service.storage_gateway.calls == []
 
 
 async def test_pdf_page_count_at_limit_is_processed() -> None:
@@ -186,7 +207,6 @@ async def test_pdf_page_count_at_limit_is_processed() -> None:
         file_name="200pages.pdf",
         file_bytes=data,
         received_at=datetime.now(UTC),
-        storage_path="/data/cases/1/200pages.pdf",
     )
 
     repo.create_with_details.assert_awaited_once()
@@ -205,12 +225,14 @@ async def test_pdf_page_count_exceeding_limit_raises_and_does_not_call_repositor
             file_name="201pages.pdf",
             file_bytes=data,
             received_at=datetime.now(UTC),
-            storage_path="/data/cases/1/201pages.pdf",
         )
 
     assert exc_info.value.code == "E_LIMIT_EXCEEDED"
     assert exc_info.value.details.get("limit") == "pdf_pages"
     repo.create_with_details.assert_not_awaited()
+    # 軽微1: PDF ページ数超過でもディスクに保存しない
+    # （storage_gateway.save 未呼び出し）。
+    assert service.storage_gateway.calls == []
 
 
 async def test_xlsx_sheet_count_at_limit_is_processed() -> None:
@@ -223,7 +245,6 @@ async def test_xlsx_sheet_count_at_limit_is_processed() -> None:
         file_name="50sheets.xlsx",
         file_bytes=data,
         received_at=datetime.now(UTC),
-        storage_path="/data/cases/1/50sheets.xlsx",
     )
 
     repo.create_with_details.assert_awaited_once()
@@ -242,12 +263,14 @@ async def test_xlsx_sheet_count_exceeding_limit_raises_and_does_not_call_reposit
             file_name="51sheets.xlsx",
             file_bytes=data,
             received_at=datetime.now(UTC),
-            storage_path="/data/cases/1/51sheets.xlsx",
         )
 
     assert exc_info.value.code == "E_LIMIT_EXCEEDED"
     assert exc_info.value.details.get("limit") == "xlsx_sheets"
     repo.create_with_details.assert_not_awaited()
+    # 軽微1: xlsx シート数超過でもディスクに保存しない
+    # （storage_gateway.save 未呼び出し）。
+    assert service.storage_gateway.calls == []
 
 
 async def test_unsupported_format_is_recorded_then_raises_with_document_id() -> None:
@@ -262,7 +285,6 @@ async def test_unsupported_format_is_recorded_then_raises_with_document_id() -> 
             file_name="proposal.pptx",
             file_bytes=make_unsupported_format_bytes(),
             received_at=datetime.now(UTC),
-            storage_path="/data/cases/1/proposal.pptx",
         )
 
     assert exc_info.value.code == "E_UNSUPPORTED_FORMAT"
@@ -286,20 +308,21 @@ async def test_readable_document_flows_through_to_repository_save() -> None:
         file_name="body.txt",
         file_bytes=data,
         received_at=datetime.now(UTC),
-        storage_path="/data/cases/1/body.txt",
     )
 
     repo.create_with_details.assert_awaited_once()
     document = repo.create_with_details.await_args.args[0]
     assert document.kind == "text"
     assert document.read_status == "success"
-    assert document.storage_path == "/data/cases/1/body.txt"
+    assert document.storage_path.startswith("/fake-storage/1/")
     assert result is not None
 
 
-async def test_storage_path_is_used_as_is_not_derived_from_file_name() -> None:
-    """storage_path は呼び出し側から渡された値をそのまま使う（file_name を流用しない）。
-    reviewer 指摘 中-3。"""
+async def test_storage_path_is_generated_by_storage_gateway_not_derived_from_file_name() -> (
+    None
+):
+    """storage_path は Service が `DocumentStorageGateway.save()` を呼んで
+    決定した値をそのまま使う（file_name を流用しない）。reviewer 指摘 中-3・重-1。"""
     service, repo = _make_service()
     data = "本文です。".encode("utf-8")
 
@@ -308,11 +331,13 @@ async def test_storage_path_is_used_as_is_not_derived_from_file_name() -> None:
         file_name="report.txt",
         file_bytes=data,
         received_at=datetime.now(UTC),
-        storage_path="/storage/2026/09/uuid-1234.txt",
     )
 
+    gateway: _FakeStorageGateway = service.storage_gateway
+    assert gateway.calls == [(1, "report.txt", data)]
+
     document = repo.create_with_details.await_args.args[0]
-    assert document.storage_path == "/storage/2026/09/uuid-1234.txt"
+    assert document.storage_path.startswith("/fake-storage/1/")
     assert document.storage_path != document.file_name
 
 
@@ -326,7 +351,6 @@ async def test_encrypted_pdf_is_not_success_and_records_document_level_issue() -
         file_name="secret.pdf",
         file_bytes=make_encrypted_pdf_bytes(),
         received_at=datetime.now(UTC),
-        storage_path="/data/cases/1/secret.pdf",
     )
 
     document = repo.create_with_details.await_args.args[0]
@@ -348,7 +372,6 @@ async def test_corrupt_pdf_is_unreadable_and_records_document_level_issue() -> N
         file_name="broken.pdf",
         file_bytes=make_corrupt_pdf_bytes(),
         received_at=datetime.now(UTC),
-        storage_path="/data/cases/1/broken.pdf",
     )
 
     document = repo.create_with_details.await_args.args[0]
@@ -376,7 +399,6 @@ async def test_injected_document_count_limit_is_honored_without_touching_setting
             file_name="body.txt",
             file_bytes=data,
             received_at=datetime.now(UTC),
-            storage_path="/data/cases/1/body.txt",
         )
 
     assert exc_info.value.details.get("max") == 1
@@ -410,7 +432,6 @@ async def test_injected_pdf_page_limit_skips_full_extraction_when_exceeded(
             file_name="2pages.pdf",
             file_bytes=data,
             received_at=datetime.now(UTC),
-            storage_path="/data/cases/1/2pages.pdf",
         )
 
     assert exc_info.value.details.get("limit") == "pdf_pages"
@@ -428,7 +449,6 @@ async def test_corrupt_xlsx_is_unreadable_and_records_document_level_issue() -> 
         file_name="broken.xlsx",
         file_bytes=make_corrupt_xlsx_bytes(),
         received_at=datetime.now(UTC),
-        storage_path="/data/cases/1/broken.xlsx",
     )
 
     document = repo.create_with_details.await_args.args[0]
@@ -451,7 +471,6 @@ async def test_corrupt_xlsx_page_count_is_none_not_zero() -> None:
         file_name="broken.xlsx",
         file_bytes=make_corrupt_xlsx_bytes(),
         received_at=datetime.now(UTC),
-        storage_path="/data/cases/1/broken.xlsx",
     )
 
     document = repo.create_with_details.await_args.args[0]
@@ -467,7 +486,6 @@ async def test_encrypted_xlsx_page_count_is_none_not_zero() -> None:
         file_name="secret.xlsx",
         file_bytes=make_encrypted_xlsx_bytes(),
         received_at=datetime.now(UTC),
-        storage_path="/data/cases/1/secret.xlsx",
     )
 
     document = repo.create_with_details.await_args.args[0]
@@ -485,7 +503,6 @@ async def test_text_page_count_is_always_one() -> None:
         file_name="body.txt",
         file_bytes=data,
         received_at=datetime.now(UTC),
-        storage_path="/data/cases/1/body.txt",
     )
 
     document = repo.create_with_details.await_args.args[0]
@@ -517,7 +534,6 @@ async def test_injected_xlsx_sheet_limit_skips_full_extraction_when_exceeded(
             file_name="2sheets.xlsx",
             file_bytes=data,
             received_at=datetime.now(UTC),
-            storage_path="/data/cases/1/2sheets.xlsx",
         )
 
     assert exc_info.value.details.get("limit") == "xlsx_sheets"
@@ -544,7 +560,6 @@ async def test_xlsx_success_passes_sheet_cells_through_to_document_pages() -> No
         file_name="one-sheet.xlsx",
         file_bytes=data,
         received_at=datetime.now(UTC),
-        storage_path="/data/cases/1/one-sheet.xlsx",
     )
 
     pages_arg = repo.create_with_details.await_args.kwargs.get("pages")
@@ -572,7 +587,6 @@ async def test_eml_success_passes_part_role_seq_and_sent_at_to_repository() -> N
         file_name="inquiry.eml",
         file_bytes=data,
         received_at=datetime.now(UTC),
-        storage_path="/data/cases/1/inquiry.eml",
     )
 
     document = repo.create_with_details.await_args.args[0]
@@ -589,3 +603,28 @@ async def test_eml_success_passes_part_role_seq_and_sent_at_to_repository() -> N
     assert latest.sent_at.day == 1
     assert latest.from_addr == "sender@example.com"
     assert "見積をお願いします" in latest.body
+
+
+# ---------------------------------------------------------------------------
+# assert_within_size_limit（reviewer 指摘 重-1: endpoints のチャンク読取ループが
+# 呼ぶサイズ上限の判定述語。算術は Service 側に置く）。
+# ---------------------------------------------------------------------------
+
+
+def test_assert_within_size_limit_passes_at_exact_limit() -> None:
+    service, _ = _make_service()
+    max_bytes = MAX_FILE_SIZE_MB * 1024 * 1024
+
+    service.assert_within_size_limit(max_bytes)  # 例外を送出しない
+
+
+def test_assert_within_size_limit_raises_with_details_when_exceeded() -> None:
+    service, _ = _make_service()
+    max_bytes = MAX_FILE_SIZE_MB * 1024 * 1024
+
+    with pytest.raises(LimitExceededError) as exc_info:
+        service.assert_within_size_limit(max_bytes + 1)
+
+    assert exc_info.value.code == "E_LIMIT_EXCEEDED"
+    assert exc_info.value.details.get("limit") == "file_size"
+    assert exc_info.value.details.get("max") == MAX_FILE_SIZE_MB

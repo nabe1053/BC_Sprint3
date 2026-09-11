@@ -26,6 +26,9 @@ backend/openapi.json
 # Agent traces（エージェント実行トレース。設計との突き合わせ用ローカルログ）
 backend/traces/
 
+# 資料の保存先（05-api-ipo.md 0.4・T-102。STORAGE_ROOT 既定値）
+backend/storage/
+
 # OS
 .DS_Store
 Thumbs.db

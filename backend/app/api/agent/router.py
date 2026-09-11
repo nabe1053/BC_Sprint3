@@ -9,8 +9,15 @@ build-loop のエージェントスライスが endpoints/ 配下にモジュー
 
 from fastapi import APIRouter
 
+from app.api.agent.endpoints import documents
+from app.api.common.endpoints_reference import router as reference_router
+
 router = APIRouter(prefix="/agent", tags=["agent"])
 
-# build-loop がここに endpoints を追加していく（例）:
-# from app.api.agent.endpoints import documents, items, evidence, ...
-# router.include_router(documents.router)
+router.include_router(documents.router)
+# #4・#6・#7 は UI/AGENT 共通ハンドラ（05-api-ipo.md 0.3）。
+router.include_router(reference_router)
+
+# 次のスライスがここに endpoints を追加していく（例）:
+# from app.api.agent.endpoints import items, evidence, ...
+# router.include_router(items.router)

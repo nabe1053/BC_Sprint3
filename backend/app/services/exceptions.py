@@ -50,3 +50,40 @@ class LimitExceededError(DomainError):
     """
 
     code = "E_LIMIT_EXCEEDED"
+
+
+class NotFoundError(DomainError):
+    """対象が存在しない。05-api-ipo.md 6章 `E_NOT_FOUND`（T-102: 案件・資料共通）。"""
+
+    code = "E_NOT_FOUND"
+
+
+class UnreadableError(DomainError):
+    """要求範囲が全体として読取不能。05-api-ipo.md 6章 `E_UNREADABLE`（N03）。
+
+    一部ページのみ読めない場合はエラーにせず、ページごとの `readStatus` で示す
+    （5章 #6）。全体として1つも読めるページが無いときだけ送出する。
+    """
+
+    code = "E_UNREADABLE"
+
+
+class NotEmailError(DomainError):
+    """.eml でない資料にメール構造を要求した。05-api-ipo.md 6章 `E_NOT_EMAIL`（FUNC-02）。"""
+
+    code = "E_NOT_EMAIL"
+
+
+class QueryRequiredError(DomainError):
+    """検索語が空。05-api-ipo.md 6章 `E_QUERY_REQUIRED`（FUNC-04）。"""
+
+    code = "E_QUERY_REQUIRED"
+
+
+class DetailRequiredError(DomainError):
+    """読取不能の説明（`document_issues.detail`）が空。
+
+    05-api-ipo.md 6章 `E_DETAIL_REQUIRED`（N03: 表示できない記録を残さない）。
+    """
+
+    code = "E_DETAIL_REQUIRED"

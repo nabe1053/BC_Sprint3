@@ -7,8 +7,14 @@
 `document_repository.count_by_case()` で取得する（呼び出し側に数え上げをさせない。
 上限判定は業務ルールであり Business Logic の責務のため）。
 
-`storage_path`（原本の保存先パス）は呼び出し側（API 層・T-102）が決定し引数で
-渡す。ファイル名を流用しない（reviewer 指摘 中-3）。
+`storage_path`（原本の保存先パス）は本 Service が `DocumentStorageGateway`
+（Data Access層）を呼んで決定する。ファイル名を流用しない（reviewer 指摘 中-3）。
+保存は上限判定（件数・サイズ・PDFページ数・xlsxシート数）をすべて通過した後にのみ
+行う（reviewer 指摘 重-1・中-3: 413 でディスクに孤児ファイルを残さない）。
+
+サイズ上限の判定述語 `assert_within_size_limit()` は呼び出し側（API層・
+チャンク読取ループ）からも呼べるように公開している（reviewer 指摘 重-1:
+サイズ上限の判定はここに集約し、endpoints には算術を書かせない）。
 
 未対応形式（kind="unsupported"）は 05-api-ipo.md 5章 #5 のとおり、投入の事実を
 先に保存してから `UnsupportedFormatError`（E_UNSUPPORTED_FORMAT）を送出する
@@ -32,11 +38,15 @@ page_count（決定2・軽微-5）: 判定できない値は None のまま 0 �
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Protocol
 
 from app.core.config import settings
 from app.models.documents import Document, DocumentIssue, DocumentPage, EmailPart
+from app.repositories.document_storage import (
+    DocumentStorageGateway,
+    DocumentStorageProtocol,
+)
 from app.services.exceptions import LimitExceededError, UnsupportedFormatError
 from app.services.readers.classifier import detect_document_kind
 from app.services.readers.eml_reader import read_eml
@@ -93,12 +103,16 @@ class DocumentIntakeService:
     def __init__(
         self,
         document_repository: DocumentRepositoryProtocol,
+        storage_gateway: DocumentStorageProtocol | None = None,
         max_documents_per_case: int | None = None,
         max_file_size_mb: int | None = None,
         max_pdf_pages: int | None = None,
         max_xlsx_sheets: int | None = None,
     ) -> None:
         self.document_repository = document_repository
+        self.storage_gateway = (
+            storage_gateway if storage_gateway is not None else DocumentStorageGateway()
+        )
         self.max_documents_per_case = (
             max_documents_per_case
             if max_documents_per_case is not None
@@ -116,13 +130,30 @@ class DocumentIntakeService:
             max_xlsx_sheets if max_xlsx_sheets is not None else settings.MAX_XLSX_SHEETS
         )
 
+    def assert_within_size_limit(self, total_bytes: int) -> None:
+        """アップロード中の累積バイト数がサイズ上限内かを判定する（reviewer 指摘 重-1）。
+
+        endpoints のチャンク読取ループから呼ばれる想定（全部メモリに載せる前に
+        打ち切れるよう、都度この述語を呼ぶ）。上限超過なら `LimitExceededError`
+        （413）を送出する。算術（上限バイト数の計算）は endpoints に持たせない。
+        """
+        max_file_size_bytes = self.max_file_size_mb * _BYTES_PER_MB
+        if total_bytes > max_file_size_bytes:
+            raise LimitExceededError(
+                "ファイルサイズの上限を超えています",
+                details={
+                    "limit": "file_size",
+                    "max": self.max_file_size_mb,
+                    "actual": round(total_bytes / _BYTES_PER_MB, 2),
+                },
+            )
+
     async def intake_document(
         self,
         case_id: int,
         file_name: str,
         file_bytes: bytes,
-        received_at: datetime,
-        storage_path: str,
+        received_at: datetime | None = None,
     ) -> Document:
         existing_count = await self.document_repository.count_by_case(case_id)
         if existing_count + 1 > self.max_documents_per_case:
@@ -135,16 +166,7 @@ class DocumentIntakeService:
                 },
             )
 
-        max_file_size_bytes = self.max_file_size_mb * _BYTES_PER_MB
-        if len(file_bytes) > max_file_size_bytes:
-            raise LimitExceededError(
-                "ファイルサイズの上限を超えています",
-                details={
-                    "limit": "file_size",
-                    "max": self.max_file_size_mb,
-                    "actual": round(len(file_bytes) / _BYTES_PER_MB, 2),
-                },
-            )
+        self.assert_within_size_limit(len(file_bytes))
 
         kind = detect_document_kind(file_name)
         content_hash = compute_content_hash(file_bytes)
@@ -230,6 +252,11 @@ class DocumentIntakeService:
                 )
             ]
 
+        # 保存（ディスク書き込み）は上限判定（件数・サイズ・PDFページ数・xlsxシート数）
+        # をすべて通過した後にだけ行う（reviewer 指摘 重-1・中-3: 413 時の孤児
+        # ファイルを残さない）。
+        storage_path = self.storage_gateway.save(case_id, file_name, file_bytes)
+
         document = Document(
             case_id=case_id,
             file_name=file_name,
@@ -238,7 +265,7 @@ class DocumentIntakeService:
             page_count=page_count,
             read_status=read_status,
             content_hash=content_hash,
-            received_at=received_at,
+            received_at=received_at if received_at is not None else datetime.now(UTC),
         )
 
         saved = await self.document_repository.create_with_details(

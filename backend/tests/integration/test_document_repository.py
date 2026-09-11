@@ -180,3 +180,22 @@ async def test_unsupported_kind_document_is_recorded(db_session) -> None:
     assert saved.kind == "unsupported"
     assert saved.read_status == "unsupported"
     assert await repo.get_page_by_locator(document.id, "p.1") is None
+
+
+async def test_search_pages_escapes_ilike_wildcards(db_session) -> None:
+    """reviewer 指摘 軽-2: 検索語に含まれる `%` `_` はワイルドカードとして
+    展開されず、リテラル文字として扱われる。"""
+    case = await _make_case(db_session)
+    repo = DocumentRepository(db_session)
+    document = await repo.create_with_details(
+        _new_document(case.id, file_name="discount.pdf"),
+        pages=[
+            DocumentPage(locator="p.1", seq=1, text="10%_OFF クーポン", cells=None),
+            DocumentPage(locator="p.2", seq=2, text="10XOFF クーポン", cells=None),
+        ],
+    )
+
+    results = await repo.search_pages(case.id, "10%_OFF", limit=10)
+
+    matched_locators = {page.locator for doc, page in results if doc.id == document.id}
+    assert matched_locators == {"p.1"}

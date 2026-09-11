@@ -72,7 +72,8 @@ async def test_case_code_is_unique(db_session) -> None:
         await repo.create(Case(case_code="CASE-DUP", customer_name=None, title=None))
 
     assert exc_info.value.code == "E_DUPLICATE_CASE_CODE"
-    assert exc_info.value.details.get("case_code") == "CASE-DUP"
+    # 中-8: details のキーは camelCase（05-api-ipo.md 0.4）。
+    assert exc_info.value.details.get("caseCode") == "CASE-DUP"
 
 
 async def test_non_unique_integrity_error_is_not_translated(db_session) -> None:

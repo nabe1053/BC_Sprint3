@@ -29,6 +29,11 @@ class Settings(BaseSettings):
     # ファイル入力（読取専用の原本パス。references/ 配下のみを対象にする想定。D02 の上限は別途アプリで判定）
     DOCUMENTS_ROOT: str = "../references"
 
+    # 資料投入（#5）の保存先。05-api-ipo.md 0.4:
+    # storage_path = f"{STORAGE_ROOT}/{caseId}/{uuid4}{拡張子}"。元のファイル名をパスに使わない。
+    # git 管理外（.gitignore に backend/storage/ を追加済み）。
+    STORAGE_ROOT: str = "storage"
+
     # D02（入力上限）の開発時仮値（memory.md AD-003）。初版受入前に研修者が実値を確定する（TODO-001）。
     MAX_DOCUMENTS_PER_CASE: int = 50
     MAX_FILE_SIZE_MB: int = 20
