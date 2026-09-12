@@ -147,10 +147,28 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 02:20・実評価 run 4 → **L-4 を最優先**、T-301 は中断継続）
+## 7. 次にやること（2026-09-13 02:50・実評価 run 5 → **L-5 を最優先**、T-301 は中断継続）
 
-- L-3 は reviewer 確認中。**実評価 run 4 でツール呼出しは成功**（`get_rules → list → read_document ×4`）したが、読取後 63 秒で `failed/process_interrupted`・turns=0 で終了。
-  詳細: `docs/evaluations/g2-real-model-ae01-2026-09-13.md` 試行 2、memory LN-045。**タスク L-4 を最優先**（L-3 と同じファイル群）。完了合図: `docs/t205-handoff.md` 冒頭 `## L-4 対応（run 4）` ＋ `再レビュー依頼`
+- L-3 は reviewer **DONE 可**、L-4 は run 5 で実機確認済み（無応答誤判定は解消。L-4 のレビューは L-5 と合わせて行う）
+- **run 5 の結果**: モデルは `get_rules → list → read ×4 → record_case_header → propose_items(11 行・AE01 の期待どおり)` まで成功。次の `record_source_inventory` が
+  `E_REQUEST_INVALID` で **1 回目のツールエラーで runner が即 `failed/tool_rejected`**。設計（agent-plan 異常系 B・失敗条件② 3 回）に対し実装が厳しすぎる（AD-020）。
+  詳細: `docs/evaluations/g2-real-model-ae01-2026-09-13.md` 試行 3。完了合図: `docs/t205-handoff.md` 冒頭 `## L-5 対応（run 5）` ＋ `再レビュー依頼`
+
+### タスク L-5: ツールエラーをモデルへ返して継続（AD-020・agent-plan:235 改定済み）
+
+1. **runner**: `reply.is_error` で即 `RunResult("failed", turns, "tool_rejected")` にせず、**同一ツール名×同一 `observation.code` が連続 `REPEATED_CALL_LIMIT`（3）回**で
+   初めて `failed/tool_rejected`。それまでは is_error の結果をモデルへ返して継続（`repeated_call` の既存カウンタと同型の別カウンタ。`repeated_call` は「同一引数の反復」なので混ぜない）
+2. **ToolExecutor の error 経路**: `E_REQUEST_INVALID` のとき、ツール結果（`ToolReply` → SDK handler の `content`）に **固定コード＋モデル自身の引数に対する項目別の検証メッセージ**
+   （Pydantic の `loc` と `msg`。`input` 値は含めない・資料本文や他案件情報を含めない）を返す。トレースの `observation` は従来どおり code と count のみ（本文なし）。
+   スコープ逸脱（`E_NOT_FOUND` 等）は固定コードのみ
+3. **run 5 の実引数を再現**: `E_REQUEST_INVALID` になった `record_source_inventory` の入力を推定し（トレースには残っていない。`InventoryArguments` のスキーマと
+   agent-plan「ツール一覧」の inventory 定義を照合）、**MCP ツールの `input_schema`/description にモデルが迷わない説明**（`status` の語彙・`basis` 必須条件・`excerpt` の意味）が
+   出ているか確認して不足を補う（説明文の追加は設計外のツール追加ではない）
+4. テスト（SDK 完全モック・決定的）: 同一コード 2 回は継続し 3 回目で `tool_rejected` / 異なるコードは連続と数えない / 成功で連続カウンタがリセット /
+   E_REQUEST_INVALID の結果に `loc`・`msg` が含まれ `input` 値・資料本文が含まれない / 既存 `test_agent_execution_tools` の期待更新は「継続」に合わせる
+5. 設計書: agent-plan T-203 節の該当行は Claude が改定済み（:235）。04-db §3.2 の `tool_rejected` 説明を「連続 3 回」に合わせて 1 行修正
+6. 完了条件: `AGENT_MODE=local_dummy DEBUG=false CI=true make check` all green。`make agent-eval`（14 ケース）の既存シナリオが落ちないこと（`unsupported` は
+   `report_unreadable → record_question → local_dummy_unsupported` 経路なので影響なし。落ちたら理由を書く）。commit しない。Claude は提出後に run 6
 
 ### タスク L-4: 長い生成中の無応答誤判定と、期限発火時の分類崩れ（run 4）
 

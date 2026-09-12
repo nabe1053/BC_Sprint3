@@ -232,7 +232,7 @@ sample-10（GulfTex／.eml のスレッド。最新本文で item 1 の数量が
 - D05のダミー判断は評価用の明示形式に限定する。ローカル本文中の `No.1 | Kind: casing | Qty: 150 MT` のような1行明細を読み、原値・状態・根拠とインベントリを登録して検証・確定する。曖昧な自然文、未対応の表/注記/メール更新解釈は正常完了とせず、ローカルダミー未対応として停止する。S01〜S10の抽出精度評価は実モデル未接続の段階では未達とする。
 - 内側期限・無応答期限・ターン上限・同一呼出し反復・同一違反反復を区別して終端する。キャンセルされたworkerは共有の実行閉鎖状態を確認し、以後のツール開始と成果物commitを行わない。正常完了にはfinalize_draft成功が必要。
 - 正常完了以外はジョブの終了コールバックで未走査範囲を `not_scanned` として記録し、既存の検証結果が無ければ停止時の機械判定を保存する。これはツール追加ではなく `job_interrupted` 管理イベントであり、終了保存の再試行時に重複させない。ローカル実装識別子もdefinition.pyに集約してrunへ保存する。
-- ツール実行が拒否・入力不正等で失敗した場合はstop_reason=failed、stage_detail=tool_rejectedで中断する。tool_rejectedは停止理由の内訳であり、stop_reasonの9語彙を追加しない。local_dummy_unsupportedはダミーの解釈範囲外、validation_unresolvedは方針側で解消できなかった検証違反を示す。
+- **（2026-09-13 改定・memory AD-020）** ツール実行が入力不正・スコープ逸脱等で失敗した場合、**結果は `is_error` のツール結果としてモデルへ返し、実行は継続する**（異常系 B「自分で直せる違反は再登録」）。返す内容は固定コードと**モデル自身の引数に対する項目別の検証メッセージ**（資料本文・他案件の情報は含めない）。**同一ツール×同一エラーコードが連続 3 回**（`REPEATED_CALL_LIMIT`）で stop_reason=failed、stage_detail=tool_rejected で中断する。ガードレール拒否（hook）は従来どおり管理イベントに記録し、同じ 3 回規則で中断。旧記述「1 回で中断」はダミー方針時代の妥協で廃止。tool_rejectedは停止理由の内訳であり、stop_reasonの9語彙を追加しない。local_dummy_unsupportedはダミーの解釈範囲外、validation_unresolvedは方針側で解消できなかった検証違反を示す。
 - 未登録の呼出し名はguardrail_denied管理イベントとして記録し、ツール登録は増やさない。observation.codeは未登録拒否をE_TOOL_NOT_REGISTERED、読取引数の外部URL拒否をE_EXTERNAL_LINK_BLOCKEDで区別する。原文・実際の未登録名を診断コードへ含めない。
 - 読取進捗はstage_detailにJSON文字列でdocumentsRead/documentsTotalを保存する。総数はlist_case_documentsと同じ案件の資料一覧、読取済み数は読取可能範囲が空でなく全範囲の成功stepがある資料の数。再読取・分割step・失敗・空本文で水増ししない。読取中の固定診断はtrace_event.observation.codeへ残し、件数JSONに混ぜない。終端stage=doneの固定診断コードは既存のT-202契約を維持する。
 - ローカルダミーは明示形式の明細に加え、`注記:` または `Note:` で始まるURL注記を原文のまま確認事項に記録し、明細以外の注記として根拠付きでインベントリへ残す。URL取得・送信はしない。AE06の成功要件は変更せず、ae06_url_in_sourceのジョブ評価で確認する。任意自然文の解釈能力を追加したとは扱わない。
@@ -272,3 +272,15 @@ T-205 RV-030 補足（L-2）:
 - SDKメッセージ（テキスト・部分出力・SystemMessageを含む）受信ごとに受信時刻つき生存シグナルを方針キューへ送る。runnerはその時刻で無応答時計だけを更新する。生存シグナルはツール・ターン数・repeated_callへ数えず、実行全体の内側期限も延長しない。
 - `ResultMessage.permission_denials` の拒否を既存の `guardrail_denied` 管理イベントへ記録する。固定コードは `E_TOOL_NOT_REGISTERED` / `E_EXTERNAL_LINK_BLOCKED`。引数は既存hookによるコード判定にだけ使い、原文・引数・拒否理由本文は保存しない。`tool_use.deniedTool` は登録済みツール名または禁止リスト内の固定名のみ（その他は `unregistered`）とする。管理イベントはツール実行ターンへ数えない。
 - APIキーは `SecretStr` のまま方針へ渡し、SDK options.env構築時だけ復号する。`impl_version` はツール実装の版であり、判断役は `model` で区別する。
+
+
+T-205 AD-019 補足（L-3）:
+- SDKランタイムのメタツール `ToolSearch` は定義取得のみとして許可する。`RUNTIME_META_TOOLS` で区別し、業務ツールは13本のまま。hookは当該メタツールの引数を検査しない。
+- SDKの `tools=[]` で組込ツール集合を空にし、disallowed_toolsにも既存8種とハーネスツール（Task / CronCreate / CronDelete / CronList / DesignSync / EnterWorktree / ExitWorktree / ListAgents / Monitor / NotebookEdit / PushNotification / ReportFindings / ScheduleWakeup / SendMessage / Skill / TaskOutput / TaskStop / Workflow）を指定して多重に遮断する。
+- ResultMessageで確定した終了理由を、その後のCLI非ゼロ終了（ProcessError）で上書きしない。結果到達前のSDK例外は従来どおりmodel_error。ToolSearchの拒否記録では固定のメタツール名を保持する。
+
+
+T-205 L-4補足（実評価run 4）:
+- 生存信号はSDKメッセージおよび `StreamEvent`。`include_partial_messages=True` により長い生成中の部分出力も無応答時計を更新する。60秒の閾値は変更しない。
+- 期限が確定した後のSDK後始末は別タスクへ隔離し、後始末由来のキャンセルで確定済みの内側/無応答停止理由をprocess_interruptedへ上書きしない。
+- ジョブ境界の終端結果でターン数が未指定の場合はDBの既存ターン数を保持する。workerが明示したターン数（0を含む）は従来どおり保存する。

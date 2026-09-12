@@ -85,6 +85,11 @@
   agent-plan のツール一覧（13 本）を増やさない。hook は `ToolSearch` の `query` が `mcp__app__` 以外のツール名を含んでも実行自体は個別 hook が止める（多重防御維持）。
   CLI が公開する他のハーネスツール（Task / SendMessage / Monitor / Cron* / Skill / Workflow 等）は `disallowed_tools` へ追加、可能なら SDK の組込みツール指定で全て無効化。
 
+- [AD-020] **ツールエラーはモデルへ返して継続し、同一ツール×同一コードの連続 3 回で `failed/tool_rejected`**（2026-09-13 orchestrator 決定）。理由: 実評価 run 5 で
+  実モデルが 11 行を正しく抽出（択一・分割・TBA・原表記保持）した直後、`record_source_inventory` の `E_REQUEST_INVALID` 1 回で runner が即中断した。
+  agent-plan 異常系 B・失敗条件②（3 回）が正で、T-203 節の「1 回で中断」はダミー方針時代の妥協。ツール結果には項目別の検証メッセージ（自分の引数に対するもののみ）を返す /
+  影響範囲: runner・ToolExecutor の error 経路、agent-plan:235 改定済み、L-5。
+
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める

@@ -27,3 +27,16 @@
 | 対処 | Codex 短ラウンド L-4（CODEX-INSTRUCTIONS §7）。memory LN-045 |
 
 トレース: `backend/traces/4.jsonl`。
+
+## 試行 3（run_id=5, case_id=6、L-4 適用後）— 失敗（抽出は正しい・ツールエラーの扱いで停止）
+
+| 観点 | 結果 |
+|---|---|
+| ツール呼出し | 9 回成功: `get_rules → list → read_document ×4 → record_case_header → propose_items(11 行)`。142 秒・turns 6（無応答誤判定は解消。L-4 A が効いた） |
+| **抽出内容（AE01 の期待と一致）** | 11 行。No.4 は `ITEM4-CONN-ALT` グループで VAM TOP / VAM 21 の 2 行（各 260 本・合算なし）、No.5 も同様（各 380 本）、No.6 は `qty_state=tba`、No.7 は 5FT×6 / 10FT×6 の 2 行（`ITEM7-PUPJT-SPLIT`）、SM95TT を置換せず原表記保持、単位「本」「個」を原値のまま。**換算値なし** |
+| 終端 | `record_source_inventory` が `E_REQUEST_INVALID`（引数がスキーマに合わない）→ runner が **1 回目のツールエラーで即 `failed / tool_rejected`** |
+| 欠陥 C（設計と実装） | agent-plan 異常系 B「自分で直せる違反は再登録」・失敗条件②「同一違反 3 回」に対し、実装（T-203 節 :235 `tool_rejected` で即中断）はダミー方針時代の妥協。実モデルには**エラー内容を返して修正機会を与える**必要。加えてツール結果に返る情報が code のみだと何を直せばよいか分からない |
+| 漏洩・ガードレール | トレースに原文なし（grep 0）。`guardrail_denied` 0 |
+| 対処 | AD-020（ツールエラーは is_error のツール結果として返し継続。同一ツール×同一コードが連続 3 回で `failed/tool_rejected`）→ Codex 短ラウンド L-5 |
+
+トレース: `backend/traces/5.jsonl`。
