@@ -147,35 +147,35 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-12 22:40・T-204 1回目レビュー後・短ラウンド）
+## 7. 次にやること（2026-09-12 23:10・T-204 DONE・G2 が縦に1本通った）
 
-- **T-204 → DONE 不可**（memory RV-027。P1 0 / P2 4 / P3 5）。骨格（実行の型・完了判定・decoder・層配置・design）は全て OK。方針転換なし
-- **いま進めるのはタスク J（T-204 の短ラウンド）**。修正はいずれも小さい。WIP=1 のまま
-- **完了合図の固定文字列**: handoff 冒頭の見出しを `## RV-027 対応（タスク J）` とし、末尾に `再レビュー依頼` と書く。Claude はこの2語を監視する
+- **T-204 → DONE**（memory RV-028、commit `58f79f0`）。G1 全部・G2 全部・C-1 が閉じた
+- **Claude が G2 ミニ評価を実施中**（実ジョブ 1 本を起動しトレースを agent-plan.md と突き合わせ。`backend/app/**` と DB は Claude が触っている）。
+  その間 Codex は **タスク K（C-2）** の「サーバー非依存の項目」だけ進める。**`backend/app/` 配下は触らない**（ミニ評価の対象が動いているため）
+- 完了合図: handoff 見出し `## C-2（タスク K）` ＋ 末尾 `再レビュー依頼`。ファイルは `docs/c2-handoff.md`
 
-### タスク J: T-204 RV-027 の修正（orchestrator 判断つき）
+### タスク K: C-2 整理 chore（記録のみ P3 のまとめ。振る舞い不変）
 
-1. **P2-1 版の注記（必須）**: `agentRuns.versionNote` を追加し `AgentRunPanel` の起動ボタン近傍に常時表示。文言は 03-spec:124
-   「実ファイルを抽出する処理ではありません。再実行は別の生成版になります。未生成の案件ではまだ版がありません」（件数は出さない）
-2. **P2-2 作成後の引き継ぎ通知（必須）**: `acknowledgedCarryOver: true` で起動した run が成功したら、完了表示に
-   「前版の修正・確認記録は引き継がれていません（既存版は保全されています）」を併記（03-spec:155 X12。件数なし）。RED を先に
-3. **P2-3 elapsedSec の丸め（必須）**: `RunProgress` で `Math.floor(run.elapsedSec)` してから `t()` へ。実 API 相当の小数値（例 `12.3456789`）を渡すテスト 1 本
-4. **P2-4 起動結果不明の行き止まり（必須・判断済み）**: 資料投入を止める保守的判断は**維持**する。そのうえで、パネルに
-   「状態を確認し直す」ボタン（**再 POST しない**。パネルの `uncertain`/エラー状態をリセットして起動可能状態へ戻すだけ）を置き、文言を
-   「起動結果を確認できません。状態を確認し直してから、必要なら再度起動してください」に変える。「一覧を再読み込み」は受付一覧と誤読されるので使わない。
-   リセット後に再起動した場合、サーバーが `E_RUN_IN_PROGRESS`（409）を返せば既存の 409 表示に落ちる（二重実行は BE が防ぐ）
-5. **P3-1**: 進行中 Promise の保持を `useMemo` → `useRef`（`caseId` 変化時に `useEffect` でクリア）。ESLint 警告は依存配列で正しく解消する
-6. **P3-2**: 停止理由 9・段階 3 の語彙配列を `model.ts` のモジュール定数へ集約し `stopReasonLabelKey()` / `stageLabelKey()` を export
-7. **P3-3**: `stage === "done"` は既知値。`agentRuns.stage.done`「結果を確定中」を追加し pending 扱いにしない
-8. **P3-4**: 成功時に診断コードを**併記しない**（完了表示は versionId＋注記のみ）とテストで固定
-9. **P3-5**: `docs/test-results/run-ui-checks.mk` / `run-ui-mutations.py` / `run-ui-browser.cjs` は `/tmp` 参照で再実行不能なので**削除**（本指示で承認）。
-   ログと画像は残す
-10. 完了条件: `DEBUG=false CI=true make check` all green ＋ design-lint 0 ＋ `docs/t204-handoff.md` 冒頭に `## RV-027 対応（タスク J）` の対応表
-    （指摘ごとに変更ファイル:行 / RED→GREEN 実結果 / 変異 1 行）＋ `再レビュー依頼`。BE 変更なし。commit しない
+対象は memory TODO-010 / TODO-012 のうち **`backend/app/` を触らないもの**（TODO-009 と TODO-011 ① は次ラウンド）:
+1. Makefile: `.NOTPARALLEL:` を追加（`-j` 継承でゲート順序が崩れる。RV-023）/ `INDEX_TEST_URL` 等を target-specific export に /
+   `export` 行を `TEST_DB :=` の後ろへ。`test_regression_gate.py` の make 起動は `MAKEFLAGS` を空にして呼ぶ
+2. `scripts/check_scan_index.py`: 環境変数欠落時の `KeyError` を「`make check-run-step-index` から実行してください」の `SystemExit` に
+3. リネーム（`git mv`・CV-017）: `scripts/check_t202_postgres.py` → `check_run_metadata.py`、
+   `tests/integration/test_api_path_separation_t102.py` → `test_api_path_separation_live.py`。参照追従（Makefile・docs は履歴のまま）
+4. `tests/integration/conftest.py`: SQLite `@compiles` と共有 metadata 書換を `tests/fixtures/sqlite_support.py` に切り出しコメント明示 /
+   `TestConnection` → `SyncConnectionAdapter`、`test_connection` → `_connection` / seeded の `case_code="T202"` → `"SEED-CASE"`
+5. テスト間 import の解消（CV-021）: `integration/test_agent_run_lifecycle.py` `integration/test_draft_repository.py` が `tests.unit.*` から取る
+   ビルダ（`item` / `header` / `item_data` / `header_data`）を `tests/fixtures/` へ移す。`test_actual_application_path_separation_under_isolated_settings`
+   の改名と `runpy` 二重実行の解消
+6. FE: `features/agent-runs/components/__tests__/IntakeRecovery.test.tsx` → `features/documents/components/__tests__/` へ（RV-028 P3-6。
+   `@/features/documents/hooks` の深い mock は index 経由か同 feature 内からの参照に）
+7. 完了条件: **振る舞い不変の 3 点証明**（import 行を除く旧新 diff・テスト関数名の集合・assert 総数が一致。LN-032）＋
+   `DEBUG=false CI=true make check` all green（BE 404 / FE 166）＋ `docs/c2-handoff.md`。commit しない。
+   **注意**: `make check` は Claude のミニ評価と DB（octg_test）を共有しない（開発 DB は octg_db）が、pytest の同時実行は避ける（LN-027）。
+   Claude が `backend/app` を触っている間に `make check-be` が失敗したら、再実行せず handoff に時刻と出力を書いて止まる
 
-### T-204 の後（着手は §7 更新待ち）
-- Claude が G2 ミニ評価（実ジョブ 1 本を UI から起動しトレースを agent-plan.md と突き合わせ）→ Phase 3 入口。Codex は待機
-- その後 G3（T-301 BE）。並行可は T-401 のみ（§5）
+### C-2 の後（着手は §7 更新待ち）
+- TODO-009 / TODO-011 ①（`backend/app/` を触る整理）→ G3 T-301（BE）。並行可は T-401（§5）
 
 ### タスク F: T-103（G1 FE）の指摘修正 — 指示書は `docs/t103-instructions.md`
 

@@ -133,6 +133,7 @@
 | T-202 | G2 エージェント書込 API #15-21 / 起動・監視 #12-14（API・jobs 経由） | web | T-201 | DONE | 5回目 RV-018: **DONE 可**（P3 6 は記録のみ） | 2026-09-12 |
 | C-1 | チケット名ファイルの正規配置への移動（振る舞い不変） | chore | T-202 | DONE | 1回目 RV-026: **DONE**（P3 8 は記録のみ・TODO-012） | 2026-09-12 |
 | T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202, C-1 | DONE | 2回目 RV-022: **DONE**（P3 5 は記録のみ・TODO-009。C-1 は未完のまま） | 2026-09-12 |
+| C-2 | 記録のみ P3 の整理 chore（TODO-010/012、backend/app 非接触分） | chore | C-1, T-204 | IMPLEMENTING | Codex 着手指示（CODEX-INSTRUCTIONS §7 タスク K） | 2026-09-12 |
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | DONE | 2回目 RV-028: **DONE**（P3 1 は記録のみ・TODO-012 へ） | 2026-09-12 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
 | T-302 | G3 参照 #23-26 / 記録 #29-31,33（API） | web | T-301 | PLANNED | - | 2026-09-11 |
@@ -151,6 +152,9 @@
 > G3（T-301〜303）・G4（T-401〜403）は並行可 → G5 → G6。
 > 並行してよいのは依存が独立でファイルが重ならない組（T-301 / T-401）のみ。規則は
 > `docs/reviews/CODEX-INSTRUCTIONS.md` §5。
+
+> **G2 ミニ評価（⑤）合格・2026-09-12**: UI API 経由で実ジョブを通し、正常系 `completed`（明細 3・確認事項 2・違反 0・トレース漏洩 0・換算なし）と
+> 対応範囲外 `failed/local_dummy_unsupported`（捏造なし）を確認。記録: `docs/evaluations/g2-mini-eval-2026-09-12.md`。Phase 3 本評価は D05 承認後。
 
 > 人が読む説明版: `docs/tickets.md`（グループ・完了の目安つき）。本表が進捗の正。
 
@@ -398,6 +402,9 @@
   `features/documents/` 側か FE 統合テスト置き場へ（RV-028 P3-6）。次の整理 chore（C-2）で。
 - [TODO-013] **起動結果不明（POST 応答喪失）からの runId 再接続は API 不足で実現不能**（`docs/t204-handoff.md` §2）。案件に属する実行一覧
   （例 `GET /cases/{caseId}/agent-runs`）が無い。T-204 は「一覧を再読み込みしてください」で止める。API 追加は 05-api-ipo に積んでから。
+- [TODO-014] 数量 TBA の確認事項 `questions.category` が `unknown`（G2 ミニ評価）。04-db.md の語彙と照合し適切な区分があれば `local_policy.py` で割り当てる。
+- [TODO-015] **Phase 3 の本評価（sample-01〜10・AE01〜AE07）は実モデル接続（D05 承認）が前提。**ローカルダミーは 1 行明細形式のみ対応。
+  D05 の承認（送信先・送信範囲・保存条件）を研修者が判断するまで、Phase 3 は「型の確認」（ミニ評価）に留まる。**研修者判断待ち**。
 - [TODO-001] D02（入力上限）は AD-003 の**仮値**。初版受入（X09 の上限試験）の前に研修者が実値を確定する。
   **確定時は `backend/app/core/config.py` と `frontend/src/shared/i18n/ja.json` の上限注記の両方を直す**（RV-024 P2-2。API が上限を返さないため画面側に複製がある）。
 - [TODO-002] **eml には `document_pages` が無い**ため、04-db.md の完了条件の機械判定
