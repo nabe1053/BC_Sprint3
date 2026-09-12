@@ -70,16 +70,14 @@ describe("useDocuments", () => {
 
 describe("useIntakeDocument", () => {
   it("投入成功後に資料一覧(useDocuments)が再取得される", async () => {
-    mockedListDocuments
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([
-        {
-          documentId: 1,
-          fileName: "a.pdf",
-          kind: "pdf",
-          readStatus: "success",
-        },
-      ]);
+    mockedListDocuments.mockResolvedValueOnce([]).mockResolvedValueOnce([
+      {
+        documentId: 1,
+        fileName: "a.pdf",
+        kind: "pdf",
+        readStatus: "success",
+      },
+    ]);
     mockedIntakeDocument.mockResolvedValue({
       documentId: 1,
       readStatus: "success",
@@ -141,16 +139,14 @@ describe("useIntakeDocument", () => {
   );
 
   it("415 E_UNSUPPORTED_FORMAT は details.documentId を持ち、投入の事実が記録されるため一覧が再取得される", async () => {
-    mockedListDocuments
-      .mockResolvedValueOnce([])
-      .mockResolvedValueOnce([
-        {
-          documentId: 9,
-          fileName: "note.zip",
-          kind: "unsupported",
-          readStatus: "unsupported",
-        },
-      ]);
+    mockedListDocuments.mockResolvedValueOnce([]).mockResolvedValueOnce([
+      {
+        documentId: 9,
+        fileName: "note.zip",
+        kind: "unsupported",
+        readStatus: "unsupported",
+      },
+    ]);
     mockedIntakeDocument.mockRejectedValue(
       new ApiError(415, {
         code: "E_UNSUPPORTED_FORMAT",

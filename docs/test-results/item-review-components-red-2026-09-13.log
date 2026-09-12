@@ -1,0 +1,26 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/components.test.tsx
+
+FAIL src/features/versions/__tests__/components.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '../components/ItemListPage' from 'src/features/versions/__tests__/components.test.tsx'
+
+      21 |  mock.useEvidence.mockReturnValue(query([{evidenceId:1,field:"grade",rawValue:"K55",adoptedValue:"K55",documentId:1,locator:"body:1",quote:"<script>https://private.test</script>",appliedCondition:"共通条件",conversionNote:"換算なし",changeReason:"改訂",priorValue:"J55"}]) as never);
+      22 |  mock.useRecordMutations.mockReturnValue({edit:mutation,undoEdit:mutation,confirm:mutation,undoConfirmation:mutation,judge:mutation} as never);
+    > 23 | });
+         |    ^
+      24 | const render=()=>renderWithProviders(<ItemListPage caseId={8} versionId={9}/>);
+      25 | it("明細・7件数・版の状態・TBA・択一・旧値を文字で示し合計は出さない",()=>{
+      26 |  render();expect(screen.getAllByRole("heading",{level:1})).toHaveLength(1);
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.<anonymous> (src/features/versions/__tests__/components.test.tsx:23:23)
+
+Test Suites: 1 failed, 1 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        0.486 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/components.test.tsx/i.
+make: *** [/tmp/item-review-checks.mk:8: item-review-components] Error 1

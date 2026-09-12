@@ -1,0 +1,48 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/hooks.test.tsx
+
+FAIL src/features/versions/__tests__/hooks.test.tsx
+  ✓ edit / 200 は同じquery clientで必要なデータを再取得する (72 ms)
+  ✓ edit / 409 は同じquery clientで必要なデータを再取得する (60 ms)
+  ✓ edit / 404 は同じquery clientで必要なデータを再取得する (60 ms)
+  ✓ undoEdit / 200 は同じquery clientで必要なデータを再取得する (57 ms)
+  ✓ undoEdit / 409 は同じquery clientで必要なデータを再取得する (59 ms)
+  ✓ undoEdit / 404 は同じquery clientで必要なデータを再取得する (59 ms)
+  ✓ confirm / 200 は同じquery clientで必要なデータを再取得する (57 ms)
+  ✓ confirm / 409 は同じquery clientで必要なデータを再取得する (57 ms)
+  ✓ confirm / 404 は同じquery clientで必要なデータを再取得する (58 ms)
+  ✓ undoConfirmation / 200 は同じquery clientで必要なデータを再取得する (57 ms)
+  ✓ undoConfirmation / 409 は同じquery clientで必要なデータを再取得する (58 ms)
+  ✓ undoConfirmation / 404 は同じquery clientで必要なデータを再取得する (56 ms)
+  ✓ judge / 200 は同じquery clientで必要なデータを再取得する (58 ms)
+  ✓ judge / 409 は同じquery clientで必要なデータを再取得する (57 ms)
+  ✓ judge / 404 は同じquery clientで必要なデータを再取得する (56 ms)
+  ✓ 版履歴と根拠のキーを案件・版・行で分離する (55 ms)
+  ✕ 本番Providersの400 POSTは一度だけ、hookのretry:falseは既定retry設定にも優先する (32 ms)
+
+  ● 本番Providersの400 POSTは一度だけ、hookのretry:falseは既定retry設定にも優先する
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 2
+
+      181 |       ).rejects.toMatchObject({ code: "E_RECORDER_REQUIRED" });
+      182 |     });
+    > 183 |     expect(request).toHaveBeenCalledTimes(1);
+          |                     ^
+      184 |   } finally {
+      185 |     global.fetch = fetch;
+      186 |   }
+
+      at Object.toHaveBeenCalledTimes (src/features/versions/__tests__/hooks.test.tsx:183:21)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 16 passed, 17 total
+Snapshots:   0 total
+Time:        1.807 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/hooks.test.tsx/i.
+make[1]: *** [/tmp/item-review-checks.mk:6: item-review-hooks] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

@@ -1,0 +1,547 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/hooks.test.tsx
+
+FAIL src/features/versions/__tests__/hooks.test.tsx (13.617 s)
+  ✕ edit / 200 は同じquery clientで必要なデータを再取得する (1073 ms)
+  ✕ edit / 409 は同じquery clientで必要なデータを再取得する (1060 ms)
+  ✕ edit / 404 は同じquery clientで必要なデータを再取得する (1058 ms)
+  ✕ undoEdit / 200 は同じquery clientで必要なデータを再取得する (1057 ms)
+  ✕ undoEdit / 409 は同じquery clientで必要なデータを再取得する (1058 ms)
+  ✕ undoEdit / 404 は同じquery clientで必要なデータを再取得する (1057 ms)
+  ✕ confirm / 200 は同じquery clientで必要なデータを再取得する (1057 ms)
+  ✕ confirm / 409 は同じquery clientで必要なデータを再取得する (1058 ms)
+  ✕ confirm / 404 は同じquery clientで必要なデータを再取得する (1058 ms)
+  ✕ undoConfirmation / 200 は同じquery clientで必要なデータを再取得する (1057 ms)
+  ✕ undoConfirmation / 409 は同じquery clientで必要なデータを再取得する (1056 ms)
+  ✕ undoConfirmation / 404 は同じquery clientで必要なデータを再取得する (1055 ms)
+  ✓ judge / 200 は同じquery clientで必要なデータを再取得する (58 ms)
+  ✓ judge / 409 は同じquery clientで必要なデータを再取得する (58 ms)
+  ✓ judge / 404 は同じquery clientで必要なデータを再取得する (57 ms)
+  ✓ 版履歴と根拠のキーを案件・版・行で分離する (55 ms)
+  ✓ 本番Providersの400 POSTは一度だけ、hookのretry:falseは既定retry設定にも優先する (31 ms)
+
+  ● edit / 200 は同じquery clientで必要なデータを再取得する
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -15,11 +15,11 @@
+          "odUnit": "in",
+          "odValue": "4.500",
+          "placeState": "not_stated",
+          "qtyRaw": "TBA",
+          "qtyState": "tba",
+    -     "rowCode": "changed",
+    +     "rowCode": "R1",
+          "rowMatch": null,
+          "seq": 1,
+          "sourceNo": "4",
+          "wallState": "not_stated",
+          "weightState": "not_stated",
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div />
+      </body>
+    </html>
+
+      122 |     } else {
+      123 |       await waitFor(() =>
+    > 124 |         expect(client.getQueryData(itemsKey(9))).toEqual([
+          |                                                  ^
+      125 |           { ...item, rowCode: "changed" },
+      126 |         ]),
+      127 |       );
+
+      at toEqual (src/features/versions/__tests__/hooks.test.tsx:124:50)
+      at runWithExpensiveErrorDiagnosticsDisabled (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+  ● edit / 409 は同じquery clientで必要なデータを再取得する
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -15,11 +15,11 @@
+          "odUnit": "in",
+          "odValue": "4.500",
+          "placeState": "not_stated",
+          "qtyRaw": "TBA",
+          "qtyState": "tba",
+    -     "rowCode": "changed",
+    +     "rowCode": "R1",
+          "rowMatch": null,
+          "seq": 1,
+          "sourceNo": "4",
+          "wallState": "not_stated",
+          "weightState": "not_stated",
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div />
+      </body>
+    </html>
+
+      122 |     } else {
+      123 |       await waitFor(() =>
+    > 124 |         expect(client.getQueryData(itemsKey(9))).toEqual([
+          |                                                  ^
+      125 |           { ...item, rowCode: "changed" },
+      126 |         ]),
+      127 |       );
+
+      at toEqual (src/features/versions/__tests__/hooks.test.tsx:124:50)
+      at runWithExpensiveErrorDiagnosticsDisabled (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+  ● edit / 404 は同じquery clientで必要なデータを再取得する
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -15,11 +15,11 @@
+          "odUnit": "in",
+          "odValue": "4.500",
+          "placeState": "not_stated",
+          "qtyRaw": "TBA",
+          "qtyState": "tba",
+    -     "rowCode": "changed",
+    +     "rowCode": "R1",
+          "rowMatch": null,
+          "seq": 1,
+          "sourceNo": "4",
+          "wallState": "not_stated",
+          "weightState": "not_stated",
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div />
+      </body>
+    </html>
+
+      122 |     } else {
+      123 |       await waitFor(() =>
+    > 124 |         expect(client.getQueryData(itemsKey(9))).toEqual([
+          |                                                  ^
+      125 |           { ...item, rowCode: "changed" },
+      126 |         ]),
+      127 |       );
+
+      at toEqual (src/features/versions/__tests__/hooks.test.tsx:124:50)
+      at runWithExpensiveErrorDiagnosticsDisabled (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+  ● undoEdit / 200 は同じquery clientで必要なデータを再取得する
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -15,11 +15,11 @@
+          "odUnit": "in",
+          "odValue": "4.500",
+          "placeState": "not_stated",
+          "qtyRaw": "TBA",
+          "qtyState": "tba",
+    -     "rowCode": "changed",
+    +     "rowCode": "R1",
+          "rowMatch": null,
+          "seq": 1,
+          "sourceNo": "4",
+          "wallState": "not_stated",
+          "weightState": "not_stated",
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div />
+      </body>
+    </html>
+
+      122 |     } else {
+      123 |       await waitFor(() =>
+    > 124 |         expect(client.getQueryData(itemsKey(9))).toEqual([
+          |                                                  ^
+      125 |           { ...item, rowCode: "changed" },
+      126 |         ]),
+      127 |       );
+
+      at toEqual (src/features/versions/__tests__/hooks.test.tsx:124:50)
+      at runWithExpensiveErrorDiagnosticsDisabled (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+  ● undoEdit / 409 は同じquery clientで必要なデータを再取得する
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -15,11 +15,11 @@
+          "odUnit": "in",
+          "odValue": "4.500",
+          "placeState": "not_stated",
+          "qtyRaw": "TBA",
+          "qtyState": "tba",
+    -     "rowCode": "changed",
+    +     "rowCode": "R1",
+          "rowMatch": null,
+          "seq": 1,
+          "sourceNo": "4",
+          "wallState": "not_stated",
+          "weightState": "not_stated",
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div />
+      </body>
+    </html>
+
+      122 |     } else {
+      123 |       await waitFor(() =>
+    > 124 |         expect(client.getQueryData(itemsKey(9))).toEqual([
+          |                                                  ^
+      125 |           { ...item, rowCode: "changed" },
+      126 |         ]),
+      127 |       );
+
+      at toEqual (src/features/versions/__tests__/hooks.test.tsx:124:50)
+      at runWithExpensiveErrorDiagnosticsDisabled (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+  ● undoEdit / 404 は同じquery clientで必要なデータを再取得する
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -15,11 +15,11 @@
+          "odUnit": "in",
+          "odValue": "4.500",
+          "placeState": "not_stated",
+          "qtyRaw": "TBA",
+          "qtyState": "tba",
+    -     "rowCode": "changed",
+    +     "rowCode": "R1",
+          "rowMatch": null,
+          "seq": 1,
+          "sourceNo": "4",
+          "wallState": "not_stated",
+          "weightState": "not_stated",
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div />
+      </body>
+    </html>
+
+      122 |     } else {
+      123 |       await waitFor(() =>
+    > 124 |         expect(client.getQueryData(itemsKey(9))).toEqual([
+          |                                                  ^
+      125 |           { ...item, rowCode: "changed" },
+      126 |         ]),
+      127 |       );
+
+      at toEqual (src/features/versions/__tests__/hooks.test.tsx:124:50)
+      at runWithExpensiveErrorDiagnosticsDisabled (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+  ● confirm / 200 は同じquery clientで必要なデータを再取得する
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -15,11 +15,11 @@
+          "odUnit": "in",
+          "odValue": "4.500",
+          "placeState": "not_stated",
+          "qtyRaw": "TBA",
+          "qtyState": "tba",
+    -     "rowCode": "changed",
+    +     "rowCode": "R1",
+          "rowMatch": null,
+          "seq": 1,
+          "sourceNo": "4",
+          "wallState": "not_stated",
+          "weightState": "not_stated",
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div />
+      </body>
+    </html>
+
+      122 |     } else {
+      123 |       await waitFor(() =>
+    > 124 |         expect(client.getQueryData(itemsKey(9))).toEqual([
+          |                                                  ^
+      125 |           { ...item, rowCode: "changed" },
+      126 |         ]),
+      127 |       );
+
+      at toEqual (src/features/versions/__tests__/hooks.test.tsx:124:50)
+      at runWithExpensiveErrorDiagnosticsDisabled (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+  ● confirm / 409 は同じquery clientで必要なデータを再取得する
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -15,11 +15,11 @@
+          "odUnit": "in",
+          "odValue": "4.500",
+          "placeState": "not_stated",
+          "qtyRaw": "TBA",
+          "qtyState": "tba",
+    -     "rowCode": "changed",
+    +     "rowCode": "R1",
+          "rowMatch": null,
+          "seq": 1,
+          "sourceNo": "4",
+          "wallState": "not_stated",
+          "weightState": "not_stated",
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div />
+      </body>
+    </html>
+
+      122 |     } else {
+      123 |       await waitFor(() =>
+    > 124 |         expect(client.getQueryData(itemsKey(9))).toEqual([
+          |                                                  ^
+      125 |           { ...item, rowCode: "changed" },
+      126 |         ]),
+      127 |       );
+
+      at toEqual (src/features/versions/__tests__/hooks.test.tsx:124:50)
+      at runWithExpensiveErrorDiagnosticsDisabled (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+  ● confirm / 404 は同じquery clientで必要なデータを再取得する
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -15,11 +15,11 @@
+          "odUnit": "in",
+          "odValue": "4.500",
+          "placeState": "not_stated",
+          "qtyRaw": "TBA",
+          "qtyState": "tba",
+    -     "rowCode": "changed",
+    +     "rowCode": "R1",
+          "rowMatch": null,
+          "seq": 1,
+          "sourceNo": "4",
+          "wallState": "not_stated",
+          "weightState": "not_stated",
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div />
+      </body>
+    </html>
+
+      122 |     } else {
+      123 |       await waitFor(() =>
+    > 124 |         expect(client.getQueryData(itemsKey(9))).toEqual([
+          |                                                  ^
+      125 |           { ...item, rowCode: "changed" },
+      126 |         ]),
+      127 |       );
+
+      at toEqual (src/features/versions/__tests__/hooks.test.tsx:124:50)
+      at runWithExpensiveErrorDiagnosticsDisabled (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+  ● undoConfirmation / 200 は同じquery clientで必要なデータを再取得する
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -15,11 +15,11 @@
+          "odUnit": "in",
+          "odValue": "4.500",
+          "placeState": "not_stated",
+          "qtyRaw": "TBA",
+          "qtyState": "tba",
+    -     "rowCode": "changed",
+    +     "rowCode": "R1",
+          "rowMatch": null,
+          "seq": 1,
+          "sourceNo": "4",
+          "wallState": "not_stated",
+          "weightState": "not_stated",
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div />
+      </body>
+    </html>
+
+      122 |     } else {
+      123 |       await waitFor(() =>
+    > 124 |         expect(client.getQueryData(itemsKey(9))).toEqual([
+          |                                                  ^
+      125 |           { ...item, rowCode: "changed" },
+      126 |         ]),
+      127 |       );
+
+      at toEqual (src/features/versions/__tests__/hooks.test.tsx:124:50)
+      at runWithExpensiveErrorDiagnosticsDisabled (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+  ● undoConfirmation / 409 は同じquery clientで必要なデータを再取得する
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -15,11 +15,11 @@
+          "odUnit": "in",
+          "odValue": "4.500",
+          "placeState": "not_stated",
+          "qtyRaw": "TBA",
+          "qtyState": "tba",
+    -     "rowCode": "changed",
+    +     "rowCode": "R1",
+          "rowMatch": null,
+          "seq": 1,
+          "sourceNo": "4",
+          "wallState": "not_stated",
+          "weightState": "not_stated",
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div />
+      </body>
+    </html>
+
+      122 |     } else {
+      123 |       await waitFor(() =>
+    > 124 |         expect(client.getQueryData(itemsKey(9))).toEqual([
+          |                                                  ^
+      125 |           { ...item, rowCode: "changed" },
+      126 |         ]),
+      127 |       );
+
+      at toEqual (src/features/versions/__tests__/hooks.test.tsx:124:50)
+      at runWithExpensiveErrorDiagnosticsDisabled (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+  ● undoConfirmation / 404 は同じquery clientで必要なデータを再取得する
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -15,11 +15,11 @@
+          "odUnit": "in",
+          "odValue": "4.500",
+          "placeState": "not_stated",
+          "qtyRaw": "TBA",
+          "qtyState": "tba",
+    -     "rowCode": "changed",
+    +     "rowCode": "R1",
+          "rowMatch": null,
+          "seq": 1,
+          "sourceNo": "4",
+          "wallState": "not_stated",
+          "weightState": "not_stated",
+
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div />
+      </body>
+    </html>
+
+      122 |     } else {
+      123 |       await waitFor(() =>
+    > 124 |         expect(client.getQueryData(itemsKey(9))).toEqual([
+          |                                                  ^
+      125 |           { ...item, rowCode: "changed" },
+      126 |         ]),
+      127 |       );
+
+      at toEqual (src/features/versions/__tests__/hooks.test.tsx:124:50)
+      at runWithExpensiveErrorDiagnosticsDisabled (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+Test Suites: 1 failed, 1 total
+Tests:       12 failed, 5 passed, 17 total
+Snapshots:   0 total
+Time:        13.816 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/hooks.test.tsx/i.
+make[1]: *** [/tmp/item-review-checks.mk:6: item-review-hooks] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

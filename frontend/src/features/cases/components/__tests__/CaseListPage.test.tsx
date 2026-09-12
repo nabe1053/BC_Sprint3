@@ -201,20 +201,22 @@ describe("CaseListPage: 新規案件ダイアログ", () => {
 });
 
 // 日本語直値は利用者に見える既定文言の契約を固定するために残す。追加のキーはi18n経由で検証。
-it("版の暫定表示と評価確認が送付承認ではない旨を明記する", () => {
+it("版の状態と確認記録の案内を表示し案件を開ける", () => {
   setUseCases({ data: [sampleCase] });
   setUseCreateCase();
   renderWithProviders(<CaseListPage />);
   expect(screen.getByText(i18n.t("cases.list.versionNote"))).toHaveTextContent(
-    "版の状態は案の作成後に表示します",
+    "確認者・日時は承認画面で記録します",
   );
   expect(screen.getByText(i18n.t("cases.list.footnote"))).toHaveTextContent(
     "対外送付の承認ではありません",
   );
   expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-  expect(
-    screen.queryByRole("link", { name: "案件を開く" }),
-  ).not.toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "案件を開く" })).toHaveAttribute(
+    "href",
+    "/cases/1/versions/1",
+  );
+  expect(screen.getByText("作成案")).toBeInTheDocument();
 });
 it("作成した案件の投入画面へ進み、送信中の連打を防ぐ", async () => {
   const user = userEvent.setup();
@@ -236,4 +238,19 @@ it("作成した案件の投入画面へ進み、送信中の連打を防ぐ", a
   expect(submit).toBeDisabled();
   resolve({ ...sampleCase, caseId: 8 });
   await waitFor(() => expect(mockPush).toHaveBeenCalledWith("/cases/8/intake"));
+});
+
+it("最新版がnullなら案件を開くリンクを出さず投入画面へ案内する", () => {
+  setUseCases({
+    data: [{ ...sampleCase, latestVersionId: null, progressStatus: "intake" }],
+  });
+  setUseCreateCase();
+  renderWithProviders(<CaseListPage />);
+  expect(
+    screen.queryByRole("link", { name: "案件を開く" }),
+  ).not.toBeInTheDocument();
+  expect(screen.getByRole("link", { name: "投入画面へ" })).toHaveAttribute(
+    "href",
+    "/cases/1/intake",
+  );
 });

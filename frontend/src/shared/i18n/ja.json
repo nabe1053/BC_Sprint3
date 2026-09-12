@@ -13,7 +13,7 @@
       "intakeLink": "投入画面へ",
       "footnote": "進捗ステータスは4段階で表示します。表示状態と送付可否は別の列です。上司の評価確認は原資料への適合確認であり、対外送付の承認ではありません。",
       "description": "案件を選び、資料投入と確認の進捗を把握します。",
-      "versionNote": "版の状態は案の作成後に表示します",
+      "versionNote": "確認者・日時は承認画面で記録します",
       "columns": {
         "code": "照会番号",
         "case": "案件",
@@ -23,7 +23,14 @@
         "sendoff": "送付可否",
         "action": "操作"
       },
-      "itemsNote": "明細件数は案の作成後に表示します。"
+      "itemsNote": "明細件数は案の作成後に表示します。",
+      "openCase": "案件を開く",
+      "states": {
+        "intake": "—",
+        "draft_review": "作成案",
+        "staff_checked": "担当者確認済み",
+        "review_checked": "評価確認済み"
+      }
     },
     "progress": {
       "intake": "1/4 資料投入",
@@ -187,7 +194,7 @@
     },
     "partial": "一部完了：確認が必要な箇所が残っています",
     "version": "版番号：{{versionId}}",
-    "resultNote": "Item List の確認画面は次の段階で追加されます",
+    "resultNote": "Item List を確認する",
     "stoppedHint": "資料と処理記録を確認してください。自動では再実行しません。",
     "notFound": "実行が見つかりません。進捗の取得を停止しました。",
     "communicationInterrupted": "通信中断：実行状況を確認できません。",
@@ -251,5 +258,223 @@
     "versionNote": "実ファイルを抽出する処理ではありません。再実行は別の生成版になります。未生成の案件ではまだ版がありません",
     "carryOverResult": "前版の修正・確認記録は引き継がれていません（既存版は保全されています）",
     "resetState": "状態を確認し直す"
+  },
+  "versions": {
+    "title": "Item List 確認",
+    "description": "原資料と明細を照合し、訂正・確認・判断を記録します。",
+    "back": "案件一覧へ",
+    "intake": "資料投入画面へ",
+    "version": "版 {{number}}",
+    "partial": "一部未完了の版です。抽出内容を確認してください。",
+    "state": {
+      "draft": "作成案",
+      "staff_checked": "担当者確認済み",
+      "review_checked": "評価確認済み"
+    },
+    "header": {
+      "title": "案件情報",
+      "empty": "案件情報なし",
+      "inquiryNo": "照会番号",
+      "customerName": "客先",
+      "due": "要求納期",
+      "place": "納地",
+      "incoterms": "Incoterms",
+      "quoteDeadline": "見積期限",
+      "tzMissing": "タイムゾーンの記載がありません",
+      "dueGranularity": {
+        "date": "日付",
+        "month": "月",
+        "quarter": "四半期",
+        "period": "期間",
+        "month_end": "月末",
+        "unknown": "粒度の記載なし"
+      },
+      "dueBasis": {
+        "shipment": "出荷",
+        "arrival": "到着",
+        "unknown": "基準の記載なし"
+      }
+    },
+    "counts": {
+      "itemCount": "明細",
+      "questionItemCount": "確認事項のある行",
+      "tbaItemCount": "数量TBA",
+      "choiceGroupCount": "択一グループ",
+      "matchedCount": "照合済み",
+      "editCount": "訂正",
+      "editedItemCount": "訂正のある明細 {{count}} 行",
+      "unresolvedCount": "未解決の確認事項",
+      "matched": "{{count}} / {{total}}"
+    },
+    "recorder": "担当者名（記録に共用）",
+    "recorderHint": "担当者名を入力してから記録してください。名前はこの画面を開いている間だけ保持します。",
+    "coverage": "網羅性確認：{{state}}",
+    "coverageState": {
+      "yes": "済",
+      "no": "未"
+    },
+    "filters": {
+      "keyword": "キーワード",
+      "kind": "品種",
+      "grade": "材質",
+      "connection": "接続",
+      "status": "状態",
+      "clear": "条件をクリア",
+      "count": "{{count}} / {{total}} 行",
+      "all": "全件",
+      "questions": "確認事項あり",
+      "tba": "数量TBA",
+      "choice": "択一候補",
+      "unmatched": "未照合のみ",
+      "edited": "訂正済みのみ",
+      "unresolved": "未解決のみ"
+    },
+    "columns": {
+      "match": "照合",
+      "rowCode": "行ID",
+      "kind": "品種",
+      "od": "外径",
+      "weight": "単重",
+      "grade": "材質",
+      "connection": "接続",
+      "length": "長さ",
+      "qtyValue": "数量",
+      "qtyUnit": "単位",
+      "due": "納期",
+      "group": "選択グループ",
+      "state": "状態",
+      "questions": "確認事項の要約",
+      "sourceNo": "原項番",
+      "status": "対応状況",
+      "resolution": "解決状態",
+      "note": "判断内容",
+      "details": "詳細"
+    },
+    "values": {
+      "stated": "記載あり（値）",
+      "numeric": "数値（値＋単位）",
+      "tba": "TBA",
+      "not_stated": "記載なし",
+      "not_applicable": "適用なし",
+      "empty": "—",
+      "length": "レンジ {{range}}／定尺長 {{length}}"
+    },
+    "rowState": {
+      "tba": "数量未確定",
+      "choice": "択一",
+      "inherit": "継承候補",
+      "questions": "要確認",
+      "clear": "警告なし（原資料との照合は必要）",
+      "edited": "訂正あり",
+      "matched": "照合済み",
+      "unmatched": "未照合"
+    },
+    "oldValue": "訂正 · 旧 {{value}}",
+    "details": "詳細を見る",
+    "matchLabel": "行 {{row}} の重要項目を出典と照合した",
+    "recorded": "{{by}} / {{at}}",
+    "noQuestions": "確認事項はありません。原資料との照合は必要です。",
+    "caseQuestions": "案件レベルの確認事項（案件）",
+    "judgementNote": "「照会する」「保留する」と判断しても、客先回答がなければ未解決です。",
+    "recordNote": "記録はアプリ内に保持します。訂正は詳細から行います。原表記・出典は編集対象外です。未承認の換算は行いません。",
+    "question": {
+      "title": "確認事項 {{code}}",
+      "status": "対応状況",
+      "resolution": "解決状態",
+      "note": "判断内容",
+      "record": "記録",
+      "unrecorded": "未記録",
+      "statuses": {
+        "open": "未対応",
+        "in_progress": "対応中",
+        "judged": "判断済み"
+      },
+      "resolutions": {
+        "unresolved": "未解決",
+        "resolved": "解決"
+      }
+    },
+    "drawer": {
+      "title": "行 {{row}} · {{kind}}",
+      "previous": "前の行",
+      "next": "次の行",
+      "close": "閉じる",
+      "raw": "原表記（編集対象外）",
+      "adopted": "採用値・出典",
+      "evidence": "根拠",
+      "noFieldEvidence": "根拠なし",
+      "noEvidence": "この行の根拠は登録されていません",
+      "documentMissing": "資料名を取得できません",
+      "quote": "原文抜粋",
+      "appliedCondition": "適用条件",
+      "conversionNote": "換算の注記",
+      "changeReason": "変更理由",
+      "priorValue": "変更前の値",
+      "inherit": "継承候補です。確定した仕様として扱わず、原資料を確認してください。",
+      "questions": "この行の確認事項"
+    },
+    "edit": {
+      "title": "値を訂正する",
+      "field": "対象項目",
+      "state": "値の状態",
+      "value": "新しい値",
+      "unit": "数量の単位",
+      "reason": "修正理由（必須）",
+      "recorder": "修正者（必須）",
+      "submit": "訂正を記録",
+      "hint": "原表記・出典・原項番・選択グループ・候補区分は編集対象外です。数量は数値と単位を対で記録します。択一候補は合算しません。",
+      "decimalHint": "数値は10進文字列で入力してください。分数は入力できません。",
+      "history": "この行の訂正履歴",
+      "emptyHistory": "この行の訂正履歴はありません",
+      "undo": "取り消す",
+      "undone": "取消済み",
+      "change": "{{old}} → {{new}}",
+      "fields": {
+        "kind": "品種",
+        "usage_note": "用途",
+        "od_value": "外径の値",
+        "od_unit": "外径の単位",
+        "wall_value": "肉厚の値",
+        "wall_unit": "肉厚の単位",
+        "weight_value": "単重の値",
+        "weight_unit": "単重の単位",
+        "grade": "材質",
+        "connection": "接続",
+        "range_class": "レンジ",
+        "length_value": "定尺長の値",
+        "length_unit": "定尺長の単位",
+        "qty_value": "数量の値",
+        "qty_unit": "数量の単位",
+        "note": "備考"
+      }
+    },
+    "history": {
+      "title": "版の履歴",
+      "empty": "未生成。資料投入画面で案を作成してください",
+      "createdAt": "作成日時",
+      "state": "状態",
+      "open": "版 {{number}} を開く",
+      "current": "表示中"
+    },
+    "emptyItems": "この版に明細がありません",
+    "emptyFiltered": "条件に一致する明細はありません。フィルターを変更するか、条件をクリアしてください。",
+    "notFound": "版が見つかりません",
+    "loadError": "データを取得できませんでした。接続を確認して再取得してください。",
+    "reload": "再取得",
+    "pending": "記録中…",
+    "saved": "記録しました",
+    "errors": {
+      "E_REASON_REQUIRED": "修正理由を入力してください。",
+      "E_RECORDER_REQUIRED": "担当者名・記録者名を入力してください。AIは補完しません。",
+      "E_QTY_UNIT_REQUIRED": "数量の単位を入力してください。",
+      "E_STATE_VALUE_CONFLICT": "値と状態の組み合わせを確認してください。数値は10進文字列で入力してください。",
+      "E_TARGET_INVALID": "対象の行を確認できません。一覧を再読み込みしてください。",
+      "E_REQUEST_INVALID": "入力内容を確認してから記録してください。",
+      "E_FIELD_NOT_EDITABLE": "この項目は編集できません。編集可能な項目を選んでください。",
+      "E_ALREADY_UNDONE": "この記録は取消済みです。一覧を再読み込みしてください。",
+      "E_ALREADY_CONFIRMED": "この行は照合済みです。最新の一覧を確認してください。",
+      "E_NOT_FOUND": "対象の記録が見つかりません。一覧を再読み込みしてください。",
+      "unknown": "記録結果を確認できませんでした。一覧を再読み込みしてから再操作してください。"
+    }
   }
 }

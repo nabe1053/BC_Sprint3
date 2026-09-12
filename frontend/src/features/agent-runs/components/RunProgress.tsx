@@ -1,5 +1,6 @@
 "use client";
-import { Box, Typography } from "@mui/material";
+import Link from "next/link";
+import { Box, Button, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import type { AgentRunResponse } from "@/shared/api/generated/model";
 import { tokens } from "@/shared/theme/tokens";
@@ -13,9 +14,11 @@ import {
 
 export function RunProgress({
   run,
+  caseId,
   acknowledgedCarryOver = false,
 }: {
   run: AgentRunResponse;
+  caseId: number;
   acknowledgedCarryOver?: boolean;
 }) {
   const { t } = useTranslation();
@@ -44,7 +47,12 @@ export function RunProgress({
           <Typography>
             {t("agentRuns.version", { versionId: run.versionId })}
           </Typography>
-          <Typography variant="body2">{t("agentRuns.resultNote")}</Typography>
+          <Button
+            component={Link}
+            href={`/cases/${caseId}/versions/${run.versionId}`}
+          >
+            {t("agentRuns.resultNote")}
+          </Button>
           {acknowledgedCarryOver && (
             <Typography>{t("agentRuns.carryOverResult")}</Typography>
           )}

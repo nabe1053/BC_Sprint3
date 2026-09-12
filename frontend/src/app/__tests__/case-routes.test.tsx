@@ -1,5 +1,6 @@
 import Home from "../page";
 import Cases from "../(portal)/cases/page";
+import ItemReview from "../(portal)/cases/[caseId]/versions/[versionId]/page";
 import Intake from "../(portal)/cases/[caseId]/intake/page";
 import { redirect, notFound } from "next/navigation";
 import { renderWithProviders } from "@/shared/testing/test-utils";
@@ -37,5 +38,38 @@ it.each(["0", "-1", "1.5", "abc", "9007199254740992"])(
       Intake({ params: Promise.resolve({ caseId }) }),
     ).rejects.toThrow("not found");
     expect(notFound).toHaveBeenCalled();
+  },
+);
+
+jest.mock("@/features/versions", () => ({
+  ItemListPage: ({
+    caseId,
+    versionId,
+  }: {
+    caseId: number;
+    versionId: number;
+  }) => (
+    <div>
+      case {caseId} version {versionId}
+    </div>
+  ),
+}));
+it("版ルートは正整数の案件と版を公開featureへ渡す", async () => {
+  renderWithProviders(
+    await ItemReview({
+      params: Promise.resolve({ caseId: "8", versionId: "9" }),
+    }),
+  );
+  expect(screen.getByText("case 8 version 9")).toBeInTheDocument();
+});
+it.each(["0", "-1", "1.5", "abc", "9007199254740992"])(
+  "版ルートは不正ID %s をどちらのパラメータでも拒否する",
+  async (bad) => {
+    await expect(
+      ItemReview({ params: Promise.resolve({ caseId: bad, versionId: "9" }) }),
+    ).rejects.toThrow("not found");
+    await expect(
+      ItemReview({ params: Promise.resolve({ caseId: "8", versionId: bad }) }),
+    ).rejects.toThrow("not found");
   },
 );

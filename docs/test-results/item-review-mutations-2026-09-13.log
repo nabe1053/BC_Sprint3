@@ -1,0 +1,61 @@
+src/features/versions/__tests__/api.test.ts 53ms (unchanged)
+src/features/versions/__tests__/components.test.tsx 65ms
+src/features/versions/__tests__/fixtures.ts 5ms (unchanged)
+src/features/versions/__tests__/hooks.test.tsx 26ms (unchanged)
+src/features/versions/__tests__/model.test.ts 16ms (unchanged)
+src/features/versions/api.ts 7ms (unchanged)
+src/features/versions/components/EditForm.tsx 13ms (unchanged)
+src/features/versions/components/EditHistory.tsx 6ms (unchanged)
+src/features/versions/components/EvidenceDrawer.tsx 18ms
+src/features/versions/components/ItemFilters.tsx 9ms (unchanged)
+src/features/versions/components/ItemListPage.tsx 12ms (unchanged)
+src/features/versions/components/ItemTable.tsx 18ms (unchanged)
+src/features/versions/components/ItemValue.tsx 3ms (unchanged)
+src/features/versions/components/QuestionJudgementForm.tsx 6ms (unchanged)
+src/features/versions/components/VersionHistory.tsx 4ms (unchanged)
+src/features/versions/components/VersionSummary.tsx 12ms (unchanged)
+src/features/versions/hooks.ts 7ms (unchanged)
+src/features/versions/index.ts 1ms (unchanged)
+src/features/versions/model.ts 10ms (unchanged)
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/components.test.tsx
+
+PASS src/features/versions/__tests__/components.test.tsx (7.126 s)
+  ✓ 明細・7件数・版の状態・TBA・択一・旧値を文字で示し合計は出さない (286 ms)
+  ✓ loadingと404には原因・戻り先、明細空には専用表示がある (76 ms)
+  ✓ 絞り込み0件からクリアし、判断済み未解決は案件枠に残る (270 ms)
+  ✓ 担当者名空では照合を変えずPOSTしない、名前を入れると明示記録する (300 ms)
+  ✓ 判断selectを変えただけではPOSTせず行の記録ボタンで送る (240 ms)
+  ✓ ドロワーは絞り込み後の順に前後移動し、根拠のHTMLとURLは文字列 (636 ms)
+  ✓ 訂正の理由が空なら送信せず、状態のみ訂正は値を載せず記録する (723 ms)
+  ✓ 記録失敗 E_REASON_REQUIRED は生のmessage/detailsを出さない (252 ms)
+  ✓ 記録失敗 E_RECORDER_REQUIRED は生のmessage/detailsを出さない (206 ms)
+  ✓ 記録失敗 E_QTY_UNIT_REQUIRED は生のmessage/detailsを出さない (212 ms)
+  ✓ 記録失敗 E_STATE_VALUE_CONFLICT は生のmessage/detailsを出さない (223 ms)
+  ✓ 記録失敗 E_TARGET_INVALID は生のmessage/detailsを出さない (256 ms)
+  ✓ 記録失敗 E_REQUEST_INVALID は生のmessage/detailsを出さない (261 ms)
+  ✓ 記録失敗 E_FIELD_NOT_EDITABLE は生のmessage/detailsを出さない (205 ms)
+  ✓ 記録失敗 E_ALREADY_UNDONE は生のmessage/detailsを出さない (195 ms)
+  ✓ 記録失敗 E_ALREADY_CONFIRMED は生のmessage/detailsを出さない (253 ms)
+  ✓ 記録失敗 E_NOT_FOUND は生のmessage/detailsを出さない (246 ms)
+  ✓ 記録失敗 E_INTERNAL は生のmessage/detailsを出さない (190 ms)
+  ✓ 照合取消は応答のconfirmationIdを送り、訂正取消後も履歴を表示する (604 ms)
+  ✓ 絞り込みで残った1行のドロワーは両端が無効で根拠空を区別する (299 ms)
+  ✓ 案件ヘッダは原表記・粒度・基準とTZ不足を示す (89 ms)
+  ✓ useItemsの取得失敗は再取得できる (35 ms)
+  ✓ useQuestionsの取得失敗は再取得できる (44 ms)
+  ✓ 版履歴は空と取得失敗を区別する (60 ms)
+  ✓ ドロワーでは納期・納地の採用値も状態と根拠を確認できるが編集対象にしない (317 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       25 passed, 25 total
+Snapshots:   0 total
+Time:        7.32 s, estimated 10 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/components.test.tsx/i.
+retry: detected; Tests:       1 failed, 16 passed, 17 total
+client-validation: detected; Tests:       1 failed, 30 passed, 31 total
+cancelled-history: detected; Tests:       1 failed, 30 passed, 31 total
+tba-priority: detected; Tests:       1 failed, 30 passed, 31 total
+items-invalidate: detected; Tests:       12 failed, 5 passed, 17 total
+state-only-value: detected; Tests:       3 failed, 28 passed, 31 total

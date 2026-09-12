@@ -1,0 +1,68 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/model.test.ts
+
+FAIL src/features/versions/__tests__/model.test.ts
+  ✓ 状態の優先順を文字とトーンで表す 0 (2 ms)
+  ✓ 状態の優先順を文字とトーンで表す 1
+  ✓ 状態の優先順を文字とトーンで表す 2
+  ✓ 状態の優先順を文字とトーンで表す 3
+  ✓ 状態の優先順を文字とトーンで表す 4
+  ✓ 状態フィルタ all は該当行だけを残す
+  ✓ 状態フィルタ questions は該当行だけを残す (1 ms)
+  ✓ 状態フィルタ tba は該当行だけを残す
+  ✓ 状態フィルタ choice は該当行だけを残す
+  ✓ 状態フィルタ unmatched は該当行だけを残す
+  ✓ 状態フィルタ edited は該当行だけを残す
+  ✓ 状態フィルタ unresolved は該当行だけを残す (1 ms)
+  ✓ キーワードと3列をAND検索し、判断済み未解決を残す
+  ✕ 訂正の旧値は取消済みを無視し数量と単位を分ける (7 ms)
+  ✓ tba は空欄や0にならない (1 ms)
+  ✓ not_stated は空欄や0にならない
+  ✓ not_applicable は空欄や0にならない
+  ✓ 数値文字列を丸めず数量単位と要求を組み立てる (1 ms)
+  ✓ 状態のみ tba にはnewValueもqtyUnitも載せない
+  ✓ 状態のみ not_stated にはnewValueもqtyUnitも載せない (1 ms)
+  ✓ 状態のみ not_applicable にはnewValueもqtyUnitも載せない (1 ms)
+  ✓ kind にnewStateは載せない
+  ✓ usage_note にnewStateは載せない
+  ✓ note にnewStateは載せない
+  ✓ クライアントで不正要求を止める 0 (2 ms)
+  ✓ クライアントで不正要求を止める 1 (1 ms)
+  ✓ クライアントで不正要求を止める 2
+  ✓ クライアントで不正要求を止める 3 (1 ms)
+  ✓ クライアントで不正要求を止める 4
+  ✓ クライアントで不正要求を止める 5
+  ✓ API本文やdetailsを文言に使わない
+
+  ● 訂正の旧値は取消済みを無視し数量と単位を分ける
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+        "state": "numeric",
+    -   "value": "10.00",
+    +   "value": "private",
+      }
+
+      100 |     { ...edit, editId: 4, oldValue: "private", undoneAt: edit.recordedAt },
+      101 |   ];
+    > 102 |   expect(previousValue(history, "qty_value")).toEqual({
+          |                                               ^
+      103 |     value: "10.00",
+      104 |     state: "numeric",
+      105 |   });
+
+      at Object.toEqual (src/features/versions/__tests__/model.test.ts:102:47)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 30 passed, 31 total
+Snapshots:   0 total
+Time:        0.387 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/model.test.ts/i.
+make[1]: *** [/tmp/item-review-checks.mk:4: item-review-model] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

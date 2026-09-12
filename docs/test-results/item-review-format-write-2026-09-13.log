@@ -1,0 +1,204 @@
+src/app/__tests__/case-routes.test.tsx 46ms
+src/app/__tests__/providers.test.tsx 10ms (unchanged)
+src/app/__tests__/screen-theme.test.tsx 9ms (unchanged)
+src/app/(portal)/cases/[caseId]/intake/page.tsx 5ms (unchanged)
+src/app/(portal)/cases/[caseId]/versions/[versionId]/page.tsx 5ms
+src/app/(portal)/cases/page.tsx 2ms (unchanged)
+src/app/(portal)/dashboard/page.tsx 2ms (unchanged)
+src/app/layout.tsx 2ms (unchanged)
+src/app/page.tsx 1ms (unchanged)
+src/app/providers.tsx 23ms (unchanged)
+src/features/agent-runs/__tests__/api.test.ts 12ms (unchanged)
+src/features/agent-runs/__tests__/hooks.test.tsx 41ms (unchanged)
+src/features/agent-runs/api.ts 3ms (unchanged)
+src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx 46ms
+src/features/agent-runs/components/AgentRunPanel.tsx 12ms (unchanged)
+src/features/agent-runs/components/RunProgress.tsx 6ms
+src/features/agent-runs/components/RunSteps.tsx 6ms (unchanged)
+src/features/agent-runs/hooks.ts 9ms (unchanged)
+src/features/agent-runs/index.ts 2ms (unchanged)
+src/features/agent-runs/model.ts 5ms (unchanged)
+src/features/cases/__tests__/api.test.ts 3ms (unchanged)
+src/features/cases/__tests__/hooks.test.tsx 9ms (unchanged)
+src/features/cases/api.ts 2ms (unchanged)
+src/features/cases/components/__tests__/CaseListPage.test.tsx 12ms
+src/features/cases/components/__tests__/CaseMetadata.test.tsx 3ms (unchanged)
+src/features/cases/components/CaseListPage.tsx 14ms
+src/features/cases/components/CaseMetadata.tsx 4ms (unchanged)
+src/features/cases/hooks.ts 4ms (unchanged)
+src/features/cases/index.ts 1ms (unchanged)
+src/features/documents/__tests__/api.test.ts 5ms (unchanged)
+src/features/documents/__tests__/hooks.test.tsx 15ms
+src/features/documents/api.ts 2ms (unchanged)
+src/features/documents/components/__tests__/IntakePage.test.tsx 21ms (unchanged)
+src/features/documents/components/__tests__/IntakeRecovery.test.tsx 7ms (unchanged)
+src/features/documents/components/IntakePage.tsx 24ms (unchanged)
+src/features/documents/hooks.ts 4ms (unchanged)
+src/features/documents/index.ts 1ms (unchanged)
+src/features/versions/__tests__/api.test.ts 8ms (unchanged)
+src/features/versions/__tests__/components.test.tsx 34ms
+src/features/versions/__tests__/hooks.test.tsx 12ms (unchanged)
+src/features/versions/__tests__/model.test.ts 11ms (unchanged)
+src/features/versions/api.ts 3ms (unchanged)
+src/features/versions/components/EditForm.tsx 7ms (unchanged)
+src/features/versions/components/EditHistory.tsx 3ms (unchanged)
+src/features/versions/components/EvidenceDrawer.tsx 8ms (unchanged)
+src/features/versions/components/ItemFilters.tsx 4ms (unchanged)
+src/features/versions/components/ItemListPage.tsx 8ms (unchanged)
+src/features/versions/components/ItemTable.tsx 9ms (unchanged)
+src/features/versions/components/ItemValue.tsx 3ms
+src/features/versions/components/QuestionJudgementForm.tsx 5ms (unchanged)
+src/features/versions/components/VersionHistory.tsx 3ms (unchanged)
+src/features/versions/components/VersionSummary.tsx 8ms (unchanged)
+src/features/versions/hooks.ts 6ms (unchanged)
+src/features/versions/index.ts 1ms (unchanged)
+src/features/versions/model.ts 10ms (unchanged)
+src/features/versions/testing/fixtures.ts 3ms (unchanged)
+src/shared/api/__tests__/unwrap.test.ts 2ms (unchanged)
+src/shared/api/generated/agent.ts 126ms
+src/shared/api/generated/health.ts 15ms
+src/shared/api/generated/model/agentRunAccepted.ts 3ms (unchanged)
+src/shared/api/generated/model/agentRunRequest.ts 1ms (unchanged)
+src/shared/api/generated/model/agentRunResponse.ts 2ms
+src/shared/api/generated/model/agentRunResponseOutcome.ts 1ms
+src/shared/api/generated/model/agentRunResponseStage.ts 2ms
+src/shared/api/generated/model/agentRunResponseStopReason.ts 2ms
+src/shared/api/generated/model/bodyIntakeDocumentApiV1UiCasesCaseIdDocumentsPost.ts 2ms (unchanged)
+src/shared/api/generated/model/caseCreateRequest.ts 1ms (unchanged)
+src/shared/api/generated/model/caseHeaderResponse.ts 2ms
+src/shared/api/generated/model/caseHeaderResponseCustomerNameState.ts 1ms
+src/shared/api/generated/model/caseHeaderResponseDueBasis.ts 1ms
+src/shared/api/generated/model/caseHeaderResponseDueGranularity.ts 1ms
+src/shared/api/generated/model/caseHeaderResponseDueState.ts 1ms
+src/shared/api/generated/model/caseHeaderResponseIncotermsState.ts 1ms
+src/shared/api/generated/model/caseHeaderResponseInquiryNoState.ts 1ms
+src/shared/api/generated/model/caseHeaderResponsePlaceState.ts 1ms
+src/shared/api/generated/model/caseHeaderResponseQuoteDeadlineTzState.ts 2ms
+src/shared/api/generated/model/caseListItem.ts 1ms
+src/shared/api/generated/model/caseListItemProgressStatus.ts 1ms
+src/shared/api/generated/model/caseListResponse.ts 2ms
+src/shared/api/generated/model/caseResponse.ts 2ms (unchanged)
+src/shared/api/generated/model/confirmationRecord.ts 1ms
+src/shared/api/generated/model/confirmationRecordKind.ts 2ms
+src/shared/api/generated/model/confirmationRequest.ts 2ms
+src/shared/api/generated/model/confirmationRequestKind.ts 2ms
+src/shared/api/generated/model/confirmationUndone.ts 1ms (unchanged)
+src/shared/api/generated/model/contentResponse.ts 2ms
+src/shared/api/generated/model/documentIntakeResponse.ts 1ms
+src/shared/api/generated/model/documentIntakeResponseReadStatus.ts 1ms
+src/shared/api/generated/model/documentsListResponse.ts 1ms
+src/shared/api/generated/model/documentSummary.ts 1ms
+src/shared/api/generated/model/documentSummaryKind.ts 2ms
+src/shared/api/generated/model/documentSummaryReadStatus.ts 2ms
+src/shared/api/generated/model/editsResponse.ts 1ms
+src/shared/api/generated/model/editUndone.ts 1ms (unchanged)
+src/shared/api/generated/model/emailPartResponse.ts 1ms
+src/shared/api/generated/model/emailPartResponsePartRole.ts 2ms
+src/shared/api/generated/model/emailResponse.ts 2ms
+src/shared/api/generated/model/endRequest.ts 2ms
+src/shared/api/generated/model/endRequestSide.ts 1ms
+src/shared/api/generated/model/endRequestThreadEnd.ts 1ms
+src/shared/api/generated/model/entryCreated.ts 1ms (unchanged)
+src/shared/api/generated/model/errorResponse.ts 1ms
+src/shared/api/generated/model/errorResponseDetails.ts 1ms (unchanged)
+src/shared/api/generated/model/evidenceCreated.ts 1ms (unchanged)
+src/shared/api/generated/model/evidenceRequest.ts 1ms (unchanged)
+src/shared/api/generated/model/evidenceResponse.ts 2ms (unchanged)
+src/shared/api/generated/model/finalizedResponse.ts 1ms
+src/shared/api/generated/model/getContentApiV1AgentDocumentsDocumentIdContentGetParams.ts 1ms
+src/shared/api/generated/model/getContentApiV1UiDocumentsDocumentIdContentGetParams.ts 1ms
+src/shared/api/generated/model/headerCreated.ts 1ms (unchanged)
+src/shared/api/generated/model/headerRequest.ts 2ms
+src/shared/api/generated/model/headerRequestCustomerNameState.ts 1ms
+src/shared/api/generated/model/headerRequestDueBasis.ts 1ms
+src/shared/api/generated/model/headerRequestDueGranularity.ts 2ms
+src/shared/api/generated/model/headerRequestDueState.ts 1ms
+src/shared/api/generated/model/headerRequestIncotermsState.ts 1ms
+src/shared/api/generated/model/headerRequestInquiryNoState.ts 1ms
+src/shared/api/generated/model/headerRequestPlaceState.ts 2ms
+src/shared/api/generated/model/headerRequestQuoteDeadlineTzState.ts 1ms
+src/shared/api/generated/model/healthCheckApiV1HealthGet200.ts 1ms
+src/shared/api/generated/model/hTTPValidationError.ts 1ms
+src/shared/api/generated/model/index.ts 3ms
+src/shared/api/generated/model/inventoryBatchRequest.ts 1ms
+src/shared/api/generated/model/inventoryCreated.ts 1ms
+src/shared/api/generated/model/inventoryRequest.ts 1ms
+src/shared/api/generated/model/inventoryRequestStatus.ts 1ms
+src/shared/api/generated/model/issueCreateRequest.ts 1ms
+src/shared/api/generated/model/issueCreateRequestIssueType.ts 1ms
+src/shared/api/generated/model/issueCreateResponse.ts 1ms (unchanged)
+src/shared/api/generated/model/itemCreated.ts 1ms (unchanged)
+src/shared/api/generated/model/itemCurrentResponse.ts 3ms
+src/shared/api/generated/model/itemCurrentResponseConnectionState.ts 2ms
+src/shared/api/generated/model/itemCurrentResponseDueState.ts 2ms
+src/shared/api/generated/model/itemCurrentResponseGradeState.ts 1ms
+src/shared/api/generated/model/itemCurrentResponseLengthState.ts 1ms
+src/shared/api/generated/model/itemCurrentResponseOdState.ts 1ms
+src/shared/api/generated/model/itemCurrentResponsePlaceState.ts 2ms
+src/shared/api/generated/model/itemCurrentResponseQtyState.ts 1ms
+src/shared/api/generated/model/itemCurrentResponseWallState.ts 1ms
+src/shared/api/generated/model/itemCurrentResponseWeightState.ts 1ms
+src/shared/api/generated/model/itemEditRecord.ts 1ms
+src/shared/api/generated/model/itemEditRecordField.ts 1ms
+src/shared/api/generated/model/itemEditRecordNewState.ts 1ms
+src/shared/api/generated/model/itemEditRecordOldState.ts 2ms
+src/shared/api/generated/model/itemEditRequest.ts 2ms
+src/shared/api/generated/model/itemEditRequestField.ts 1ms
+src/shared/api/generated/model/itemEditRequestNewState.ts 2ms
+src/shared/api/generated/model/itemEvidenceResponse.ts 2ms
+src/shared/api/generated/model/itemRequest.ts 4ms
+src/shared/api/generated/model/itemRequestConnectionState.ts 1ms
+src/shared/api/generated/model/itemRequestDueState.ts 1ms
+src/shared/api/generated/model/itemRequestGradeState.ts 1ms
+src/shared/api/generated/model/itemRequestLengthState.ts 2ms
+src/shared/api/generated/model/itemRequestOdState.ts 2ms
+src/shared/api/generated/model/itemRequestPlaceState.ts 3ms
+src/shared/api/generated/model/itemRequestQtyState.ts 2ms
+src/shared/api/generated/model/itemRequestWallState.ts 3ms
+src/shared/api/generated/model/itemRequestWeightState.ts 2ms
+src/shared/api/generated/model/itemsCreated.ts 1ms
+src/shared/api/generated/model/itemsRequest.ts 1ms
+src/shared/api/generated/model/itemsResponse.ts 2ms
+src/shared/api/generated/model/judgementRecord.ts 2ms
+src/shared/api/generated/model/judgementRecordResolution.ts 1ms
+src/shared/api/generated/model/judgementRecordStatus.ts 1ms
+src/shared/api/generated/model/judgementRequest.ts 1ms
+src/shared/api/generated/model/judgementRequestResolution.ts 1ms
+src/shared/api/generated/model/judgementRequestStatus.ts 1ms
+src/shared/api/generated/model/pageContent.ts 1ms
+src/shared/api/generated/model/pageContentCells.ts 1ms (unchanged)
+src/shared/api/generated/model/pageContentReadStatus.ts 2ms
+src/shared/api/generated/model/questionCreated.ts 1ms (unchanged)
+src/shared/api/generated/model/questionRequest.ts 1ms
+src/shared/api/generated/model/questionRequestCategory.ts 1ms
+src/shared/api/generated/model/questionResponse.ts 1ms
+src/shared/api/generated/model/questionResponseCategory.ts 1ms
+src/shared/api/generated/model/questionsResponse.ts 1ms
+src/shared/api/generated/model/rootGet200.ts 1ms
+src/shared/api/generated/model/rowMatchResponse.ts 1ms (unchanged)
+src/shared/api/generated/model/runLimitsResponse.ts 1ms (unchanged)
+src/shared/api/generated/model/runStepResponse.ts 1ms
+src/shared/api/generated/model/runStepResponseResultStatus.ts 1ms
+src/shared/api/generated/model/runStepsResponse.ts 1ms
+src/shared/api/generated/model/searchApiV1AgentCasesCaseIdSearchGetParams.ts 1ms
+src/shared/api/generated/model/searchResponse.ts 1ms
+src/shared/api/generated/model/searchResultItem.ts 1ms (unchanged)
+src/shared/api/generated/model/undoRequest.ts 1ms (unchanged)
+src/shared/api/generated/model/validationCounts.ts 1ms (unchanged)
+src/shared/api/generated/model/validationError.ts 1ms (unchanged)
+src/shared/api/generated/model/validationResponse.ts 1ms
+src/shared/api/generated/model/versionCounts.ts 1ms (unchanged)
+src/shared/api/generated/model/versionListItem.ts 1ms
+src/shared/api/generated/model/versionListItemCurrentState.ts 1ms
+src/shared/api/generated/model/versionResponse.ts 1ms
+src/shared/api/generated/model/versionResponseCurrentState.ts 1ms
+src/shared/api/generated/model/versionsResponse.ts 1ms
+src/shared/api/generated/model/violationResponse.ts 1ms
+src/shared/api/generated/model/violationResponseKind.ts 1ms
+src/shared/api/generated/ui.ts 139ms
+src/shared/api/mutator.ts 7ms (unchanged)
+src/shared/api/unwrap.ts 2ms (unchanged)
+src/shared/i18n/index.ts 1ms (unchanged)
+src/shared/testing/test-utils.tsx 2ms (unchanged)
+src/shared/theme/mui-color.ts 1ms (unchanged)
+src/shared/theme/tokens.ts 3ms (unchanged)

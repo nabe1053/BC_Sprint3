@@ -1,0 +1,25 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/api.test.ts
+
+PASS src/features/versions/__tests__/api.test.ts
+  ✓ GET200を生成クライアントで解包する: 0 (3 ms)
+  ✓ GET200を生成クライアントで解包する: 1
+  ✓ GET200を生成クライアントで解包する: 2
+  ✓ GET200を生成クライアントで解包する: 3 (1 ms)
+  ✓ GET200を生成クライアントで解包する: 4
+  ✓ 訂正201で10進文字列とcamelCaseのみを送り応答日時を受け取る
+  ✓ 記録と取消の成功statusを区別する: 0 (1 ms)
+  ✓ 記録と取消の成功statusを区別する: 1
+  ✓ 記録と取消の成功statusを区別する: 2
+  ✓ 記録と取消の成功statusを区別する: 3
+  ✓ 非2xx 400を再送せずApiErrorにする (1 ms)
+  ✓ 非2xx 409を再送せずApiErrorにする
+  ✓ 非2xx 404を再送せずApiErrorにする (1 ms)
+  ✓ 非2xx 500を再送せずApiErrorにする
+
+Test Suites: 1 passed, 1 total
+Tests:       14 passed, 14 total
+Snapshots:   0 total
+Time:        0.463 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/api.test.ts/i.

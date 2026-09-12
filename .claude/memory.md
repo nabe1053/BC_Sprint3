@@ -205,7 +205,7 @@
 | T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | DONE | 9回目 RV-038: L-8c **DONE**。L-3〜L-8c 全 DONE・AE01/02/03 合格。残 P3 は TODO-020/023/026 | 2026-09-13 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | DONE | 1回目 RV-033: **DONE**（P3 5 は記録のみ・TODO-025） | 2026-09-13 |
 | T-302 | G3 参照 #23-26 / 記録 #29-33・#22 最小・#1 拡張（API） | web | T-301 | DONE | RV-036 DONE ＋ 追補 N-2（#24 `rowMatch`）RV-038 DONE | 2026-09-13 |
-| T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | FIXING | 1回目 RV-039: **DONE 可** P2 2（状態ラベル二重・prettier 未適用）を短ラウンド O-2 で | 2026-09-13 |
+| T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | DONE | 2回目 RV-041: **DONE**（P3 8 は記録のみ・TODO-030）。**G3 完了** | 2026-09-13 |
 | T-401 | G4 照合集計（BE。保存は T-201・記録は T-301 済） | web | T-201 | DONE | 1回目 RV-040: **DONE**（P3 4 は記録のみ・TODO-031） | 2026-09-13 |
 | T-402 | G4 照合 API #27（UI GET）＋#19 同パス整理（API） | web | T-401 | PLANNED | 指示書 `docs/t402-instructions.md`（AD-026）。O-2 の後に Codex 着手 | 2026-09-13 |
 | T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | PLANNED | - | 2026-09-11 |
@@ -432,6 +432,11 @@
   `sourceEntries=()`（Repository 経由では起きない）/ 版外 link が split と inconsistent の両方に入る / Service メソッド名がモジュール関数と同名 /
   `inconsistentEntryIds` は entries の部分集合とは限らない → T-402 DTO 注記 or TODO-031。
 
+- [RV-041] T-303 2回目 O-2（Codex → 同一 reviewer 独立・2026-09-13）: **DONE 可**。P2 2 件クローズ（`DimensionValue` で共有状態の列は状態ラベル 1 回・値/単位の旧値は別々。
+  実一覧のセル位置でも検査 / `fe-lint` に `prettier --check` を追加し frontend 全体 126 ファイルを整形。追加ゲートが orval の死んだオプション `prettier: true` まで露見させ
+  `formatter: 'prettier'` に修正）。整形差分に機能変更なし（`git diff -w` で確認）。実測 FE 266 passed / prettier green / design-lint 0。P3: prettier のキャレット版 /
+  `src/**` glob が生成物を含む（対処は `npm run orval` 再実行、と 1 行残す）→ TODO-030 に追記。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -588,6 +593,9 @@
 
 - [LN-059] **「空であるべき集合」は `== set()` で明示的に assert する。**件数 0 の assert を省くと検出ロジックを丸ごと無効化する変異が素通りする（T-401 の unmapped / orphan 変異）。
 
+- [LN-060] **チェックを足すと設定の腐敗が見つかる。**prettier --check をゲートに載せた途端、未整形 126 ファイルと orval の読まれないオプション（`prettier: true`）が芋づるで露見した。
+  「人の規律」に頼っていた領域にゲートを足すときは、周辺設定の不備も同時に出ることを見込む。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
@@ -638,7 +646,8 @@
 - [TODO-031] **T-401 の記録のみ P3（RV-040）**: ⑤domain `EntryView.position/excerpt` を DB NOT NULL に合わせ `str` に（AD-026 ④）。 ①不明 entry link のとき `has_source=bool(source_entries)` に揃える ②版外 link が split と inconsistent の両方に入る意図をコメント
   ③`InventoryService.reconcile` とモジュール関数 `reconcile` の同名（`reconcile_inventory` に改名）④T-402 の DTO 注記「`inconsistentEntryIds` は entries の部分集合とは限らない」。C-3 で。
 - [TODO-030] **T-303 の記録のみ P3（RV-039）**: ①`groupCode`+`candidateLabel` の区切り ②原表記 blockquote に項目名 ③i18next `count` → 非予約名 ④判断 3 列の見出しとセルの対応
-  ⑤ドロワー開時 contained≤1 の assert ⑥キーワード検索の対象を表示値に限定・日時の書式（G5 で決める）。C-3（FE 分）で。
+  ⑤ドロワー開時 contained≤1 の assert ⑥キーワード検索の対象を表示値に限定・日時の書式（G5 で決める）⑦prettier の版固定（`~` or 厳密）⑧`fe-lint` の glob が
+  `generated/` を含む → 落ちたら `npm run orval` 再実行、を Makefile コメントに（RV-041）。C-3（FE 分）で。
 - [TODO-027] **T-302 の記録のみ P3（RV-036）**: ①`tests/unit/test_api_path_separation_live.py` → `test_ui_route_presence.py` に改名（integration 側と basename 重複）
   ②`test_single_source_of_truth.py` に「`field_error_codes` 全コード × 表の非 400 エントリの交差 == {E_FIELD_NOT_EDITABLE}」の検査 ③`VersionCounts` は明示コピー
   ④`record_response` の属性名一致前提を docstring に ⑤`Item.__table__.columns` と `ItemCurrentResponse` の差分 = 意図的除外リストの検査 ⑥`definition.py` の再公開 import にコメント ⑦`record_repository` の関数内 import をトップへ

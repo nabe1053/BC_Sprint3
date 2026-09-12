@@ -1,0 +1,26 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/hooks.test.tsx
+
+FAIL src/features/versions/__tests__/hooks.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '../hooks' from 'src/features/versions/__tests__/hooks.test.tsx'
+
+      21 |  const next={...version,counts:{...version.counts,editCount:88}};
+      22 |  mock.getVersion.mockResolvedValue(next);mock.listItems.mockResolvedValue([{...item,rowCode:"changed"}]);mock.listQuestions.mockResolvedValue([{...question,reason:"changed"}]);
+    > 23 |  const method=name==="edit"?mock.editItem:mock[name];
+         |                ^
+      24 |  if(status===200) method.mockResolvedValue({} as never);else method.mockRejectedValue(new ApiError(status,{code:status===409?"E_ALREADY_UNDONE":"E_NOT_FOUND"}));
+      25 |  await act(async()=>{try{await result.current.mutations[name].mutateAsync(inputs[name] as never);}catch{ /* asserted below */ }});
+      26 |  await waitFor(()=>expect(client.getQueryData(versionKey(9))).toEqual(next));
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.<anonymous> (src/features/versions/__tests__/hooks.test.tsx:23:16)
+
+Test Suites: 1 failed, 1 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        0.947 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/hooks.test.tsx/i.
+make: *** [/tmp/item-review-checks.mk:6: item-review-hooks] Error 1

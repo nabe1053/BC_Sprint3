@@ -174,7 +174,9 @@ export function CaseListPage() {
                       ))}
                     </Box>
                   </TableCell>
-                  <TableCell>{t("common.notAvailable")}</TableCell>
+                  <TableCell>
+                    {t(`cases.list.states.${item.progressStatus}`)}
+                  </TableCell>
                   <TableCell>{t("common.notAvailable")}</TableCell>
                   <TableCell>
                     <Button
@@ -184,6 +186,15 @@ export function CaseListPage() {
                     >
                       {t("cases.list.intakeLink")}
                     </Button>
+                    {item.latestVersionId !== null && (
+                      <Button
+                        component={Link}
+                        href={`/cases/${item.caseId}/versions/${item.latestVersionId}`}
+                        variant="outlined"
+                      >
+                        {t("cases.list.openCase")}
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

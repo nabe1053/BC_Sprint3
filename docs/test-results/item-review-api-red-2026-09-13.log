@@ -1,0 +1,26 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/api.test.ts
+
+FAIL src/features/versions/__tests__/api.test.ts
+  ● Test suite failed to run
+
+    Cannot find module '../api' from 'src/features/versions/__tests__/api.test.ts'
+
+      3 | const originalFetch = global.fetch;
+      4 | const request = jest.fn();
+    > 5 | beforeEach(() => { request.mockReset(); global.fetch = request; });
+        |                                                      ^
+      6 | afterAll(() => { global.fetch = originalFetch; });
+      7 | function respond(status: number, data: unknown) {
+      8 |   request.mockResolvedValue({ ok: status >= 200 && status < 300, status,
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.<anonymous> (src/features/versions/__tests__/api.test.ts:5:54)
+
+Test Suites: 1 failed, 1 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        0.39 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/api.test.ts/i.
+make: *** [/tmp/item-review-checks.mk:2: item-review-api] Error 1

@@ -1,0 +1,133 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/components.test.tsx
+
+FAIL src/features/versions/__tests__/components.test.tsx (9.386 s)
+  ✓ 明細・7件数・版の状態・TBA・択一・旧値を文字で示し合計は出さない (404 ms)
+  ✓ loadingと404には原因・戻り先、明細空には専用表示がある (85 ms)
+  ✓ 絞り込み0件からクリアし、判断済み未解決は案件枠に残る (381 ms)
+  ✓ 担当者名空では照合を変えずPOSTしない、名前を入れると明示記録する (515 ms)
+  ✓ 判断selectを変えただけではPOSTせず行の記録ボタンで送る (341 ms)
+  ✓ ドロワーは絞り込み後の順に前後移動し、根拠のHTMLとURLは文字列 (785 ms)
+  ✓ 訂正の理由が空なら送信せず、状態のみ訂正は値を載せず記録する (763 ms)
+  ✓ 記録失敗 E_REASON_REQUIRED は生のmessage/detailsを出さない (336 ms)
+  ✓ 記録失敗 E_RECORDER_REQUIRED は生のmessage/detailsを出さない (418 ms)
+  ✓ 記録失敗 E_QTY_UNIT_REQUIRED は生のmessage/detailsを出さない (309 ms)
+  ✓ 記録失敗 E_STATE_VALUE_CONFLICT は生のmessage/detailsを出さない (308 ms)
+  ✓ 記録失敗 E_TARGET_INVALID は生のmessage/detailsを出さない (323 ms)
+  ✓ 記録失敗 E_REQUEST_INVALID は生のmessage/detailsを出さない (278 ms)
+  ✓ 記録失敗 E_FIELD_NOT_EDITABLE は生のmessage/detailsを出さない (347 ms)
+  ✓ 記録失敗 E_ALREADY_UNDONE は生のmessage/detailsを出さない (298 ms)
+  ✓ 記録失敗 E_ALREADY_CONFIRMED は生のmessage/detailsを出さない (270 ms)
+  ✓ 記録失敗 E_NOT_FOUND は生のmessage/detailsを出さない (270 ms)
+  ✓ 記録失敗 E_INTERNAL は生のmessage/detailsを出さない (251 ms)
+  ✓ 照合取消は応答のconfirmationIdを送り、訂正取消後も履歴を表示する (560 ms)
+  ✓ 絞り込みで残った1行のドロワーは両端が無効で根拠空を区別する (264 ms)
+  ✓ 案件ヘッダは原表記・粒度・基準とTZ不足を示す (104 ms)
+  ✓ useItemsの取得失敗は再取得できる (37 ms)
+  ✓ useQuestionsの取得失敗は再取得できる (43 ms)
+  ✓ 版履歴は空と取得失敗を区別する (85 ms)
+  ✓ ドロワーでは納期・納地の採用値も状態と根拠を確認できるが編集対象にしない (351 ms)
+  ✓ レンジと定尺長は共有状態でも併記し状態ラベルは1つにする (35 ms)
+  ✕ od の値と単位が共有する状態はセルに1回だけ表示する (13 ms)
+  ✕ weight の値と単位が共有する状態はセルに1回だけ表示する (13 ms)
+  ✕ wall の値と単位が共有する状態はセルに1回だけ表示する (11 ms)
+  ✕ 一覧のod列に記載なしを重複表示しない (53 ms)
+  ✕ 一覧のweight列に記載なしを重複表示しない (54 ms)
+
+  ● od の値と単位が共有する状態はセルに1回だけ表示する
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 1
+    Received length: 2
+    Received array:  [<span class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">記載なし</span>, <span class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">記載なし</span>]
+
+      512 |     expect(
+      513 |       within(screen.getByRole("cell")).getAllByText("記載なし"),
+    > 514 |     ).toHaveLength(1);
+          |       ^
+      515 |   },
+      516 | );
+      517 | it.each([
+
+      at toHaveLength (src/features/versions/__tests__/components.test.tsx:514:7)
+
+  ● weight の値と単位が共有する状態はセルに1回だけ表示する
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 1
+    Received length: 2
+    Received array:  [<span class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">記載なし</span>, <span class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">記載なし</span>]
+
+      512 |     expect(
+      513 |       within(screen.getByRole("cell")).getAllByText("記載なし"),
+    > 514 |     ).toHaveLength(1);
+          |       ^
+      515 |   },
+      516 | );
+      517 | it.each([
+
+      at toHaveLength (src/features/versions/__tests__/components.test.tsx:514:7)
+
+  ● wall の値と単位が共有する状態はセルに1回だけ表示する
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 1
+    Received length: 2
+    Received array:  [<span class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">記載なし</span>, <span class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">記載なし</span>]
+
+      512 |     expect(
+      513 |       within(screen.getByRole("cell")).getAllByText("記載なし"),
+    > 514 |     ).toHaveLength(1);
+          |       ^
+      515 |   },
+      516 | );
+      517 | it.each([
+
+      at toHaveLength (src/features/versions/__tests__/components.test.tsx:514:7)
+
+  ● 一覧のod列に記載なしを重複表示しない
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 1
+    Received length: 2
+    Received array:  [<span class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">記載なし</span>, <span class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">記載なし</span>]
+
+      526 |   expect(
+      527 |     within(row.children[index] as HTMLElement).getAllByText("記載なし"),
+    > 528 |   ).toHaveLength(1);
+          |     ^
+      529 | });
+      530 |
+
+      at toHaveLength (src/features/versions/__tests__/components.test.tsx:528:5)
+
+  ● 一覧のweight列に記載なしを重複表示しない
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 1
+    Received length: 2
+    Received array:  [<span class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">記載なし</span>, <span class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">記載なし</span>]
+
+      526 |   expect(
+      527 |     within(row.children[index] as HTMLElement).getAllByText("記載なし"),
+    > 528 |   ).toHaveLength(1);
+          |     ^
+      529 | });
+      530 |
+
+      at toHaveLength (src/features/versions/__tests__/components.test.tsx:528:5)
+
+Test Suites: 1 failed, 1 total
+Tests:       5 failed, 26 passed, 31 total
+Snapshots:   0 total
+Time:        9.763 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/components.test.tsx/i.
+make[1]: *** [/tmp/item-review-checks.mk:8: item-review-components] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

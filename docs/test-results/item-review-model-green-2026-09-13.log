@@ -1,0 +1,42 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/model.test.ts
+
+PASS src/features/versions/__tests__/model.test.ts
+  ✓ 状態の優先順を文字とトーンで表す 0 (2 ms)
+  ✓ 状態の優先順を文字とトーンで表す 1 (1 ms)
+  ✓ 状態の優先順を文字とトーンで表す 2
+  ✓ 状態の優先順を文字とトーンで表す 3 (1 ms)
+  ✓ 状態の優先順を文字とトーンで表す 4
+  ✓ 状態フィルタ all は該当行だけを残す (3 ms)
+  ✓ 状態フィルタ questions は該当行だけを残す
+  ✓ 状態フィルタ tba は該当行だけを残す
+  ✓ 状態フィルタ choice は該当行だけを残す
+  ✓ 状態フィルタ unmatched は該当行だけを残す
+  ✓ 状態フィルタ edited は該当行だけを残す
+  ✓ 状態フィルタ unresolved は該当行だけを残す (4 ms)
+  ✓ キーワードと3列をAND検索し、判断済み未解決を残す (1 ms)
+  ✓ 訂正の旧値は取消済みを無視し数量と単位を分ける
+  ✓ tba は空欄や0にならない
+  ✓ not_stated は空欄や0にならない (1 ms)
+  ✓ not_applicable は空欄や0にならない
+  ✓ 数値文字列を丸めず数量単位と要求を組み立てる
+  ✓ 状態のみ tba にはnewValueもqtyUnitも載せない
+  ✓ 状態のみ not_stated にはnewValueもqtyUnitも載せない
+  ✓ 状態のみ not_applicable にはnewValueもqtyUnitも載せない
+  ✓ kind にnewStateは載せない
+  ✓ usage_note にnewStateは載せない
+  ✓ note にnewStateは載せない
+  ✓ クライアントで不正要求を止める 0 (6 ms)
+  ✓ クライアントで不正要求を止める 1 (1 ms)
+  ✓ クライアントで不正要求を止める 2
+  ✓ クライアントで不正要求を止める 3 (1 ms)
+  ✓ クライアントで不正要求を止める 4
+  ✓ クライアントで不正要求を止める 5
+  ✓ API本文やdetailsを文言に使わない
+
+Test Suites: 1 passed, 1 total
+Tests:       31 passed, 31 total
+Snapshots:   0 total
+Time:        0.402 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/model.test.ts/i.

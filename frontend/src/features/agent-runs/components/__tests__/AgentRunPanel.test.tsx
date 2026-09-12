@@ -122,7 +122,7 @@ it.each([
   expect(screen.queryByText(stageDetail)).not.toBeInTheDocument();
 });
 it.each([true, false])(
-  "成功・isComplete=%sはGETで確定した版だけ表示、リンクなし",
+  "成功・isComplete=%sはGETで確定した版の確認リンクを表示",
   async (isComplete) => {
     setRun({
       ...running,
@@ -137,7 +137,7 @@ it.each([true, false])(
     expect(screen.getByText("案を作成しました")).toBeInTheDocument();
     expect(screen.getByText("版番号：99")).toBeInTheDocument();
     expect(
-      screen.getByText("Item List の確認画面は次の段階で追加されます"),
+      screen.getByRole("link", { name: "Item List を確認する" }),
     ).toBeInTheDocument();
     if (isComplete)
       expect(
@@ -147,7 +147,9 @@ it.each([true, false])(
       expect(
         screen.getByText("一部完了：確認が必要な箇所が残っています"),
       ).toBeInTheDocument();
-    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Item List を確認する" }),
+    ).toHaveAttribute("href", "/cases/8/versions/99");
   },
 );
 it.each([

@@ -182,6 +182,7 @@ export function AgentRunPanel({
           </Box>
         ) : run.data ? (
           <RunProgress
+            caseId={caseId}
             run={run.data}
             acknowledgedCarryOver={acknowledgedRunId === run.data.runId}
           />

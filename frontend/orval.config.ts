@@ -13,7 +13,7 @@ const config = {
       client: 'react-query',
       httpClient: 'fetch',
       clean: true,
-      prettier: true,
+      formatter: 'prettier',
       override: {
         // mutator は output.override 配下でないと生成コードに反映されない。
         // 直下に書くと orval は黙って無視し、生成物が素の fetch（baseURL 無し・

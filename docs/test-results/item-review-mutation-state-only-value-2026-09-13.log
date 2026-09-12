@@ -1,0 +1,123 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/model.test.ts
+
+FAIL src/features/versions/__tests__/model.test.ts
+  ✓ 状態の優先順を文字とトーンで表す 0 (1 ms)
+  ✓ 状態の優先順を文字とトーンで表す 1
+  ✓ 状態の優先順を文字とトーンで表す 2
+  ✓ 状態の優先順を文字とトーンで表す 3 (1 ms)
+  ✓ 状態の優先順を文字とトーンで表す 4
+  ✓ 状態フィルタ all は該当行だけを残す
+  ✓ 状態フィルタ questions は該当行だけを残す
+  ✓ 状態フィルタ tba は該当行だけを残す
+  ✓ 状態フィルタ choice は該当行だけを残す
+  ✓ 状態フィルタ unmatched は該当行だけを残す
+  ✓ 状態フィルタ edited は該当行だけを残す
+  ✓ 状態フィルタ unresolved は該当行だけを残す
+  ✓ キーワードと3列をAND検索し、判断済み未解決を残す (1 ms)
+  ✓ 訂正の旧値は取消済みを無視し数量と単位を分ける
+  ✓ tba は空欄や0にならない
+  ✓ not_stated は空欄や0にならない (1 ms)
+  ✓ not_applicable は空欄や0にならない
+  ✓ 数値文字列を丸めず数量単位と要求を組み立てる (1 ms)
+  ✕ 状態のみ tba にはnewValueもqtyUnitも載せない (2 ms)
+  ✕ 状態のみ not_stated にはnewValueもqtyUnitも載せない (1 ms)
+  ✕ 状態のみ not_applicable にはnewValueもqtyUnitも載せない (1 ms)
+  ✓ kind にnewStateは載せない
+  ✓ usage_note にnewStateは載せない (1 ms)
+  ✓ note にnewStateは載せない
+  ✓ クライアントで不正要求を止める 0 (2 ms)
+  ✓ クライアントで不正要求を止める 1 (1 ms)
+  ✓ クライアントで不正要求を止める 2 (3 ms)
+  ✓ クライアントで不正要求を止める 3 (1 ms)
+  ✓ クライアントで不正要求を止める 4
+  ✓ クライアントで不正要求を止める 5
+  ✓ API本文やdetailsを文言に使わない (1 ms)
+
+  ● 状態のみ tba にはnewValueもqtyUnitも載せない
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 1
+
+      Object {
+        "field": "qty_value",
+        "itemId": 4,
+        "newState": "tba",
+    +   "newValue": "9007199254740993.0010",
+        "reason": "照合",
+        "recordedBy": "担当",
+      }
+
+      136 |   (state) => {
+      137 |     const request = buildEditRequest(4, { ...draft, state });
+    > 138 |     expect(request).toEqual({
+          |                     ^
+      139 |       itemId: 4,
+      140 |       field: "qty_value",
+      141 |       newState: state,
+
+      at toEqual (src/features/versions/__tests__/model.test.ts:138:21)
+
+  ● 状態のみ not_stated にはnewValueもqtyUnitも載せない
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 1
+
+      Object {
+        "field": "qty_value",
+        "itemId": 4,
+        "newState": "not_stated",
+    +   "newValue": "9007199254740993.0010",
+        "reason": "照合",
+        "recordedBy": "担当",
+      }
+
+      136 |   (state) => {
+      137 |     const request = buildEditRequest(4, { ...draft, state });
+    > 138 |     expect(request).toEqual({
+          |                     ^
+      139 |       itemId: 4,
+      140 |       field: "qty_value",
+      141 |       newState: state,
+
+      at toEqual (src/features/versions/__tests__/model.test.ts:138:21)
+
+  ● 状態のみ not_applicable にはnewValueもqtyUnitも載せない
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 1
+
+      Object {
+        "field": "qty_value",
+        "itemId": 4,
+        "newState": "not_applicable",
+    +   "newValue": "9007199254740993.0010",
+        "reason": "照合",
+        "recordedBy": "担当",
+      }
+
+      136 |   (state) => {
+      137 |     const request = buildEditRequest(4, { ...draft, state });
+    > 138 |     expect(request).toEqual({
+          |                     ^
+      139 |       itemId: 4,
+      140 |       field: "qty_value",
+      141 |       newState: state,
+
+      at toEqual (src/features/versions/__tests__/model.test.ts:138:21)
+
+Test Suites: 1 failed, 1 total
+Tests:       3 failed, 28 passed, 31 total
+Snapshots:   0 total
+Time:        0.387 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/model.test.ts/i.
+make[1]: *** [/tmp/item-review-checks.mk:4: item-review-model] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

@@ -1,0 +1,389 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/app/__tests__/case-routes.test.tsx src/features/cases/components/__tests__/CaseListPage.test.tsx src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx
+
+FAIL src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx
+  ● 成功・isComplete=trueはGETで確定した版だけ表示、リンクなし
+
+    TestingLibraryElementError: Unable to find an accessible element with the role "link" and name "Item List を確認する"
+
+    Here are the accessible roles:
+
+      region:
+
+      Name "案の作成":
+      <section
+        aria-label="案の作成"
+        class="MuiBox-root css-115ci5l"
+      />
+
+      --------------------------------------------------
+      heading:
+
+      Name "案の作成":
+      <h2
+        class="MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"
+      />
+
+      --------------------------------------------------
+      button:
+
+      Name "案を作成":
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      />
+
+      Name "処理記録を表示":
+      <button
+        aria-expanded="false"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      />
+
+      --------------------------------------------------
+      paragraph:
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+      />
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-16eu31u-MuiTypography-root"
+      />
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+      />
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+      />
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+      />
+
+      --------------------------------------------------
+      status:
+
+      Name "":
+      <div
+        aria-live="polite"
+        class="MuiBox-root css-0"
+        role="status"
+      />
+
+      --------------------------------------------------
+
+    Ignored nodes: comments, script, style
+    <body>
+      <div>
+        <section
+          aria-label="案の作成"
+          class="MuiBox-root css-115ci5l"
+        >
+          <h2
+            class="MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"
+          >
+            案の作成
+          </h2>
+          <button
+            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"
+            tabindex="0"
+            type="button"
+          >
+            案を作成
+            <span
+              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+            />
+          </button>
+          <p
+            class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+          >
+            実ファイルを抽出する処理ではありません。再実行は別の生成版になります。未生成の案件ではまだ版がありません
+          </p>
+          <div
+            aria-live="polite"
+            class="MuiBox-root css-0"
+            role="status"
+          >
+            <p
+              class="MuiTypography-root MuiTypography-body1 css-16eu31u-MuiTypography-root"
+            >
+              案を作成しました
+            </p>
+            <p
+              class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+            >
+              版番号：99
+            </p>
+            <p
+              class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+            >
+              Item List の確認画面は次の段階で追加されます
+            </p>
+            <p
+              class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+            >
+              経過 12 秒・2 ターン
+            </p>
+          </div>
+          <div
+            class="MuiBox-root css-0"
+          >
+            <button
+              aria-expanded="false"
+              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+              tabindex="0"
+              type="button"
+            >
+              処理記録を表示
+              <span
+                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+              />
+            </button>
+          </div>
+        </section>
+      </div>
+    </body>
+
+      138 |     expect(screen.getByText("版番号：99")).toBeInTheDocument();
+      139 |     expect(
+    > 140 |       screen.getByRole("link", { name: "Item List を確認する" }),
+          |              ^
+      141 |     ).toBeInTheDocument();
+      142 |     if (isComplete)
+      143 |       expect(
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at getByRole (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:140:14)
+
+  ● 成功・isComplete=falseはGETで確定した版だけ表示、リンクなし
+
+    TestingLibraryElementError: Unable to find an accessible element with the role "link" and name "Item List を確認する"
+
+    Here are the accessible roles:
+
+      region:
+
+      Name "案の作成":
+      <section
+        aria-label="案の作成"
+        class="MuiBox-root css-115ci5l"
+      />
+
+      --------------------------------------------------
+      heading:
+
+      Name "案の作成":
+      <h2
+        class="MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"
+      />
+
+      --------------------------------------------------
+      button:
+
+      Name "案を作成":
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      />
+
+      Name "処理記録を表示":
+      <button
+        aria-expanded="false"
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      />
+
+      --------------------------------------------------
+      paragraph:
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+      />
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-16eu31u-MuiTypography-root"
+      />
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-42d2pn-MuiTypography-root"
+      />
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+      />
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+      />
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+      />
+
+      --------------------------------------------------
+      status:
+
+      Name "":
+      <div
+        aria-live="polite"
+        class="MuiBox-root css-0"
+        role="status"
+      />
+
+      --------------------------------------------------
+
+    Ignored nodes: comments, script, style
+    <body>
+      <div>
+        <section
+          aria-label="案の作成"
+          class="MuiBox-root css-115ci5l"
+        >
+          <h2
+            class="MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"
+          >
+            案の作成
+          </h2>
+          <button
+            class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"
+            tabindex="0"
+            type="button"
+          >
+            案を作成
+            <span
+              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+            />
+          </button>
+          <p
+            class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+          >
+            実ファイルを抽出する処理ではありません。再実行は別の生成版になります。未生成の案件ではまだ版がありません
+          </p>
+          <div
+            aria-live="polite"
+            class="MuiBox-root css-0"
+            role="status"
+          >
+            <p
+              class="MuiTypography-root MuiTypography-body1 css-16eu31u-MuiTypography-root"
+            >
+              案を作成しました
+            </p>
+            <p
+              class="MuiTypography-root MuiTypography-body1 css-42d2pn-MuiTypography-root"
+            >
+              一部完了：確認が必要な箇所が残っています
+            </p>
+            <p
+              class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+            >
+              版番号：99
+            </p>
+            <p
+              class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+            >
+              Item List の確認画面は次の段階で追加されます
+            </p>
+            <p
+              class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+            >
+              経過 12 秒・2 ターン
+            </p>
+          </div>
+          <div
+            class="MuiBox-root css-0"
+          >
+            <button
+              aria-expanded="false"
+              class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+              tabindex="0"
+              type="button"
+            >
+              処理記録を表示
+              <span
+                class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+              />
+            </button>
+          </div>
+        </section>
+      </div>
+    </body>
+
+      138 |     expect(screen.getByText("版番号：99")).toBeInTheDocument();
+      139 |     expect(
+    > 140 |       screen.getByRole("link", { name: "Item List を確認する" }),
+          |              ^
+      141 |     ).toBeInTheDocument();
+      142 |     if (isComplete)
+      143 |       expect(
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at getByRole (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:140:14)
+
+FAIL src/features/cases/components/__tests__/CaseListPage.test.tsx
+  ● 版の状態と確認記録の案内を表示し案件を開ける
+
+    expect(element).toHaveTextContent()
+
+    Expected element to have text content:
+      確認者・日時は承認画面で記録します
+    Received:
+      版の状態は案の作成後に表示します
+
+      206 |   setUseCreateCase();
+      207 |   renderWithProviders(<CaseListPage />);
+    > 208 |   expect(screen.getByText(i18n.t("cases.list.versionNote"))).toHaveTextContent(
+          |                                                              ^
+      209 |     "確認者・日時は承認画面で記録します",
+      210 |   );
+      211 |   expect(screen.getByText(i18n.t("cases.list.footnote"))).toHaveTextContent(
+
+      at Object.toHaveTextContent (src/features/cases/components/__tests__/CaseListPage.test.tsx:208:62)
+
+FAIL src/app/__tests__/case-routes.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '../(portal)/cases/[caseId]/versions/[versionId]/page' from 'src/app/__tests__/case-routes.test.tsx'
+
+      35 |   "不正caseId %s はnotFound",
+      36 |   async (caseId) => {
+    > 37 |     await expect(
+         |                  ^
+      38 |       Intake({ params: Promise.resolve({ caseId }) }),
+      39 |     ).rejects.toThrow("not found");
+      40 |     expect(notFound).toHaveBeenCalled();
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.<anonymous> (src/app/__tests__/case-routes.test.tsx:37:55)
+
+Test Suites: 3 failed, 3 total
+Tests:       3 failed, 69 passed, 72 total
+Snapshots:   0 total
+Time:        4.388 s, estimated 9 s
+Ran all test suites matching /src\/app\/__tests__\/case-routes.test.tsx|src\/features\/cases\/components\/__tests__\/CaseListPage.test.tsx|src\/features\/agent-runs\/components\/__tests__\/AgentRunPanel.test.tsx/i.
+make: *** [/tmp/item-review-checks.mk:11: item-review-routes] Error 1

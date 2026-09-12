@@ -1,0 +1,173 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/components.test.tsx
+
+FAIL src/features/versions/__tests__/components.test.tsx (9.483 s)
+  ✓ 明細・7件数・版の状態・TBA・択一・旧値を文字で示し合計は出さない (465 ms)
+  ✓ loadingと404には原因・戻り先、明細空には専用表示がある (201 ms)
+  ✓ 絞り込み0件からクリアし、判断済み未解決は案件枠に残る (551 ms)
+  ✓ 担当者名空では照合を変えずPOSTしない、名前を入れると明示記録する (550 ms)
+  ✓ 判断selectを変えただけではPOSTせず行の記録ボタンで送る (319 ms)
+  ✓ ドロワーは絞り込み後の順に前後移動し、根拠のHTMLとURLは文字列 (869 ms)
+  ✓ 訂正の理由が空なら送信せず、状態のみ訂正は値を載せず記録する (971 ms)
+  ✓ 記録失敗 E_REASON_REQUIRED は生のmessage/detailsを出さない (245 ms)
+  ✓ 記録失敗 E_RECORDER_REQUIRED は生のmessage/detailsを出さない (287 ms)
+  ✓ 記録失敗 E_QTY_UNIT_REQUIRED は生のmessage/detailsを出さない (288 ms)
+  ✓ 記録失敗 E_STATE_VALUE_CONFLICT は生のmessage/detailsを出さない (222 ms)
+  ✓ 記録失敗 E_TARGET_INVALID は生のmessage/detailsを出さない (214 ms)
+  ✓ 記録失敗 E_REQUEST_INVALID は生のmessage/detailsを出さない (262 ms)
+  ✓ 記録失敗 E_FIELD_NOT_EDITABLE は生のmessage/detailsを出さない (286 ms)
+  ✓ 記録失敗 E_ALREADY_UNDONE は生のmessage/detailsを出さない (240 ms)
+  ✓ 記録失敗 E_ALREADY_CONFIRMED は生のmessage/detailsを出さない (220 ms)
+  ✓ 記録失敗 E_NOT_FOUND は生のmessage/detailsを出さない (247 ms)
+  ✓ 記録失敗 E_INTERNAL は生のmessage/detailsを出さない (286 ms)
+  ✓ 照合取消は応答のconfirmationIdを送り、訂正取消後も履歴を表示する (588 ms)
+  ✓ 絞り込みで残った1行のドロワーは両端が無効で根拠空を区別する (317 ms)
+  ✓ 案件ヘッダは原表記・粒度・基準とTZ不足を示す (117 ms)
+  ✓ useItemsの取得失敗は再取得できる (42 ms)
+  ✓ useQuestionsの取得失敗は再取得できる (46 ms)
+  ✓ 版履歴は空と取得失敗を区別する (117 ms)
+  ✓ ドロワーでは納期・納地の採用値も状態と根拠を確認できるが編集対象にしない (346 ms)
+  ✓ レンジと定尺長は共有状態でも併記し状態ラベルは1つにする (38 ms)
+  ✕ od の値と単位が共有する状態はセルに1回だけ表示する (27 ms)
+  ✕ weight の値と単位が共有する状態はセルに1回だけ表示する (2 ms)
+  ✕ wall の値と単位が共有する状態はセルに1回だけ表示する (2 ms)
+  ✕ 一覧のod列に記載なしを重複表示しない (75 ms)
+  ✕ 一覧のweight列に記載なしを重複表示しない (73 ms)
+
+  ● od の値と単位が共有する状態はセルに1回だけ表示する
+
+    Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+
+      48 |   return {
+      49 |     queryClient,
+    > 50 |     ...render(ui, {
+         |              ^
+      51 |       wrapper: ({ children }) => (
+      52 |         <Wrapper queryClient={queryClient}>{children}</Wrapper>
+      53 |       ),
+
+      at createFiberFromTypeAndProps (node_modules/react-dom/cjs/react-dom-client.development.js:5330:28)
+      at createFiberFromElement (node_modules/react-dom/cjs/react-dom-client.development.js:5344:14)
+      at reconcileChildFibersImpl (node_modules/react-dom/cjs/react-dom-client.development.js:7286:31)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:7456:33
+      at reconcileChildren (node_modules/react-dom/cjs/react-dom-client.development.js:10096:13)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12468:13)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderWithProviders (src/shared/testing/test-utils.tsx:50:14)
+      at src/features/versions/__tests__/components.test.tsx:494:21
+
+  ● weight の値と単位が共有する状態はセルに1回だけ表示する
+
+    Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+
+      48 |   return {
+      49 |     queryClient,
+    > 50 |     ...render(ui, {
+         |              ^
+      51 |       wrapper: ({ children }) => (
+      52 |         <Wrapper queryClient={queryClient}>{children}</Wrapper>
+      53 |       ),
+
+      at createFiberFromTypeAndProps (node_modules/react-dom/cjs/react-dom-client.development.js:5330:28)
+      at createFiberFromElement (node_modules/react-dom/cjs/react-dom-client.development.js:5344:14)
+      at reconcileChildFibersImpl (node_modules/react-dom/cjs/react-dom-client.development.js:7286:31)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:7456:33
+      at reconcileChildren (node_modules/react-dom/cjs/react-dom-client.development.js:10096:13)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12468:13)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderWithProviders (src/shared/testing/test-utils.tsx:50:14)
+      at src/features/versions/__tests__/components.test.tsx:494:21
+
+  ● wall の値と単位が共有する状態はセルに1回だけ表示する
+
+    Element type is invalid: expected a string (for built-in components) or a class/function (for composite components) but got: undefined. You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.
+
+      48 |   return {
+      49 |     queryClient,
+    > 50 |     ...render(ui, {
+         |              ^
+      51 |       wrapper: ({ children }) => (
+      52 |         <Wrapper queryClient={queryClient}>{children}</Wrapper>
+      53 |       ),
+
+      at createFiberFromTypeAndProps (node_modules/react-dom/cjs/react-dom-client.development.js:5330:28)
+      at createFiberFromElement (node_modules/react-dom/cjs/react-dom-client.development.js:5344:14)
+      at reconcileChildFibersImpl (node_modules/react-dom/cjs/react-dom-client.development.js:7286:31)
+      at node_modules/react-dom/cjs/react-dom-client.development.js:7456:33
+      at reconcileChildren (node_modules/react-dom/cjs/react-dom-client.development.js:10096:13)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12468:13)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderWithProviders (src/shared/testing/test-utils.tsx:50:14)
+      at src/features/versions/__tests__/components.test.tsx:494:21
+
+  ● 一覧のod列に記載なしを重複表示しない
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 1
+    Received length: 2
+    Received array:  [<span class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">記載なし</span>, <span class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">記載なし</span>]
+
+      498 |  mock.useItems.mockReturnValue(query([{...item,[`${dimension}State`]:"not_stated"}]) as never);render();
+      499 |  const row=screen.getByRole("rowheader",{name:"R1"}).closest("tr")!;
+    > 500 |  expect(within(row.children[index] as HTMLElement).getAllByText("記載なし")).toHaveLength(1);
+          |                                                                          ^
+      501 | });
+      502 |
+
+      at toHaveLength (src/features/versions/__tests__/components.test.tsx:500:74)
+
+  ● 一覧のweight列に記載なしを重複表示しない
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 1
+    Received length: 2
+    Received array:  [<span class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">記載なし</span>, <span class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">記載なし</span>]
+
+      498 |  mock.useItems.mockReturnValue(query([{...item,[`${dimension}State`]:"not_stated"}]) as never);render();
+      499 |  const row=screen.getByRole("rowheader",{name:"R1"}).closest("tr")!;
+    > 500 |  expect(within(row.children[index] as HTMLElement).getAllByText("記載なし")).toHaveLength(1);
+          |                                                                          ^
+      501 | });
+      502 |
+
+      at toHaveLength (src/features/versions/__tests__/components.test.tsx:500:74)
+
+Test Suites: 1 failed, 1 total
+Tests:       5 failed, 26 passed, 31 total
+Snapshots:   0 total
+Time:        9.729 s, estimated 10 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/components.test.tsx/i.
+make: *** [/tmp/item-review-checks.mk:8: item-review-components] Error 1

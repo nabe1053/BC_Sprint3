@@ -1,0 +1,670 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/components.test.tsx
+
+FAIL src/features/versions/__tests__/components.test.tsx (9.689 s)
+  ✓ 明細・7件数・版の状態・TBA・択一・旧値を文字で示し合計は出さない (298 ms)
+  ✓ loadingと404には原因・戻り先、明細空には専用表示がある (81 ms)
+  ✓ 絞り込み0件からクリアし、判断済み未解決は案件枠に残る (298 ms)
+  ✓ 担当者名空では照合を変えずPOSTしない、名前を入れると明示記録する (301 ms)
+  ✓ 判断selectを変えただけではPOSTせず行の記録ボタンで送る (218 ms)
+  ✓ ドロワーは絞り込み後の順に前後移動し、根拠のHTMLとURLは文字列 (614 ms)
+  ✓ 訂正の理由が空なら送信せず、状態のみ訂正は値を載せず記録する (757 ms)
+  ✓ 記録失敗 E_REASON_REQUIRED は生のmessage/detailsを出さない (305 ms)
+  ✓ 記録失敗 E_RECORDER_REQUIRED は生のmessage/detailsを出さない (210 ms)
+  ✓ 記録失敗 E_QTY_UNIT_REQUIRED は生のmessage/detailsを出さない (206 ms)
+  ✓ 記録失敗 E_STATE_VALUE_CONFLICT は生のmessage/detailsを出さない (237 ms)
+  ✓ 記録失敗 E_TARGET_INVALID は生のmessage/detailsを出さない (256 ms)
+  ✓ 記録失敗 E_REQUEST_INVALID は生のmessage/detailsを出さない (218 ms)
+  ✓ 記録失敗 E_FIELD_NOT_EDITABLE は生のmessage/detailsを出さない (206 ms)
+  ✓ 記録失敗 E_ALREADY_UNDONE は生のmessage/detailsを出さない (199 ms)
+  ✓ 記録失敗 E_ALREADY_CONFIRMED は生のmessage/detailsを出さない (271 ms)
+  ✓ 記録失敗 E_NOT_FOUND は生のmessage/detailsを出さない (242 ms)
+  ✓ 記録失敗 E_INTERNAL は生のmessage/detailsを出さない (193 ms)
+  ✓ 照合取消は応答のconfirmationIdを送り、訂正取消後も履歴を表示する (625 ms)
+  ✓ 絞り込みで残った1行のドロワーは両端が無効で根拠空を区別する (259 ms)
+  ✓ 案件ヘッダは原表記・粒度・基準とTZ不足を示す (92 ms)
+  ✓ useItemsの取得失敗は再取得できる (38 ms)
+  ✓ useQuestionsの取得失敗は再取得できる (41 ms)
+  ✓ 版履歴は空と取得失敗を区別する (57 ms)
+  ✕ ドロワーでは納期・納地の採用値も状態と根拠を確認できるが編集対象にしない (2736 ms)
+
+  ● ドロワーでは納期・納地の採用値も状態と根拠を確認できるが編集対象にしない
+
+    TestingLibraryElementError: Unable to find an accessible element with the role "heading" and name "納期"
+
+    Here are the accessible roles:
+
+      heading:
+
+      Name "行 R1 · Casing":
+      <h2
+        class="MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"
+        id="evidence-title"
+      />
+
+      Name "原表記（編集対象外）":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "採用値・出典":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "品種":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "用途":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "外径の値":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "外径の単位":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "肉厚の値":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "肉厚の単位":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "単重の値":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "単重の単位":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "材質":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "接続":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "レンジ":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "定尺長の値":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "定尺長の単位":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "数量の値":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "数量の単位":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "備考":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "値を訂正する":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "この行の訂正履歴":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      Name "この行の確認事項":
+      <h3
+        class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+      />
+
+      --------------------------------------------------
+      button:
+
+      Name "閉じる":
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="button"
+      />
+
+      Name "前の行":
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"
+        disabled=""
+        tabindex="-1"
+        type="button"
+      />
+
+      Name "次の行":
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"
+        disabled=""
+        tabindex="-1"
+        type="button"
+      />
+
+      Name "訂正を記録":
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="submit"
+      />
+
+      Name "記録":
+      <button
+        class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"
+        tabindex="0"
+        type="submit"
+      />
+
+      --------------------------------------------------
+      blockquote:
+
+      Name "":
+      <blockquote
+        class="MuiBox-root css-1el1l73"
+      />
+
+      Name "":
+      <blockquote
+        class="MuiBox-root css-1el1l73"
+      />
+
+      Name "":
+      <blockquote
+        class="MuiBox-root css-1el1l73"
+      />
+
+      Name "":
+      <blockquote
+        class="MuiBox-root css-1el1l73"
+      />
+
+      Name "":
+      <blockquote
+        class="MuiBox-root css-1el1l73"
+      />
+
+      Name "":
+      <blockquote
+        class="MuiBox-root css-hr6rlj"
+      />
+
+      --------------------------------------------------
+      paragraph:
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+      />
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+      />
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+      />
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+      />
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+      />
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+      />
+
+      Name "":
+      <p
+        class="MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"
+      />
+
+      --------------------------------------------------
+      checkbox:
+
+      Name "行 R1 の重要項目を出典と照合した":
+      <input
+        class="PrivateSwitchBase-input css-1p3z7et-MuiSwitchBase-root"
+        data-indeterminate="false"
+        type="checkbox"
+      />
+
+      --------------------------------------------------
+      combobox:
+
+      Name "対象項目":
+      <select
+        aria-invalid="false"
+        class="MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+        id="_r_9h_"
+      />
+
+      Name "値の状態":
+      <select
+        aria-invalid="false"
+        class="MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+        id="_r_9i_"
+      />
+
+      Name "対応状況":
+      <select
+        aria-invalid="false"
+        class="MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+        id="_r_9m_"
+      />
+
+      Name "解決状態":
+      <select
+        aria-invalid="false"
+        class="MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"
+        id="_r_9n_"
+      />
+
+      --------------------------------------------------
+      option:
+
+      Name "品種":
+      <option
+        value="kind"
+      />
+
+      Name "用途":
+      <option
+        value="usage_note"
+      />
+
+      Name "外径の値":
+      <option
+        value="od_value"
+      />
+
+      Name "外径の単位":
+      <option
+        value="od_unit"
+      />
+
+      Name "肉厚の値":
+      <option
+        value="wall_value"
+      />
+
+      Name "肉厚の単位":
+      <option
+        value="wall_unit"
+      />
+
+      Name "単重の値":
+      <option
+        value="weight_value"
+      />
+
+      Name "単重の単位":
+      <option
+        value="weight_unit"
+      />
+
+      Name "材質":
+      <option
+        value="grade"
+      />
+
+      Name "接続":
+      <option
+        value="connection"
+      />
+
+      Name "レンジ":
+      <option
+        value="range_class"
+      />
+
+      Name "定尺長の値":
+      <option
+        value="length_value"
+      />
+
+      Name "定尺長の単位":
+      <option
+        value="length_unit"
+      />
+
+      Name "数量の値":
+      <option
+        value="qty_value"
+      />
+
+      Name "数量の単位":
+      <option
+        value="qty_unit"
+      />
+
+      Name "備考":
+      <option
+        value="note"
+      />
+
+      Name "記載あり（値）":
+      <option
+        value="stated"
+      />
+
+      Name "TBA":
+      <option
+        value="tba"
+      />
+
+      Name "記載なし":
+      <option
+        value="not_stated"
+      />
+
+      Name "適用なし":
+      <option
+        value="not_applicable"
+      />
+
+      Name "未対応":
+      <option
+        value="open"
+      />
+
+      Name "対応中":
+      <option
+        value="in_progress"
+      />
+
+      Name "判断済み":
+      <option
+        value="judged"
+      />
+
+      Name "未解決":
+      <option
+        value="unresolved"
+      />
+
+      Name "解決":
+      <option
+        value="resolved"
+      />
+
+      --------------------------------------------------
+      textbox:
+
+      Name "新しい値":
+      <input
+        aria-invalid="false"
+        class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+        id="_r_9j_"
+        type="text"
+        value=""
+      />
+
+      Name "修正理由（必須）":
+      <textarea
+        aria-invalid="false"
+        class="MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"
+        id="_r_9k_"
+        style="height: 0px; overflow: hidden;"
+      />
+
+      Name "修正者（必須）":
+      <input
+        aria-invalid="false"
+        class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+        id="_r_9l_"
+        type="text"
+        value=""
+      />
+
+      Name "判断内容":
+      <input
+        aria-invalid="false"
+        class="MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"
+        id="_r_9o_"
+        type="text"
+        value=""
+      />
+
+      --------------------------------------------------
+      form:
+
+      Name "確認事項 Q1":
+      <form
+        aria-label="確認事項 Q1"
+        class="MuiBox-root css-taqjlb"
+      />
+
+      --------------------------------------------------
+
+    Ignored nodes: comments, script, style
+    <div
+      aria-labelledby="evidence-title"
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation16 MuiDrawer-paper MuiDrawer-paperAnchorRight css-1y2f43l-MuiPaper-root-MuiDrawer-paper"
+      role="dialog"
+      tabindex="-1"
+    >
+      <div
+        class="MuiBox-root css-1p44k52"
+      >
+        <div
+          class="MuiBox-root css-0"
+        >
+          <h2
+            class="MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"
+            id="evidence-title"
+          >
+            行 R1 · Casing
+          </h2>
+          <button
+            class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"
+            tabindex="0"
+            type="button"
+          >
+            閉じる
+            <span
+              class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"
+            />
+          </button>
+        </div>
+        <div
+          class="MuiBox-root css-gg4vpm"
+        >
+          <button
+            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"
+            disabled=""
+            tabindex="-1"
+            type="button"
+          >
+            前の行
+          </button>
+          <button
+            class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"
+            disabled=""
+            tabindex="-1"
+            type="button"
+          >
+            次の行
+          </button>
+        </div>
+        <div
+          class="MuiBox-root css-0"
+        >
+          <h3
+            class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+          >
+            原表記（編集対象外）
+          </h3>
+          <blockquote
+            class="MuiBox-root css-1el1l73"
+          >
+            CASING
+          </blockquote>
+          <blockquote
+            class="MuiBox-root css-1el1l73"
+          >
+            4-1/2 inch
+          </blockquote>
+          <blockquote
+            class="MuiBox-root css-1el1l73"
+          >
+            K55
+          </blockquote>
+          <blockquote
+            class="MuiBox-root css-1el1l73"
+          >
+            TBA
+          </blockquote>
+          <blockquote
+            class="MuiBox-root css-1el1l73"
+          >
+            Q4
+          </blockquote>
+        </div>
+        <div
+          class="MuiBox-root css-0"
+        >
+          <h3
+            class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+          >
+            採用値・出典
+          </h3>
+          <div
+            class="MuiBox-root css-8l51sc"
+          >
+            <h3
+              class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+            >
+              品種
+            </h3>
+            <span
+              class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+            >
+              Casing
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+            >
+              根拠なし
+            </span>
+          </div>
+          <div
+            class="MuiBox-root css-8l51sc"
+          >
+            <h3
+              class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+            >
+              用途
+            </h3>
+            <span
+              class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+            >
+              —
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+            >
+              根拠なし
+            </span>
+          </div>
+          <div
+            class="MuiBox-root css-8l51sc"
+          >
+            <h3
+              class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+            >
+              外径の値
+            </h3>
+            <span
+              class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+            >
+              4.500
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+            >
+              根拠なし
+            </span>
+          </div>
+          <div
+            class="MuiBox-root css-8l51sc"
+          >
+            <h3
+              class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"
+            >
+              外径の単位
+            </h3>
+            <span
+              class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"
+            >
+              in
+            </span>
+            <span
+              class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"
+            >
+              根拠なし
+            </span>
+          </div>
+          <div
+            class="MuiBox-root css-8l51sc"...
+
+      442 | it("ドロワーでは納期・納地の採用値も状態と根拠を確認できるが編集対象にしない",async()=>{
+      443 |  mock.useItems.mockReturnValue(query([{...item,dueRaw:"Q4",dueState:"stated",placeRaw:null,placeState:"not_applicable"}]) as never);render();await userEvent.click(screen.getByRole("button",{name:"詳細を見る"}));const drawer=screen.getByRole("dialog");
+    > 444 |  expect(within(drawer).getByRole("heading",{name:"納期"})).toBeVisible();expect(within(drawer).getByRole("heading",{name:"納地"})).toBeVisible();expect(within(drawer).getByText("適用なし",{selector:"span"})).toBeVisible();
+          |                        ^
+      445 |  expect(within(drawer).getByLabelText("対象項目").querySelector('option[value="due_raw"]')).toBeNull();expect(within(drawer).getByLabelText("対象項目").querySelector('option[value="place_raw"]')).toBeNull();
+      446 | });
+      447 |
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByRole (src/features/versions/__tests__/components.test.tsx:444:24)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 24 passed, 25 total
+Snapshots:   0 total
+Time:        9.892 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/components.test.tsx/i.
+make: *** [/tmp/item-review-checks.mk:8: item-review-components] Error 1

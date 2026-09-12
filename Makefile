@@ -68,8 +68,9 @@ orval: ## 生成クライアント再生成 + mutator 結線の確認（LN-010�
 fe-type: ## tsc --noEmit（全体。分割 tsconfig を使わない）
 	@cd $(FRONTEND) && npm run typecheck
 
-fe-lint: ## eslint
+fe-lint: ## eslint + prettier
 	@cd $(FRONTEND) && npm run lint
+	@cd $(FRONTEND) && npx --no-install prettier --check "src/**/*.{ts,tsx}"
 
 fe-test: ## jest
 	@cd $(FRONTEND) && npm run test

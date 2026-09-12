@@ -1,0 +1,56 @@
+src/features/versions/__tests__/api.test.ts 55ms (unchanged)
+src/features/versions/__tests__/components.test.tsx 64ms
+src/features/versions/__tests__/hooks.test.tsx 25ms (unchanged)
+src/features/versions/__tests__/model.test.ts 15ms (unchanged)
+src/features/versions/api.ts 5ms (unchanged)
+src/features/versions/components/EditForm.tsx 16ms (unchanged)
+src/features/versions/components/EditHistory.tsx 7ms (unchanged)
+src/features/versions/components/EvidenceDrawer.tsx 22ms (unchanged)
+src/features/versions/components/ItemFilters.tsx 10ms (unchanged)
+src/features/versions/components/ItemListPage.tsx 15ms (unchanged)
+src/features/versions/components/ItemTable.tsx 20ms
+src/features/versions/components/ItemValue.tsx 3ms (unchanged)
+src/features/versions/components/QuestionJudgementForm.tsx 6ms (unchanged)
+src/features/versions/components/VersionHistory.tsx 6ms (unchanged)
+src/features/versions/components/VersionSummary.tsx 10ms (unchanged)
+src/features/versions/hooks.ts 6ms (unchanged)
+src/features/versions/index.ts 1ms (unchanged)
+src/features/versions/model.ts 8ms (unchanged)
+src/features/versions/testing/fixtures.ts 2ms (unchanged)
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/components.test.tsx
+
+PASS src/features/versions/__tests__/components.test.tsx (6.991 s)
+  ✓ 明細・7件数・版の状態・TBA・択一・旧値を文字で示し合計は出さない (305 ms)
+  ✓ loadingと404には原因・戻り先、明細空には専用表示がある (79 ms)
+  ✓ 絞り込み0件からクリアし、判断済み未解決は案件枠に残る (272 ms)
+  ✓ 担当者名空では照合を変えずPOSTしない、名前を入れると明示記録する (303 ms)
+  ✓ 判断selectを変えただけではPOSTせず行の記録ボタンで送る (214 ms)
+  ✓ ドロワーは絞り込み後の順に前後移動し、根拠のHTMLとURLは文字列 (564 ms)
+  ✓ 訂正の理由が空なら送信せず、状態のみ訂正は値を載せず記録する (672 ms)
+  ✓ 記録失敗 E_REASON_REQUIRED は生のmessage/detailsを出さない (259 ms)
+  ✓ 記録失敗 E_RECORDER_REQUIRED は生のmessage/detailsを出さない (205 ms)
+  ✓ 記録失敗 E_QTY_UNIT_REQUIRED は生のmessage/detailsを出さない (209 ms)
+  ✓ 記録失敗 E_STATE_VALUE_CONFLICT は生のmessage/detailsを出さない (189 ms)
+  ✓ 記録失敗 E_TARGET_INVALID は生のmessage/detailsを出さない (216 ms)
+  ✓ 記録失敗 E_REQUEST_INVALID は生のmessage/detailsを出さない (250 ms)
+  ✓ 記録失敗 E_FIELD_NOT_EDITABLE は生のmessage/detailsを出さない (190 ms)
+  ✓ 記録失敗 E_ALREADY_UNDONE は生のmessage/detailsを出さない (227 ms)
+  ✓ 記録失敗 E_ALREADY_CONFIRMED は生のmessage/detailsを出さない (219 ms)
+  ✓ 記録失敗 E_NOT_FOUND は生のmessage/detailsを出さない (262 ms)
+  ✓ 記録失敗 E_INTERNAL は生のmessage/detailsを出さない (213 ms)
+  ✓ 照合取消は応答のconfirmationIdを送り、訂正取消後も履歴を表示する (538 ms)
+  ✓ 絞り込みで残った1行のドロワーは両端が無効で根拠空を区別する (287 ms)
+  ✓ 案件ヘッダは原表記・粒度・基準とTZ不足を示す (100 ms)
+  ✓ useItemsの取得失敗は再取得できる (38 ms)
+  ✓ useQuestionsの取得失敗は再取得できる (38 ms)
+  ✓ 版履歴は空と取得失敗を区別する (88 ms)
+  ✓ ドロワーでは納期・納地の採用値も状態と根拠を確認できるが編集対象にしない (339 ms)
+  ✓ レンジと定尺長は共有状態でも併記し状態ラベルは1つにする (38 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       26 passed, 26 total
+Snapshots:   0 total
+Time:        7.219 s, estimated 8 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/components.test.tsx/i.
