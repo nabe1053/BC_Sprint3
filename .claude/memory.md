@@ -105,6 +105,10 @@
   それを実行するため、pytest のたびに実評価中の run が殺されていた（run 4/6/9/10/12。TODO-021 の真因）/ 影響範囲: `run_lifespan`・`recover_interrupted`・
   `tests/integration/conftest.py`。L-8。実評価と pytest の同時実行は当面排他（LN-027）。
 
+- [AD-024] **T-303 の未決 15 件を確定**（2026-09-13 orchestrator。`docs/t303-instructions.md` §0）: #24 に `rowMatch`（T-302 追補 N-2）/ SCR-03 に primary を置かない /
+  「案件を開く」は `latestVersionId` 非 null のみ・表示状態は `progressStatus` 由来のラベル / T-204 のリンクは success∧versionId / 版履歴は #22 最小を含める /
+  根拠要約列は原項番に置換 / 判断は行ごとの「記録」ボタン / 数値は丸めない / 担当者名はメモリのみ。05 #24 書き戻し済み。
+
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
@@ -183,10 +187,10 @@
 | T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202, C-1 | DONE | 2回目 RV-022: **DONE**（P3 5 は記録のみ・TODO-009。C-1 は未完のまま） | 2026-09-12 |
 | C-2 | 記録のみ P3 の整理 chore（TODO-010/012、backend/app 非接触分） | chore | C-1, T-204 | DONE | 2回目: RV-029 P2-1（`MAKEFLAGS=-j8`）を確認して DONE。残 P3 は TODO-012 ⑦・TODO-017 | 2026-09-12 |
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | DONE | 2回目 RV-028: **DONE**（P3 1 は記録のみ・TODO-012 へ） | 2026-09-12 |
-| T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | REVIEWING | 7回目（L-8: 起動時回収の期限限定・lifespan DB 分離、確認中）。L-3〜L-7 は commit 済み | 2026-09-13 |
+| T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | FIXING | 8回目 RV-037: L-8b DONE 可。残 P2 1（依存の逆流）→ L-8c。commit `02e97b9` | 2026-09-13 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | DONE | 1回目 RV-033: **DONE**（P3 5 は記録のみ・TODO-025） | 2026-09-13 |
 | T-302 | G3 参照 #23-26 / 記録 #29-33・#22 最小・#1 拡張（API） | web | T-301 | DONE | 1回目 RV-036: **DONE**（AD-022 13/13・P3 5 は記録のみ・TODO-027） | 2026-09-13 |
-| T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | PLANNED | - | 2026-09-11 |
+| T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | PLANNED | 指示書 `docs/t303-instructions.md`（AD-024）。N-2 の後に Codex 着手 | 2026-09-13 |
 | T-401 | G4 インベントリ・対応関係・照合集計（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
 | T-402 | G4 照合 API #19,27（API） | web | T-401 | PLANNED | - | 2026-09-11 |
 | T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | PLANNED | - | 2026-09-11 |
@@ -390,6 +394,9 @@
   `{E_FIELD_NOT_EDITABLE: 422}` のみ」であることを reviewer が独立に再計算。OpenAPI に 10 パス、`/agent/*` に記録 API 0、model 85→137 消失 0、FE は fixture 2 行のみ。
   実測 567 passed（1 回目の 4 ERROR は並行 TRUNCATE、排他後に解消・LN-027）/ FE 166。P3: `test_api_path_separation_live.py` の basename が unit/integration で重複（orchestrator の
   命名揺れ）/ 交差集合を固定する検査が無い / `VersionCounts(**data)` が余分キーを黙って捨てる / `record_response` の属性名一致前提 / items 列追加時の #24 漏れ検知。
+
+- [RV-037] T-205 8回目 L-8b（unit・静的確認のみ）: **DONE 可**。P2 1（`run_repository` が `app.agent.definition` を import＝Data Access → Business Logic の逆流。定数を
+  `app/domain/run_types.py` へ移し definition が再公開する案 a → L-8c）/ P3 1（`RECOVERY_GRACE_S=16` と jobs の猶予 15.3 秒の結び付きを assert する 1 行）。unit 379 passed。
 
 ## 5. 学び・ハマりどころ（再発防止）
 

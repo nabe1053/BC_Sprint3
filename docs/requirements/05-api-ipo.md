@@ -107,7 +107,7 @@
 |---|--------------|---------|------|------|---------|
 | 22 | `/cases/{caseId}/versions` | GET | 版の履歴（版・生成所要・状態・未解決件数） | 不要 | UI |
 | 23 | `/versions/{versionId}` | GET | 版の要約（案件情報・件数・状態・確認の進捗） | 不要 | UI |
-| 24 | `/versions/{versionId}/items` | GET | 明細（**未取消の訂正を適用した現在値**と訂正履歴） | 不要 | UI |
+| 24 | `/versions/{versionId}/items` | GET | 明細（**未取消の訂正を適用した現在値**と訂正履歴） **応答の各行に `rowMatch: {confirmationId, recordedBy, recordedAt} | null`（未取消の一致確認。2026-09-13 追記・AD-024。SCR-03 の照合チェック表示と #32 の取消に必要）** | 不要 | UI |
 | 25 | `/versions/{versionId}/items/{itemId}/evidence` | GET | 行の根拠・原表記・出典・原文抜粋（SCR-04） | 不要 | UI |
 | 26 | `/versions/{versionId}/questions` | GET | 確認事項＋最新判断（対応状況・解決状態） | 不要 | UI |
 | 27 | `/versions/{versionId}/inventory` | GET | 網羅性照合の両表と集計（SCR-05） | 不要 | UI |

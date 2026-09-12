@@ -147,13 +147,24 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 09:10・L-8 DONE 可 → **L-8b（定数 1 つ）**。T-302 はレビュー中）
+## 7. 次にやること（2026-09-13 09:50・commit `02e97b9`・L-8c → N-2 → T-303）
 
-- L-8 は reviewer **DONE 可**（memory RV-035。P2 1 / P3 2）。T-302 は reviewer 確認中（pytest 使用中。**Codex は L-8b の限定テストのみ実行、`make check` は §7 更新後**）
-- **タスク L-8b**（小さい・先にやる）: `run_repository.recover_interrupted()` の回収しきい値を `recover_expired()` と同じ **`> limit + 16`**（jobs の終端保存猶予 `FINISH_TIMEOUT_S*3`
-  相当の既存定数）に統一し、**「回収してよいか」の述語を 1 つ（例 `_is_recoverable(run, now)`）に集約**して両経路から呼ぶ（LN-056）。境界テストのパラメータも `limit+16` 基準に。
-  猶予定数は `definition.py` か `run_repository.py` の 1 箇所（SSOT テストの対象に）。完了合図: `docs/t205-handoff.md` 冒頭見出し **`## L-8b 対応`**
-- 次のタスク O（T-303 FE）は指示書準備中。§7 更新を待つ
+- L-8b は **DONE 可**（RV-037）。T-302 は **DONE**（RV-036）。両方 commit 済み（`02e97b9`）。`make check` 可（Claude は当面 pytest を回さない・実評価も止めている）
+- 順に実施（いずれも小さい → まとめて 1 回の handoff でよい。見出しは各タスク名）:
+
+### タスク L-8c: 依存の逆流を解消（RV-037 P2）
+- `RECOVERY_GRACE_S` を `app/domain/run_types.py` へ移し、`app/agent/definition.py` はそこから import して再公開（`from app.domain.run_types import RECOVERY_GRACE_S`）。
+  `run_repository.py` は domain から import（`app/agent` を参照しない）。SSOT テスト（`test_single_source_of_truth.py:141-173`）の「定義場所」を domain に付け替え、
+  「`app/repositories/**` が `app.agent` を import しない」を機械検査に追加（clean-architecture の逆流検出）。P3: `RECOVERY_GRACE_S > FINISH_TIMEOUT_S*3 + 0.3 + CANCEL_CLEANUP_S` の assert 1 行。
+  完了見出し `## L-8c 対応`（t205-handoff）
+
+### タスク N-2: #24 に `rowMatch` を追加（AD-024 ①・T-302 追補）
+- `ItemCurrentResponse.rowMatch: {confirmationId, recordedBy, recordedAt} | null`（未取消の一致確認。`kind='row_match'`・`undone_at IS NULL`）。`RecordRepository.list_items_with_edits`
+  に select を足す（読取拡張・書込不変）。05 #24 は書き戻し済み。テスト: unit（Service mock で `rowMatch` の有無）＋ integration（confirm → items に rowMatch、undo → null）。
+  OpenAPI/orval 再生成で model 追加・消失なしを handoff に。完了見出し `## N-2 対応`（t302-handoff）
+
+### タスク O: T-303（`docs/t303-instructions.md`・AD-024 の 15 決定を含む）— N-2 の後に着手
+- 完了見出し `## 再レビュー依頼（T-303）`（t303-handoff）。**`make check-fe` と design-lint は自由に実行可**（Claude は pytest を回さない）
 
 ### タスク L-8: 起動時回収の安全化とテスト lifespan の DB 分離（AD-023）
 
