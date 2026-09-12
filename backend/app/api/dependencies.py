@@ -1,10 +1,14 @@
 """Composition root. Runtime settings are never needed for isolated schema export."""
 from contextlib import aclosing, asynccontextmanager
+from functools import partial
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from app.core.database import get_db
 from app.core.config import settings
 from app.agent.jobs import stop_jobs
+from app.agent import definition
+from app.agent.claude_policy import claude_policy
+from app.agent.local_policy import local_dummy_policy
 from app.agent.runner import LocalAgentWorker
 from app.agent.definition import default_run_limits
 from app.domain.run_types import InputLimits
@@ -39,7 +43,13 @@ async def get_run_service(session: AsyncSession = Depends(get_db)) -> RunService
         file_size=RunInputFiles(settings.STORAGE_ROOT).size,
         trace=RunTraceStore(),
     )
-    worker = LocalAgentWorker(AgentToolGateway(sessions))
+    use_claude = settings.AGENT_MODE == "claude"
+    policy = (
+        partial(claude_policy, api_key=settings.ANTHROPIC_API_KEY)
+        if use_claude
+        else local_dummy_policy
+    )
+    worker = LocalAgentWorker(AgentToolGateway(sessions), policy_factory=policy)
     dispatcher = RunDispatcher(
         background, worker, limits, before_finish=worker.prepare_finish
     )
@@ -53,6 +63,8 @@ async def get_run_service(session: AsyncSession = Depends(get_db)) -> RunService
             max_xlsx_sheets=settings.MAX_XLSX_SHEETS,
         ),
         scheduler=dispatcher,
+        external=use_claude and not settings.ANTHROPIC_API_KEY,
+        model=definition.MODEL_ID if use_claude else definition.DUMMY_MODEL_ID,
     )
 
 

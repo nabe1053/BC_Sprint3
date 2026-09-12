@@ -70,6 +70,14 @@ def test_dummy_model_id_is_only_defined_in_definition() -> None:
         )
 
 
+def test_real_model_id_is_only_defined_in_definition() -> None:
+    from app.agent import definition
+
+    assert definition.MODEL_ID == "claude-sonnet-5"
+    for path, source in _app_modules(exclude=DEFINITION):
+        assert not re.search(r"claude-(?:sonnet|opus|haiku)-", source), path
+
+
 def test_stop_thresholds_are_only_defined_in_definition() -> None:
     """停止閾値（max_turns / 各タイムアウト）を definition.py の外で数値リテラル指定しない。
 

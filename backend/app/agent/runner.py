@@ -1,6 +1,5 @@
-"""Run a local decision stream through guarded tools; always dispatched via jobs.
+"""Run a decision stream through guarded tools; always dispatched via jobs.
 
-No SDK query or external model is reachable from this worker (D05).
 Loop behavior is evaluated by make agent-eval, not by unit tests.
 """
 import asyncio
@@ -60,7 +59,8 @@ class LocalAgentWorker:
 
         async def bounded(awaitable):
             remaining = deadline - monotonic()
-            task = asyncio.create_task(awaitable)
+            with executor.bind():
+                task = asyncio.create_task(awaitable)
             _pending.add(task)
             task.add_done_callback(_consume)
             try:
@@ -115,13 +115,14 @@ class LocalAgentWorker:
                 "inner_timeout",
                 "inactivity_timeout",
                 "no_readable_document",
+                "max_turns",
             ):
                 return RunResult(exc.reason, turns)
             return RunResult(
                 "failed",
                 turns,
-                "local_dummy_unsupported"
-                if exc.reason == "local_dummy_unsupported"
+                exc.reason
+                if exc.reason in ("local_dummy_unsupported", "model_error")
                 else "validation_unresolved",
             )
         except StopAsyncIteration:

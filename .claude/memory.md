@@ -150,7 +150,7 @@
 | T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202, C-1 | DONE | 2回目 RV-022: **DONE**（P3 5 は記録のみ・TODO-009。C-1 は未完のまま） | 2026-09-12 |
 | C-2 | 記録のみ P3 の整理 chore（TODO-010/012、backend/app 非接触分） | chore | C-1, T-204 | DONE | 2回目: RV-029 P2-1（`MAKEFLAGS=-j8`）を確認して DONE。残 P3 は TODO-012 ⑦・TODO-017 | 2026-09-12 |
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | DONE | 2回目 RV-028: **DONE**（P3 1 は記録のみ・TODO-012 へ） | 2026-09-12 |
-| T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | PLANNED | Codex は C-2 の後に着手（CODEX-INSTRUCTIONS §7 タスク L） | 2026-09-12 |
+| T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | FIXING | 1回目 RV-030: **DONE 可** P2 3（拒否のトレース欠落 / 無応答時計の意味変化 / setting_sources 未指定）を実評価前に短ラウンド | 2026-09-13 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
 | T-302 | G3 参照 #23-26 / 記録 #29-31,33（API） | web | T-301 | PLANNED | - | 2026-09-11 |
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | PLANNED | - | 2026-09-11 |
@@ -308,6 +308,15 @@
   未追跡 `AGENTS.md` `.agents/` `.codex/`（23:02 生成・handoff 未記載）は CLAUDE.md の機械置換で **memory 編集者が反転する等の致命的誤り** → orchestrator が
   AGENTS.md を参照 1 枚に置換し `.agents/` `.codex/` を .gitignore（CV-022）。
 
+- [RV-030] T-205 1回目（Codex 実装 → T-203 と同一 reviewer 独立・2026-09-13）: **DONE 可**。P1 0 / P2 3 / P3 5。設計 7 項目（`AGENT_MODE` 既定 local / `MODEL_ID` SSOT /
+  `ClaudeAgentOptions` 7 引数 / model 保存値 / 503 文言 / `model_error` 追記 / 新ツール・語彙・列ゼロ）すべて一致。**トレースを通らない経路なし**: `query()` は run 束縛タスク内のみ、
+  SDK handler → `_policy_request` キュー → runner の `bind(request=None)` 配下で `ToolExecutor.call` が 1 回だけ DB・トレースに書く（contextvars コピーで構造保証、`begin_step` 1 回を
+  テストで固定）。キーは `ClaudeAgentOptions.env` で子プロセスにだけ渡し `os.environ` 不変。例外は型名も残さず `model_error`。SDK 完全モック 19 件、実測 424 passed / ruff 0。
+  P2: ①claude モードで hook 拒否が `guardrail_denied` に残らない（`ResultMessage.permission_denials` を捨てている）②無応答時計が「メッセージ間」でなく
+  「ツール呼出し間」を測るため長い生成で偽 `inactivity_timeout` ③`setting_sources` 未指定で CLI 既定により `CLAUDE.md`/`.claude/settings.json` が文脈に入り得る（**D05 送信範囲の外**）。
+  P3: SDK 子プロセス stderr が uvicorn へ直行 / `impl_version` が local のまま / キーが素の str（`SecretStr` 推奨）/ `disallowed_tools` 未使用 / 変異 7 種がリポジトリから再現不能。
+  orchestrator 判断: **実評価の前に P2 3 件＋P3-1/3/4 を短ラウンド（L-2）で塞ぐ**。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -406,6 +415,14 @@
 
 - [LN-039] **テストを決定的にするための環境変数の中和は、守りたい故障モードを消していないか確認する。**`MAKEFLAGS=""` は決定性を得た代わりに
   `.NOTPARALLEL:` の回帰ガードを失った。中和でなく固定（`-j8` を明示）が正解（RV-029 P2-1）。
+
+- [LN-040] **判断役を差し替えるときは「ツール実行の権威」を 1 箇所に固定する。**SDK handler を実行経路にせず runner の `ToolExecutor.call` だけが DB・トレースに書く形にすると、
+  記録の一回性と hook の必通過が構造で保証される（T-205）。
+- [LN-041] **外部 SDK の既定値に安全性を預けない。**`setting_sources` のように未指定で外部ツールの既定（プロジェクト設定・CLAUDE.md 読込）に委ねられる項目は、送信範囲の承認（D05）を
+  実質的に外へ出す。**明示的に空を渡す**（RV-030 P2-3）。
+- [LN-042] **タイムアウトは「何と何の間を測るか」を設計書に書き、判断役を替えたら再確認する。**無応答時計がメッセージ間からツール呼出し間へ静かに変わった（RV-030 P2-2）。
+- [LN-043] **外部 SDK のデータクラスのフィールド名は実クラスを import して確認するテストを置く**（`ResultMessage.terminal_reason` が無ければ `AttributeError` → `model_error` に化けて
+  `max_turns` を取りこぼす。バージョン差で静かに壊れる）。
 
 ## 6. 未解決 / BLOCKED / TODO
 

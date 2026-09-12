@@ -1,0 +1,8 @@
+max_turns mapping: exit=1 2 failed, 22 passed, 6 warnings in 1.24s
+exception body: exit=1 1 failed, 23 passed, 6 warnings in 1.15s
+missing key guard: exit=1 2 failed, 22 passed, 6 warnings in 1.19s
+persist model: exit=1 1 failed, 23 passed, 6 warnings in 1.14s
+skip trace result: exit=1 1 failed, 23 passed, 6 warnings in 1.14s
+run mismatch guard: exit=1 1 failed, 23 passed, 6 warnings in 1.11s
+model duplicate: exit=1 1 failed, 23 passed, 6 warnings in 1.09s
+7/7 mutations detected; working tree unchanged

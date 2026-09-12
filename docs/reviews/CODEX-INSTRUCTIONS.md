@@ -147,12 +147,29 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 00:05・C-2 DONE・いまは T-205）
+## 7. 次にやること（2026-09-13 00:40・T-205 1回目レビュー後・短ラウンド L-2）
 
-- **C-2 → DONE**（memory RV-029、commit `79e3c17`）。G1・G2・C-1・C-2 が閉じた
-- **いま進めるのはタスク L（T-205 実モデル接続）**。設計の正は agent-plan.md 末尾「T-205 実モデル接続」。完了合図は `docs/t205-handoff.md` の `再レビュー依頼`
-- `ANTHROPIC_API_KEY` は研修者が投入中（TODO-016）。**Codex は `.env` を読まない・表示しない**。キー有無で分岐する挙動はモックで検証する
-- 禁止事項は変わらず: CLAUDE.md / `.claude/` の複製生成（CV-022）、実モデルを呼ぶテスト、`make agent-eval` の既定を `claude` にすること
+- **T-205 → DONE 可**（memory RV-030。P1 0 / P2 3 / P3 5）。実装は commit 済み（`git log` 先頭）。**実モデル評価の前に下記タスク L-2 を直す**。
+  P2-3 は D05 の送信範囲に触れるため評価より先。完了合図: `docs/t205-handoff.md` 冒頭に `## RV-030 対応（L-2）` ＋ 末尾 `再レビュー依頼`
+- L-2 の後は **Claude が実モデル評価（sample-06 / AE01）**。Codex はその間 **タスク M（T-301、`docs/t301-instructions.md`）に着手してよい**（`backend/app/agent/` を触らないので並行可。
+  ただし `alembic/versions/` と `app/models/__init__.py` を触るので、着手前に handoff 冒頭へ触るファイル一覧を書く）
+
+### タスク L-2: T-205 RV-030 の修正（実評価の前提）
+
+1. **P2-3（必須・D05）** `claude_policy.py` の `ClaudeAgentOptions` に **`setting_sources=[]`** を明示（ユーザー/プロジェクト設定・CLAUDE.md・スラッシュコマンドを読み込ませない）。
+   あわせて `cwd` を明示（例: 一時ディレクトリまたは `backend/`。リポジトリの `.claude/` を含む親ディレクトリにしない）。テスト: options に `setting_sources==[]` が渡ることを assert
+2. **P2-2（必須）無応答時計の意味を設計どおり「メッセージ間」に戻す**: `consume()` が SDK メッセージ（テキスト・部分出力・SystemMessage）受信ごとにキューへ**生存シグナル**
+   （ターンに数えない番兵）を積み、runner の `bounded()` はそれで無応答時計だけをリセットする（内側期限・ターン数・repeated_call は不変）。閾値 `INACTIVITY_TIMEOUT_S=60` は変えない。
+   テスト: 「ツール呼出しの間に 60 秒超のメッセージ列があっても `inactivity_timeout` にならない」「メッセージが本当に止まれば 60 秒で `inactivity_timeout`」の 2 本（fake clock）
+3. **P2-1（必須）** `ResultMessage.permission_denials`（SDK 側 hook 拒否）から**ツール名と固定コード（`E_TOOL_NOT_REGISTERED` / `E_EXTERNAL_LINK_BLOCKED`）だけ**を拾い、
+   既存の `guardrail_denied` 管理イベントとして記録（原文・引数は載せない）。テスト: permission_denials 1 件 → `guardrail_denied` 1 件、引数本文が trace に無い
+4. **P3-1** `ClaudeAgentOptions(stderr=<固定コードのみ記録するコールバック or 捨てる>)` で SDK 子プロセスの stderr が uvicorn へ直行しないように
+5. **P3-3** `ANTHROPIC_API_KEY` を `SecretStr` にし、`get_secret_value()` は `ClaudeAgentOptions.env` を組む直前の 1 箇所だけ。`partial(...)` の repr にキーが載らないことをテスト
+6. **P3-4** `disallowed_tools=["Bash","Read","Write","Edit","WebFetch","WebSearch","Glob","Grep"]` を追加（多重防御。hook が主防御のまま）
+7. **P3-5** `scripts/check_agent_mutations.py` に claude 系の変異 3 種（bind の request クリアを外す＝二重記録 / `max_turns` 写しを外す / 例外本文を記録する）を追加し
+   `make agent-mutations` で再現可能に。P3-2（`impl_version`）は agent-plan に「impl_version はツール実装の版。判断役は `model` で区別」と 1 行追記して記録のみ
+8. 設計書: agent-plan.md T-205 節に `setting_sources=[]`・`disallowed_tools`・生存シグナルによる無応答判定・`permission_denials` の記録を追記（LN-030: 語彙一覧と 1対1）
+9. 完了条件: SDK は引き続き**完全モック**（実 API を呼ぶテストなし）。`AGENT_MODE=local_dummy DEBUG=false CI=true make check` all green（424+）。commit しない
 
 ### タスク L: T-205 実モデル接続（**K-2 の直後に着手。§7 更新を待たない**）
 

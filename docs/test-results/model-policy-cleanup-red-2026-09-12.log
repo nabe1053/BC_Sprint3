@@ -1,0 +1,60 @@
+.............F...........                                                [100%]
+=================================== FAILURES ===================================
+__________________ test_sdk_terminal_drains_transport_cleanup __________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7defa506f3b0>
+context = RunContext(run_id=11, case_id=22, version_id=33, rule_set_id=44, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+
+    async def test_sdk_terminal_drains_transport_cleanup(monkeypatch, context):
+        from app.agent import claude_policy as policy
+    
+        drained = asyncio.Event()
+    
+        async def query(**kwargs):
+            yield result("error_max_turns")
+            # SDK releases its transport after yielding the terminal message.
+            drained.set()
+    
+        monkeypatch.setattr(policy, "query", query)
+        outcome = await LocalAgentWorker(
+            Mock(), partial(policy.claude_policy, api_key="synthetic-key")
+        )(context)
+        assert outcome.stop_reason == "max_turns"
+>       assert drained.is_set()
+E       assert False
+E        +  where False = <bound method Event.is_set of <asyncio.locks.Event object at 0x7defa506df70 [unset]>>()
+E        +    where <bound method Event.is_set of <asyncio.locks.Event object at 0x7defa506df70 [unset]>> = <asyncio.locks.Event object at 0x7defa506df70 [unset]>.is_set
+
+tests/unit/test_claude_policy.py:175: AssertionError
+=============================== warnings summary ===============================
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'ruleVersion' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'ruleVersion' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'ruleVersion' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'acknowledgedCarryOver' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'acknowledgedCarryOver' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'acknowledgedCarryOver' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_claude_policy.py::test_sdk_terminal_drains_transport_cleanup - assert False
+ +  where False = <bound method Event.is_set of <asyncio.locks.Event object at 0x7defa506df70 [unset]>>()
+ +    where <bound method Event.is_set of <asyncio.locks.Event object at 0x7defa506df70 [unset]>> = <asyncio.locks.Event object at 0x7defa506df70 [unset]>.is_set
+1 failed, 24 passed, 6 warnings in 0.98s
+make: *** [/tmp/model-policy-checks.mk:2: model-policy-test] Error 1

@@ -1,0 +1,274 @@
+FFFFFFFFFFFFFF.F....                                                     [100%]
+=================================== FAILURES ===================================
+______________ test_agent_mode_is_explicit_and_defaults_to_local _______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77992aa89730>
+
+    def test_agent_mode_is_explicit_and_defaults_to_local(monkeypatch):
+        monkeypatch.delenv("AGENT_MODE", raising=False)
+>       assert Settings(_env_file=None, DEBUG=False).AGENT_MODE == "local_dummy"
+
+tests/unit/test_claude_policy.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Settings(APP_NAME='OCTG Item List Agent API', APP_VERSION='0.1.0', DEBUG=False, DATABASE_URL='postgresql+psycopg://pos...rences', STORAGE_ROOT='storage', MAX_DOCUMENTS_PER_CASE=50, MAX_FILE_SIZE_MB=20, MAX_PDF_PAGES=200, MAX_XLSX_SHEETS=50)
+item = 'AGENT_MODE'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'Settings' object has no attribute 'AGENT_MODE'
+
+.venv/lib/python3.12/site-packages/pydantic/main.py:1042: AttributeError
+_ test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77992aa8a360>
+mode = 'local_dummy', key = None
+
+    @pytest.mark.parametrize("mode,key", [
+        ("local_dummy", None), ("local_dummy", "synthetic-key"),
+        ("claude", "synthetic-key"), ("claude", None), ("claude", ""),
+    ])
+    async def test_mode_selects_policy_and_persists_model_or_returns_http_503(monkeypatch, mode, key):
+>       from app.agent.claude_policy import claude_policy
+E       ModuleNotFoundError: No module named 'app.agent.claude_policy'
+
+tests/unit/test_claude_policy.py:49: ModuleNotFoundError
+_ test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-synthetic-key] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77992aa89640>
+mode = 'local_dummy', key = 'synthetic-key'
+
+    @pytest.mark.parametrize("mode,key", [
+        ("local_dummy", None), ("local_dummy", "synthetic-key"),
+        ("claude", "synthetic-key"), ("claude", None), ("claude", ""),
+    ])
+    async def test_mode_selects_policy_and_persists_model_or_returns_http_503(monkeypatch, mode, key):
+>       from app.agent.claude_policy import claude_policy
+E       ModuleNotFoundError: No module named 'app.agent.claude_policy'
+
+tests/unit/test_claude_policy.py:49: ModuleNotFoundError
+_ test_mode_selects_policy_and_persists_model_or_returns_http_503[claude-synthetic-key] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77992aa88590>
+mode = 'claude', key = 'synthetic-key'
+
+    @pytest.mark.parametrize("mode,key", [
+        ("local_dummy", None), ("local_dummy", "synthetic-key"),
+        ("claude", "synthetic-key"), ("claude", None), ("claude", ""),
+    ])
+    async def test_mode_selects_policy_and_persists_model_or_returns_http_503(monkeypatch, mode, key):
+>       from app.agent.claude_policy import claude_policy
+E       ModuleNotFoundError: No module named 'app.agent.claude_policy'
+
+tests/unit/test_claude_policy.py:49: ModuleNotFoundError
+_ test_mode_selects_policy_and_persists_model_or_returns_http_503[claude-None] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77992ab14ef0>
+mode = 'claude', key = None
+
+    @pytest.mark.parametrize("mode,key", [
+        ("local_dummy", None), ("local_dummy", "synthetic-key"),
+        ("claude", "synthetic-key"), ("claude", None), ("claude", ""),
+    ])
+    async def test_mode_selects_policy_and_persists_model_or_returns_http_503(monkeypatch, mode, key):
+>       from app.agent.claude_policy import claude_policy
+E       ModuleNotFoundError: No module named 'app.agent.claude_policy'
+
+tests/unit/test_claude_policy.py:49: ModuleNotFoundError
+___ test_mode_selects_policy_and_persists_model_or_returns_http_503[claude-] ___
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77992ab148f0>
+mode = 'claude', key = ''
+
+    @pytest.mark.parametrize("mode,key", [
+        ("local_dummy", None), ("local_dummy", "synthetic-key"),
+        ("claude", "synthetic-key"), ("claude", None), ("claude", ""),
+    ])
+    async def test_mode_selects_policy_and_persists_model_or_returns_http_503(monkeypatch, mode, key):
+>       from app.agent.claude_policy import claude_policy
+E       ModuleNotFoundError: No module named 'app.agent.claude_policy'
+
+tests/unit/test_claude_policy.py:49: ModuleNotFoundError
+_ test_sdk_terminal_maps_to_run_result_without_error_body[terminal0-max_turns-None] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77992ab17920>
+context = RunContext(run_id=11, case_id=22, version_id=33, rule_set_id=44, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+caplog = <_pytest.logging.LogCaptureFixture object at 0x77992ab16330>
+terminal = ResultMessage(subtype='error_max_turns', duration_ms=0, duration_api_ms=0, is_error=False, num_turns=0, session_id='sy...denials=None, deferred_tool_use=None, errors=None, api_error_status=None, uuid=None, terminal_reason=None, origin=None)
+reason = 'max_turns', detail = None
+
+    @pytest.mark.parametrize("terminal,reason,detail", [
+        (result("error_max_turns"), "max_turns", None),
+        (result(terminal_reason="max_turns"), "max_turns", None),
+        (result("error_during_execution"), "failed", "model_error"),
+        (RuntimeError("synthetic-private-error-body"), "failed", "model_error"),
+        (result(), "failed", "draft_not_finalized"),
+    ])
+    async def test_sdk_terminal_maps_to_run_result_without_error_body(monkeypatch, context, caplog, terminal, reason, detail):
+>       from app.agent import claude_policy as policy
+E       ImportError: cannot import name 'claude_policy' from 'app.agent' (<repo>/backend/app/agent/__init__.py)
+
+tests/unit/test_claude_policy.py:99: ImportError
+_ test_sdk_terminal_maps_to_run_result_without_error_body[terminal1-max_turns-None] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77992ab162d0>
+context = RunContext(run_id=11, case_id=22, version_id=33, rule_set_id=44, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+caplog = <_pytest.logging.LogCaptureFixture object at 0x77992ab17320>
+terminal = ResultMessage(subtype='success', duration_ms=0, duration_api_ms=0, is_error=False, num_turns=0, session_id='synthetic'...=None, deferred_tool_use=None, errors=None, api_error_status=None, uuid=None, terminal_reason='max_turns', origin=None)
+reason = 'max_turns', detail = None
+
+    @pytest.mark.parametrize("terminal,reason,detail", [
+        (result("error_max_turns"), "max_turns", None),
+        (result(terminal_reason="max_turns"), "max_turns", None),
+        (result("error_during_execution"), "failed", "model_error"),
+        (RuntimeError("synthetic-private-error-body"), "failed", "model_error"),
+        (result(), "failed", "draft_not_finalized"),
+    ])
+    async def test_sdk_terminal_maps_to_run_result_without_error_body(monkeypatch, context, caplog, terminal, reason, detail):
+>       from app.agent import claude_policy as policy
+E       ImportError: cannot import name 'claude_policy' from 'app.agent' (<repo>/backend/app/agent/__init__.py)
+
+tests/unit/test_claude_policy.py:99: ImportError
+_ test_sdk_terminal_maps_to_run_result_without_error_body[terminal2-failed-model_error] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77992ab145f0>
+context = RunContext(run_id=11, case_id=22, version_id=33, rule_set_id=44, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+caplog = <_pytest.logging.LogCaptureFixture object at 0x77992ab13650>
+terminal = ResultMessage(subtype='error_during_execution', duration_ms=0, duration_api_ms=0, is_error=False, num_turns=0, session...denials=None, deferred_tool_use=None, errors=None, api_error_status=None, uuid=None, terminal_reason=None, origin=None)
+reason = 'failed', detail = 'model_error'
+
+    @pytest.mark.parametrize("terminal,reason,detail", [
+        (result("error_max_turns"), "max_turns", None),
+        (result(terminal_reason="max_turns"), "max_turns", None),
+        (result("error_during_execution"), "failed", "model_error"),
+        (RuntimeError("synthetic-private-error-body"), "failed", "model_error"),
+        (result(), "failed", "draft_not_finalized"),
+    ])
+    async def test_sdk_terminal_maps_to_run_result_without_error_body(monkeypatch, context, caplog, terminal, reason, detail):
+>       from app.agent import claude_policy as policy
+E       ImportError: cannot import name 'claude_policy' from 'app.agent' (<repo>/backend/app/agent/__init__.py)
+
+tests/unit/test_claude_policy.py:99: ImportError
+_ test_sdk_terminal_maps_to_run_result_without_error_body[terminal3-failed-model_error] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77992ab13c50>
+context = RunContext(run_id=11, case_id=22, version_id=33, rule_set_id=44, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+caplog = <_pytest.logging.LogCaptureFixture object at 0x77992ab10dd0>
+terminal = RuntimeError('synthetic-private-error-body'), reason = 'failed'
+detail = 'model_error'
+
+    @pytest.mark.parametrize("terminal,reason,detail", [
+        (result("error_max_turns"), "max_turns", None),
+        (result(terminal_reason="max_turns"), "max_turns", None),
+        (result("error_during_execution"), "failed", "model_error"),
+        (RuntimeError("synthetic-private-error-body"), "failed", "model_error"),
+        (result(), "failed", "draft_not_finalized"),
+    ])
+    async def test_sdk_terminal_maps_to_run_result_without_error_body(monkeypatch, context, caplog, terminal, reason, detail):
+>       from app.agent import claude_policy as policy
+E       ImportError: cannot import name 'claude_policy' from 'app.agent' (<repo>/backend/app/agent/__init__.py)
+
+tests/unit/test_claude_policy.py:99: ImportError
+_ test_sdk_terminal_maps_to_run_result_without_error_body[terminal4-failed-draft_not_finalized] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77992ab176b0>
+context = RunContext(run_id=11, case_id=22, version_id=33, rule_set_id=44, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+caplog = <_pytest.logging.LogCaptureFixture object at 0x77992ab17ce0>
+terminal = ResultMessage(subtype='success', duration_ms=0, duration_api_ms=0, is_error=False, num_turns=0, session_id='synthetic'...denials=None, deferred_tool_use=None, errors=None, api_error_status=None, uuid=None, terminal_reason=None, origin=None)
+reason = 'failed', detail = 'draft_not_finalized'
+
+    @pytest.mark.parametrize("terminal,reason,detail", [
+        (result("error_max_turns"), "max_turns", None),
+        (result(terminal_reason="max_turns"), "max_turns", None),
+        (result("error_during_execution"), "failed", "model_error"),
+        (RuntimeError("synthetic-private-error-body"), "failed", "model_error"),
+        (result(), "failed", "draft_not_finalized"),
+    ])
+    async def test_sdk_terminal_maps_to_run_result_without_error_body(monkeypatch, context, caplog, terminal, reason, detail):
+>       from app.agent import claude_policy as policy
+E       ImportError: cannot import name 'claude_policy' from 'app.agent' (<repo>/backend/app/agent/__init__.py)
+
+tests/unit/test_claude_policy.py:99: ImportError
+________________ test_sdk_requires_bound_executor_before_query _________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77992ab17950>
+context = RunContext(run_id=11, case_id=22, version_id=33, rule_set_id=44, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+
+    async def test_sdk_requires_bound_executor_before_query(monkeypatch, context):
+>       from app.agent import claude_policy as policy
+E       ImportError: cannot import name 'claude_policy' from 'app.agent' (<repo>/backend/app/agent/__init__.py)
+
+tests/unit/test_claude_policy.py:113: ImportError
+_____ test_sdk_handler_round_trip_uses_existing_executor_and_records_once ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77992ab17a40>
+context = RunContext(run_id=11, case_id=22, version_id=33, rule_set_id=44, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+
+    async def test_sdk_handler_round_trip_uses_existing_executor_and_records_once(monkeypatch, context):
+>       from app.agent import claude_policy as policy
+E       ImportError: cannot import name 'claude_policy' from 'app.agent' (<repo>/backend/app/agent/__init__.py)
+
+tests/unit/test_claude_policy.py:123: ImportError
+_______________ test_closing_policy_cancels_pending_sdk_handler ________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x77992ab15e50>
+context = RunContext(run_id=11, case_id=22, version_id=33, rule_set_id=44, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+
+    async def test_closing_policy_cancels_pending_sdk_handler(monkeypatch, context):
+>       from app.agent import claude_policy as policy
+E       ImportError: cannot import name 'claude_policy' from 'app.agent' (<repo>/backend/app/agent/__init__.py)
+
+tests/unit/test_claude_policy.py:170: ImportError
+_______________ test_real_model_id_is_only_defined_in_definition _______________
+
+    def test_real_model_id_is_only_defined_in_definition() -> None:
+        from app.agent import definition
+    
+>       assert definition.MODEL_ID == "claude-sonnet-5"
+E       AttributeError: module 'app.agent.definition' has no attribute 'MODEL_ID'
+
+tests/unit/test_single_source_of_truth.py:76: AttributeError
+=========================== short test summary info ============================
+FAILED tests/unit/test_claude_policy.py::test_agent_mode_is_explicit_and_defaults_to_local - AttributeError: 'Settings' object has no attribute 'AGENT_MODE'
+FAILED tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None] - ModuleNotFoundError: No module named 'app.agent.claude_policy'
+FAILED tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-synthetic-key] - ModuleNotFoundError: No module named 'app.agent.claude_policy'
+FAILED tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[claude-synthetic-key] - ModuleNotFoundError: No module named 'app.agent.claude_policy'
+FAILED tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[claude-None] - ModuleNotFoundError: No module named 'app.agent.claude_policy'
+FAILED tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[claude-] - ModuleNotFoundError: No module named 'app.agent.claude_policy'
+FAILED tests/unit/test_claude_policy.py::test_sdk_terminal_maps_to_run_result_without_error_body[terminal0-max_turns-None] - ImportError: cannot import name 'claude_policy' from 'app.agent' (<repo>/backend/app/agent/__init__.py)
+FAILED tests/unit/test_claude_policy.py::test_sdk_terminal_maps_to_run_result_without_error_body[terminal1-max_turns-None] - ImportError: cannot import name 'claude_policy' from 'app.agent' (<repo>/backend/app/agent/__init__.py)
+FAILED tests/unit/test_claude_policy.py::test_sdk_terminal_maps_to_run_result_without_error_body[terminal2-failed-model_error] - ImportError: cannot import name 'claude_policy' from 'app.agent' (<repo>/backend/app/agent/__init__.py)
+FAILED tests/unit/test_claude_policy.py::test_sdk_terminal_maps_to_run_result_without_error_body[terminal3-failed-model_error] - ImportError: cannot import name 'claude_policy' from 'app.agent' (<repo>/backend/app/agent/__init__.py)
+FAILED tests/unit/test_claude_policy.py::test_sdk_terminal_maps_to_run_result_without_error_body[terminal4-failed-draft_not_finalized] - ImportError: cannot import name 'claude_policy' from 'app.agent' (<repo>/backend/app/agent/__init__.py)
+FAILED tests/unit/test_claude_policy.py::test_sdk_requires_bound_executor_before_query - ImportError: cannot import name 'claude_policy' from 'app.agent' (<repo>/backend/app/agent/__init__.py)
+FAILED tests/unit/test_claude_policy.py::test_sdk_handler_round_trip_uses_existing_executor_and_records_once - ImportError: cannot import name 'claude_policy' from 'app.agent' (<repo>/backend/app/agent/__init__.py)
+FAILED tests/unit/test_claude_policy.py::test_closing_policy_cancels_pending_sdk_handler - ImportError: cannot import name 'claude_policy' from 'app.agent' (<repo>/backend/app/agent/__init__.py)
+FAILED tests/unit/test_single_source_of_truth.py::test_real_model_id_is_only_defined_in_definition - AttributeError: module 'app.agent.definition' has no attribute 'MODEL_ID'
+15 failed, 5 passed in 0.93s
+make: *** [/tmp/model-policy-checks.mk:2: model-policy-test] Error 1

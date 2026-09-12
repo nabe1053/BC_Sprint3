@@ -3,7 +3,7 @@
 このファイルの値は設計書（agent-plan.md）の写しであり、変更するときは agent-plan.md 側も更新する。
 """
 
-# For a future approved real model; local_dummy_policy does not consume a prompt.
+# The approved real-model policy uses this; local_dummy does not consume a prompt.
 SYSTEM_PROMPT = """あなたは AGENT-01（引合明細抽出エージェント）です。
 渡辺（引合担当）が引合書類を1行ずつ Excel に転記している作業を代行します。
 投入された資料を読み、メーカーへ出す Item List の明細行を、1項目ごとに出典を付けて組み立てます。
@@ -48,9 +48,9 @@ REPEATED_CALL_LIMIT = 3
 VALIDATION_REPEAT_LIMIT = 3
 CANCEL_CLEANUP_S = 0.02
 
-# D05 未承認のため、初版はローカル読取＋ダミー応答で実装する（外部LLMへ送信しない）。
 # 実行モデル識別子。agent_runs.model に記録する。
 DUMMY_MODEL_ID = "mock-fixed-v2"
+MODEL_ID = "claude-sonnet-5"
 LOCAL_IMPL_VERSION = "local-agent-tools-v1"
 
 

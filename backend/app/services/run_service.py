@@ -5,12 +5,22 @@ from app.agent import definition
 
 
 class RunService:
-    def __init__(self, repository, *, limits, input_limits, scheduler, external=False):
+    def __init__(
+        self,
+        repository,
+        *,
+        limits,
+        input_limits,
+        scheduler,
+        external=False,
+        model=None,
+    ):
         self.repository = repository
         self.limits = limits
         self.input_limits = input_limits
         self.scheduler = scheduler
         self.external = external
+        self.model = model
 
     def _validate_input(self, docs, readable, file_size):
         limits = self.input_limits
@@ -43,7 +53,7 @@ class RunService:
     async def start(self, case_id, rule_version=None, acknowledged_carry_over=False):
         if self.external:
             raise DraftError(
-                "E_EXTERNAL_SEND_NOT_APPROVED", "外部LLMへの送信は未承認です"
+                "E_EXTERNAL_SEND_NOT_APPROVED", "実モデルが構成されていません"
             )
         await self.repository.recover_expired(case_id=case_id)
         run = await self.repository.reserve(
@@ -53,7 +63,7 @@ class RunService:
             self.limits.snapshot(),
             self._validate_input,
             definition.LOCAL_IMPL_VERSION,
-            model=definition.DUMMY_MODEL_ID,
+            model=self.model if self.model is not None else definition.DUMMY_MODEL_ID,
         )
         if run.outcome != "running":
             raise DraftError("E_JOB_START_FAILED", "実行トレースを保存できませんでした")

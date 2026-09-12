@@ -1,5 +1,6 @@
 """Thirteen bound local tools. Every call passes the enforced hook and scope checks."""
 import asyncio
+from contextlib import contextmanager
 from contextvars import ContextVar
 import hashlib
 import json
@@ -14,6 +15,7 @@ from app.domain.errors import DomainError
 from app.services.agent_tool_service import AgentToolService
 
 _executor = ContextVar("local_tool_executor", default=None)
+_policy_request = ContextVar("policy_tool_request", default=None)
 
 
 def digest_args(arguments):
@@ -46,25 +48,45 @@ class ToolExecutor:
     def close(self):
         self.closed.set()
 
+    @classmethod
+    def current(cls):
+        executor = _executor.get()
+        if executor is None:
+            raise RuntimeError("A run-scoped executor is required")
+        return executor
+
+    @contextmanager
+    def bind(self, request=None):
+        """SDK tasks inherit this run; optional requests return to the runner first."""
+        token = _executor.set(self)
+        request_token = _policy_request.set(request)
+        try:
+            yield
+        finally:
+            _policy_request.reset(request_token)
+            _executor.reset(token)
+
     async def call(self, name, arguments):
         registered = next((t for t in AGENT_TOOLS if t.name == name), None)
         if registered is None:
             return await self.invoke(name, arguments)
-        token = _executor.set(self)
-        try:
+        with self.bind():
             result = await registered.handler(arguments)
             return ToolReply(
                 json.loads(result["content"][0]["text"]),
                 is_error=result["isError"],
             )
-        finally:
-            _executor.reset(token)
 
     async def invoke(self, name, arguments):
         from app.agent.hooks import guard_pre_tool_use
 
         if self.closed.is_set():
             raise asyncio.CancelledError
+        request = _policy_request.get()
+        if request is not None:
+            # SDK handler -> this executor -> runner -> call() -> guarded invoke().
+            # Only the SDK task inherits request; runner execution clears it.
+            return await request(name, arguments)
         registered = name in TOOL_ARGUMENTS
         safe_name = name if registered else "guardrail_denied"
         step_id = await self.gateway.begin_step(
@@ -129,9 +151,7 @@ class ToolExecutor:
 
 def _registered_tool(name, schema):
     async def bound(arguments):
-        executor = _executor.get()
-        if executor is None:
-            raise RuntimeError("A run-scoped executor is required")
+        executor = ToolExecutor.current()
         result = await executor.invoke(name, arguments)
         return {
             "content": [
@@ -152,9 +172,7 @@ AGENT_TOOLS = [
 ALL_TOOLS = AGENT_TOOLS
 AGENT_TOOL_NAMES = ["mcp__app__" + t.name for t in AGENT_TOOLS]
 ALLOWED_TOOL_NAMES = AGENT_TOOL_NAMES
-# Reserved for approved real-model wiring: ClaudeAgentOptions must receive
-# mcp_servers, allowed_tools=ALLOWED_TOOL_NAMES, hooks=build_hooks(), SYSTEM_PROMPT.
-# The local worker only invokes these handlers; it never starts the SDK transport.
+# Both policies execute these same run-bound handlers.
 agent_server = create_sdk_mcp_server(name="app", version="1.0.0", tools=AGENT_TOOLS)
 
 
