@@ -147,15 +147,29 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 01:10・T-205 DONE・T-301 進行中・Claude は実モデル評価中）
+## 7. 次にやること（2026-09-13 01:40・実評価 run 3 失敗 → **L-3 を最優先**、T-301 は一時中断）
 
-- **T-205 → DONE**（memory RV-031。commit 済み）。G2 は実モデル接続まで閉じた。記録のみ P3 は TODO-020
-- **いま進めるのはタスク M（T-301、`docs/t301-instructions.md`）**。着手済みを確認した（handoff の変更予定一覧・良い）
-- **Claude は `AGENT_MODE=claude` でバックエンド（port 8000・開発 DB octg_db）を起動し sample-06 の実評価を行う**。Codex への影響:
-  ①`make migrate` が octg_db にも新テーブルを足すのは問題ない（追加のみ）②**Claude は当面 pytest を回さない**ので Codex の `make check` は自由に実行してよい
-  ③Claude が pytest を回す前に §7 を更新して知らせる（CV-023）
-- T-301 の完了合図: `docs/t301-handoff.md` 末尾 `再レビュー依頼`。RED 中のテストが他スライスのゲートを壊さないよう、schema RED は DB 状態を汚さない形に
-  （fixture の transaction 内で失敗させる。TRUNCATE と衝突しない）
+- **T-301 の作業は安全な区切りで一時中断**し、**タスク L-3 を先に**（実モデル評価をブロックしている。小さい）。L-3 提出後に T-301 を再開してよい
+- 事実: `AGENT_MODE=claude` の実評価（run 3）で、Claude Code CLI 2.1.241 が MCP ツールを**遅延ロード**するため、モデルが `ToolSearch`（ツール定義の取得のみのメタツール）を
+  呼ぶ → hook が `E_TOOL_NOT_REGISTERED` で拒否 → 13 ツールを一度も呼べず `draft_not_finalized`。記録: `docs/evaluations/g2-real-model-ae01-2026-09-13.md`、memory AD-019 / LN-044
+- 完了合図: `docs/t205-handoff.md` 冒頭に `## AD-019 対応（L-3）` ＋ 末尾 `再レビュー依頼`
+
+### タスク L-3: ToolSearch の許可とハーネスツールの遮断（AD-019）
+
+1. `definition.py`: `RUNTIME_META_TOOLS = ["ToolSearch"]`（SDK ランタイムのメタツール。業務ツール 13 本とは別の定数。agent-plan のツール一覧は増やさない）。
+   `claude_policy` の `allowed_tools = ALLOWED_TOOL_NAMES + RUNTIME_META_TOOLS`。hook（`hooks.py`）は `ToolSearch` を許可（`tool_input` の検査は不要。定義取得のみで副作用なし）。
+   `_record_denials` の `safe_name` 判定にも `RUNTIME_META_TOOLS` を含める
+2. `DISALLOWED_TOOLS` に CLI 2.1.241 が公開するハーネスツールを追加: `Task, CronCreate, CronDelete, CronList, DesignSync, EnterWorktree, ExitWorktree, ListAgents,
+   Monitor, NotebookEdit, PushNotification, ReportFindings, ScheduleWakeup, SendMessage, Skill, TaskOutput, TaskStop, Workflow`（既存 8 に加える）。
+   **SDK `ClaudeAgentOptions` に組込みツール集合を明示する引数（`tools` 等）があれば `tools=[]`（組込みゼロ）を優先**し、`disallowed_tools` は多重防御として残す
+   （SDK の `types.py` を確認して handoff に根拠を書く）
+3. `ProcessError`（CLI が max_turns 後に exit 1）と `ResultMessage(subtype="error_max_turns")` の順序を確認し、**max_turns の写しが `model_error` に負けない**ようにする
+   （ResultMessage を受けた後の例外は無視して既に決まった stop_reason を優先）。テスト: ResultMessage 到達後に `ProcessError` が上がるモックで `max_turns` になる
+4. テスト（SDK 完全モック）: `ToolSearch` が hook を通る / 他のハーネスツール名（`Task`, `SendMessage`）は拒否 / `allowed_tools` に 13＋`ToolSearch` / `disallowed_tools` 集合 /
+   `_record_denials` が `ToolSearch` を `unregistered` に潰さない
+5. 設計書: agent-plan.md T-205 節に「SDK ランタイムのメタツール `ToolSearch` は許可（定義取得のみ）。業務ツールは 13 本のまま」「ハーネスツールは disallowed」を追記
+6. 完了条件: `AGENT_MODE=local_dummy DEBUG=false CI=true make check` all green（T-301 の RED ファイルがあるなら `--ignore` した件数を書く。CV-023）。commit しない。
+   **Claude は L-3 の提出後に pytest を回す**（それまで Codex の `make check` は自由）
 
 ### タスク L-2: T-205 RV-030 の修正（実評価の前提）
 

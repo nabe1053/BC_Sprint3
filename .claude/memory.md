@@ -79,6 +79,12 @@
   length_value/unit, qty_value/unit, note`。`due_raw`/`place_raw` は原則4（`*_raw` 不変）を優先し初版は編集不可（03-spec SCR-04 は編集可としており齟齬 → TODO-018）。
   T-301 の未決 10 件の決定は `docs/t301-instructions.md` §0。
 
+- [AD-019] **SDK ランタイムのメタツール `ToolSearch`（ツール定義の取得のみ・副作用なし）を allowed_tools と hook の許可対象に加える**（2026-09-13 orchestrator 決定）。
+  理由: Claude Code CLI 2.1.241 は MCP ツールを遅延ロードし、モデルは `ToolSearch` で定義を取得しないと 13 ツールを呼べない。初回実評価（run 3）は
+  `ToolSearch` を hook が `E_TOOL_NOT_REGISTERED` で 7 回拒否 → ツール呼出し 0・`draft_not_finalized` で失敗 / 影響範囲: `ToolSearch` は業務ツールではなく
+  agent-plan のツール一覧（13 本）を増やさない。hook は `ToolSearch` の `query` が `mcp__app__` 以外のツール名を含んでも実行自体は個別 hook が止める（多重防御維持）。
+  CLI が公開する他のハーネスツール（Task / SendMessage / Monitor / Cron* / Skill / Workflow 等）は `disallowed_tools` へ追加、可能なら SDK の組込みツール指定で全て無効化。
+
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
@@ -154,7 +160,7 @@
 | T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202, C-1 | DONE | 2回目 RV-022: **DONE**（P3 5 は記録のみ・TODO-009。C-1 は未完のまま） | 2026-09-12 |
 | C-2 | 記録のみ P3 の整理 chore（TODO-010/012、backend/app 非接触分） | chore | C-1, T-204 | DONE | 2回目: RV-029 P2-1（`MAKEFLAGS=-j8`）を確認して DONE。残 P3 は TODO-012 ⑦・TODO-017 | 2026-09-12 |
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | DONE | 2回目 RV-028: **DONE**（P3 1 は記録のみ・TODO-012 へ） | 2026-09-12 |
-| T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | DONE | 2回目 RV-031: **DONE**（P3 4 は記録のみ・TODO-020） | 2026-09-13 |
+| T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | FIXING | 実評価 run 3 で ToolSearch 拒否により失敗（AD-019）→ L-3。RV-031 の DONE は撤回せず改修として扱う | 2026-09-13 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
 | T-302 | G3 参照 #23-26 / 記録 #29-31,33（API） | web | T-301 | PLANNED | - | 2026-09-11 |
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | PLANNED | - | 2026-09-11 |
@@ -434,6 +440,11 @@
 - [LN-042] **タイムアウトは「何と何の間を測るか」を設計書に書き、判断役を替えたら再確認する。**無応答時計がメッセージ間からツール呼出し間へ静かに変わった（RV-030 P2-2）。
 - [LN-043] **外部 SDK のデータクラスのフィールド名は実クラスを import して確認するテストを置く**（`ResultMessage.terminal_reason` が無ければ `AttributeError` → `model_error` に化けて
   `max_turns` を取りこぼす。バージョン差で静かに壊れる）。
+
+- [LN-044] **Claude Code CLI は MCP ツールを遅延ロードする（`ToolSearch` メタツール）。**allowed_tools を業務ツールだけに絞ると、モデルは定義を取得できず
+  1 度もツールを呼べない。SDK 完全モックの単体テストではこの種の「ランタイムの前提」は検出できない → 実モデルの最初の 1 本は必ず「ツールが 1 回でも呼ばれたか」を見る。
+  `permission_denials` の実キーは `tool_name` / `tool_use_id` / `tool_input`（TODO-020 ② 解消）。CLI は max_turns 終了後に exit 1 を返し `ProcessError` になる
+  （`model_error` に丸められるので `max_turns` の写しが先に効くか要確認）。
 
 ## 6. 未解決 / BLOCKED / TODO
 
