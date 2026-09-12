@@ -87,10 +87,10 @@ class ToolExecutor:
             )
 
     async def invoke(self, name, arguments):
-        from app.agent.hooks import guard_pre_tool_use
-
         step_id = None
         try:
+            from app.agent.hooks import guard_pre_tool_use
+
             if self.closed.is_set():
                 raise asyncio.CancelledError
             request = _policy_request.get()

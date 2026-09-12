@@ -1,3 +1,58 @@
+## L-7 対応（run 9）
+
+2026-09-13。§7 **06:20版**で着手し、**07:05版のpytest可**を確認して全体ゲートを実行。**BE535件 / FE166件、除外なしでPASS**。希望 Status: REVIEWING。T-301のファイル/hunkは変更していない。SDKは完全モック、実モデル呼出し・commitなし。
+
+### レビュー対応
+
+| 指摘番号 | 変更内容（file:line） | REDテスト・実行コマンド・件数 |
+|---|---|---|
+| L-7 1 入口例外 | `backend/app/agent/tools.py:89`。begin_step・request callback・operationを含むinvoke全体を捕捉。DomainErrorは元の固定code、ValidationErrorは従来のE_REQUEST_INVALID＋loc/msg、予期しない例外はE_INTERNAL。step未取得時はfail_stepを呼ばない。失敗記録が例外を上げても元のツールエラー応答を返し、CancelledErrorは再送出 | `test_begin_step_failure_becomes_safe_tool_reply`（3件）、`test_unexpected_operation_failure_returns_internal_even_if_recording_fails`（2件）、`test_request_callback_failure_is_converted_and_cancel_is_preserved`。下記model-boundary-testの初回REDに含む |
+| L-7 2 防御境界 | `agent/runner.py:178`。executor.callまたは方針の想定外例外をfailed/worker_failedへ変換し、カウント済みturnsを保持 | `test_cleanup_cancel_preserves_worker_result_and_turns`のtool_error/policy_errorがRED→GREEN |
+| L-7 3 後始末 | `agent/runner.py:69,181,194`。outcomeで戻り値確定を記録、sys.exc_infoで進行中例外を判別。後始末キャンセルで例外・戻り値・既知期限を上書きしない。元から進行中の外側キャンセルは保持 | 同テスト3件（正常完了も含む）と、追加の`test_cleanup_cancel_cannot_replace_pending_base_exception` / `test_running_worker_still_propagates_external_cancellation`。新変異で結果/進行中例外の4件がFAIL |
+| L-7 4 ジョブ分類 | `agent/jobs.py:71`。worker.resultのCancelledErrorだけをworker_failedへ写す。await wait自体の中断はprocess_interruptedのまま | `test_jobs_distinguish_worker_cancellation_from_job_interruption`（2件）。worker側キャンセルの旧分類でRED→GREEN、job側の既存分類も保持 |
+| L-7 5 固定診断 | `agent/runner.py:22` / `agent/jobs.py:32`。DomainError.code、無ければ例外型名だけをログに含める。本文を出さない | `test_task_diagnostic_logs_only_fixed_code_or_type`（4件）。DomainErrorの2件がRED→GREEN、private-sourceのcanaryがログに無いことも検査 |
+| L-7 7 変異 | `scripts/check_agent_mutations.py:20,132`。begin_stepをtry外へ戻す変異、後始末CancelledError再送出へ戻す変異を追加 | `make agent-mutations`で新規2/2検出（6 FAIL / 4 FAIL）。既存6変異も期待どおり検出、全baselineはPASS |
+| L-7 設計・既存追従 | agent-plan末尾へL-7契約、04-db:941へworker_failed/process_interruptedの分類を明記。`tests/integration/test_agent_tool_repository.py::test_terminated_run_rejects_new_tool`は例外期待から同codeのis_error応答へ変更 | 旧入口が例外を漏らす前提のテストだったため、指定契約に追従。関数名とassert1件は保持。全体ゲートで実DB経路もPASS |
+
+### RED・限定GREEN・変異
+
+```sh
+cp docs/test-results/model-boundary-checks-2026-09-13.mk /tmp/model-boundary-checks.mk
+AGENT_MODE=local_dummy DEBUG=false CI=true make -f Makefile -f /tmp/model-boundary-checks.mk model-boundary-test
+AGENT_MODE=local_dummy DEBUG=false CI=true make agent-mutations
+```
+
+- [初回RED](test-results/model-boundary-red-2026-09-13.log): **12 failed / 90 passed**。
+- [初期GREEN](test-results/model-boundary-green-2026-09-13.log): **102 passed**。
+- [追加境界を含む限定GREEN・変異](test-results/model-boundary-verification-2026-09-13.log): **104 passed**。新規ファイルの17ケースを含む。DB fixtureを使わない限定テストのみを、T-301 reviewer稼働中に実行した。
+- `boundary_begin_outside_try`: **6 failed / 11 passed**。`boundary_cleanup_reraise`: **4 failed / 13 passed**。変異は子プロセス内のみ、共有ソースを変更しない。
+
+### 全体ゲート
+
+07:05版でpytest/全体ゲートが許可された後に実行した。
+
+```sh
+AGENT_MODE=local_dummy DEBUG=false CI=true make check
+```
+
+[実出力](test-results/model-boundary-regression-2026-09-13.log):
+
+```text
+535 passed, 124 warnings in 33.00s
+Test Suites: 15 passed, 15 total
+Tests:       166 passed, 166 total
+Time:        5.573 s
+✅ check: all green
+```
+
+除外なし。両DB migration・実索引確認・ruff・OpenAPI/orval・型検査・lintもPASS。実AE03の再実行run 10はClaude担当。Codexは§7 07:05版の明示指示に従い、提出後にT-302へ進む。
+
+`.claude/memory.md`は未編集、`.env`は閲覧・表示・編集せず、commitしていない。T-301レビュー対象を保全した。
+
+再レビュー依頼
+
+---
+
 ## L-6 対応（run 7）
 
 2026-09-13。§7 **03:50版**・AD-021 / TODO-021に対応。**除外なしの全体ゲート BE518件 / FE166件、local_dummy評価14/14件がPASS**。希望 Status: REVIEWING。T-301は中断継続。実モデルを呼ばずSDKは完全モック。

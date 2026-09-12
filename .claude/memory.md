@@ -178,7 +178,7 @@
 | T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202, C-1 | DONE | 2回目 RV-022: **DONE**（P3 5 は記録のみ・TODO-009。C-1 は未完のまま） | 2026-09-12 |
 | C-2 | 記録のみ P3 の整理 chore（TODO-010/012、backend/app 非接触分） | chore | C-1, T-204 | DONE | 2回目: RV-029 P2-1（`MAKEFLAGS=-j8`）を確認して DONE。残 P3 は TODO-012 ⑦・TODO-017 | 2026-09-12 |
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | DONE | 2回目 RV-028: **DONE**（P3 1 は記録のみ・TODO-012 へ） | 2026-09-12 |
-| T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | DONE | 5回目 RV-032: **DONE**（L-3〜L-6 全て DONE 可・AE01 合格）。コードは T-301 と同一コミットで入れる（`_has_records` 依存） | 2026-09-13 |
+| T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | DONE | 6回目 RV-034: L-7 **DONE**。ただし run 10 で `process_interrupted` 再発（外部キャンセル元を診断中・TODO-021） | 2026-09-13 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | DONE | 1回目 RV-033: **DONE**（P3 5 は記録のみ・TODO-025） | 2026-09-13 |
 | T-302 | G3 参照 #23-26 / 記録 #29-33・#22 最小・#1 拡張（API） | web | T-301 | PLANNED | 指示書 `docs/t302-instructions.md`（AD-022）。Codex は L-7 の後に着手 | 2026-09-13 |
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | PLANNED | - | 2026-09-11 |
@@ -366,6 +366,12 @@
   良い点: 訂正適用後の明細を `ItemInput` で再検証し items の対 CHECK を DB 前に守る。P3: `range_class` と `length_*` が状態列を共有（UI 文言 or 状態列分割の判断材料）/ `_undo` の
   4xx 順序が `edit` と逆 / `apply_edits` が expire 済み ORM で欠損する前提 / 型エイリアス名 / 到達しない `require`。
 
+- [RV-034] T-205 6回目 L-7（Codex → 同一 reviewer 独立・2026-09-13）: **DONE 可**。P1 0 / P2 0 / P3 3。入口（`invoke` の try が関数先頭から・DomainError は元 code・
+  予期外は `E_INTERNAL`・`fail_step` 失敗でも元応答）/ 境界（runner の想定外例外 → `worker_failed`・turns 保持）/ 後始末（`result_ready`＋`sys.exc_info()` で確定済みを判定し
+  上書きしない・外側キャンセルは通す）/ 分類（jobs は `worker.result()` の CancelledError を `worker_failed`、`await wait` 自身の中断だけ `process_interrupted`）の 4 層。
+  変異 2 種追加（run 9 の実障害そのものを再現）で 10/10。実測 535 passed / agent-eval 14/14。P3: 04-db の observation.code 一覧に `E_INTERNAL` 未追記 /
+  `worker_failed` と `process_interrupted` の書き分けが 04-db に無い / `worker_failed` が例外とキャンセルを畳む → TODO-023 へ追記。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -503,6 +509,10 @@
 - [LN-052] **語彙（Literal / CHECK IN）は 4 箇所一致だけでなく「対応先モデルのフィールドに実在するか」を実行時に照合する**（T-301: 16/16・9/9）。綴り違い・存在しない項目の混入を一撃で検出。
 - [LN-053] **表レベル不変条件（値と状態が対）は項目ごとの分岐でなく、既存の入力スキーマで適用後スナップショットを再検証する形に畳む**（T-301 `record_service` が `ItemInput` で再検証）。
 
+- [LN-054] **異常の分類は「起きた場所」でなく「最初に捕まえた場所」が決める。**各層が自分の責任範囲の失敗を固定コードに変換して返さない限り、最外層の分類が
+  すべてを上書きする。後始末（cleanup）は結果を決める権利を持たない（`result_ready`・`sys.exc_info()` で確定済みを判定し、外から来たキャンセルだけ通す）。
+  実評価で見つけた不具合は、修正と同時に「直したバグの逆」を変異ケースにする（`boundary_begin_outside_try`）。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
@@ -549,6 +559,7 @@
 - [TODO-023] **T-205 L-5/L-6 の記録のみ P3（RV-032）**: ①`check_agent_mutations.py` に L-5 の 4 変異（エラー継続を 1 回停止に戻す / 成功時リセット除去 / 項目別情報の除去 /
   input 値の混入）と L-6 の「配列を単数へ戻す」を取り込み `make agent-mutations` 一本で再現 ②評価スクリプトに「`od_unit`/`weight_unit` 等が原表記の単位と異なれば換算」
   の機械チェック ③03-spec SCR-03/04・出力で寸法は原表記を主・数値を従とする方針の確認 ④大バッチ×恒常重複（`E_EVIDENCE_DUPLICATE`）の部分成功可否は再発時に設計判断。
+  ⑤04-db:940 の observation.code 一覧に `E_INTERNAL`、:941 に `worker_failed`（worker の例外・キャンセル）/ `process_interrupted`（ジョブ境界自身の中断）の書き分け（RV-034 P3）。
   TODO-009 / TODO-017 / TODO-020 と合わせて C-3（`backend/app` を触る整理）で。
 - [TODO-024] **`item_ends`（両端仕様）が #24 の応答に無い。**SCR-04 で必要なら T-303 前に T-301 側へ取得追加（t302-instructions §0 ⑨）。
 - [TODO-025] **T-301 の記録のみ P3（RV-033）**: ①`range_class` と `length_value/unit` が `length_state` を共有 → SCR-04 の UI 文言か 04-db の状態列分割（研修者判断） ②`_undo` の

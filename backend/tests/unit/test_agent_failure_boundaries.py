@@ -141,3 +141,45 @@ def test_task_diagnostic_logs_only_fixed_code_or_type(caplog, callback, domain_e
     callback(task)
     assert ("E_RUN_NOT_ACTIVE" if domain_error else "RuntimeError") in caplog.text
     assert "private-source" not in caplog.text
+
+
+async def test_cleanup_cancel_cannot_replace_pending_base_exception(context):
+    class PolicyExit(BaseException):
+        pass
+
+    original = PolicyExit("synthetic")
+    owner = asyncio.current_task()
+
+    class Policy:
+        async def asend(self, reply):
+            raise original
+
+        async def aclose(self):
+            owner.cancel()
+            raise asyncio.CancelledError
+
+    with pytest.raises(PolicyExit) as error:
+        await runner.LocalAgentWorker(N(), lambda context: Policy())(context)
+    assert error.value is original
+    assert owner.cancelling() == 0
+
+
+async def test_running_worker_still_propagates_external_cancellation(context):
+    started = asyncio.Event()
+
+    class Policy:
+        async def asend(self, reply):
+            started.set()
+            await asyncio.Future()
+
+        async def aclose(self):
+            pass
+
+    task = asyncio.create_task(
+        runner.LocalAgentWorker(N(), lambda context: Policy())(context)
+    )
+    await started.wait()
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    assert task.cancelled()

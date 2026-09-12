@@ -171,13 +171,10 @@ async def test_terminated_run_rejects_new_tool(db_session, tool_run):
     await RunRepository(db_session, file_size=lambda d: 1).finish(
         context.run_id, RunResult("outer_timeout")
     )
-    from app.domain.draft_errors import DraftError
-
-    with pytest.raises(DraftError) as exc:
-        await ToolExecutor(context, gateway).invoke(
-            "read_email", {"document_id": doc.id}
-        )
-    assert exc.value.code == "E_RUN_NOT_ACTIVE"
+    reply = await ToolExecutor(context, gateway).invoke(
+        "read_email", {"document_id": doc.id}
+    )
+    assert reply.is_error and reply.data == {"code": "E_RUN_NOT_ACTIVE"}
 
 
 async def test_interruption_records_remaining_ranges_once(db_session, tool_run):

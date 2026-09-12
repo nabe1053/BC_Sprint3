@@ -1,0 +1,688 @@
+FFFFFFFFFF.FF........................................................... [ 70%]
+..............................                                           [100%]
+=================================== FAILURES ===================================
+__ test_begin_step_failure_becomes_safe_tool_reply[failure0-E_RUN_NOT_ACTIVE] __
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+failure = DraftError('private-source'), code = 'E_RUN_NOT_ACTIVE'
+
+    @pytest.mark.parametrize("failure,code", [
+        (DraftError("E_RUN_NOT_ACTIVE", "private-source"), "E_RUN_NOT_ACTIVE"),
+        (DraftError("E_NOT_FOUND", "private-source"), "E_NOT_FOUND"),
+        (RuntimeError("private-source"), "E_INTERNAL"),
+    ])
+    async def test_begin_step_failure_becomes_safe_tool_reply(context, failure, code):
+        gateway = N(begin_step=AsyncMock(side_effect=failure), fail_step=AsyncMock())
+>       result = await ToolExecutor(context, gateway).invoke("get_rules", {})
+
+tests/unit/test_agent_failure_boundaries.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+app/agent/tools.py:101: in invoke
+    step_id = await self.gateway.begin_step(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AsyncMock id='138431965825456'>
+args = (RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, inac...8a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', 'reading', <asyncio.locks.Event object at 0x7de7342626c0 [unset]>)
+kwargs = {}
+_call = call(RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, ...8a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', 'reading', <asyncio.locks.Event object at 0x7de7342626c0 [unset]>)
+effect = DraftError('private-source')
+
+    async def _execute_mock_call(self, /, *args, **kwargs):
+        # This is nearly just like super(), except for special handling
+        # of coroutines
+    
+        _call = _Call((args, kwargs), two=True)
+        self.await_count += 1
+        self.await_args = _call
+        self.await_args_list.append(_call)
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               app.domain.draft_errors.DraftError: private-source
+
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/unittest/mock.py:2291: DraftError
+____ test_begin_step_failure_becomes_safe_tool_reply[failure1-E_NOT_FOUND] _____
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+failure = DraftError('private-source'), code = 'E_NOT_FOUND'
+
+    @pytest.mark.parametrize("failure,code", [
+        (DraftError("E_RUN_NOT_ACTIVE", "private-source"), "E_RUN_NOT_ACTIVE"),
+        (DraftError("E_NOT_FOUND", "private-source"), "E_NOT_FOUND"),
+        (RuntimeError("private-source"), "E_INTERNAL"),
+    ])
+    async def test_begin_step_failure_becomes_safe_tool_reply(context, failure, code):
+        gateway = N(begin_step=AsyncMock(side_effect=failure), fail_step=AsyncMock())
+>       result = await ToolExecutor(context, gateway).invoke("get_rules", {})
+
+tests/unit/test_agent_failure_boundaries.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+app/agent/tools.py:101: in invoke
+    step_id = await self.gateway.begin_step(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AsyncMock id='138431965838656'>
+args = (RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, inac...8a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', 'reading', <asyncio.locks.Event object at 0x7de7343114f0 [unset]>)
+kwargs = {}
+_call = call(RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, ...8a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', 'reading', <asyncio.locks.Event object at 0x7de7343114f0 [unset]>)
+effect = DraftError('private-source')
+
+    async def _execute_mock_call(self, /, *args, **kwargs):
+        # This is nearly just like super(), except for special handling
+        # of coroutines
+    
+        _call = _Call((args, kwargs), two=True)
+        self.await_count += 1
+        self.await_args = _call
+        self.await_args_list.append(_call)
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               app.domain.draft_errors.DraftError: private-source
+
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/unittest/mock.py:2291: DraftError
+_____ test_begin_step_failure_becomes_safe_tool_reply[failure2-E_INTERNAL] _____
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+failure = RuntimeError('private-source'), code = 'E_INTERNAL'
+
+    @pytest.mark.parametrize("failure,code", [
+        (DraftError("E_RUN_NOT_ACTIVE", "private-source"), "E_RUN_NOT_ACTIVE"),
+        (DraftError("E_NOT_FOUND", "private-source"), "E_NOT_FOUND"),
+        (RuntimeError("private-source"), "E_INTERNAL"),
+    ])
+    async def test_begin_step_failure_becomes_safe_tool_reply(context, failure, code):
+        gateway = N(begin_step=AsyncMock(side_effect=failure), fail_step=AsyncMock())
+>       result = await ToolExecutor(context, gateway).invoke("get_rules", {})
+
+tests/unit/test_agent_failure_boundaries.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+app/agent/tools.py:101: in invoke
+    step_id = await self.gateway.begin_step(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AsyncMock id='138431966551968'>
+args = (RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, inac...8a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', 'reading', <asyncio.locks.Event object at 0x7de7342b3290 [unset]>)
+kwargs = {}
+_call = call(RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, ...8a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a', 'reading', <asyncio.locks.Event object at 0x7de7342b3290 [unset]>)
+effect = RuntimeError('private-source')
+
+    async def _execute_mock_call(self, /, *args, **kwargs):
+        # This is nearly just like super(), except for special handling
+        # of coroutines
+    
+        _call = _Call((args, kwargs), two=True)
+        self.await_count += 1
+        self.await_args = _call
+        self.await_args_list.append(_call)
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               RuntimeError: private-source
+
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/unittest/mock.py:2291: RuntimeError
+_ test_unexpected_operation_failure_returns_internal_even_if_recording_fails[False] _
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+fail_recording = False
+caplog = <_pytest.logging.LogCaptureFixture object at 0x7de7342b2480>
+
+    @pytest.mark.parametrize("fail_recording", [False, True])
+    async def test_unexpected_operation_failure_returns_internal_even_if_recording_fails(context, fail_recording, caplog):
+        @asynccontextmanager
+        async def operation(*args):
+            raise RuntimeError("private-source")
+            yield
+    
+        gateway = N(begin_step=AsyncMock(return_value=8), operation=operation,
+                    fail_step=AsyncMock(side_effect=RuntimeError("private-source") if fail_recording else None))
+        executor = ToolExecutor(context, gateway)
+>       result = await executor.invoke("get_rules", {})
+
+tests/unit/test_agent_failure_boundaries.py:44: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+app/agent/tools.py:137: in invoke
+    async with self.gateway.operation(
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/contextlib.py:210: in __aenter__
+    return await anext(self.gen)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+args = (RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960)), 8, <asyncio.locks.Event object at 0x7de7342b2c00 [unset]>)
+
+    @asynccontextmanager
+    async def operation(*args):
+>       raise RuntimeError("private-source")
+E       RuntimeError: private-source
+
+tests/unit/test_agent_failure_boundaries.py:38: RuntimeError
+------------------------------ Captured log call -------------------------------
+ERROR    app.agent.tools:tools.py:160 Local tool failed (RuntimeError)
+_ test_unexpected_operation_failure_returns_internal_even_if_recording_fails[True] _
+
+args = (RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960)), 8, <asyncio.locks.Event object at 0x7de7342e2ab0 [unset]>)
+
+    @asynccontextmanager
+    async def operation(*args):
+>       raise RuntimeError("private-source")
+E       RuntimeError: private-source
+
+tests/unit/test_agent_failure_boundaries.py:38: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+fail_recording = True
+caplog = <_pytest.logging.LogCaptureFixture object at 0x7de7342e0260>
+
+    @pytest.mark.parametrize("fail_recording", [False, True])
+    async def test_unexpected_operation_failure_returns_internal_even_if_recording_fails(context, fail_recording, caplog):
+        @asynccontextmanager
+        async def operation(*args):
+            raise RuntimeError("private-source")
+            yield
+    
+        gateway = N(begin_step=AsyncMock(return_value=8), operation=operation,
+                    fail_step=AsyncMock(side_effect=RuntimeError("private-source") if fail_recording else None))
+        executor = ToolExecutor(context, gateway)
+>       result = await executor.invoke("get_rules", {})
+
+tests/unit/test_agent_failure_boundaries.py:44: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+app/agent/tools.py:163: in invoke
+    await self.gateway.fail_step(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AsyncMock id='138431966353392'>
+args = (RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, inac...ty_timeout_s=60, outer_timeout_s=960)), 8, 'E_REQUEST_INVALID', <asyncio.locks.Event object at 0x7de7342e2ab0 [unset]>)
+kwargs = {}
+_call = call(RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, ...ty_timeout_s=60, outer_timeout_s=960)), 8, 'E_REQUEST_INVALID', <asyncio.locks.Event object at 0x7de7342e2ab0 [unset]>)
+effect = RuntimeError('private-source')
+
+    async def _execute_mock_call(self, /, *args, **kwargs):
+        # This is nearly just like super(), except for special handling
+        # of coroutines
+    
+        _call = _Call((args, kwargs), two=True)
+        self.await_count += 1
+        self.await_args = _call
+        self.await_args_list.append(_call)
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               RuntimeError: private-source
+
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/unittest/mock.py:2291: RuntimeError
+------------------------------ Captured log call -------------------------------
+ERROR    app.agent.tools:tools.py:160 Local tool failed (RuntimeError)
+______ test_request_callback_failure_is_converted_and_cancel_is_preserved ______
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+
+    async def test_request_callback_failure_is_converted_and_cancel_is_preserved(context):
+        gateway = N(begin_step=AsyncMock(), fail_step=AsyncMock())
+        executor = ToolExecutor(context, gateway)
+        with executor.bind(request=AsyncMock(side_effect=DraftError("E_NOT_FOUND", "private-source"))):
+>           assert await executor.invoke("get_rules", {}) == ToolReply({"code": "E_NOT_FOUND"}, True)
+
+tests/unit/test_agent_failure_boundaries.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+app/agent/tools.py:98: in invoke
+    return await request(name, arguments)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AsyncMock id='138431966160480'>, args = ('get_rules', {}), kwargs = {}
+_call = call('get_rules', {}), effect = DraftError('private-source')
+
+    async def _execute_mock_call(self, /, *args, **kwargs):
+        # This is nearly just like super(), except for special handling
+        # of coroutines
+    
+        _call = _Call((args, kwargs), two=True)
+        self.await_count += 1
+        self.await_args = _call
+        self.await_args_list.append(_call)
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               app.domain.draft_errors.DraftError: private-source
+
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/unittest/mock.py:2291: DraftError
+______ test_cleanup_cancel_preserves_worker_result_and_turns[tool_error] _______
+
+self = <app.agent.runner.LocalAgentWorker object at 0x7de734305340>
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+
+    async def __call__(self, context):
+        executor = ToolExecutor(context, self.gateway)
+        stream = self.policy_factory(context)
+        last_heartbeat = monotonic()
+        heartbeats = 0
+        deadline = last_heartbeat + context.limits.inner_timeout_s
+        turns = 0
+        previous_call, repetitions = None, 0
+        previous_validation, validation_repetitions = None, 0
+        previous_error, error_repetitions = None, 0
+        reply = None
+        deadline_stop = False
+    
+        async def bounded(awaitable):
+            nonlocal last_heartbeat, heartbeats
+            last_message = monotonic()
+            while True:
+                remaining = deadline - monotonic()
+                inactivity = context.limits.inactivity_timeout_s - (
+                    monotonic() - last_message
+                )
+                with executor.bind():
+                    task = asyncio.create_task(awaitable)
+                _pending.add(task)
+                task.add_done_callback(_consume)
+                try:
+                    done, _ = await asyncio.wait(
+                        {task},
+                        timeout=max(0, min(remaining, inactivity)),
+                    )
+                    if not done:
+                        executor.close()
+                        task.cancel()
+                        reason = (
+                            "inner_timeout"
+                            if monotonic() >= deadline
+                            else "inactivity_timeout"
+                        )
+                        raise LocalPolicyStop(reason)
+                    result = task.result()
+                    if isinstance(result, PolicyHeartbeat):
+                        last_message = result.received_at
+                        last_heartbeat = result.received_at
+                        heartbeats += 1
+                        awaitable = stream.asend(reply)
+                        continue
+                    return result
+                except asyncio.CancelledError:
+                    executor.close()
+                    task.cancel()
+                    raise
+    
+        try:
+            while True:
+                if turns >= context.limits.max_turns:
+                    return RunResult("max_turns", turns)
+                call = await bounded(stream.asend(reply))
+                turns += 1
+>               reply = await bounded(executor.call(call.name, call.arguments))
+
+app/agent/runner.py:110: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+app/agent/runner.py:91: in bounded
+    result = task.result()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AsyncMock id='138431966495664'>, args = ('finalize_draft', {})
+kwargs = {}, _call = call('finalize_draft', {})
+effect = DraftError('private-source')
+
+    async def _execute_mock_call(self, /, *args, **kwargs):
+        # This is nearly just like super(), except for special handling
+        # of coroutines
+    
+        _call = _Call((args, kwargs), two=True)
+        self.await_count += 1
+        self.await_args = _call
+        self.await_args_list.append(_call)
+    
+        effect = self.side_effect
+        if effect is not None:
+            if _is_exception(effect):
+>               raise effect
+E               app.domain.draft_errors.DraftError: private-source
+
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/unittest/mock.py:2291: DraftError
+
+During handling of the above exception, another exception occurred:
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7de734304140>
+mode = 'tool_error'
+
+    @pytest.mark.parametrize("mode", ["tool_error", "complete", "policy_error"])
+    async def test_cleanup_cancel_preserves_worker_result_and_turns(context, monkeypatch, mode):
+        owner = asyncio.current_task()
+    
+        class Policy:
+            async def asend(self, reply):
+                if mode == "policy_error":
+                    raise DraftError("E_NOT_FOUND", "private-source")
+                return ToolCall("finalize_draft")
+    
+            async def aclose(self):
+                owner.cancel()
+                raise asyncio.CancelledError
+    
+        call = AsyncMock(return_value=ToolReply({}))
+        if mode == "tool_error":
+            call.side_effect = DraftError("E_RUN_NOT_ACTIVE", "private-source")
+        monkeypatch.setattr(ToolExecutor, "call", call)
+>       result = await runner.LocalAgentWorker(N(), lambda context: Policy())(context)
+
+tests/unit/test_agent_failure_boundaries.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+app/agent/runner.py:172: in __call__
+    done, _ = await asyncio.wait(
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/tasks.py:464: in wait
+    return await _wait(fs, timeout, return_when, loop)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fs = {<Task cancelled name='Task-10' coro=<test_cleanup_cancel_preserves_worker_result_and_turns.<locals>.Policy.aclose() done, defined at <repo>/backend/tests/unit/test_agent_failure_boundaries.py:72>>}
+timeout = 0.02, return_when = 'ALL_COMPLETED'
+loop = <_UnixSelectorEventLoop running=False closed=False debug=False>
+
+    async def _wait(fs, timeout, return_when, loop):
+        """Internal helper for wait().
+    
+        The fs argument must be a collection of Futures.
+        """
+        assert fs, 'Set of Futures is empty.'
+        waiter = loop.create_future()
+        timeout_handle = None
+        if timeout is not None:
+            timeout_handle = loop.call_later(timeout, _release_waiter, waiter)
+        counter = len(fs)
+    
+        def _on_completion(f):
+            nonlocal counter
+            counter -= 1
+            if (counter <= 0 or
+                return_when == FIRST_COMPLETED or
+                return_when == FIRST_EXCEPTION and (not f.cancelled() and
+                                                    f.exception() is not None)):
+                if timeout_handle is not None:
+                    timeout_handle.cancel()
+                if not waiter.done():
+                    waiter.set_result(None)
+    
+        for f in fs:
+            f.add_done_callback(_on_completion)
+    
+        try:
+>           await waiter
+E           asyncio.exceptions.CancelledError
+
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/tasks.py:550: CancelledError
+------------------------------ Captured log call -------------------------------
+ERROR    app.agent.runner:runner.py:27 Local agent operation failed (DraftError)
+_______ test_cleanup_cancel_preserves_worker_result_and_turns[complete] ________
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7de734306ae0>
+mode = 'complete'
+
+    @pytest.mark.parametrize("mode", ["tool_error", "complete", "policy_error"])
+    async def test_cleanup_cancel_preserves_worker_result_and_turns(context, monkeypatch, mode):
+        owner = asyncio.current_task()
+    
+        class Policy:
+            async def asend(self, reply):
+                if mode == "policy_error":
+                    raise DraftError("E_NOT_FOUND", "private-source")
+                return ToolCall("finalize_draft")
+    
+            async def aclose(self):
+                owner.cancel()
+                raise asyncio.CancelledError
+    
+        call = AsyncMock(return_value=ToolReply({}))
+        if mode == "tool_error":
+            call.side_effect = DraftError("E_RUN_NOT_ACTIVE", "private-source")
+        monkeypatch.setattr(ToolExecutor, "call", call)
+>       result = await runner.LocalAgentWorker(N(), lambda context: Policy())(context)
+
+tests/unit/test_agent_failure_boundaries.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+app/agent/runner.py:172: in __call__
+    done, _ = await asyncio.wait(
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/tasks.py:464: in wait
+    return await _wait(fs, timeout, return_when, loop)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fs = {<Task cancelled name='Task-14' coro=<test_cleanup_cancel_preserves_worker_result_and_turns.<locals>.Policy.aclose() done, defined at <repo>/backend/tests/unit/test_agent_failure_boundaries.py:72>>}
+timeout = 0.02, return_when = 'ALL_COMPLETED'
+loop = <_UnixSelectorEventLoop running=False closed=False debug=False>
+
+    async def _wait(fs, timeout, return_when, loop):
+        """Internal helper for wait().
+    
+        The fs argument must be a collection of Futures.
+        """
+        assert fs, 'Set of Futures is empty.'
+        waiter = loop.create_future()
+        timeout_handle = None
+        if timeout is not None:
+            timeout_handle = loop.call_later(timeout, _release_waiter, waiter)
+        counter = len(fs)
+    
+        def _on_completion(f):
+            nonlocal counter
+            counter -= 1
+            if (counter <= 0 or
+                return_when == FIRST_COMPLETED or
+                return_when == FIRST_EXCEPTION and (not f.cancelled() and
+                                                    f.exception() is not None)):
+                if timeout_handle is not None:
+                    timeout_handle.cancel()
+                if not waiter.done():
+                    waiter.set_result(None)
+    
+        for f in fs:
+            f.add_done_callback(_on_completion)
+    
+        try:
+>           await waiter
+E           asyncio.exceptions.CancelledError
+
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/tasks.py:550: CancelledError
+_____ test_cleanup_cancel_preserves_worker_result_and_turns[policy_error] ______
+
+self = <tests.unit.test_agent_failure_boundaries.test_cleanup_cancel_preserves_worker_result_and_turns.<locals>.Policy object at 0x7de7341c9e20>
+reply = None
+
+    async def asend(self, reply):
+        if mode == "policy_error":
+>           raise DraftError("E_NOT_FOUND", "private-source")
+E           app.domain.draft_errors.DraftError: private-source
+
+tests/unit/test_agent_failure_boundaries.py:69: DraftError
+
+During handling of the above exception, another exception occurred:
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=80, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7de7341caf30>
+mode = 'policy_error'
+
+    @pytest.mark.parametrize("mode", ["tool_error", "complete", "policy_error"])
+    async def test_cleanup_cancel_preserves_worker_result_and_turns(context, monkeypatch, mode):
+        owner = asyncio.current_task()
+    
+        class Policy:
+            async def asend(self, reply):
+                if mode == "policy_error":
+                    raise DraftError("E_NOT_FOUND", "private-source")
+                return ToolCall("finalize_draft")
+    
+            async def aclose(self):
+                owner.cancel()
+                raise asyncio.CancelledError
+    
+        call = AsyncMock(return_value=ToolReply({}))
+        if mode == "tool_error":
+            call.side_effect = DraftError("E_RUN_NOT_ACTIVE", "private-source")
+        monkeypatch.setattr(ToolExecutor, "call", call)
+>       result = await runner.LocalAgentWorker(N(), lambda context: Policy())(context)
+
+tests/unit/test_agent_failure_boundaries.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+app/agent/runner.py:172: in __call__
+    done, _ = await asyncio.wait(
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/tasks.py:464: in wait
+    return await _wait(fs, timeout, return_when, loop)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+fs = {<Task cancelled name='Task-17' coro=<test_cleanup_cancel_preserves_worker_result_and_turns.<locals>.Policy.aclose() done, defined at <repo>/backend/tests/unit/test_agent_failure_boundaries.py:72>>}
+timeout = 0.02, return_when = 'ALL_COMPLETED'
+loop = <_UnixSelectorEventLoop running=False closed=False debug=False>
+
+    async def _wait(fs, timeout, return_when, loop):
+        """Internal helper for wait().
+    
+        The fs argument must be a collection of Futures.
+        """
+        assert fs, 'Set of Futures is empty.'
+        waiter = loop.create_future()
+        timeout_handle = None
+        if timeout is not None:
+            timeout_handle = loop.call_later(timeout, _release_waiter, waiter)
+        counter = len(fs)
+    
+        def _on_completion(f):
+            nonlocal counter
+            counter -= 1
+            if (counter <= 0 or
+                return_when == FIRST_COMPLETED or
+                return_when == FIRST_EXCEPTION and (not f.cancelled() and
+                                                    f.exception() is not None)):
+                if timeout_handle is not None:
+                    timeout_handle.cancel()
+                if not waiter.done():
+                    waiter.set_result(None)
+    
+        for f in fs:
+            f.add_done_callback(_on_completion)
+    
+        try:
+>           await waiter
+E           asyncio.exceptions.CancelledError
+
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/tasks.py:550: CancelledError
+------------------------------ Captured log call -------------------------------
+ERROR    app.agent.runner:runner.py:27 Local agent operation failed (DraftError)
+_ test_jobs_distinguish_worker_cancellation_from_job_interruption[worker-worker_failed] _
+
+cancel_target = 'worker', detail = 'worker_failed'
+
+    @pytest.mark.parametrize("cancel_target,detail", [("worker", "worker_failed"), ("job", "process_interrupted")])
+    async def test_jobs_distinguish_worker_cancellation_from_job_interruption(cancel_target, detail):
+        started = asyncio.Event()
+        owner = []
+    
+        async def work():
+            owner.append(asyncio.current_task())
+            started.set()
+            await asyncio.Future()
+    
+        finish = AsyncMock()
+        job = asyncio.create_task(jobs._execute(work, finish, definition.OUTER_TIMEOUT_S))
+        await started.wait()
+        (owner[0] if cancel_target == "worker" else job).cancel()
+        await asyncio.wait_for(job, 1)
+        result = finish.await_args.args[0]
+>       assert result.stop_reason == "failed" and result.detail == detail
+E       AssertionError: assert ('failed' == 'failed'
+E           failed and 'process_interrupted' == 'worker_failed'
+E         - worker_failed
+E         + process_interrupted)
+
+tests/unit/test_agent_failure_boundaries.py:102: AssertionError
+_______ test_task_diagnostic_logs_only_fixed_code_or_type[True-_consume] _______
+
+caplog = <_pytest.logging.LogCaptureFixture object at 0x7de7342b25d0>
+callback = <function _consume at 0x7de737bbc860>, domain_error = True
+
+    @pytest.mark.parametrize("callback", [runner._consume, jobs._worker_done])
+    @pytest.mark.parametrize("domain_error", [True, False])
+    def test_task_diagnostic_logs_only_fixed_code_or_type(caplog, callback, domain_error):
+        error = DraftError("E_RUN_NOT_ACTIVE", "private-source") if domain_error else RuntimeError("private-source")
+        task = asyncio.Future()
+        task.set_exception(error)
+        callback(task)
+>       assert ("E_RUN_NOT_ACTIVE" if domain_error else "RuntimeError") in caplog.text
+E       AssertionError: assert 'E_RUN_NOT_ACTIVE' in 'ERROR    app.agent.runner:runner.py:27 Local agent operation failed (DraftError)\n'
+E        +  where 'ERROR    app.agent.runner:runner.py:27 Local agent operation failed (DraftError)\n' = <_pytest.logging.LogCaptureFixture object at 0x7de7342b25d0>.text
+
+tests/unit/test_agent_failure_boundaries.py:113: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    app.agent.runner:runner.py:27 Local agent operation failed (DraftError)
+_____ test_task_diagnostic_logs_only_fixed_code_or_type[True-_worker_done] _____
+
+caplog = <_pytest.logging.LogCaptureFixture object at 0x7de7342b2210>
+callback = <function _worker_done at 0x7de737bbc2c0>, domain_error = True
+
+    @pytest.mark.parametrize("callback", [runner._consume, jobs._worker_done])
+    @pytest.mark.parametrize("domain_error", [True, False])
+    def test_task_diagnostic_logs_only_fixed_code_or_type(caplog, callback, domain_error):
+        error = DraftError("E_RUN_NOT_ACTIVE", "private-source") if domain_error else RuntimeError("private-source")
+        task = asyncio.Future()
+        task.set_exception(error)
+        callback(task)
+>       assert ("E_RUN_NOT_ACTIVE" if domain_error else "RuntimeError") in caplog.text
+E       AssertionError: assert 'E_RUN_NOT_ACTIVE' in 'ERROR    app.agent.jobs:jobs.py:36 Agent background task failed (DraftError)\n'
+E        +  where 'ERROR    app.agent.jobs:jobs.py:36 Agent background task failed (DraftError)\n' = <_pytest.logging.LogCaptureFixture object at 0x7de7342b2210>.text
+
+tests/unit/test_agent_failure_boundaries.py:113: AssertionError
+------------------------------ Captured log call -------------------------------
+ERROR    app.agent.jobs:jobs.py:36 Agent background task failed (DraftError)
+=============================== warnings summary ===============================
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'ruleVersion' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'ruleVersion' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'ruleVersion' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'acknowledgedCarryOver' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'acknowledgedCarryOver' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'acknowledgedCarryOver' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_agent_failure_boundaries.py::test_begin_step_failure_becomes_safe_tool_reply[failure0-E_RUN_NOT_ACTIVE] - app.domain.draft_errors.DraftError: private-source
+FAILED tests/unit/test_agent_failure_boundaries.py::test_begin_step_failure_becomes_safe_tool_reply[failure1-E_NOT_FOUND] - app.domain.draft_errors.DraftError: private-source
+FAILED tests/unit/test_agent_failure_boundaries.py::test_begin_step_failure_becomes_safe_tool_reply[failure2-E_INTERNAL] - RuntimeError: private-source
+FAILED tests/unit/test_agent_failure_boundaries.py::test_unexpected_operation_failure_returns_internal_even_if_recording_fails[False] - RuntimeError: private-source
+FAILED tests/unit/test_agent_failure_boundaries.py::test_unexpected_operation_failure_returns_internal_even_if_recording_fails[True] - RuntimeError: private-source
+FAILED tests/unit/test_agent_failure_boundaries.py::test_request_callback_failure_is_converted_and_cancel_is_preserved - app.domain.draft_errors.DraftError: private-source
+FAILED tests/unit/test_agent_failure_boundaries.py::test_cleanup_cancel_preserves_worker_result_and_turns[tool_error] - asyncio.exceptions.CancelledError
+FAILED tests/unit/test_agent_failure_boundaries.py::test_cleanup_cancel_preserves_worker_result_and_turns[complete] - asyncio.exceptions.CancelledError
+FAILED tests/unit/test_agent_failure_boundaries.py::test_cleanup_cancel_preserves_worker_result_and_turns[policy_error] - asyncio.exceptions.CancelledError
+FAILED tests/unit/test_agent_failure_boundaries.py::test_jobs_distinguish_worker_cancellation_from_job_interruption[worker-worker_failed] - AssertionError: assert ('failed' == 'failed'
+    failed and 'process_interrupted' == 'worker_failed'
+  - worker_failed
+  + process_interrupted)
+FAILED tests/unit/test_agent_failure_boundaries.py::test_task_diagnostic_logs_only_fixed_code_or_type[True-_consume] - AssertionError: assert 'E_RUN_NOT_ACTIVE' in 'ERROR    app.agent.runner:runner.py:27 Local agent operation failed (DraftError)\n'
+ +  where 'ERROR    app.agent.runner:runner.py:27 Local agent operation failed (DraftError)\n' = <_pytest.logging.LogCaptureFixture object at 0x7de7342b25d0>.text
+FAILED tests/unit/test_agent_failure_boundaries.py::test_task_diagnostic_logs_only_fixed_code_or_type[True-_worker_done] - AssertionError: assert 'E_RUN_NOT_ACTIVE' in 'ERROR    app.agent.jobs:jobs.py:36 Agent background task failed (DraftError)\n'
+ +  where 'ERROR    app.agent.jobs:jobs.py:36 Agent background task failed (DraftError)\n' = <_pytest.logging.LogCaptureFixture object at 0x7de7342b2210>.text
+12 failed, 90 passed, 6 warnings in 1.19s
+make: *** [/tmp/model-boundary-checks.mk:2: model-boundary-test] Error 1
