@@ -1,0 +1,31 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_ test_unmapped_without_links_is_missing_but_linked_unmapped_is_only_inconsistent _
+
+    def test_unmapped_without_links_is_missing_but_linked_unmapped_is_only_inconsistent():
+        result = reconcile(
+            [entry(1, "unmapped"), entry(2, "unmapped")],
+            [link(2, 101)],
+            [output_item()],
+            version_id=1,
+        )
+>       assert result.summary.unmapped_entry_ids == {1}
+E       assert frozenset({1, 2}) == {1}
+E         Extra items in the left set:
+E         2
+E         Full diff:
+E         - {1}
+E         + frozenset({1, 2})
+
+tests/unit/test_inventory_reconciliation.py:34: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_inventory_reconciliation.py::test_unmapped_without_links_is_missing_but_linked_unmapped_is_only_inconsistent - assert frozenset({1, 2}) == {1}
+  Extra items in the left set:
+  2
+  Full diff:
+  - {1}
+  + frozenset({1, 2})
+1 failed, 11 deselected in 0.02s
+make[1]: *** [/tmp/inventory-checks.mk:11: inventory-mutation] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

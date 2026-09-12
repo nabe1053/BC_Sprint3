@@ -1,0 +1,31 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____________ test_two_entries_mapped_to_one_item_are_multi_mapped _____________
+
+    def test_two_entries_mapped_to_one_item_are_multi_mapped():
+        result = reconcile(
+            [entry(1), entry(2)],
+            [link(1, 101), link(2, 101)],
+            [output_item()],
+            version_id=1,
+        )
+>       assert result.summary.multi_mapped_item_ids == {101}
+E       assert frozenset() == {101}
+E         Extra items in the right set:
+E         101
+E         Full diff:
+E         - {101}
+E         + frozenset()
+
+tests/unit/test_inventory_reconciliation.py:54: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_inventory_reconciliation.py::test_two_entries_mapped_to_one_item_are_multi_mapped - assert frozenset() == {101}
+  Extra items in the right set:
+  101
+  Full diff:
+  - {101}
+  + frozenset()
+1 failed, 11 deselected in 0.02s
+make[1]: *** [/tmp/inventory-checks.mk:11: inventory-mutation] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

@@ -1,0 +1,39 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+F                                                                        [100%]
+=================================== FAILURES ===================================
+____________ test_s02_totals_and_headings_are_excluded_not_missing _____________
+
+    def test_s02_totals_and_headings_are_excluded_not_missing():
+        entries = [entry(i, "mapped" if i <= 6 else "excluded") for i in range(1, 11)]
+        result = reconcile(
+            entries,
+            [link(i, 100 + i) for i in range(1, 7)],
+            [output_item(i) for i in range(101, 107)],
+            version_id=1,
+        )
+        assert result.summary.source_item_count == result.summary.output_row_count == 6
+>       assert result.summary.excluded_entry_ids == {7, 8, 9, 10}
+E       assert frozenset() == {7, 8, 9, 10}
+E         Extra items in the right set:
+E         8
+E         9
+E         10
+E         7
+E         Full diff:
+E         - {8, 9, 10, 7}
+E         + frozenset()
+
+tests/unit/test_inventory_reconciliation.py:125: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_inventory_reconciliation.py::test_s02_totals_and_headings_are_excluded_not_missing - assert frozenset() == {7, 8, 9, 10}
+  Extra items in the right set:
+  8
+  9
+  10
+  7
+  Full diff:
+  - {8, 9, 10, 7}
+  + frozenset()
+1 failed, 11 deselected in 0.02s
+make[1]: *** [/tmp/inventory-checks.mk:11: inventory-mutation] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

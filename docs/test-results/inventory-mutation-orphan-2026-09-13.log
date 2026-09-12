@@ -1,0 +1,28 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+F                                                                        [100%]
+=================================== FAILURES ===================================
+______________________ test_output_without_link_is_orphan ______________________
+
+    def test_output_without_link_is_orphan():
+        result = reconcile(
+            [entry()], [link(1, 101)], [output_item(), output_item(102)], version_id=1
+        )
+>       assert result.summary.orphan_item_ids == {102}
+E       assert frozenset() == {102}
+E         Extra items in the right set:
+E         102
+E         Full diff:
+E         - {102}
+E         + frozenset()
+
+tests/unit/test_inventory_reconciliation.py:43: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_inventory_reconciliation.py::test_output_without_link_is_orphan - assert frozenset() == {102}
+  Extra items in the right set:
+  102
+  Full diff:
+  - {102}
+  + frozenset()
+1 failed, 11 deselected in 0.02s
+make[1]: *** [/tmp/inventory-checks.mk:11: inventory-mutation] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

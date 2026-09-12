@@ -1,0 +1,32 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+F                                                                        [100%]
+=================================== FAILURES ===================================
+__________ test_reverse_input_is_sorted_by_seq_then_id_on_both_sides ___________
+
+    def test_reverse_input_is_sorted_by_seq_then_id_on_both_sides():
+        entries, links, items = s06()
+        entries[0].seq = entries[1].seq
+        items[0].seq = items[1].seq
+        result = reconcile(
+            list(reversed(entries)),
+            list(reversed(links)),
+            list(reversed(items)),
+            version_id=1,
+        )
+>       assert [row.entry_id for row in result.entries] == list(range(1, 13))
+E       assert [12, 11, 10, 9, 8, 7, ...] == [1, 2, 3, 4, 5, 6, ...]
+E         At index 0 diff: 12 != 1
+E         Full diff:
+E         - [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+E         + [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+
+tests/unit/test_inventory_reconciliation.py:93: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_inventory_reconciliation.py::test_reverse_input_is_sorted_by_seq_then_id_on_both_sides - assert [12, 11, 10, 9, 8, 7, ...] == [1, 2, 3, 4, 5, 6, ...]
+  At index 0 diff: 12 != 1
+  Full diff:
+  - [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+  + [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+1 failed, 11 deselected in 0.02s
+make[1]: *** [/tmp/inventory-checks.mk:11: inventory-mutation] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

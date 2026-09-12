@@ -1,0 +1,33 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ test_s06_sets_match_eight_to_eleven_three_splits_four_excluded ________
+
+    def test_s06_sets_match_eight_to_eleven_three_splits_four_excluded():
+        result = reconcile(*s06(), version_id=1)
+        summary = result.summary
+>       assert (
+            summary.source_entry_count,
+            summary.source_item_count,
+            summary.output_row_count,
+        ) == (12, 8, 11)
+E       assert (12, 12, 11) == (12, 8, 11)
+E         At index 1 diff: 12 != 8
+E         Full diff:
+E         - (12, 8, 11)
+E         ?      ^
+E         + (12, 12, 11)
+E         ?      ^^
+
+tests/unit/test_inventory_reconciliation.py:9: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_inventory_reconciliation.py::test_s06_sets_match_eight_to_eleven_three_splits_four_excluded - assert (12, 12, 11) == (12, 8, 11)
+  At index 1 diff: 12 != 8
+  Full diff:
+  - (12, 8, 11)
+  ?      ^
+  + (12, 12, 11)
+  ?      ^^
+1 failed, 11 deselected in 0.02s
+make[1]: *** [/tmp/inventory-checks.mk:11: inventory-mutation] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

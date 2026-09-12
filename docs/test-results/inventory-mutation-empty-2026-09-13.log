@@ -1,0 +1,20 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_____________ test_empty_inputs_return_zero_counts_and_empty_sets ______________
+
+    def test_empty_inputs_return_zero_counts_and_empty_sets():
+        result = reconcile([], [], [], version_id=1)
+        assert (
+            result.summary.source_entry_count,
+            result.summary.source_item_count,
+            result.summary.output_row_count,
+>       ) == (0, 0, 0)
+E       AttributeError: 'NoneType' object has no attribute 'summary'
+
+tests/unit/test_inventory_reconciliation.py:103: AttributeError
+=========================== short test summary info ============================
+FAILED tests/unit/test_inventory_reconciliation.py::test_empty_inputs_return_zero_counts_and_empty_sets - AttributeError: 'NoneType' object has no attribute 'summary'
+1 failed, 11 deselected in 0.02s
+make[1]: *** [/tmp/inventory-checks.mk:11: inventory-mutation] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

@@ -1,0 +1,24 @@
+import inspect
+import sys
+from pathlib import Path
+sys.path.insert(0,str(Path.cwd()))
+import pytest
+from app.services import inventory_reconciliation as module
+mutants={
+ 's06-count':('source_item_count=sum(entry.status != "excluded" for entry in entries)','source_item_count=len(entries)','test_s06_sets'),
+ 'unmapped':('entry.status == "unmapped" and not by_entry.get(entry.id)','entry.status == "unmapped"','test_unmapped_without'),
+ 'orphan':('item.id for item in items if not by_item.get(item.id)','item.id for item in items if False','test_output_without'),
+ 'multi-mapped':('len(by_item.get(item.id, set())) >= 2','len(by_item.get(item.id, set())) >= 3','test_two_entries'),
+ 'status-mismatch':('(entry.status == "mapped" and count != 1)','False','test_saved_status_conflicting'),
+ 'foreign-link':('if target is None or getattr(link, "item_version_id", version_id) != version_id:\n            inconsistent.add(link.entry_id)','if target is None or getattr(link, "item_version_id", version_id) != version_id:\n            pass','test_outside_version'),
+ 'ordering':('key=lambda row: (row.seq, row.id),','key=lambda row: (-row.seq, -row.id),','test_reverse_input'),
+ 'empty':('return Reconciliation(summary, tuple(entry_views), item_views)','return None if not entries else Reconciliation(summary, tuple(entry_views), item_views)','test_empty_inputs'),
+ 's02-excluded':('entry.id for entry in entries if entry.status == "excluded"','entry.id for entry in entries if False','test_s02_totals'),
+}
+old,new,selection=mutants[sys.argv[1]]
+source=inspect.getsource(module.reconcile)
+assert old in source,sys.argv[1]
+scope=dict(vars(module))
+exec(compile(source.replace(old,new,1),'<inventory-mutation>','exec'),scope)
+module.reconcile=scope['reconcile']
+sys.exit(pytest.main(['tests/unit/test_inventory_reconciliation.py','-q','-k',selection]))

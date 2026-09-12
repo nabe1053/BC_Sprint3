@@ -1,0 +1,32 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+F..                                                                      [100%]
+=================================== FAILURES ===================================
+_ test_saved_status_conflicting_with_structure_is_inconsistent[mapped-links0] __
+
+status = 'mapped', links = []
+
+    @pytest.mark.parametrize(
+        "status,links",
+        [("mapped", []), ("split", [link(1, 101)]), ("excluded", [link(1, 101)])],
+    )
+    def test_saved_status_conflicting_with_structure_is_inconsistent(status, links):
+        result = reconcile([entry(1, status)], links, [output_item()], version_id=1)
+>       assert result.summary.inconsistent_entry_ids == {1}
+E       assert frozenset() == {1}
+E         Extra items in the right set:
+E         1
+E         Full diff:
+E         - {1}
+E         + frozenset()
+
+tests/unit/test_inventory_reconciliation.py:64: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_inventory_reconciliation.py::test_saved_status_conflicting_with_structure_is_inconsistent[mapped-links0] - assert frozenset() == {1}
+  Extra items in the right set:
+  1
+  Full diff:
+  - {1}
+  + frozenset()
+1 failed, 2 passed, 9 deselected in 0.02s
+make[1]: *** [/tmp/inventory-checks.mk:11: inventory-mutation] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

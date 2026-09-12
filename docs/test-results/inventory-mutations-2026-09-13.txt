@@ -1,0 +1,9 @@
+from pathlib import Path
+import os,subprocess
+logs=Path('/tmp/inventory-mutants');logs.mkdir(exist_ok=True)
+for name in ['s06-count','unmapped','orphan','multi-mapped','status-mismatch','foreign-link','ordering','empty','s02-excluded']:
+ run=subprocess.run(['make','-f','Makefile','-f','/tmp/inventory-checks.mk','inventory-mutation',f'INVENTORY_MUTANT={name}'],env=os.environ,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=30)
+ (logs/(name+'.log')).write_text(run.stdout)
+ result=next((line for line in reversed(run.stdout.splitlines()) if ' failed' in line and 'in ' in line),None)
+ assert run.returncode!=0 and result,(name,run.stdout[-1000:])
+ print(f'{name}: detected; {result}',flush=True)

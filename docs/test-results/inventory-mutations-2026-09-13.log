@@ -1,0 +1,9 @@
+s06-count: detected; 1 failed, 11 deselected in 0.02s
+unmapped: detected; 1 failed, 11 deselected in 0.02s
+orphan: detected; 1 failed, 11 deselected in 0.02s
+multi-mapped: detected; 1 failed, 11 deselected in 0.02s
+status-mismatch: detected; 1 failed, 2 passed, 9 deselected in 0.02s
+foreign-link: detected; 1 failed, 11 deselected in 0.02s
+ordering: detected; 1 failed, 11 deselected in 0.02s
+empty: detected; 1 failed, 11 deselected in 0.02s
+s02-excluded: detected; 1 failed, 11 deselected in 0.02s

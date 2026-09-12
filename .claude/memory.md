@@ -182,6 +182,9 @@
 - [CV-026] **FE の整形（prettier）は品質ゲートに含める**: `make fe-lint` に `prettier --check "src/**/*.{ts,tsx}"` を足す。実装者は完了前に `prettier --write`。
   eslint だけでは 1 行詰めの未整形が通る（T-204・T-303 で 2 回 → 昇格）。
 
+- [CV-027] **「保存値」と「導出値」を同じフィールドに載せない**（T-401: 保存 `status` と構造から導いた `judgement` を別項目）。推測の混入を防ぎ、不一致を検出可能にし、
+  是正を別課題に切り離せる。外部キーで守れない参照整合性は「SQL で絞る＋純粋関数で再検査して inconsistent に落とす」の二重防御にし、混入しないことを集合の交差 0 で固定。
+
 ## 3. 実装バックログ（プラン状態＝ループの制御表）
 
 | ID | スライス | 種別 | 依存 | Status | レビュー | 最終更新 |
@@ -199,7 +202,7 @@
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | DONE | 1回目 RV-033: **DONE**（P3 5 は記録のみ・TODO-025） | 2026-09-13 |
 | T-302 | G3 参照 #23-26 / 記録 #29-33・#22 最小・#1 拡張（API） | web | T-301 | DONE | RV-036 DONE ＋ 追補 N-2（#24 `rowMatch`）RV-038 DONE | 2026-09-13 |
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | FIXING | 1回目 RV-039: **DONE 可** P2 2（状態ラベル二重・prettier 未適用）を短ラウンド O-2 で | 2026-09-13 |
-| T-401 | G4 照合集計（BE。保存は T-201・記録は T-301 済） | web | T-201 | IMPLEMENTING | Codex 着手（指示書 `docs/t401-instructions.md`・AD-025） | 2026-09-13 |
+| T-401 | G4 照合集計（BE。保存は T-201・記録は T-301 済） | web | T-201 | DONE | 1回目 RV-040: **DONE**（P3 4 は記録のみ・TODO-031） | 2026-09-13 |
 | T-402 | G4 照合 API #19,27（API） | web | T-401 | PLANNED | - | 2026-09-11 |
 | T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | PLANNED | - | 2026-09-11 |
 | T-501 | G5 状態遷移・差し戻し・送付可否の記録（BE） | web | T-301 | PLANNED | - | 2026-09-11 |
@@ -418,6 +421,13 @@
   （`make check-fe` は eslint のみで検出しない・T-204 でも 1 件 → 2 回目）。P3: groupCode と candidateLabel の連結 / 原表記 blockquote に項目名なし / i18next 予約 `count` /
   判断 3 列の colSpan / ドロワー開時 contained≤1 の assert なし / キーワード検索が内部識別子にヒット。
 
+- [RV-040] T-401 1回目（Codex → Claude reviewer 独立・2026-09-13）: **DONE 可**。P1 0 / P2 0 / P3 4。AD-025 10/10 反映、04-db:681 の 3 定義と一致、保存 status と導出
+  `judgement` を別フィールド、純粋関数は SQLAlchemy/datetime/HTTP を import せず版外・不明 link を例外にせず inconsistent、Repository は書込 0・固定 5 クエリ・
+  `RecordRepository.version`/`active_confirmation` 借用、版分離を双方向の集合演算で固定、変異 9/9 を reviewer が再現、既存 backend の変更 0・migration 0。実測 598 passed。
+  指示書 §2 と dataclass が summary 10 / entries 13 / items 8 で完全一致（T-402 の DTO 化にそのまま使える）。P3: 不明 entry link で `hasSource=True` かつ
+  `sourceEntries=()`（Repository 経由では起きない）/ 版外 link が split と inconsistent の両方に入る / Service メソッド名がモジュール関数と同名 /
+  `inconsistentEntryIds` は entries の部分集合とは限らない → T-402 DTO 注記 or TODO-031。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -572,6 +582,8 @@
 - [LN-058] **FE の共有 fixture を `__tests__/` に置くと jest が suite として収集して「テスト 0 件」で落ちる。**`features/*/testing/` か `shared/testing/` に置く（CV-021 の FE 版）。
   i18next の `count` は複数形の予約キーなので件数の補間名に使わない。
 
+- [LN-059] **「空であるべき集合」は `== set()` で明示的に assert する。**件数 0 の assert を省くと検出ロジックを丸ごと無効化する変異が素通りする（T-401 の unmapped / orphan 変異）。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
@@ -618,6 +630,8 @@
 - [TODO-028] **実モデルのインベントリ status の使い方をプロンプトで是正**: run 8 は脚注 *1〜*3 を `split`、注記を `unmapped` にした（AE01 期待「除外 4・対応なし 0」と構造集計が
   ずれる）。脚注・注記は `excluded`＋basis（複数行に関わる根拠は excerpt に）へ寄せる指示を `SYSTEM_PROMPT` と `record_source_inventory` の description に（T-205 追補 L-9）。
 - [TODO-029] **`inventory_links` に `version_id`・複合 FK `(version_id, item_id)` が無い**（04-db:670-681）。版外 item への link は書込時検査のみ。複合 FK 追加は 04-db 変更＝設計判断（研修者）。
+- [TODO-031] **T-401 の記録のみ P3（RV-040）**: ①不明 entry link のとき `has_source=bool(source_entries)` に揃える ②版外 link が split と inconsistent の両方に入る意図をコメント
+  ③`InventoryService.reconcile` とモジュール関数 `reconcile` の同名（`reconcile_inventory` に改名）④T-402 の DTO 注記「`inconsistentEntryIds` は entries の部分集合とは限らない」。C-3 で。
 - [TODO-030] **T-303 の記録のみ P3（RV-039）**: ①`groupCode`+`candidateLabel` の区切り ②原表記 blockquote に項目名 ③i18next `count` → 非予約名 ④判断 3 列の見出しとセルの対応
   ⑤ドロワー開時 contained≤1 の assert ⑥キーワード検索の対象を表示値に限定・日時の書式（G5 で決める）。C-3（FE 分）で。
 - [TODO-027] **T-302 の記録のみ P3（RV-036）**: ①`tests/unit/test_api_path_separation_live.py` → `test_ui_route_presence.py` に改名（integration 側と basename 重複）
