@@ -147,21 +147,11 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 12:50・O-2 → T-402）
+## 7. 次にやること（2026-09-13 13:30・**G3 完了**・いまは T-402）
 
-- T-303 は reviewer **DONE 可**（RV-039。P2 2 / P3 6）。**タスク O-2 を先に**（FE のみ・小さい）。T-401 は中断せず区切りのよいところで O-2 を挟む
-- 完了見出し: `## O-2 対応（RV-039）`（t303-handoff）
-
-### タスク O-2: T-303 RV-039 の P2 2 件＋ゲート強化（CV-025 / CV-026）
-1. **P2-1** `features/versions/components/ItemTable.tsx:149-176`: 外径・単重（肉厚も同様）の列で、状態が `stated` 以外なら**状態ラベルを列に 1 回だけ**出す（長さ列 `:184-195` と同じ構造）。
-   RED: `components.test.tsx:474-489` と同型のテストを od / weight / wall に（`getAllByText("記載なし")` が列で 1）
-2. **P2-2** `npx prettier --write "src/**/*.{ts,tsx}"` を frontend で実行（差分は整形のみ・handoff に対象ファイル一覧）。**Makefile の `fe-lint` に `prettier --check "src/**/*.{ts,tsx}"` を追加**（CV-026。
-   `make check-fe` / `make check` が整形漏れを検出する）。既存の未整形（`features/documents/__tests__/hooks.test.tsx`）も同時に整形
-3. 完了条件: `AGENT_MODE=local_dummy DEBUG=false CI=true make check-fe` all green（prettier --check 含む）＋ design-lint 0。commit しない
-
-### タスク P: T-401 — **DONE**（RV-040・commit `949d043`）
-
-### タスク Q: T-402（`docs/t402-instructions.md`・AD-026）— **O-2 提出後、§7 更新を待たず着手してよい**（BE のみ・新規 2 ファイル＋共有 `dependencies.py`/`ui/router.py`/`test_api_path_separation_live.py`）。完了見出し `## 再レビュー依頼（T-402）`
+- T-303 は O-2 込みで **DONE**（RV-041・commit `6550e83`。G3 = T-301/302/303 完了）。T-401 DONE（`949d043`）
+- **いまはタスク Q（T-402、`docs/t402-instructions.md`・AD-026）**。完了見出し `## 再レビュー依頼（T-402）`。`make check` 可（Claude は pytest を回さない）
+- T-402 の後: タスク R（T-403 SCR-05 FE。指示書準備中）→ G5（T-501 BE）。§7 更新を待つ
 
 ### タスク L-8c: 依存の逆流を解消（RV-037 P2）
 - `RECOVERY_GRACE_S` を `app/domain/run_types.py` へ移し、`app/agent/definition.py` はそこから import して再公開（`from app.domain.run_types import RECOVERY_GRACE_S`）。
