@@ -147,12 +147,27 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 02:50・実評価 run 5 → **L-5 を最優先**、T-301 は中断継続）
+## 7. 次にやること（2026-09-13 03:50・実評価 run 7 → **L-6 を最優先**、T-301 は中断継続）
 
-- L-3 は reviewer **DONE 可**、L-4 は run 5 で実機確認済み（無応答誤判定は解消。L-4 のレビューは L-5 と合わせて行う）
-- **run 5 の結果**: モデルは `get_rules → list → read ×4 → record_case_header → propose_items(11 行・AE01 の期待どおり)` まで成功。次の `record_source_inventory` が
-  `E_REQUEST_INVALID` で **1 回目のツールエラーで runner が即 `failed/tool_rejected`**。設計（agent-plan 異常系 B・失敗条件② 3 回）に対し実装が厳しすぎる（AD-020）。
-  詳細: `docs/evaluations/g2-real-model-ae01-2026-09-13.md` 試行 3。完了合図: `docs/t205-handoff.md` 冒頭 `## L-5 対応（run 5）` ＋ `再レビュー依頼`
+- L-4 / L-5 は reviewer **DONE 可**（P2: `run_repository._has_records` の ORM 化が T-301 の `models/records.py` に依存 → **T-205 L-3〜L-5 と T-301 は同一コミット単位**とする。
+  Codex は T-301 再開時に handoff 冒頭へその旨を書く）
+- **run 7 の結果**（`docs/evaluations/g2-real-model-ae01-2026-09-13.md` 試行 5）: 生存信号は機能（201 秒の思考でも停止せず）、AD-020 の自己修復も機能。
+  しかし根拠 26 件・確認事項 6 件を **1 件ずつ登録して 40 ターンを使い切り** `max_turns`。加えて SM95TT の代替候補を別行にして 14 行（run 5 は 11 行で正）。
+  → **AD-021**（agent-plan「T-205 L-6 補足」・停止条件 80 ターンに改定済み）。完了合図: `docs/t205-handoff.md` 冒頭 `## L-6 対応（run 7）` ＋ `再レビュー依頼`
+
+### タスク L-6: 根拠・確認事項の一括登録、MAX_TURNS 80、プロンプト補強、無応答診断（AD-021）
+
+1. **一括登録**: `EvidenceArguments.evidences: list[EvidenceInput]`（1 件以上）/ `QuestionArguments.questions: list[QuestionInput]` に変更。保存は従来どおり 1 行ずつ
+   （同一トランザクション）、`observation.count` は件数。旧 `evidence:` / `question:` 単数キーは**受けない**（語彙を 2 つにしない。MCP schema と description を更新）。
+   `local_dummy_policy` と `evaluate_local_agent.py` の呼出しを配列に追従。ツール名・13 本・検証規則は不変
+2. **`definition.MAX_TURNS = 80`**（SSOT テスト・agent-plan と一致）。他の期限は不変
+3. **システムプロンプト**（`definition.SYSTEM_PROMPT`、agent-plan Part 1 の写しとして両方更新）に追記: ①材質・接続の代替候補は明細行にしない。`record_question`
+   に対象行つきで残す（R03/R04）②根拠・確認事項は項目を集めて配列で一括登録 ③`validate_draft` の違反はまとめて直してから再検証 ④`propose_items` は 1 回で全行
+4. **無応答診断**（TODO-021）: runner が `inactivity_timeout` / `inner_timeout` で停止するとき、`job_interrupted` の observation に `{"sinceLastHeartbeatS": n, "heartbeats": m}`
+   （数値のみ）を追加。既存の観測スキーマ（status/count/code）に**数値キーを足すだけ**、本文なし。04-db §3.2 補足に 1 行
+5. テスト: 配列 1 件/複数件/0 件（`E_REQUEST_INVALID`）/ 旧単数キー拒否 / count が件数 / dummy 方針の 14 ケース `make agent-eval` PASS / 診断メタの数値のみ /
+   `MAX_TURNS` SSOT。`test_agent_execution_tools` の期待を配列に更新（削除でなく置換。理由を handoff に）
+6. 完了条件: `AGENT_MODE=local_dummy DEBUG=false CI=true make check` all green（除外なし）＋ `make agent-eval` 14/14。commit しない。Claude は提出後に run 8
 
 ### タスク L-5: ツールエラーをモデルへ返して継続（AD-020・agent-plan:235 改定済み）
 

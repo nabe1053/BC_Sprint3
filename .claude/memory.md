@@ -90,6 +90,11 @@
   agent-plan 異常系 B・失敗条件②（3 回）が正で、T-203 節の「1 回で中断」はダミー方針時代の妥協。ツール結果には項目別の検証メッセージ（自分の引数に対するもののみ）を返す /
   影響範囲: runner・ToolExecutor の error 経路、agent-plan:235 改定済み、L-5。
 
+- [AD-021] **`record_evidence` / `record_question` を配列で一括登録可能にし、`MAX_TURNS` を 40 → 80 に**（2026-09-13 orchestrator 決定・D06 仮値更新）。理由: run 7 で
+  実モデルが根拠 26 件・確認事項 6 件を 1 件ずつ登録し 40 ターンを使い切った（563 秒）。ツール一覧 13 本・保存単位・検証規則は不変。あわせてシステムプロンプトに
+  「代替候補は行にせず確認事項へ（R03/R04）」「根拠・確認事項は一括登録」を明記（run 7 は SM95TT の代替候補を 2C/3C/8C の別行にして 14 行になった。run 5 は 11 行で正）/
+  影響範囲: agent-plan ツール一覧・停止条件・T-205 L-6 補足、`definition.MAX_TURNS`、`EvidenceArguments` / `QuestionArguments`。
+
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
@@ -491,8 +496,10 @@
   初版は編集不可（AD-018）。編集可にするなら `due`/`place` の値列（非 raw）を items に足す設計変更が要る。
 - [TODO-019] **T-501 の指示書に転記**: `review_checked` 版への訂正は `review_checked→staff_checked` の状態イベントを同一トランザクションで積む（05:438 / 04-db:775）。
   T-301 では未実装（G3 で到達不能。t301-instructions §0 ⑤）。
-- [TODO-020] **T-205 の記録のみ P3（RV-031）**: ①拒否記録を PreToolUse deny 時点に寄せて時系列を揃える ②実評価で `permission_denials` の実 JSON キー名を確認して固定
+- [TODO-020] **T-205 の記録のみ P3（RV-031）**: ①拒否記録を PreToolUse deny 時点に寄せて時系列を揃える ②（解消: キーは tool_name/tool_use_id/tool_input）
   ③`cwd` テストを「リポジトリルート配下でない」「実行後に削除済み」の assert に ④`bounded()` の heartbeat 分岐を stream 専用ラッパへ。実評価の観察結果と合わせて次ラウンド。
+- [TODO-021] **run 4/6 の `process_interrupted` 化は未再現**（61 秒で停止。run 7 は 201 秒の間隔でも停止せず）。L-6 で無応答発火時の診断メタデータ（直近の生存信号からの
+  秒数・受信数）を `job_interrupted` に残し、次の再発で「生存信号が来なかった」か「分類が崩れた」かを切り分ける。診断サーバ: scratchpad `diag_server.py`（jobs._execute をラップ）。
 - [TODO-001] D02（入力上限）は AD-003 の**仮値**。初版受入（X09 の上限試験）の前に研修者が実値を確定する。
   **確定時は `backend/app/core/config.py` と `frontend/src/shared/i18n/ja.json` の上限注記の両方を直す**（RV-024 P2-2。API が上限を返さないため画面側に複製がある）。
 - [TODO-002] **eml には `document_pages` が無い**ため、04-db.md の完了条件の機械判定
