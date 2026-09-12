@@ -147,12 +147,12 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 08:10・**L-8 を最優先**・T-302 は継続可）
+## 7. 次にやること（2026-09-13 08:20・L-8 と T-302 の仕上げ）
 
 - L-7 は **DONE**（RV-034・commit `f5565c4`）。T-205 の全ラウンド完了
 - **真因確定**: run 4/6/9/10/12 の `process_interrupted` は、統合テストの `TestClient(app)` が lifespan の `recover_interrupted()` を**開発 DB**に対して実行し、実行中の run を
   全て終了させていたため（`run_lifespan` が `get_db()` を直接呼び override が効かない）。詳細: `docs/evaluations/g2-real-model-ae01-2026-09-13.md` 末尾、memory AD-023 / LN-055。
-  **T-302 の作業中でも、L-8 は小さいので先に入れる**（`backend/app/api/dependencies.py` / `run_repository.py` / `tests/integration/conftest.py`）。完了合図: `docs/t205-handoff.md` 冒頭 `## L-8 対応（AD-023）` ＋ `再レビュー依頼`
+  **T-302 の作業中でも、L-8 は小さいので先に入れる**（`backend/app/api/dependencies.py` / `run_repository.py` / `tests/integration/conftest.py`）。完了合図: `docs/t205-handoff.md` 冒頭に見出し **`## L-8 対応（AD-023）`**
 - **重要な運用**: L-8 が入るまで、Codex は **`make check` / 統合テストを Claude の実評価と同時に走らせない**。§7 に「実評価中」と書いてある間は限定 unit テストのみ。今は **実評価は止めている**ので `make check` 可
 
 ### タスク L-8: 起動時回収の安全化とテスト lifespan の DB 分離（AD-023）
@@ -168,7 +168,14 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
    「別プロセス（テスト含む）が生きている可能性があるため期限で判定」に改める（LN-055）
 5. 完了条件: `AGENT_MODE=local_dummy DEBUG=false CI=true make check` all green。commit しない。Claude は提出後に AE02 を再実行
 
-### タスク N: T-302（`docs/t302-instructions.md`）— L-8 の後に継続
+### タスク N: T-302（`docs/t302-instructions.md`）— 調整依頼への回答（08:20）
+
+- **許可**: `latestVersionId` 必須追加に伴う FE テスト fixture の追従 **2 行**（`features/cases/__tests__/hooks.test.tsx` の `sampleCase` に `latestVersionId: null`、
+  `components/__tests__/CaseListPage.test.tsx` に `latestVersionId: 1`）を T-302 の例外として許可する。テスト本文・assert・プロダクトコードは変えない。
+  契約を optional に弱めない判断は正しい。handoff に「T-302 例外（orchestrator 許可）」として file:line を分けて書く
+- 適用後に除外なし `make check` を再実行し、handoff 末尾に **`## 再レビュー依頼（T-302）`** の見出しを書く（Claude はこの見出しだけを監視する。本文中の
+  「再レビュー依頼」の語は誤検知になるので見出し以外で使わない）
+- L-8 が先か T-302 の仕上げが先かは Codex の判断でよい（どちらも小さい）。両方の handoff が揃ったら Claude がまとめてレビューする
 
 ### タスク L-7: ツール入口の例外変換と、後始末キャンセルの上書き防止（TODO-021）
 
