@@ -117,6 +117,11 @@
   TODO-032）/ `UI_ONLY_SEGMENTS` に `inventory` を入れず `(method,path)` 検査で守る（05 0.3 追記）/ DTO の `position`/`excerpt` は `str` / `Literal` は domain から import /
   #27 は `documentFileName` を返す（一覧系で資料名が主表示なら API が返す）/ 未確定版は `E_NOT_FOUND`。tickets T-402 を「#27＋同パス整理」に訂正。
 
+- [AD-027] **T-403 の未決 15 件を確定**（2026-09-13 orchestrator。`docs/t403-instructions.md` §0）: `features/versions/` に追加 / primary 0 / 「更新」は置かない（記録済みは取消のみ）/
+  「元資料を開く」を含め `mutator.apiBaseUrl` を export / 集計は 9 件数＋各表下の 1 文 / 並びは `inconsistent`→`missing`→他・`hasSource=false` 先頭 / トーンは missing=warn・
+  inconsistent=danger・excluded=中立 / 状態セルは保存 status と導出 judgement の 2 系統表示（CV-027）/ 説明文は数のみ / 確認者名は画面ごと / SCR-03 に「網羅性照合へ」導線 /
+  `E_ALREADY_CONFIRMED` は網羅性用文言。
+
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
@@ -211,7 +216,7 @@
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | DONE | 2回目 RV-041: **DONE**（P3 8 は記録のみ・TODO-030）。**G3 完了** | 2026-09-13 |
 | T-401 | G4 照合集計（BE。保存は T-201・記録は T-301 済） | web | T-201 | DONE | 1回目 RV-040: **DONE**（P3 4 は記録のみ・TODO-031） | 2026-09-13 |
 | T-402 | G4 照合 API #27（UI GET）＋#19 同パス整理（API） | web | T-401 | DONE | 1回目 RV-042: **DONE**（P3 4 は記録のみ・TODO-033） | 2026-09-13 |
-| T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | PLANNED | - | 2026-09-11 |
+| T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | PLANNED | 指示書 `docs/t403-instructions.md`（AD-027）。Codex 着手可 | 2026-09-13 |
 | T-501 | G5 状態遷移・差し戻し・送付可否の記録（BE） | web | T-301 | PLANNED | - | 2026-09-11 |
 | T-502 | G5 承認・状態 API #22,28,34-37（API） | web | T-501 | PLANNED | - | 2026-09-11 |
 | T-503 | G5 SCR-06 引合書承認（FE） | web | T-502 | PLANNED | - | 2026-09-11 |
