@@ -1,3 +1,4 @@
+from tests.fixtures.draft_data import item, header
 from datetime import UTC, datetime
 from types import SimpleNamespace as N
 from unittest.mock import AsyncMock
@@ -12,40 +13,6 @@ from app.api.dependencies import get_draft_service
 from app.api.errors import ApiError, api_error_handler
 from app.domain.draft_errors import DraftError
 from app.services.draft_validation import ValidationResult, Violation
-
-
-def item():
-    return dict(
-        rowCode="1",
-        sourceNo="1",
-        seq=1,
-        kind="casing",
-        kindRaw="CSG",
-        odState="not_stated",
-        wallState="not_stated",
-        weightState="not_stated",
-        gradeRaw="記載なし",
-        gradeState="not_stated",
-        connectionState="not_stated",
-        lengthState="not_stated",
-        qtyState="numeric",
-        qtyValue="150",
-        qtyUnit="MT",
-        qtyRaw="150 MT",
-        dueState="not_stated",
-        placeState="not_stated",
-    )
-
-
-def header():
-    return dict(
-        inquiryNoState="not_stated",
-        customerNameState="not_stated",
-        dueState="not_stated",
-        placeState="not_stated",
-        incotermsState="not_stated",
-        quoteDeadlineTzState="missing",
-    )
 
 
 @pytest.fixture

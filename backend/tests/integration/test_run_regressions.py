@@ -9,7 +9,7 @@ from app.domain.draft_errors import DraftError
 from app.domain.run_types import RunResult
 from app.repositories.run_repository import RunRepository
 from app.services.exceptions import DomainError
-from tests.integration.test_runs import service
+from tests.fixtures.run_support import service
 
 
 async def test_definition_defaults_reach_reserved_run(session, seeded, monkeypatch):
@@ -140,7 +140,7 @@ def test_validation_code_comes_from_type_not_message_or_field():
 def test_schema_errors_carry_business_codes():
     from pydantic import ValidationError
     from app.api.common.schemas.drafts import ItemRequest
-    from tests.unit.test_draft_write_api import item
+    from tests.fixtures.draft_data import item
 
     data = item()
     data.pop("odState")
@@ -177,7 +177,7 @@ async def test_current_rule_alias_selects_marked_current(session, seeded):
 def test_nested_end_business_error_keeps_typed_code():
     from pydantic import ValidationError
     from app.api.common.schemas.drafts import ItemRequest
-    from tests.unit.test_draft_write_api import item
+    from tests.fixtures.draft_data import item
 
     with pytest.raises(ValidationError) as exc:
         ItemRequest.model_validate(
@@ -245,14 +245,8 @@ async def test_noncooperative_terminal_callback_cannot_remove_time_bound(monkeyp
         await asyncio.gather(*calls)
 
 
-def test_actual_application_path_separation_under_isolated_settings():
-    import runpy
-    from pathlib import Path
+def test_run_endpoints_are_in_ui_only_route_contract():
+    from tests.fixtures.route_contract import UI_ONLY_SEGMENTS
 
-    tests = runpy.run_path(
-        str(Path(__file__).resolve().parents[1] / "unit/test_api_path_separation.py")
-    )
-    assert "agent-runs" in tests["UI_ONLY_SEGMENTS"]
-    for name, check in tests.items():
-        if name.startswith("test_"):
-            check()
+    # The generic path tests are collected once from unit/test_api_path_separation.py.
+    assert "agent-runs" in UI_ONLY_SEGMENTS

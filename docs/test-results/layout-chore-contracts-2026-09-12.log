@@ -1,0 +1,7 @@
+RED: gate order, synthetic recipes only; no DB/pytest commands executed
+GREEN: gate order, synthetic recipes only; no DB/pytest commands executed
+RED: gate env, synthetic recipes only; no DB/pytest commands executed
+GREEN: gate env, synthetic recipes only; no DB/pytest commands executed
+RED: missing environment guidance, all 4 keys; no connection attempts
+GREEN: missing environment guidance, all 4 keys; no connection attempts
+PASS gate contracts: inherited parallelism serialized, index environment target-only, friendly missing-environment failure

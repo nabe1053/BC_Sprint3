@@ -1,5 +1,6 @@
 """The public make gate must fail before pytest can hide a missing live index."""
 from pathlib import Path
+import os
 import subprocess
 
 
@@ -24,6 +25,7 @@ def test_missing_live_index_blocks_backend_gate_before_pytest(tmp_path):
         cwd=root,
         capture_output=True,
         text=True,
+        env={**os.environ, "MAKEFLAGS": "-j8"},
     )
     assert result.returncode != 0, result.stdout
     assert "synthetic-index-missing" in result.stdout

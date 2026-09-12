@@ -10,15 +10,13 @@
 # lifespan で app 本体のエンジン（settings.DATABASE_URL = octg_db）に触るため、
 # 開発 DB のスキーマが古いと tests/integration が全滅する（LN-017）。
 
+.NOTPARALLEL:
+
 BACKEND  := backend
 FRONTEND := frontend
 DB_CONTAINER ?= octg_postgres
 DB_USER ?= postgres
 DEV_DATABASE ?= octg_db
-export INDEX_CONTAINER = $(DB_CONTAINER)
-export INDEX_USER = $(DB_USER)
-export INDEX_DEV_DATABASE = $(DEV_DATABASE)
-export INDEX_TEST_URL = $(TEST_DB)
 TEST_DB  := postgresql+psycopg://postgres:postgres@localhost:5432/octg_test
 
 .PHONY: check check-be check-fe db migrate be-lint be-test openapi orval fe-type fe-test fe-lint help
@@ -76,6 +74,10 @@ fe-lint: ## eslint
 fe-test: ## jest
 	@cd $(FRONTEND) && npm run test
 
+check-run-step-index: export INDEX_CONTAINER = $(DB_CONTAINER)
+check-run-step-index: export INDEX_USER = $(DB_USER)
+check-run-step-index: export INDEX_DEV_DATABASE = $(DEV_DATABASE)
+check-run-step-index: export INDEX_TEST_URL = $(TEST_DB)
 check-run-step-index: ## 両 DB の実スキーマで走査索引を読取専用検証
 	@cd $(BACKEND) && uv run python -B scripts/check_scan_index.py --index-only
 

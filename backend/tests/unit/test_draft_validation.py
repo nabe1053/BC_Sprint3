@@ -1,62 +1,9 @@
+from tests.fixtures.draft_data import snapshot
 from types import SimpleNamespace as N
 
 import pytest
 
 from app.services.draft_validation import validate_snapshot
-
-
-def snapshot():
-    return N(
-        items=[
-            N(
-                id=1,
-                source_no="1",
-                group_code=None,
-                od_value=None,
-                wall_value=None,
-                weight_value=None,
-                length_value=None,
-                qty_value=150,
-                qty_unit="MT",
-                kind="casing",
-                grade=None,
-                connection=None,
-                range_class=None,
-                due_raw=None,
-                place_raw=None,
-                usage_note=None,
-                qty_reference_note=None,
-                note=None,
-            )
-        ],
-        header=N(
-            inquiry_no=None,
-            customer_name=None,
-            due_raw=None,
-            place_raw=None,
-            incoterms=None,
-            quote_deadline_raw=None,
-        ),
-        evidences=[
-            N(
-                item_id=1,
-                field=f,
-                document_id=1,
-                locator="p.1",
-                quote="original",
-                raw_value="original",
-                adopted_value="original",
-            )
-            for f in ("kind", "qty")
-        ],
-        questions=[],
-        inventory=[N(id=1, status="mapped", basis=None)],
-        readable_ranges={(1, "p.1")},
-        scanned_ranges={(1, "p.1")},
-        excused_ranges=set(),
-        has_issues=False,
-        ends=[],
-    )
 
 
 def kinds(s):

@@ -1,3 +1,4 @@
+from tests.fixtures.run_support import repo, service
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock
 import asyncio
@@ -10,20 +11,6 @@ from app.agent.definition import default_run_limits
 from app.repositories.run_repository import RunRepository
 from app.services.run_service import RunService
 from app.agent.jobs import start_agent_job
-
-
-def repo(session):
-    return RunRepository(session, file_size=lambda doc: 10)
-
-
-def service(repository, scheduler=None, external=False):
-    return RunService(
-        repository,
-        limits=default_run_limits(),
-        input_limits=InputLimits(),
-        scheduler=scheduler or (lambda run: None),
-        external=external,
-    )
 
 
 async def test_start_reserves_same_rule_run_and_version_without_copy(session, seeded):
@@ -282,7 +269,7 @@ async def test_job_cancel_records_terminal_result():
 
 async def test_terminal_run_rejects_late_worker_writes(session, seeded):
     from app.domain.draft_types import HeaderInput
-    from tests.unit.test_draft_write_api import header
+    from tests.fixtures.draft_data import header
 
     case, _, _ = seeded
     r = repo(session)

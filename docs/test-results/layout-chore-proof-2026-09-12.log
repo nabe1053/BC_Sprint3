@@ -1,0 +1,9 @@
+PASS test-function name set: 290 == 290 (one instructed rename normalized)
+PASS assertions: 611 == 611; all expressions identical after shared constant reference normalization
+PASS other 288 test functions: AST bodies identical excluding imports; instructed make-env/runpy changes are the only two residuals
+PASS 9 extracted builders/compiler functions: AST identical
+PASS route contract constant: unchanged; generic route tests collected once, no runpy test-module execution
+PASS shared SQLite metadata loop: identical after extraction parameter substitution
+PASS script rename: AST unchanged; FE recovery tests identical except same-feature import/mock paths
+Saved complete old/new AST diff excluding imports (relocations and instructed changes): /tmp/layout-chore-without-imports.diff
+Protected source differences since snapshot: ['docs/requirements/02-requirement.md', 'docs/requirements/agent-plan.md', '.claude/memory.md']

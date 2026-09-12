@@ -5,7 +5,7 @@
     #9 POST /api/v1/agent/documents/{documentId}/issues
 
 これらは AGENT 区分であり、/ui/* には存在しないこと自体も E 節
-（tests/integration/test_api_path_separation_t102.py）で検査する。ここでは
+（tests/integration/test_api_path_separation_live.py）で検査する。ここでは
 入出力契約（エラーの意味論）を検証する。
 
 期待するレスポンス契約（仮決め）:

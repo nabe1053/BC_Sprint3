@@ -17,12 +17,11 @@ from fastapi.testclient import TestClient
 from app.core.database import get_db
 from app.main import app
 from datetime import UTC, datetime
-from sqlalchemy import BigInteger, create_engine
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.ext.compiler import compiles
+from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from app.core import database
 from app.models import Case, RuleSet, Document, DocumentPage
+from tests.fixtures.sqlite_support import configure_sqlite_metadata
 
 
 @pytest.fixture
@@ -42,16 +41,6 @@ def client(db_session) -> Iterator[TestClient]:
 
 # SQLite repository fixtures shared by draft/run integration tests.
 # Normal pytest collection uses the real Base; no sys.modules settings/DB stubs.
-@compiles(BigInteger, "sqlite")
-def bigint_sqlite(element, compiler, **kw):
-    return "INTEGER"
-
-
-@compiles(JSONB, "sqlite")
-def jsonb_sqlite(element, compiler, **kw):
-    return "JSON"
-
-
 class AsyncTestSession:
     """Run repository SQL against a fresh in-memory database."""
 
@@ -88,18 +77,14 @@ def session():
     engine = create_engine("sqlite://")
     with engine.connect() as conn:
         conn.exec_driver_sql("PRAGMA foreign_keys=ON")
-    for table in database.Base.metadata.tables.values():
-        for index in table.indexes:
-            condition = index.dialect_options["postgresql"].get("where")
-            if condition is not None:
-                index.dialect_options["sqlite"]["where"] = condition
+    configure_sqlite_metadata(database.Base.metadata)
     database.Base.metadata.create_all(engine)
     with Session(engine, expire_on_commit=False) as sync:
         yield AsyncTestSession(sync)
     engine.dispose()
 
 
-class TestConnection:
+class SyncConnectionAdapter:
     def __init__(self, connection):
         self.connection = connection
 
@@ -107,16 +92,16 @@ class TestConnection:
         return callback(self.connection)
 
 
-async def test_connection(self):
-    return TestConnection(self.sync.connection())
+async def _connection(self):
+    return SyncConnectionAdapter(self.sync.connection())
 
 
-AsyncTestSession.connection = test_connection
+AsyncTestSession.connection = _connection
 
 
 @pytest.fixture
 async def seeded(session):
-    case = Case(case_code="T202")
+    case = Case(case_code="SEED-CASE")
     rule = RuleSet(rule_version="active", rules={}, is_current=True)
     session.add_all([case, rule])
     await session.flush()

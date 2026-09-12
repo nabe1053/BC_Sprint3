@@ -1,3 +1,4 @@
+from tests.fixtures.draft_data import item_data, header_data
 from copy import deepcopy
 from decimal import Decimal
 
@@ -11,44 +12,6 @@ from app.domain.draft_types import (
     QuestionInput,
     InventoryInput,
 )
-
-
-def item_data():
-    return dict(
-        row_code="1",
-        source_no="1",
-        seq=1,
-        kind="casing",
-        kind_raw="CSG",
-        od_state="stated",
-        od_value="13.375",
-        od_unit="in",
-        od_raw='13-3/8"',
-        wall_state="not_stated",
-        weight_state="not_stated",
-        grade="K55",
-        grade_raw="K55",
-        grade_state="stated",
-        connection_state="tba",
-        length_state="not_stated",
-        qty_state="numeric",
-        qty_value="150",
-        qty_unit="MT",
-        qty_raw="150 MT",
-        due_state="not_stated",
-        place_state="not_stated",
-    )
-
-
-def header_data():
-    return dict(
-        inquiry_no_state="not_stated",
-        customer_name_state="not_stated",
-        due_state="not_stated",
-        place_state="not_stated",
-        incoterms_state="not_stated",
-        quote_deadline_tz_state="missing",
-    )
 
 
 def test_exact_decimal_and_no_implicit_values():

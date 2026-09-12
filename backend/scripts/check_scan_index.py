@@ -20,12 +20,15 @@ from sqlalchemy.engine import make_url
 def connection_targets():
     # Makefile owns local Docker targets; parse the existing TEST_DB URL without
     # logging its credentials or importing application settings.
-    return (
-        os.environ["INDEX_CONTAINER"],
-        os.environ["INDEX_USER"],
-        os.environ["INDEX_DEV_DATABASE"],
-        make_url(os.environ["INDEX_TEST_URL"]).database,
-    )
+    try:
+        return (
+            os.environ["INDEX_CONTAINER"],
+            os.environ["INDEX_USER"],
+            os.environ["INDEX_DEV_DATABASE"],
+            make_url(os.environ["INDEX_TEST_URL"]).database,
+        )
+    except KeyError:
+        raise SystemExit("make check-run-step-index から実行してください") from None
 
 
 def expect_failure(statement, condition):

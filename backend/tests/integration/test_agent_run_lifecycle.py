@@ -12,8 +12,8 @@ from app.domain.run_types import RunResult
 from app.services.draft_service import DraftService
 from app.repositories.run_background import RunBackground
 from app.agent.jobs import start_agent_job
-from tests.integration.test_runs import repo, service
-from tests.unit.test_draft_write_api import item, header
+from tests.fixtures.run_support import repo, service
+from tests.fixtures.draft_data import item, header
 
 
 async def test_real_api_job_finalize_and_trace_round_trip(session, seeded, tmp_path):

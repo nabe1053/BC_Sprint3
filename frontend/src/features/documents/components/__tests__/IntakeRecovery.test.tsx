@@ -1,10 +1,10 @@
 import { screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { renderWithProviders } from "@/shared/testing/test-utils";
-import { IntakePage } from "@/features/documents";
+import { IntakePage } from "../IntakePage";
 
 jest.mock("@/features/cases", () => ({ CaseMetadata: () => null }));
-jest.mock("@/features/documents/hooks", () => ({
+jest.mock("../../hooks", () => ({
   useDocuments: () => ({
     data: [
       {

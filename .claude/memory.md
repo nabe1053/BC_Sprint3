@@ -141,7 +141,7 @@
 | T-202 | G2 エージェント書込 API #15-21 / 起動・監視 #12-14（API・jobs 経由） | web | T-201 | DONE | 5回目 RV-018: **DONE 可**（P3 6 は記録のみ） | 2026-09-12 |
 | C-1 | チケット名ファイルの正規配置への移動（振る舞い不変） | chore | T-202 | DONE | 1回目 RV-026: **DONE**（P3 8 は記録のみ・TODO-012） | 2026-09-12 |
 | T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202, C-1 | DONE | 2回目 RV-022: **DONE**（P3 5 は記録のみ・TODO-009。C-1 は未完のまま） | 2026-09-12 |
-| C-2 | 記録のみ P3 の整理 chore（TODO-010/012、backend/app 非接触分） | chore | C-1, T-204 | FIXING | 1回目 RV-029: **DONE 可（条件付き）** P2 1（`test_regression_gate` の `MAKEFLAGS` 中和）+ P3 4 | 2026-09-12 |
+| C-2 | 記録のみ P3 の整理 chore（TODO-010/012、backend/app 非接触分） | chore | C-1, T-204 | DONE | 2回目: RV-029 P2-1（`MAKEFLAGS=-j8`）を確認して DONE。残 P3 は TODO-012 ⑦・TODO-017 | 2026-09-12 |
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | DONE | 2回目 RV-028: **DONE**（P3 1 は記録のみ・TODO-012 へ） | 2026-09-12 |
 | T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | PLANNED | Codex は C-2 の後に着手（CODEX-INSTRUCTIONS §7 タスク L） | 2026-09-12 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
@@ -410,13 +410,13 @@
   ②`permissionDecisionReason` は説明文にしコードは別キー（実モデル接続時に必須）③進捗更新ごとの完全 `snapshot()` を軽量化（S05 実測時に N06 と突き合わせ）
   ④`test_agent_guardrails` の URL 拒否テストを `search_documents.query` に寄せる ⑤既定ダミーでは同一違反3回の自己修復ループが未稼働
   （実モデル接続時に方針側で実装）⑥`read_email` の `email:*` 全走査は「返した」と「解釈した」を区別しない。改修スライスとして積む時期は T-204 後。
-- [TODO-010] **T-201 の記録のみ P3（RV-023）**: Makefile に `.NOTPARALLEL:`（`-j` 継承でゲート順序が崩れる）/ `INDEX_TEST_URL` を target-specific export に /
+- [TODO-010]（解消: C-2 RV-029 で全項目クローズ）**T-201 の記録のみ P3（RV-023）**: Makefile に `.NOTPARALLEL:`（`-j` 継承でゲート順序が崩れる）/ `INDEX_TEST_URL` を target-specific export に /
   `export` 行を `TEST_DB :=` の後ろへ / `check_t201_postgres.py` を make 外から叩いたときの KeyError を案内メッセージに / 同一索引の定義が
   t201_artifacts と add_run_step_locator_index の2リビジョンにある事実（意図的・LN-025）。C-1 と同時に整理。
 - [TODO-011] **T-103 の記録のみ P3（RV-024）**: ①`shared/api/unwrap.ts` の `E_UNEXPECTED_RESPONSE` は 05-api-ipo §6 のコード一覧外（クライアント合成コード）。
   05 §6 に「クライアント合成コード」節を設けるか接頭辞で区別する（orchestrator 判断）②SCR-02 のファイル選択が素の `<input type="file">` で
   ブラウザ既定の英語 UI が出る → T-204 の SCR-02 改修と同時に `Button component="label"` 化。
-- [TODO-012] **C-1 の記録のみ P3（RV-026）**: ①`scripts/check_t202_postgres.py` → `check_run_metadata.py`、`tests/integration/test_api_path_separation_t102.py` →
+- [TODO-012]（①〜⑥⑧解消: C-2 RV-029。⑦は残）**C-1 の記録のみ P3（RV-026）**: ①`scripts/check_t202_postgres.py` → `check_run_metadata.py`、`tests/integration/test_api_path_separation_t102.py` →
   `..._live.py`（CV-017 残存）②SQLite `@compiles` と共有 metadata 書換を `tests/fixtures/sqlite_support.py` へ切り出しコメント明示 ③conftest の
   `TestConnection` / `test_connection` を `SyncConnectionAdapter` / `_connection` に ④integration→unit のテスト間 import を `tests/fixtures/` のビルダへ（CV-021）
   ⑤`test_actual_application_path_separation_under_isolated_settings` の改名と `runpy` 二重実行の解消 ⑥seeded の `case_code="T202"` → `"SEED-CASE"`
@@ -427,8 +427,10 @@
 - [TODO-014] 数量 TBA の確認事項 `questions.category` が `unknown`（G2 ミニ評価）。04-db.md の語彙と照合し適切な区分があれば `local_policy.py` で割り当てる。
 - [TODO-015]（解消: AD-016 で D05 承認・T-205 を起票）**Phase 3 の本評価（sample-01〜10・AE01〜AE07）は実モデル接続（D05 承認）が前提。**ローカルダミーは 1 行明細形式のみ対応。
   D05 の承認（送信先・送信範囲・保存条件）を研修者が判断するまで、Phase 3 は「型の確認」（ミニ評価）に留まる。**研修者判断待ち**。
-- [TODO-016] **`ANTHROPIC_API_KEY` を `backend/.env` に投入する（研修者作業）。**未設定のため T-205 完了後も実モデル実行は 503 になる。
+- [TODO-016] **`ANTHROPIC_API_KEY` を `backend/.env` に投入する（研修者作業）。**2026-09-12 23:55 時点で `backend/.env` の該当行は `#` でコメントアウトされたまま（値は未確認）。
   投入後に Claude が sample-06（AE01）を 1 本通す（AD-016）。
+- [TODO-017] **C-2 の記録のみ P3（RV-029）**: `test_run_endpoints_are_in_ui_only_route_contract` を `tests/unit/` へ / `app/api/common/endpoints_reference.py:6` docstring の
+  旧テスト名 → `test_api_path_separation_live.py` / ログの絶対パス。TODO-009 と同じ「`backend/app` を触る整理」ラウンドで。
 - [TODO-001] D02（入力上限）は AD-003 の**仮値**。初版受入（X09 の上限試験）の前に研修者が実値を確定する。
   **確定時は `backend/app/core/config.py` と `frontend/src/shared/i18n/ja.json` の上限注記の両方を直す**（RV-024 P2-2。API が上限を返さないため画面側に複製がある）。
 - [TODO-002] **eml には `document_pages` が無い**ため、04-db.md の完了条件の機械判定
