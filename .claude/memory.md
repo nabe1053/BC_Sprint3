@@ -127,6 +127,9 @@
   統合し、隔離を残したまま DONE にしない**（残すと後続がゲートの外側で緑になる。CV-016 の実装面。C-1 RV-026）。
 - [CV-021] **テストモジュール同士を import しない。**共有ビルダ・fixture は `tests/fixtures/` に置く。integration → unit のテスト間依存はテストの層を壊す（RV-026 P3-4）。
 
+- [CV-022] **規約ファイル（CLAUDE.md / `.claude/rules/`）を機械置換して別エージェント用の複製を作らない。**AGENTS.md 等は原典への参照 1 枚に留める。
+  複製は原典と乖離し、「memory の編集者は誰か」のような単一真実源の根幹が静かに反転する（C-2 RV-029）。
+
 ## 3. 実装バックログ（プラン状態＝ループの制御表）
 
 | ID | スライス | 種別 | 依存 | Status | レビュー | 最終更新 |
@@ -138,7 +141,7 @@
 | T-202 | G2 エージェント書込 API #15-21 / 起動・監視 #12-14（API・jobs 経由） | web | T-201 | DONE | 5回目 RV-018: **DONE 可**（P3 6 は記録のみ） | 2026-09-12 |
 | C-1 | チケット名ファイルの正規配置への移動（振る舞い不変） | chore | T-202 | DONE | 1回目 RV-026: **DONE**（P3 8 は記録のみ・TODO-012） | 2026-09-12 |
 | T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202, C-1 | DONE | 2回目 RV-022: **DONE**（P3 5 は記録のみ・TODO-009。C-1 は未完のまま） | 2026-09-12 |
-| C-2 | 記録のみ P3 の整理 chore（TODO-010/012、backend/app 非接触分） | chore | C-1, T-204 | IMPLEMENTING | Codex 着手指示（CODEX-INSTRUCTIONS §7 タスク K） | 2026-09-12 |
+| C-2 | 記録のみ P3 の整理 chore（TODO-010/012、backend/app 非接触分） | chore | C-1, T-204 | FIXING | 1回目 RV-029: **DONE 可（条件付き）** P2 1（`test_regression_gate` の `MAKEFLAGS` 中和）+ P3 4 | 2026-09-12 |
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | DONE | 2回目 RV-028: **DONE**（P3 1 は記録のみ・TODO-012 へ） | 2026-09-12 |
 | T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | PLANNED | Codex は C-2 の後に着手（CODEX-INSTRUCTIONS §7 タスク L） | 2026-09-12 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
@@ -291,6 +294,13 @@
   実測 typecheck 0 / lint 0 / jest 166 passed / design-lint 0 / BE 無変更。P3-6: `agent-runs/components/__tests__/IntakeRecovery.test.tsx` が documents の
   IntakePage を描画し内部パスを mock（本番の依存方向は正）→ C-2 で置き場を整理（TODO-012 ⑧）。
 
+- [RV-029] C-2 1回目（Codex → Claude reviewer 独立・2026-09-12）: **DONE 可（条件付き）**。P1 0 / P2 1 / P3 4。3 点証明を AST で再現（関数名 290→290・assert 611→611・
+  変化した定義 6 個はすべて指示どおり）。TODO-010 全項目・TODO-012 ①〜⑥⑧クローズ。`.NOTPARALLEL:` の実効性をプローブで確認。
+  P2-1: `test_regression_gate.py:28` が子 make の `MAKEFLAGS` を空にしたため `.NOTPARALLEL:` を消してもテストが通る（回帰ガード喪失）→ `"-j8"` を明示。
+  P3: route-contract テストの置き場（unit が適切）/ TODO-012 ⑦未実施 / `endpoints_reference.py` docstring の旧名 / ログに絶対パス。
+  未追跡 `AGENTS.md` `.agents/` `.codex/`（23:02 生成・handoff 未記載）は CLAUDE.md の機械置換で **memory 編集者が反転する等の致命的誤り** → orchestrator が
+  AGENTS.md を参照 1 枚に置換し `.agents/` `.codex/` を .gitignore（CV-022）。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -383,6 +393,12 @@
 
 - [LN-037] **「行き止まり状態」を作る UI は、解除操作をネットワーク非依存のローカルリセットとして置き、リセット後の再操作がサーバー判定（409 等）に
   落ちることまでテストで固定する**（T-204 `resetState`）。派生表示（作成後通知）は「直前の操作」でなく**対象 run の id に紐付けて**保持する。
+
+- [LN-038] **commit 前に `git diff --cached --stat` を見る。**Codex が `git mv` した rename は index に入るため、orchestrator が docs だけを `git add` して commit しても
+  混入する（`5e132f1` に C-2 の rename 3 件が入った）。並行セッションがある間は、commit 直前に index の内容を必ず確認する。
+
+- [LN-039] **テストを決定的にするための環境変数の中和は、守りたい故障モードを消していないか確認する。**`MAKEFLAGS=""` は決定性を得た代わりに
+  `.NOTPARALLEL:` の回帰ガードを失った。中和でなく固定（`-j8` を明示）が正解（RV-029 P2-1）。
 
 ## 6. 未解決 / BLOCKED / TODO
 

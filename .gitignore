@@ -39,3 +39,7 @@ Thumbs.db
 
 # WSL のダウンロード由来メタデータ
 *:Zone.Identifier
+
+# Codex 用のローカルミラー（規約の正は CLAUDE.md / .claude/。複製をコミットしない）
+.agents/
+.codex/

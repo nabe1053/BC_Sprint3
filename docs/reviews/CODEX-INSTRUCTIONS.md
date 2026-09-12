@@ -147,34 +147,22 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-12 23:30・T-204 DONE・ミニ評価合格・D05 承認）
+## 7. 次にやること（2026-09-12 23:50・C-2 1回目レビュー後）
 
-- **T-204 → DONE**（memory RV-028、commit `58f79f0`）。G1 全部・G2 全部・C-1 が閉じた
-- **Claude が G2 ミニ評価を実施中**（実ジョブ 1 本を起動しトレースを agent-plan.md と突き合わせ。`backend/app/**` と DB は Claude が触っている）。
-  その間 Codex は **タスク K（C-2）** の「サーバー非依存の項目」だけ進める。**`backend/app/` 配下は触らない**（ミニ評価の対象が動いているため）
-- 完了合図: handoff 見出し `## C-2（タスク K）` ＋ 末尾 `再レビュー依頼`。ファイルは `docs/c2-handoff.md`
+- **C-2 → DONE 可（条件付き）**（memory RV-029。P2 1 のみ）。**下記タスク K-2（1 行）を直して handoff に `RV-029 対応` を追記 → DONE**。
+  Claude が commit したら §7 を更新するので、K-2 の後は**そのまま続けてタスク L（T-205）に着手してよい**（§7 更新を待たない。設計は agent-plan.md で確定済み）
+- **禁止**: `CLAUDE.md` / `.claude/` を機械置換した複製（`AGENTS.md` の本文コピー・`.agents/` `.codex/` の生成）を作らない（memory CV-022）。
+  `AGENTS.md` は Claude が参照 1 枚に置換済み。`.agents/` `.codex/` は .gitignore 済み（ローカル利用は可）。**再生成しない**
 
-### タスク K: C-2 整理 chore（記録のみ P3 のまとめ。振る舞い不変）
+### タスク K-2: C-2 の DONE 条件（1 行）
 
-対象は memory TODO-010 / TODO-012 のうち **`backend/app/` を触らないもの**（TODO-009 と TODO-011 ① は次ラウンド）:
-1. Makefile: `.NOTPARALLEL:` を追加（`-j` 継承でゲート順序が崩れる。RV-023）/ `INDEX_TEST_URL` 等を target-specific export に /
-   `export` 行を `TEST_DB :=` の後ろへ。`test_regression_gate.py` の make 起動は `MAKEFLAGS` を空にして呼ぶ
-2. `scripts/check_scan_index.py`: 環境変数欠落時の `KeyError` を「`make check-run-step-index` から実行してください」の `SystemExit` に
-3. リネーム（`git mv`・CV-017）: `scripts/check_t202_postgres.py` → `check_run_metadata.py`、
-   `tests/integration/test_api_path_separation_t102.py` → `test_api_path_separation_live.py`。参照追従（Makefile・docs は履歴のまま）
-4. `tests/integration/conftest.py`: SQLite `@compiles` と共有 metadata 書換を `tests/fixtures/sqlite_support.py` に切り出しコメント明示 /
-   `TestConnection` → `SyncConnectionAdapter`、`test_connection` → `_connection` / seeded の `case_code="T202"` → `"SEED-CASE"`
-5. テスト間 import の解消（CV-021）: `integration/test_agent_run_lifecycle.py` `integration/test_draft_repository.py` が `tests.unit.*` から取る
-   ビルダ（`item` / `header` / `item_data` / `header_data`）を `tests/fixtures/` へ移す。`test_actual_application_path_separation_under_isolated_settings`
-   の改名と `runpy` 二重実行の解消
-6. FE: `features/agent-runs/components/__tests__/IntakeRecovery.test.tsx` → `features/documents/components/__tests__/` へ（RV-028 P3-6。
-   `@/features/documents/hooks` の深い mock は index 経由か同 feature 内からの参照に）
-7. 完了条件: **振る舞い不変の 3 点証明**（import 行を除く旧新 diff・テスト関数名の集合・assert 総数が一致。LN-032）＋
-   `DEBUG=false CI=true make check` all green（BE 404 / FE 166）＋ `docs/c2-handoff.md`。commit しない。
-   **注意**: `make check` は Claude のミニ評価と DB（octg_test）を共有しない（開発 DB は octg_db）が、pytest の同時実行は避ける（LN-027）。
-   Claude が `backend/app` を触っている間に `make check-be` が失敗したら、再実行せず handoff に時刻と出力を書いて止まる
+- `backend/tests/unit/test_regression_gate.py:28`: 子 make の環境を `"MAKEFLAGS": ""` → `"MAKEFLAGS": "-j8"`。
+  理由: 空にすると `.NOTPARALLEL:` を消してもテストが通る（回帰ガード喪失）。`-j8` 固定なら決定性を保ちつつ `.NOTPARALLEL:` 削除で FAIL する
+  （reviewer がプローブで確認済み）。RED: `.NOTPARALLEL:` を一時的に外して FAIL を確認 → 戻して PASS
+- P3（記録のみ・任意）: `test_run_endpoints_are_in_ui_only_route_contract` を `tests/unit/` へ / TODO-012 ⑦の空 dir 削除（`rmdir` 相当、`__pycache__` のみ）
+- `DEBUG=false CI=true make check` all green → `docs/c2-handoff.md` 冒頭に `## RV-029 対応` を追記
 
-### C-2 の後 → タスク L: T-205 実モデル接続（**着手は §7 更新待ち。ただし設計は確定済みなので先読みしてよい**）
+### タスク L: T-205 実モデル接続（**K-2 の直後に着手。§7 更新を待たない**）
 
 設計の正: `docs/requirements/agent-plan.md` 末尾「T-205 実モデル接続（D05 承認）」。**この範囲を出ない**（判断役の差し替えのみ。ツール・hook・トレース・ジョブ・完了判定・期限は T-203 のまま）。
 1. `app/core/config.py`: `AGENT_MODE: Literal["local_dummy","claude"] = "local_dummy"`。`definition.py`: `MODEL_ID = "claude-sonnet-5"`（SSOT テストの対象に含める）
