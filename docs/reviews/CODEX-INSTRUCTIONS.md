@@ -147,11 +147,12 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 14:20・T-402 DONE・**T-403 へ**）
+## 7. 次にやること（2026-09-13 T-403 handoff 受領・**T-501 へ**）
 
-- T-402 は **DONE**（RV-042・commit `1d5eab7`）。G4 の BE/API 完了
-- **いまはタスク R（T-403、`docs/t403-instructions.md`・AD-027 の 15 決定）**。完了見出し `## 再レビュー依頼（T-403）`。`make check-fe`（prettier 込み）自由。Claude は pytest を回さない
-- T-403 の後: G5 T-501（BE。指示書準備中）。§7 更新を待つ
+- T-403 の handoff は受領済み・reviewer 中。指摘があれば `## 再レビュー依頼（T-403）` の下に「レビュー対応」節を足す形で対応（見出し `## 再レビュー依頼（T-403）` は本文の末尾に**再掲**する。LN-033）
+- **いまはタスク S（T-501、`docs/t501-instructions.md`・AD-028 の 18 決定。BE のみ・endpoint 無し）**。完了見出し `## 再レビュー依頼（T-501）`（`docs/t501-handoff.md`）。
+  `make check-be` 自由（Claude は pytest を回さない）。`frontend/` は触らない。T-403 の指摘対応と重なるときは、pytest と jest を同時に走らせない（LN-027）
+- T-501 の後: T-502（API #22,28,34-37。指示書準備中）。§7 更新を待つ
 
 ### タスク L-8c: 依存の逆流を解消（RV-037 P2）
 - `RECOVERY_GRACE_S` を `app/domain/run_types.py` へ移し、`app/agent/definition.py` はそこから import して再公開（`from app.domain.run_types import RECOVERY_GRACE_S`）。

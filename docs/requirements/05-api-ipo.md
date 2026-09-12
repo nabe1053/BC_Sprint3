@@ -462,8 +462,10 @@
 | 400 | 確認者名が空 | `E_RECORDER_REQUIRED` |
 | 409 | 未照合の行が残っている。**未照合の行IDを返す**（③SCR-03） | `E_STAFF_CHECK_INCOMPLETE` |
 | 409 | 網羅性確認が未記録 | `E_COVERAGE_NOT_RECORDED` |
-| 409 | 担当者確認前に評価確認済みへ進めようとした | `E_STATE_ORDER` |
+| 409 | 担当者確認前に評価確認済みへ進めようとした。**同一状態への再遷移**、および本 API での `review_checked → staff_checked`（戻す経路は 3.6 の訂正に付随するイベントのみ）も同コード（Build AD-028 ③） | `E_STATE_ORDER` |
 | 422 | `draft` への遷移を要求した | `E_STATE_ROLLBACK_FORBIDDEN` |
+
+> 検査順（Build AD-028 ②）: 確認者名 → `draft` 要求 → 順序 → 未照合 → 網羅性。`E_STAFF_CHECK_INCOMPLETE` の `details` は `unmatchedItemIds`（昇順）・`unmatchedRowCodes`（同順）・`coverageRecorded`（bool。③SCR-03 が未照合と網羅性未完了を同時に表示するため同乗）。
 
 > **未解決の確認事項が残っていてもエラーにしない。**遷移は可能で、`unresolvedCount` を記録に残す（②FUNC-07・FUNC-10）。「未解決だから止める」は要件ではない。
 
@@ -474,6 +476,14 @@
 - **必要権限**: `UI` ／ **対応テーブル**: `bounces` / `bounce_comments` ／ **フロー**: FLOW-06 step3
 - **スキーマ**: `schemas/bounce`
 
+#### リクエスト（Build AD-028 ⑥）
+
+| パラメータ | 必須 | 意味 |
+|-----------|------|------|
+| `recordedBy` | Yes | 判断者。空文字不可 |
+
+> 理由はリクエストで受けない。サーバが版の**未紐づけ行コメント**（#35・`bounce_id IS NULL`）を `(recordedAt, id)` 昇順に `"{rowCode}: {comment}"` を改行で連結して `bounces.reason` にし、同一トランザクションで各コメントに `bounce_id` を付与する（④§3.4）。
+
 #### レスポンス（エラー）
 
 | ステータス | 意味 | エラーコード |
@@ -481,6 +491,7 @@
 | 400 | 確認者名が空 | `E_RECORDER_REQUIRED` |
 | 409 | 行コメントが1件も無い。**理由の無い差し戻しを作らない** | `E_NO_BOUNCE_COMMENT` |
 | 409 | 状態が作成案（担当者の確認が未完了） | `E_STAFF_CHECK_INCOMPLETE` |
+| 409 | 状態が評価確認済み（差し戻せるのは担当者確認済みのみ。評価確認を取り消す経路が無く「差し戻し中」が意味を持たないため。Build AD-028 ⑤） | `E_STATE_ORDER` |
 
 > **`version_state_events` に行を作らない。**差し戻しは状態ではなく記録であり、評価状態は `staff_checked` のまま（②FUNC-10・X13）。
 
@@ -571,7 +582,7 @@
 | 30・32 | `POST .../undo` | 対象ID | 取消記録 | 409 `E_ALREADY_UNDONE` |
 | 31 | `POST /versions/{id}/confirmations` | 種別・行ID・確認者 | 確認記録 | 400 `E_RECORDER_REQUIRED` / 400 `E_TARGET_INVALID` / 409 `E_ALREADY_CONFIRMED`（**未取消の確認が既にある**・④`confirmations` の部分UNIQUE） |
 | 33 | `POST /versions/{id}/questions/{qid}/judgements` | 対応状況・解決状態・判断内容・判断者 | 判断記録 | 400 `E_RECORDER_REQUIRED` / 404 `E_NOT_FOUND`（**その版に属さない確認事項**・④原則2） |
-| 35 | `POST /versions/{id}/bounce-comments` | 行ID・コメント・確認者 | 行コメント | 400 `E_RECORDER_REQUIRED` |
+| 35 | `POST /versions/{id}/bounce-comments` | 行ID・コメント・確認者 | 行コメント | 400 `E_RECORDER_REQUIRED` / 400 `E_COMMENT_REQUIRED`（コメント空・Build AD-028 ⑰）/ 404 `E_NOT_FOUND`（その版に属さない行） |
 | 39 | `GET /versions/{id}/exports` | 版ID | 出力履歴・初回出力（`storage_path` / `content_hash` / 照合結果） | 404 |
 
 #### 22 の「引き継ぎ警告の材料」（③3章の警告文と1対1）
@@ -634,6 +645,7 @@
 | `E_STATE_ROLLBACK_FORBIDDEN` | 作成案へ戻そうとした | FUNC-10, X13 |
 | `E_NO_BOUNCE_COMMENT` | 理由の無い差し戻し | FUNC-10, ③SCR-06 |
 | `E_SENDOFF_REASON_REQUIRED` | 保留・承認に理由が無い | FUNC-10, ③SCR-06 |
+| `E_COMMENT_REQUIRED` | 行コメントが空（Build AD-028 ⑰） | FUNC-10, ③SCR-06 |
 
 > **`E_NO_CHANGE` は置かない。**「現在値と同じ訂正を拒否する」は 02 の要件ではなく（FUNC-08 が求めるのは理由・記録者の必須と旧値の保持）、追記型の方針（④0.2 原則1）とも競合する。単位や状態だけを変える訂正（`newValue` が同値で `newState` や単位が変わる）を誤って弾くため、要件由来でない制約を契約に置かない。
 > **エラーは業務ルールそのもの**である。上表の各行は 02 の制約・受入基準に1対1で対応しており、単体テストの根拠になる。

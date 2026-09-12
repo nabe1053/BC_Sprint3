@@ -121,6 +121,14 @@
   「元資料を開く」を含め `mutator.apiBaseUrl` を export / 集計は 9 件数＋各表下の 1 文 / 並びは `inconsistent`→`missing`→他・`hasSource=false` 先頭 / トーンは missing=warn・
   inconsistent=danger・excluded=中立 / 状態セルは保存 status と導出 judgement の 2 系統表示（CV-027）/ 説明文は数のみ / 確認者名は画面ごと / SCR-03 に「網羅性照合へ」導線 /
   `E_ALREADY_CONFIRMED` は網羅性用文言。
+- [AD-028] **T-501 の未決 18 件を確定**（2026-09-13 orchestrator。`docs/t501-instructions.md` §0。04-db §3.4 / 05 3.7〜3.8・#35・6 章 / 03-spec SCR-03・SCR-06 に書き戻し済み）:
+  `draft→staff_checked` は「未取消 row_match が全 items ∧ 未取消 coverage ≥1」の両方必須 / 検査順 recorder→draft 要求→順序→未照合(details に `coverageRecorded` 同乗)→網羅性 /
+  同一状態への再遷移と #34 経由の review→staff も `E_STATE_ORDER` / `review_checked` からの差し戻しは `E_STATE_ORDER` / #36 は `recordedBy` のみで理由は未紐づけ行コメントを
+  `"{row_code}: {comment}"` 改行連結 / `bounce_comments.bounce_id` の NULL→値 1 回 UPDATE を追記型の明示的例外に / #35・#37 は確定版なら任意状態で記録可 /
+  `review_checked` 版の訂正のみ review→staff イベントを同一 Tx で積む（undo/confirm/judge は積まない・TODO-034）/ 評価確認の記録は消さず UI がイベント比較で「再確認要」を導出 /
+  `from_state` に CHECK 2 本追加 / `current_state` の書込は `DraftRepository.complete` と `RecordRepository.save_state_event` の 2 箇所のみ（SSOT 検査）/ carryOver は #23 と同じ述語
+  （`_has_records` は C-3 で一本化）/ `ApprovalService` 新設・Repository は `RecordRepository` 拡張 / `unresolved_count` は純粋関数を `summary` と共有 / 「差し戻し中」= 最新 bounce より後に
+  review_checked イベントが無い間 / 行コメント空は新コード `E_COMMENT_REQUIRED` / `summary`(#23) は T-501 で拡張しない。理由: 設計書 4 点の一致を優先し、追記型の例外は列挙して閉じる。
 
 ## 2. 確立した規約・パターン
 
@@ -216,8 +224,8 @@
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | DONE | 2回目 RV-041: **DONE**（P3 8 は記録のみ・TODO-030）。**G3 完了** | 2026-09-13 |
 | T-401 | G4 照合集計（BE。保存は T-201・記録は T-301 済） | web | T-201 | DONE | 1回目 RV-040: **DONE**（P3 4 は記録のみ・TODO-031） | 2026-09-13 |
 | T-402 | G4 照合 API #27（UI GET）＋#19 同パス整理（API） | web | T-401 | DONE | 1回目 RV-042: **DONE**（P3 4 は記録のみ・TODO-033） | 2026-09-13 |
-| T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | PLANNED | 指示書 `docs/t403-instructions.md`（AD-027）。Codex 着手可 | 2026-09-13 |
-| T-501 | G5 状態遷移・差し戻し・送付可否の記録（BE） | web | T-301 | PLANNED | - | 2026-09-11 |
+| T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | REVIEWING | handoff 受領（326 PASS 主張）。reviewer 起動 2026-09-13 | 2026-09-13 |
+| T-501 | G5 状態遷移・差し戻し・送付可否の記録（BE） | web | T-301 | IMPLEMENTING | 指示書 `docs/t501-instructions.md`（AD-028）。Codex 着手可（§7） | 2026-09-13 |
 | T-502 | G5 承認・状態 API #22,28,34-37（API） | web | T-501 | PLANNED | - | 2026-09-11 |
 | T-503 | G5 SCR-06 引合書承認（FE） | web | T-502 | PLANNED | - | 2026-09-11 |
 | T-601 | G6 .xlsx 5シート生成（BE） | web | T-501 | PLANNED | - | 2026-09-11 |
@@ -644,8 +652,10 @@
   旧テスト名 → `test_api_path_separation_live.py` / ログの絶対パス。TODO-009 と同じ「`backend/app` を触る整理」ラウンドで。
 - [TODO-018] **要求納期・納地（`items.due_raw`/`place_raw`）を人が訂正できるか**（研修者判断）。03-spec SCR-04 は編集可、04-db 原則4 は `*_raw` 不変。
   初版は編集不可（AD-018）。編集可にするなら `due`/`place` の値列（非 raw）を items に足す設計変更が要る。
-- [TODO-019] **T-501 の指示書に転記**: `review_checked` 版への訂正は `review_checked→staff_checked` の状態イベントを同一トランザクションで積む（05:438 / 04-db:775）。
+- [TODO-019]（転記済み: AD-028 ⑨・`docs/t501-instructions.md` §0）**T-501 の指示書に転記**: `review_checked` 版への訂正は `review_checked→staff_checked` の状態イベントを同一トランザクションで積む（05:438 / 04-db:775）。
   T-301 では未実装（G3 で到達不能。t301-instructions §0 ⑤）。
+- [TODO-034] **`review_checked` 版で undo（訂正取消）・確認・判断をしても状態を `staff_checked` へ戻さない**（AD-028 ⑨。設計書は「訂正」のみ）。undo は表示値が変わるため
+  戻すべきかは設計判断（研修者）。戻すなら 05 3.6 注記と 04-db `version_state_events` 注記を「訂正・取消」に改定して T-501 改修スライスへ。
 - [TODO-020] **T-205 の記録のみ P3（RV-031）**: ①拒否記録を PreToolUse deny 時点に寄せて時系列を揃える ②（解消: キーは tool_name/tool_use_id/tool_input）
   ③`cwd` テストを「リポジトリルート配下でない」「実行後に削除済み」の assert に ④`bounded()` の heartbeat 分岐を stream 専用ラッパへ。実評価の観察結果と合わせて次ラウンド。
 - [TODO-021]（**真因確定・AD-023 / L-8**: 統合テストの lifespan `recover_interrupted` が開発 DB の実行中 run を殺していた。L-7 の分類崩れも別途修正済み）**run 4/6/9 の `process_interrupted` 化**: `begin_step` の DraftError が try 外で漏れ、runner `finally` の SDK 後始末 CancelledError が
