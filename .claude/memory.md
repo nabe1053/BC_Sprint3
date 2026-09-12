@@ -72,6 +72,13 @@
   agent-plan.md「T-205 実モデル接続」に確定。切替は `AGENT_MODE=local_dummy|claude`（既定 local_dummy）。理由: Phase 3 の本評価はダミーでは意味を持たない（TODO-015）/
   影響範囲: T-205（判断役の差し替えのみ。ツール・hook・トレース・ジョブは不変）。**`ANTHROPIC_API_KEY` は `backend/.env` に未設定**（TODO-016・研修者作業）。
 
+- [AD-017] **`item_edits` / `confirmations` に `undone_by`（取消者）列を追加**（2026-09-13 orchestrator 暫定。研修者確認: 朝の報告）。理由: 04-db は `undone_at` のみで
+  取消操作の記録者が残らず、02:183「確認者名は実在の確認者の操作から記録する」・原則5（人の記録は記録者名必須・AI 補完なし）と整合しない /
+  影響範囲: T-301 の migration と取消 API #30/#32 の入力（T-302）。04-db.md に書き戻し済み。
+- [AD-018] **`item_edits.field` の語彙を確定**（2026-09-13 orchestrator）: `kind, usage_note, od_value/unit, wall_value/unit, weight_value/unit, grade, connection, range_class,
+  length_value/unit, qty_value/unit, note`。`due_raw`/`place_raw` は原則4（`*_raw` 不変）を優先し初版は編集不可（03-spec SCR-04 は編集可としており齟齬 → TODO-018）。
+  T-301 の未決 10 件の決定は `docs/t301-instructions.md` §0。
+
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
@@ -427,10 +434,14 @@
 - [TODO-014] 数量 TBA の確認事項 `questions.category` が `unknown`（G2 ミニ評価）。04-db.md の語彙と照合し適切な区分があれば `local_policy.py` で割り当てる。
 - [TODO-015]（解消: AD-016 で D05 承認・T-205 を起票）**Phase 3 の本評価（sample-01〜10・AE01〜AE07）は実モデル接続（D05 承認）が前提。**ローカルダミーは 1 行明細形式のみ対応。
   D05 の承認（送信先・送信範囲・保存条件）を研修者が判断するまで、Phase 3 は「型の確認」（ミニ評価）に留まる。**研修者判断待ち**。
-- [TODO-016] **`ANTHROPIC_API_KEY` を `backend/.env` に投入する（研修者作業）。**2026-09-12 23:55 時点で `backend/.env` の該当行は `#` でコメントアウトされたまま（値は未確認）。
+- [TODO-016]（解消: 2026-09-12 23:20 研修者が有効化。Claude は行が非コメント・`sk-ant-` 接頭辞であることのみ確認、値は未表示）**`ANTHROPIC_API_KEY` を `backend/.env` に投入する。**
   投入後に Claude が sample-06（AE01）を 1 本通す（AD-016）。
 - [TODO-017] **C-2 の記録のみ P3（RV-029）**: `test_run_endpoints_are_in_ui_only_route_contract` を `tests/unit/` へ / `app/api/common/endpoints_reference.py:6` docstring の
   旧テスト名 → `test_api_path_separation_live.py` / ログの絶対パス。TODO-009 と同じ「`backend/app` を触る整理」ラウンドで。
+- [TODO-018] **要求納期・納地（`items.due_raw`/`place_raw`）を人が訂正できるか**（研修者判断）。03-spec SCR-04 は編集可、04-db 原則4 は `*_raw` 不変。
+  初版は編集不可（AD-018）。編集可にするなら `due`/`place` の値列（非 raw）を items に足す設計変更が要る。
+- [TODO-019] **T-501 の指示書に転記**: `review_checked` 版への訂正は `review_checked→staff_checked` の状態イベントを同一トランザクションで積む（05:438 / 04-db:775）。
+  T-301 では未実装（G3 で到達不能。t301-instructions §0 ⑤）。
 - [TODO-001] D02（入力上限）は AD-003 の**仮値**。初版受入（X09 の上限試験）の前に研修者が実値を確定する。
   **確定時は `backend/app/core/config.py` と `frontend/src/shared/i18n/ja.json` の上限注記の両方を直す**（RV-024 P2-2。API が上限を返さないため画面側に複製がある）。
 - [TODO-002] **eml には `document_pages` が無い**ため、04-db.md の完了条件の機械判定

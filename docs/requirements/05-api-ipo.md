@@ -115,9 +115,9 @@
 | # | エンドポイント | メソッド | 機能 | 認証 | 必要権限 |
 |---|--------------|---------|------|------|---------|
 | 29 | `/versions/{versionId}/edits` | POST | 値の訂正を記録する（対象項目・新値・理由・修正者） | 不要 | UI |
-| 30 | `/versions/{versionId}/edits/{editId}/undo` | POST | 訂正を取り消す（行は消さず取消を記録） | 不要 | UI |
+| 30 | `/versions/{versionId}/edits/{editId}/undo` | POST | 訂正を取り消す（行は消さず取消を記録）。**入力 `recordedBy`（取消者・必須・空文字禁止）→ `undone_by`**（2026-09-13・memory AD-017） | 不要 | UI |
 | 31 | `/versions/{versionId}/confirmations` | POST | 一致確認・網羅性確認を記録する | 不要 | UI |
-| 32 | `/versions/{versionId}/confirmations/{id}/undo` | POST | 確認を取り消す（取消も履歴に残す） | 不要 | UI |
+| 32 | `/versions/{versionId}/confirmations/{id}/undo` | POST | 確認を取り消す（取消も履歴に残す）。**入力 `recordedBy`（取消者・必須）→ `undone_by`**（AD-017） | 不要 | UI |
 | 33 | `/versions/{versionId}/questions/{questionId}/judgements` | POST | 確認事項の判断を記録する | 不要 | UI |
 | 34 | `/versions/{versionId}/state-events` | POST | 状態遷移を記録する（担当者確認済み・評価確認済み） | 不要 | UI |
 | 35 | `/versions/{versionId}/bounce-comments` | POST | 行ごとの差し戻しコメントを記録する | 不要 | UI |
@@ -280,7 +280,7 @@
 | 400 | 既存版に記録があるのに確認が無い（X12） | `E_CARRY_OVER_NOT_ACKNOWLEDGED` |
 | 409 | 同じ案件で実行中の `agent_run` がある。二重生成を防ぐ | `E_RUN_IN_PROGRESS` |
 | 413 | 入力上限（D02）超過。**具体的な超過内容を返す**（X09・AE05b） | `E_LIMIT_EXCEEDED` |
-| 503 | 外部LLM構成だが D05 未承認 | `E_EXTERNAL_SEND_NOT_APPROVED` |
+| 503 | `AGENT_MODE=claude` だがキー未設定（実モデルが構成されていません） | `E_EXTERNAL_SEND_NOT_APPROVED` |
 
 ### 3.2 実行の進捗・結果を取得する
 
@@ -602,7 +602,7 @@
 | `E_REQUEST_INVALID` | 個別コードに該当しない入力不正（400）。camelCase規約・path/query形式違反は422。値を応答へ含めない | 0.2, 0.4 |
 | `E_JOB_START_FAILED` | 予約直後のトレース保存またはジョブ投入失敗（503）。予約した実行はfailedとして保持 | 3.1, N03 |
 | `E_RUN_NOT_ACTIVE` | 終了済み実行に紐づく版への遅延書込を拒否（409） | 3.3, N03 |
-| `E_EXTERNAL_SEND_NOT_APPROVED` | 外部LLM送信が未承認 | **D05** |
+| `E_EXTERNAL_SEND_NOT_APPROVED` | 実モデルが構成されていません（503。`AGENT_MODE=claude` かつキー未設定） | **D05**（承認範囲は agent-plan.md 末尾） |
 | `E_QTY_UNIT_REQUIRED` | 数値の数量に単位が無い | ②5章, X11 |
 | `E_UNIT_REQUIRED` | 外径・肉厚・単重・定尺長に値があるのに単位が無い | R04, ④items の CHECK |
 | `E_QTY_STATE_INVALID` | 未確定の状態と数値が矛盾。**TBA を 0 にしない** | ②5章, X11 |
