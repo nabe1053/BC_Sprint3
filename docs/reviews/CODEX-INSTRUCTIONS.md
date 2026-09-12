@@ -156,7 +156,11 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
   handoff `docs/t403-handoff.md` の末尾に `## R-2 対応`（変更 file:line・テスト結果）を足し、その下に `## 再レビュー依頼（T-403）` を再掲。**R-2 は T-501 より先に**（30 分以内の粒度）
 - **いまはタスク S（T-501、`docs/t501-instructions.md`・AD-028 の 18 決定。BE のみ・endpoint 無し）**。完了見出し `## 再レビュー依頼（T-501）`（`docs/t501-handoff.md`）。
   `make check-be` 自由（Claude は pytest を回さない）。`frontend/` は触らない。T-403 の指摘対応と重なるときは、pytest と jest を同時に走らせない（LN-027）
-- T-501 の後: T-502（API #22,28,34-37。指示書準備中）。§7 更新を待つ
+- **T-501 への追補（AD-029 ⑤。指示書 §4「#22 材料」に加える）**: `RecordRepository.list_versions_with_records(case_id)` は版ごとに **最新 `to_state='review_checked'` イベントの
+  `recorded_at`（`latest_review_checked_at`、無ければ None）** も返す（T-502 が「差し戻し中」を導出するのに最新イベント 1 件では足りないため）。クエリ数固定のまま。テストに 1 本（review 後に
+  差し戻し → 訂正で最新イベントが staff_checked でも `latest_review_checked_at` は保持）
+- T-501 の後: **タスク T（T-502、`docs/t502-instructions.md`・AD-029 の 18 決定。API 層のみ）**。完了見出し `## 再レビュー依頼（T-502）`（`docs/t502-handoff.md`）。T-501 の
+  再レビュー待ちの間に着手してよい（T-501 の指摘対応が出たら優先）
 
 ### タスク L-8c: 依存の逆流を解消（RV-037 P2）
 - `RECOVERY_GRACE_S` を `app/domain/run_types.py` へ移し、`app/agent/definition.py` はそこから import して再公開（`from app.domain.run_types import RECOVERY_GRACE_S`）。

@@ -130,6 +130,10 @@
   （`_has_records` は C-3 で一本化）/ `ApprovalService` 新設・Repository は `RecordRepository` 拡張 / `unresolved_count` は純粋関数を `summary` と共有 / 「差し戻し中」= 最新 bounce より後に
   review_checked イベントが無い間 / 行コメント空は新コード `E_COMMENT_REQUIRED` / `summary`(#23) は T-501 で拡張しない。理由: 設計書 4 点の一致を優先し、追記型の例外は列挙して閉じる。
 
+- [AD-029] **T-502 の未決 18 件を確定**（2026-09-13 orchestrator。`docs/t502-instructions.md` §0。05 #1/#22/#28・03-spec SCR-03/06 に書き戻し済み）: #22 は既存 endpoint を拡張し
+  `ApprovalService.list_versions_with_records` に切替 / `bounced`・`needsRecheck` は **API が導出**（純粋関数を `version_state.py` に追記。FE で 3 画面に複製しない）/ `bounced` の判定に
+  最新 `review_checked` イベント時刻が要るため T-501 に追補（§7）/ #28 は 7 配列・`ConfirmationHistoryRecord` 新設で #31 応答は不変 / `errors.py` に 7 コード / #37 `reason` の `""`→None は DTO /
+  **#1 に `latestSendoff` を含める**（SCR-01 の送付可否列）/ 生成所要は G6 T-603（TODO-037）/ `records` は `UI_ONLY_SEGMENTS` に足さない / `summary` 不変。
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
@@ -226,7 +230,7 @@
 | T-402 | G4 照合 API #27（UI GET）＋#19 同パス整理（API） | web | T-401 | DONE | 1回目 RV-042: **DONE**（P3 4 は記録のみ・TODO-033） | 2026-09-13 |
 | T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | FIXING | RV-043 P2-1（N03 注記文言）→ §7 R-2 | 2026-09-13 |
 | T-501 | G5 状態遷移・差し戻し・送付可否の記録（BE） | web | T-301 | IMPLEMENTING | 指示書 `docs/t501-instructions.md`（AD-028）。Codex 着手可（§7） | 2026-09-13 |
-| T-502 | G5 承認・状態 API #22,28,34-37（API） | web | T-501 | PLANNED | - | 2026-09-11 |
+| T-502 | G5 承認・状態 API #1,#22,28,34-37（API） | web | T-501 | PLANNED | 指示書 `docs/t502-instructions.md`（AD-029）。T-501 DONE 後に §7 で投入 | 2026-09-13 |
 | T-503 | G5 SCR-06 引合書承認（FE） | web | T-502 | PLANNED | - | 2026-09-11 |
 | T-601 | G6 .xlsx 5シート生成（BE） | web | T-501 | PLANNED | - | 2026-09-11 |
 | T-602 | G6 出力 API #38,39,40（API） | web | T-601 | PLANNED | - | 2026-09-11 |
@@ -662,6 +666,8 @@
   T-301 では未実装（G3 で到達不能。t301-instructions §0 ⑤）。
 - [TODO-035] **T-403 の記録のみ P3（RV-043）**: ①`versions.inventory.{notice,requiredNote,undoNote}` の文体を敬体に ②`InventoryScopePanel` 同名資料の `aria-label` に識別子・`key` を documentId に
   ③「照合する範囲」を #4 資料一覧で補完するか（要素 0 の資料）④`testing/fixtures.ts:77` のインライン `import()` 型。①②④は C-3（FE 分）、③は G5 以降の判断材料。
+- [TODO-037] **05 #22「生成所要」は `agent_runs` と版の結線が無く未実装**（AD-029 ⑭）。G6 T-603「版の履歴」で `agent_runs.version_id` から付与。#23 出力時点の生成所要（05 5 章 案件情報）も同時に。
+- [TODO-036] **TODO-027 ② の式**（`field_error_codes` × 非 400 == {E_FIELD_NOT_EDITABLE}）は T-502 で `E_STATE_ROLLBACK_FORBIDDEN`（422）が加わり 2 要素になる。C-3 実装時に式を更新（AD-029 ⑩）。
 - [TODO-034] **`review_checked` 版で undo（訂正取消）・確認・判断をしても状態を `staff_checked` へ戻さない**（AD-028 ⑨。設計書は「訂正」のみ）。undo は表示値が変わるため
   戻すべきかは設計判断（研修者）。戻すなら 05 3.6 注記と 04-db `version_state_events` 注記を「訂正・取消」に改定して T-501 改修スライスへ。
 - [TODO-020] **T-205 の記録のみ P3（RV-031）**: ①拒否記録を PreToolUse deny 時点に寄せて時系列を揃える ②（解消: キーは tool_name/tool_use_id/tool_input）

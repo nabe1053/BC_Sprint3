@@ -64,7 +64,7 @@
 
 | # | エンドポイント | メソッド | 機能 | 認証 | 必要権限 |
 |---|--------------|---------|------|------|---------|
-| 1 | `/cases` | GET | 案件一覧（進捗ステータス・表示状態・送付可否つき。**初版 G1 実装は `progressStatus` のみ**。表示状態・送付可否は G3（T-302）で `versions` から付与する — memory AD-013） | 不要 | UI |
+| 1 | `/cases` | GET | 案件一覧（進捗ステータス・表示状態・送付可否つき。**初版 G1 実装は `progressStatus` のみ**。表示状態は G3（T-302）で `latestVersionId` として付与済み。送付可否は G5（T-502）で `latestSendoff`（最新版の最新 `sendoff_decisions.decision`・null 可）として付与する — memory AD-013 / AD-029 ⑬） | 不要 | UI |
 | 2 | `/cases` | POST | 案件を作成する | 不要 | UI |
 | 3 | `/cases/{caseId}` | GET | 案件の基本情報 | 不要 | UI |
 | 4 | `/cases/{caseId}/documents` | GET | 資料一覧と読取状態（**案件ID・案件名を併せて返す**） | 不要 | UI/AGENT |
@@ -105,7 +105,7 @@
 
 | # | エンドポイント | メソッド | 機能 | 認証 | 必要権限 |
 |---|--------------|---------|------|------|---------|
-| 22 | `/cases/{caseId}/versions` | GET | 版の履歴（版・生成所要・状態・未解決件数） | 不要 | UI |
+| 22 | `/cases/{caseId}/versions` | GET | 版の履歴（版・生成所要・状態・未解決件数）。**生成所要は G6 T-603 で付与**（`agent_runs` との結線。Build AD-029 ⑭）。G5 では `carryOver`・`latestStateEvent`・`latestBounce`・`latestSendoff`・`bounced`・`needsRecheck` を付与（下記「22 の引き継ぎ警告の材料」） | 不要 | UI |
 | 23 | `/versions/{versionId}` | GET | 版の要約（案件情報・件数・状態・確認の進捗） | 不要 | UI |
 | 24 | `/versions/{versionId}/items` | GET | 明細（**未取消の訂正を適用した現在値**と訂正履歴） **応答の各行に `rowMatch: {confirmationId, recordedBy, recordedAt} | null`（未取消の一致確認。2026-09-13 追記・AD-024。SCR-03 の照合チェック表示と #32 の取消に必要）** | 不要 | UI |
 | 25 | `/versions/{versionId}/items/{itemId}/evidence` | GET | 行の根拠・原表記・出典・原文抜粋（SCR-04） | 不要 | UI |
@@ -597,6 +597,19 @@
 | `carryOver.judgementCount` | 確認事項の判断が記録された確認事項の件数 | `question_judgements` を持つ `questions` の件数 |
 
 `POST /cases/{id}/agent-runs` の `acknowledgedCarryOver`（3.1）が必須になるのは、**この4値のいずれかが0でない場合**である（X12）。
+
+版ごとに次の導出値も返す（Build AD-029 ③〜⑤。**API が導出し UI は表示だけ**。3 画面で同じ比較を複製しない）:
+
+| フィールド | 定義 | 導出元(④) |
+|-----------|------|-----------|
+| `bounced` | 最新の `bounces` 行があり、かつその後に `to_state='review_checked'` のイベントが無い | `bounces` / `version_state_events` |
+| `needsRecheck` | 最新の状態イベントが `review_checked → staff_checked`（評価確認済みの後に訂正された） | `version_state_events` |
+| `latestStateEvent` / `latestBounce` / `latestSendoff` | 各記録の `(recorded_at, id)` 降順先頭（無ければ null） | 各記録テーブル |
+
+#### 28 の応答形と #34〜#37 の成功応答（Build AD-029 ⑥⑫）
+
+28 は `{edits, confirmations, judgements, stateEvents, bounces, unlinkedComments, sendoffDecisions}` の 7 配列（取消済みを含む全行・各 `(recordedAt, id)` 昇順。`bounces[].comments` に紐づけ済み行コメントを内包、`unlinkedComments` は `bounceId` が null の行コメント）。
+34〜37 は 201 で記録した行を返す（`stateEventId` / `bounceCommentId` / `bounceId` / `sendoffDecisionId` を先頭に、記録した値と `recordedAt`）。`versionId` は返さない。
 
 ## 6. エラーコード一覧
 
