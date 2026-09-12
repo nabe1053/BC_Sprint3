@@ -224,7 +224,7 @@
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | DONE | 2回目 RV-041: **DONE**（P3 8 は記録のみ・TODO-030）。**G3 完了** | 2026-09-13 |
 | T-401 | G4 照合集計（BE。保存は T-201・記録は T-301 済） | web | T-201 | DONE | 1回目 RV-040: **DONE**（P3 4 は記録のみ・TODO-031） | 2026-09-13 |
 | T-402 | G4 照合 API #27（UI GET）＋#19 同パス整理（API） | web | T-401 | DONE | 1回目 RV-042: **DONE**（P3 4 は記録のみ・TODO-033） | 2026-09-13 |
-| T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | REVIEWING | handoff 受領（326 PASS 主張）。reviewer 起動 2026-09-13 | 2026-09-13 |
+| T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | FIXING | RV-043 P2-1（N03 注記文言）→ §7 R-2 | 2026-09-13 |
 | T-501 | G5 状態遷移・差し戻し・送付可否の記録（BE） | web | T-301 | IMPLEMENTING | 指示書 `docs/t501-instructions.md`（AD-028）。Codex 着手可（§7） | 2026-09-13 |
 | T-502 | G5 承認・状態 API #22,28,34-37（API） | web | T-501 | PLANNED | - | 2026-09-11 |
 | T-503 | G5 SCR-06 引合書承認（FE） | web | T-502 | PLANNED | - | 2026-09-11 |
@@ -460,6 +460,12 @@
   P3: `model_validate(from_attributes)` の再帰依存のコメント / `inconsistentEntryIds` は entries の部分集合とは限らない注記（T-403 指示書へ）/ basename 重複（C-3）/
   handoff に「次スライスへ渡す契約」節を置く運用。
 
+- [RV-043] T-403 1回目（Codex → Claude reviewer 独立・2026-09-13）: **P2 1 / P3 4 / P1 0**。AD-027 15/15 反映、`make check-fe` 24 suites / 326 PASS・design-lint 0・prettier green・
+  `backend` 無変更・generated 手編集なし・変異 9 種全検出を reviewer が再現。P2-1: `ja.json` `versions.inventory.notice` が N03 注記の**見出し句だけ**で、03-spec SCR-05:318 と
+  `mockup.html:410` にある理由（抽出処理が読まなかった範囲は表に現れない）と行動（全ページ・別紙・追加明細を元資料で確認）が欠落 → §7 タスク R-2 で修正。
+  P3: ①`notice/requiredNote/undoNote` の文体（常体）②同名資料の「元資料を開く」`aria-label` が重複・`key={index}` ③範囲一覧が entries 由来で要素 0 の資料が出ない（AD-027 ⑩どおり。#4 で補完は G5 以降）
+  ④fixtures のインライン `import()` 型 → TODO-035。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -654,6 +660,8 @@
   初版は編集不可（AD-018）。編集可にするなら `due`/`place` の値列（非 raw）を items に足す設計変更が要る。
 - [TODO-019]（転記済み: AD-028 ⑨・`docs/t501-instructions.md` §0）**T-501 の指示書に転記**: `review_checked` 版への訂正は `review_checked→staff_checked` の状態イベントを同一トランザクションで積む（05:438 / 04-db:775）。
   T-301 では未実装（G3 で到達不能。t301-instructions §0 ⑤）。
+- [TODO-035] **T-403 の記録のみ P3（RV-043）**: ①`versions.inventory.{notice,requiredNote,undoNote}` の文体を敬体に ②`InventoryScopePanel` 同名資料の `aria-label` に識別子・`key` を documentId に
+  ③「照合する範囲」を #4 資料一覧で補完するか（要素 0 の資料）④`testing/fixtures.ts:77` のインライン `import()` 型。①②④は C-3（FE 分）、③は G5 以降の判断材料。
 - [TODO-034] **`review_checked` 版で undo（訂正取消）・確認・判断をしても状態を `staff_checked` へ戻さない**（AD-028 ⑨。設計書は「訂正」のみ）。undo は表示値が変わるため
   戻すべきかは設計判断（研修者）。戻すなら 05 3.6 注記と 04-db `version_state_events` 注記を「訂正・取消」に改定して T-501 改修スライスへ。
 - [TODO-020] **T-205 の記録のみ P3（RV-031）**: ①拒否記録を PreToolUse deny 時点に寄せて時系列を揃える ②（解消: キーは tool_name/tool_use_id/tool_input）

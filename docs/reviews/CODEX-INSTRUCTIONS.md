@@ -149,7 +149,11 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ## 7. 次にやること（2026-09-13 T-403 handoff 受領・**T-501 へ**）
 
-- T-403 の handoff は受領済み・reviewer 中。指摘があれば `## 再レビュー依頼（T-403）` の下に「レビュー対応」節を足す形で対応（見出し `## 再レビュー依頼（T-403）` は本文の末尾に**再掲**する。LN-033）
+- **先にタスク R-2（T-403 の P2 修正・小）**: RV-043 P2-1。`ja.json` `versions.inventory.notice` を **2 キー**（`noticeLead`=「対応なし 0 件は網羅性の保証ではありません」＋
+  `noticeBody`=モック `docs/requirements/mocks/mockup.html:410` の説明文「この対応表は抽出できた範囲どうしの突合です。抽出処理が最初から読まなかったページ・別紙・後続メールは、
+  元資料側にも出力側にも現れないため表では検出できません。全ページ・別紙・追加明細を元資料で確認してください。」）にし、`InventoryPage.tsx` で両方表示（見出し句は `fontWeight` トークンで強調・
+  色は使わない）。`inventory-components.test.tsx` の期待文字列は**更新**（削除しない）。あわせて P3-1（`notice/requiredNote/undoNote` を敬体に）も同時に。`make check-fe` green。
+  handoff `docs/t403-handoff.md` の末尾に `## R-2 対応`（変更 file:line・テスト結果）を足し、その下に `## 再レビュー依頼（T-403）` を再掲。**R-2 は T-501 より先に**（30 分以内の粒度）
 - **いまはタスク S（T-501、`docs/t501-instructions.md`・AD-028 の 18 決定。BE のみ・endpoint 無し）**。完了見出し `## 再レビュー依頼（T-501）`（`docs/t501-handoff.md`）。
   `make check-be` 自由（Claude は pytest を回さない）。`frontend/` は触らない。T-403 の指摘対応と重なるときは、pytest と jest を同時に走らせない（LN-027）
 - T-501 の後: T-502（API #22,28,34-37。指示書準備中）。§7 更新を待つ
