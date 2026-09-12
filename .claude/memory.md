@@ -183,9 +183,9 @@
 | T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202, C-1 | DONE | 2回目 RV-022: **DONE**（P3 5 は記録のみ・TODO-009。C-1 は未完のまま） | 2026-09-12 |
 | C-2 | 記録のみ P3 の整理 chore（TODO-010/012、backend/app 非接触分） | chore | C-1, T-204 | DONE | 2回目: RV-029 P2-1（`MAKEFLAGS=-j8`）を確認して DONE。残 P3 は TODO-012 ⑦・TODO-017 | 2026-09-12 |
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | DONE | 2回目 RV-028: **DONE**（P3 1 は記録のみ・TODO-012 へ） | 2026-09-12 |
-| T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | DONE | 6回目 RV-034: L-7 **DONE**。ただし run 10 で `process_interrupted` 再発（外部キャンセル元を診断中・TODO-021） | 2026-09-13 |
+| T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | REVIEWING | 7回目（L-8: 起動時回収の期限限定・lifespan DB 分離、確認中）。L-3〜L-7 は commit 済み | 2026-09-13 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | DONE | 1回目 RV-033: **DONE**（P3 5 は記録のみ・TODO-025） | 2026-09-13 |
-| T-302 | G3 参照 #23-26 / 記録 #29-33・#22 最小・#1 拡張（API） | web | T-301 | PLANNED | 指示書 `docs/t302-instructions.md`（AD-022）。Codex は L-7 の後に着手 | 2026-09-13 |
+| T-302 | G3 参照 #23-26 / 記録 #29-33・#22 最小・#1 拡張（API） | web | T-301 | REVIEWING | 1回目（Codex 申告 BE 567・FE 166・10 パス・model 85→137、確認中） | 2026-09-13 |
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | PLANNED | - | 2026-09-11 |
 | T-401 | G4 インベントリ・対応関係・照合集計（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
 | T-402 | G4 照合 API #19,27（API） | web | T-401 | PLANNED | - | 2026-09-11 |
@@ -202,7 +202,7 @@
 > 並行してよいのは依存が独立でファイルが重ならない組（T-301 / T-401）のみ。規則は
 > `docs/reviews/CODEX-INSTRUCTIONS.md` §5。
 
-> **Phase 3 進捗**: AE01 合格（run 8）・**AE03 合格（run 11・6 行・換算なし・小計除外・192 秒）**。AE02 実行中。`process_interrupted` は間欠再発（run 10）・診断サーバで捕捉待ち（TODO-021）。
+> **Phase 3 進捗（2026-09-13）**: **AE01・AE02・AE03 合格**（run 8 / 13 / 11）。AE02 は同時刻の pytest 下でも生存（L-8 実機確認）。AE04〜AE07 は未実施。記録: `docs/evaluations/g2-real-model-ae01-2026-09-13.md`。
 
 > **実モデル評価 AE01 合格・2026-09-13（run 8）**: `AGENT_MODE=claude` / `claude-sonnet-5` で sample-06 が `completed`・11 行（択一 2 組・分割 1 組・TBA・原表記保持・代替は確認事項）・
 > 631 秒・14 ターン・漏洩 0。6 回の試行で L-3〜L-6 の欠陥 4 件を潰した。記録: `docs/evaluations/g2-real-model-ae01-2026-09-13.md`。
@@ -379,6 +379,12 @@
   変異 2 種追加（run 9 の実障害そのものを再現）で 10/10。実測 535 passed / agent-eval 14/14。P3: 04-db の observation.code 一覧に `E_INTERNAL` 未追記 /
   `worker_failed` と `process_interrupted` の書き分けが 04-db に無い / `worker_failed` が例外とキャンセルを畳む → TODO-023 へ追記。
 
+- [RV-035] T-205 7回目 L-8（Codex → 同一 reviewer 独立・2026-09-13）: **DONE 可**。P1 0 / P2 1 / P3 2。`recover_interrupted` が `outerTimeoutS` 超過の running のみ回収
+  （境界 -1/0/+1 秒を凍結クロック＋実 DB で固定）、lifespan が `dependency_overrides` を通り、conftest の guard（開発 DB `AsyncSessionLocal` 生成で fail）で構造保証。
+  reviewer が 02:09〜02:12 に pytest / 変異を回している間、私の AE02 run が生存（実機確認）。実測 567 passed。P2: しきい値が `recover_expired` の `limit+16`（終端保存の猶予）と
+  食い違い、外側期限発火〜16 秒の窓で別プロセス起動が `process_interrupted` を先に確定し得る → L-8b で統一（述語 1 つに集約）。P3: `trace_write_failed` の JSONL 自動復旧経路が
+  消えた（手動手順か再構築スクリプトを Env フェーズで）/ `limits` 不正の running run はどの回収にも掛からない（ログ 1 行）。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -524,6 +530,9 @@
   `TestClient(app)` が同じ DB に対して起動した瞬間に崩れる。回収は期限（外側タイムアウト）で判定し、lifespan の DB アクセスもテストの override を通す。
   「間欠的な失敗」は、まず**同時刻に何が動いていたか**（pytest・別サーバ）を疑う（LN-027 の一般化）。
 
+- [LN-056] **同じ判断を 2 箇所で書くとしきい値は必ずズレる。**`recover_expired`（`limit+16`）と `recover_interrupted`（`limit`）は「回収してよいか」という同一判断。
+  述語 1 つ（`is_recoverable(run, now)`）に集約する。能力を削る変更は「その能力が何を救っていたか」を確認する（全 run JSONL 再構築は書込障害からの唯一の自動復旧だった）。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
@@ -567,6 +576,8 @@
 - [TODO-022] **Phase 3 判定の論点 2 件（研修者確認）**: ①外径 `13-3/8″` → `od_value=13.375 in` の分数→小数正規化は D03（換算禁止）に抵触するか。単位不変なので
   orchestrator は「表記の正規化」と判断。06 の採点式（数量は厳密一致・寸法は？）と突き合わせて確定する ②N06「初回案 10 分」に対し run 8 は 631 秒。思考時間が大半で
   ターン数は 14。許容か、モデル/プロンプトで詰めるか（D06 仮値の見直し材料）。
+- [TODO-026] **L-8 の記録のみ P3（RV-035）**: ①`trace_write_failed` の JSONL を DB の trace_event から再構築する手動手順 or `scripts/rebuild_trace.py`（Env フェーズの素材）
+  ②`limits.outerTimeoutS` 不正の running run はどの回収にも掛からない → ログ 1 行（run_id）。
 - [TODO-023] **T-205 L-5/L-6 の記録のみ P3（RV-032）**: ①`check_agent_mutations.py` に L-5 の 4 変異（エラー継続を 1 回停止に戻す / 成功時リセット除去 / 項目別情報の除去 /
   input 値の混入）と L-6 の「配列を単数へ戻す」を取り込み `make agent-mutations` 一本で再現 ②評価スクリプトに「`od_unit`/`weight_unit` 等が原表記の単位と異なれば換算」
   の機械チェック ③03-spec SCR-03/04・出力で寸法は原表記を主・数値を従とする方針の確認 ④大バッチ×恒常重複（`E_EVIDENCE_DUPLICATE`）の部分成功可否は再発時に設計判断。

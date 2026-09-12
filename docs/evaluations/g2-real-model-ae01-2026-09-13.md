@@ -129,3 +129,30 @@ read 後 38 秒で `failed / process_interrupted`、turns 3。L-7 後のこの�
 | 対処（AD-023） | ①起動時回収は「`started_at + outer_timeout_s` を過ぎた run」だけを対象にする（生きている別プロセスの run を殺さない）②`run_lifespan` はテストの `get_db` override を尊重し、テストが開発 DB に触れないことをテストで固定 ③評価は当面「pytest と同時に回さない」運用（LN-027 と同じ排他） |
 
 これで run 5 / 7 / 8 / 11 が成功し 4 / 6 / 9 / 10 / 12 が失敗した「間欠性」は、同時刻の pytest の有無で完全に説明できる。エージェント本体の欠陥ではない。
+
+---
+
+# Phase 3 AE02（sample-10 .eml スレッド・数量の更新と代替候補）— 2026-09-13
+
+## 試行 1（run_id=12）— 開始 0.4 秒で `process_interrupted`（真因＝同時刻の pytest lifespan。上記）
+## 試行 2（run_id=13、L-8 適用後・reviewer の pytest と同時刻）— **合格（AE02）**
+
+| 観点 | 結果 |
+|---|---|
+| 終端 | `completed` / `versionId=13`。**304 秒・16 ターン**。reviewer が 02:09〜02:12 に全体 pytest を回していたが run は生存（**L-8 の実機確認**） |
+| 抽出（AE02 の期待） | **4 行**。item 1 は **300 jts を採用**し、根拠 `qty` に `raw="300 jts (was 240)"` / `adopted="300 jts"` / **`prior_value="240 jts"`** / 採用理由「2026-07-14 の後続メールで 240→300 に改訂」を保存。72# と 68# は `group_code=1` の**択一 2 行**で計 600 にしない。68# 行の省略仕様（grade / connection / range）は **`inherit_candidate` の確認事項 3 件**として item 1 からの継承候補に。HCL80 は置換せず「HC が無ければ L80 で見積」を **`alternative` の確認事項**に。締切「Friday COB」の暦日・TZ 不明を確認事項に |
+| 読取 | `read_email` が `email:*`（最新本文＋引用部）を 1 回で走査。インベントリ 11 要素（更新指示 2 件 mapped・「Everything else unchanged」excluded 等） |
+| `isComplete=false` の理由 | `document_issues` に T-101 reader 由来の `reference_missing`「引用元メールの日付は非定型形式のため解釈できない」があり、04-db の完了条件どおり**一部未完了**として確定。モデルは本文中の日付表記から新旧を判定して採用しており、フラグは reader の限界を正しく表面化している（03-spec SCR-02「日時が判定できない本文」の扱いと整合）|
+| 自己修復 | `propose_items` 2 回エラー → 3 回目成功（AD-020 の 3 回上限内）。`validate_draft` 36 → 2 → 0 |
+| 漏洩 | トレースに原文なし（grep 0） |
+
+**判定: AE02 合格**（4 行・採用値と旧値・択一非合算・継承候補・置換なし）。トレース: `backend/traces/13.jsonl`。
+
+## Phase 3 の到達点（2026-09-13 時点）
+
+| シナリオ | 判定 | run |
+|---|---|---|
+| AE01 sample-06 PDF | 合格 | 8 |
+| AE02 sample-10 eml | 合格（一部未完了フラグは reader 由来） | 13 |
+| AE03 sample-02 xlsx（換算抑止） | 合格 | 11 |
+| AE04〜AE07（読取不能・中断・上限・指示混入・強制停止） | 未実施（ローカルダミー評価 14 ケースで型は確認済み） | — |
