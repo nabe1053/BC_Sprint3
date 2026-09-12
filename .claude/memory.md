@@ -95,6 +95,11 @@
   「代替候補は行にせず確認事項へ（R03/R04）」「根拠・確認事項は一括登録」を明記（run 7 は SM95TT の代替候補を 2C/3C/8C の別行にして 14 行になった。run 5 は 11 行で正）/
   影響範囲: agent-plan ツール一覧・停止条件・T-205 L-6 補足、`definition.MAX_TURNS`、`EvidenceArguments` / `QuestionArguments`。
 
+- [AD-022] **T-302 の未決 13 件を確定**（2026-09-13 orchestrator。`docs/t302-instructions.md` §0）: `E_FIELD_NOT_EDITABLE` は 422（`route_errors.invalid_request` が非構造違反でも
+  `errors.py` の表を参照）/ #23 は `RecordService.summary` を読取専用に拡張して版の状態と案件メタを返す / AD-013 の #1 拡張（`progressStatus` 導出・`latestVersionId`）と
+  **#22 最小版**（`GET /cases/{caseId}/versions`）を T-302 に含める / 訂正 n は `editCount`・`editedItemCount` の両方 / undo は 200 / #32 は `{confirmationId}` /
+  数値は JSON 文字列 / 422 も code 付き（TODO-005 解消）。05-api-ipo 0.2・0.4・#32・3.6 に書き戻し済み。
+
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
@@ -157,6 +162,9 @@
   RED テストファイルを `--ignore` して実行し、その事実と件数を memory / commit メッセージに残す（範囲を切ったことを隠さない。CV-016 の例外条件）③pytest は同時に
   走らせない（LN-027）。Claude が pytest を回す時間帯は §7 に書く。T-205 DONE 判定時、T-301 の RED 3 ファイル＋同時 pytest で 4 failed / 1 error が出た（RV-031 後）。
 
+- [CV-024] **並行制御（FOR UPDATE / 部分 UNIQUE / advisory lock）を主張するテストは、実 PostgreSQL の 2 セッションで「ブロックされたこと」を `pg_blocking_pids` 等で観測し、
+  かつ「解放後の値」まで assert する**（LN-014 の具体化。T-301 の版ロックテストが型。no-lock 変異を検出できる）。
+
 ## 3. 実装バックログ（プラン状態＝ループの制御表）
 
 | ID | スライス | 種別 | 依存 | Status | レビュー | 最終更新 |
@@ -171,8 +179,8 @@
 | C-2 | 記録のみ P3 の整理 chore（TODO-010/012、backend/app 非接触分） | chore | C-1, T-204 | DONE | 2回目: RV-029 P2-1（`MAKEFLAGS=-j8`）を確認して DONE。残 P3 は TODO-012 ⑦・TODO-017 | 2026-09-12 |
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | DONE | 2回目 RV-028: **DONE**（P3 1 は記録のみ・TODO-012 へ） | 2026-09-12 |
 | T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | DONE | 5回目 RV-032: **DONE**（L-3〜L-6 全て DONE 可・AE01 合格）。コードは T-301 と同一コミットで入れる（`_has_records` 依存） | 2026-09-13 |
-| T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | REVIEWING | 1回目（Codex 申告 518 passed・追加 46 件・変異 10/10、確認中） | 2026-09-13 |
-| T-302 | G3 参照 #23-26 / 記録 #29-31,33（API） | web | T-301 | PLANNED | - | 2026-09-11 |
+| T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | DONE | 1回目 RV-033: **DONE**（P3 5 は記録のみ・TODO-025） | 2026-09-13 |
+| T-302 | G3 参照 #23-26 / 記録 #29-33・#22 最小・#1 拡張（API） | web | T-301 | PLANNED | 指示書 `docs/t302-instructions.md`（AD-022）。Codex は L-7 の後に着手 | 2026-09-13 |
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | PLANNED | - | 2026-09-11 |
 | T-401 | G4 インベントリ・対応関係・照合集計（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
 | T-402 | G4 照合 API #19,27（API） | web | T-401 | PLANNED | - | 2026-09-11 |
@@ -352,6 +360,12 @@
   下流申し送り / 大バッチ×恒常重複の相互作用）。MAX_TURNS の SSOT テストが agent-plan 本文を正規表現で読んで照合する形になり、40 へ戻す変異で落ちることを reviewer が実測。
   実測 518 passed / ruff 0 / agent-mutations 8/8 / agent-eval 14/14。D03 意見: `13-3/8″ → 13.375 in` は単位不変・厳密可逆・原表記保持で**換算ではなく表記の正規化**。
 
+- [RV-033] T-301 1回目（Codex → Claude reviewer 独立・2026-09-13）: **DONE 可**。P1 0 / P2 0 / P3 5。指示書 §0 ①〜⑩ 全反映。層配置（Service に ORM 参照 0・`_transaction`/`require` は
+  import 共用・テスト間 import 0）、ORM/migration/実 DB `\d`/04-db の 4 箇所で CHECK・複合 FK・部分 UNIQUE・`undone_by` CHECK（`IS NOT NULL` 明示）が一致、`field` 16 語彙が
+  `ItemInput.model_fields` に全て実在、版ロックは実 PostgreSQL 2 セッション＋`pg_blocking_pids` で検証、変異 10/10 を reviewer が再現、carry-over の 3 点証明。実測 518 passed。
+  良い点: 訂正適用後の明細を `ItemInput` で再検証し items の対 CHECK を DB 前に守る。P3: `range_class` と `length_*` が状態列を共有（UI 文言 or 状態列分割の判断材料）/ `_undo` の
+  4xx 順序が `edit` と逆 / `apply_edits` が expire 済み ORM で欠損する前提 / 型エイリアス名 / 到達しない `require`。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -486,6 +500,9 @@
 - [LN-051] **例外を変換する try の範囲は「DB に触る最初の呼出し」から。**`begin_step` を try の外に置いたため、ロック取得や `require` の失敗がツール結果にならず worker を落とした。
   ツール実行の入口関数は、入った瞬間から出るまで全経路を `ToolReply` に写す。
 
+- [LN-052] **語彙（Literal / CHECK IN）は 4 箇所一致だけでなく「対応先モデルのフィールドに実在するか」を実行時に照合する**（T-301: 16/16・9/9）。綴り違い・存在しない項目の混入を一撃で検出。
+- [LN-053] **表レベル不変条件（値と状態が対）は項目ごとの分岐でなく、既存の入力スキーマで適用後スナップショットを再検証する形に畳む**（T-301 `record_service` が `ItemInput` で再検証）。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
@@ -533,6 +550,10 @@
   input 値の混入）と L-6 の「配列を単数へ戻す」を取り込み `make agent-mutations` 一本で再現 ②評価スクリプトに「`od_unit`/`weight_unit` 等が原表記の単位と異なれば換算」
   の機械チェック ③03-spec SCR-03/04・出力で寸法は原表記を主・数値を従とする方針の確認 ④大バッチ×恒常重複（`E_EVIDENCE_DUPLICATE`）の部分成功可否は再発時に設計判断。
   TODO-009 / TODO-017 / TODO-020 と合わせて C-3（`backend/app` を触る整理）で。
+- [TODO-024] **`item_ends`（両端仕様）が #24 の応答に無い。**SCR-04 で必要なら T-303 前に T-301 側へ取得追加（t302-instructions §0 ⑨）。
+- [TODO-025] **T-301 の記録のみ P3（RV-033）**: ①`range_class` と `length_value/unit` が `length_state` を共有 → SCR-04 の UI 文言か 04-db の状態列分割（研修者判断） ②`_undo` の
+  4xx 順序（状態→入力）を 05 §6 に一言 ③`apply_edits` の docstring に expire 前提 ④型エイリアス `Recorder` → `Nonblank` ⑤到達しない `require` にコメント。C-3 で。
+- [TODO-005]（解消: 05 0.2 に「422 も code 付き」を明文化・AD-022）
 - [TODO-001] D02（入力上限）は AD-003 の**仮値**。初版受入（X09 の上限試験）の前に研修者が実値を確定する。
   **確定時は `backend/app/core/config.py` と `frontend/src/shared/i18n/ja.json` の上限注記の両方を直す**（RV-024 P2-2。API が上限を返さないため画面側に複製がある）。
 - [TODO-002] **eml には `document_pages` が無い**ため、04-db.md の完了条件の機械判定
@@ -551,7 +572,7 @@
 - [TODO-007] `email_parts` に `UNIQUE(document_id, part_role, seq)` が無いまま、
   `email:{part_role}:{seq}` を完了条件の走査判定の一意キーとして使っている（04-db.md:944 の残件）。
   重複パーツが入ると走査済み集合が壊れる。**T-203 着手前に制約を足すか、判定側で重複を弾く**。
-- [TODO-005] 05-api-ipo 0.2 に「エラーコード不要の 422（標準バリデーション扱い）」の指針が無い。
+- [TODO-005]（上記で解消）05-api-ipo 0.2 に「エラーコード不要の 422（標準バリデーション扱い）」の指針が無い。
   T-102 では `fromSeq > toSeq` を 422（コードなし）とした。同種の入力検証が増えるなら明文化する。
 - [TODO-003] `document_issues.issue_type` の語彙（特に `reference_missing` / `not_scanned`）の
   意味づけが 04-db.md に無い。T-101 では「付随情報の欠落（引用元の日付が解釈できない等）」に

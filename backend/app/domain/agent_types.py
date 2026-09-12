@@ -62,14 +62,24 @@ class ItemArguments(VersionArguments):
 
 
 class EvidenceArguments(VersionArguments):
-    evidence: EvidenceInput
+    """根拠をevidences配列で一括登録する（1件以上）。1件でも配列を使い、項目ごとの出典を残す。"""
+
+    evidences: list[EvidenceInput] = Field(min_length=1)
 
 
 class QuestionArguments(VersionArguments):
-    question: QuestionInput
+    """確認事項をquestions配列で一括登録する（1件以上）。各要素に対象行itemId（案件なら省略）と対象項目targetFieldを指定する。"""
+
+    questions: list[QuestionInput] = Field(min_length=1)
 
 
 class InventoryArguments(VersionArguments):
+    """原資料の全要素をentries配列で登録する。各要素にdocumentId・position・正整数seqを渡す。
+    statusはmapped（itemIdsが1件）、split（2件以上）、excluded・unmapped（空配列）のいずれか。
+    excludedではbasisに除外理由を必ず記入する。excerptは原文の短い抜粋であり、要約に置換しない。
+    sourceNoは資料にある原項番（無ければ省略）。明細にしない注記・署名等も根拠つきで棚卸しする。
+    """
+
     entries: list[InventoryInput] = Field(min_length=1)
 
 

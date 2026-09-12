@@ -84,6 +84,13 @@ def test_stop_thresholds_are_only_defined_in_definition() -> None:
     `RunLimits(...)` を数値リテラルで組み立てているモジュールを検出する。既定値は
     `definition.default_run_limits()` から取り、service 経由で注入する（RV-015 P1-2）。
     """
+    from app.agent import definition
+
+    plan = APP_DIR.parents[1] / "docs/requirements/agent-plan.md"
+    approved = re.search(r"最大ターン数 \*\*(\d+)\*\*", plan.read_text())
+    assert approved is not None
+    assert definition.MAX_TURNS == int(approved.group(1))
+    assert definition.default_run_limits().max_turns == definition.MAX_TURNS
     call = re.compile(r"RunLimits\s*\(([^)]*)\)", re.S)
     for path, source in _app_modules(exclude=DEFINITION):
         for args in call.findall(source):

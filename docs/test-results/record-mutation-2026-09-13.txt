@@ -1,0 +1,35 @@
+import inspect
+import subprocess
+import sys
+from pathlib import Path
+
+backend = Path.cwd() / 'backend'
+sys.path.insert(0, str(backend))
+cases = ('allow_blank', 'apply_undone', 'wrong_order', 'retain_state_value', 'omit_quantity_unit', 'status_is_resolution', 'old_judgement', 'allow_unfinalized', 'broad_unique_code', 'no_version_lock')
+if len(sys.argv) > 1:
+    import pytest
+    from app.domain import record_types
+    from app.services import item_current_values, record_service
+    from app.repositories import record_repository
+    case = sys.argv[1]
+    module, test, match, old, new = {
+        'allow_blank': (record_types, 'unit/test_record_inputs.py', '', 'min_length=1', 'min_length=0'),
+        'apply_undone': (item_current_values, 'unit/test_item_current_values.py', '', 'edit.undone_at is not None or ', ''),
+        'wrong_order': (item_current_values, 'unit/test_item_current_values.py', '', 'key=lambda edit: (edit.recorded_at, edit.id)', 'key=lambda edit: (edit.recorded_at, -edit.id)'),
+        'retain_state_value': (item_current_values, 'unit/test_item_current_values.py', '', 'values[field] = None', 'pass'),
+        'omit_quantity_unit': (record_service, 'unit/test_record_service.py', 'quantity_pair', 'changes = [("qty_value", number), ("qty_unit", unit)]', 'changes = [("qty_value", number)]'),
+        'status_is_resolution': (record_service, 'integration/test_record_queries.py', 'summary_sets', 'row["latest"].resolution == "unresolved"', 'row["latest"].status != "judged"'),
+        'old_judgement': (record_repository, 'integration/test_record_queries.py', 'summary_sets', 'QuestionJudgement.id.desc()', 'QuestionJudgement.id.asc()'),
+        'allow_unfinalized': (record_repository, 'integration/test_record_queries.py', 'read_rejects', ' and version.finalized_at is not None', ''),
+        'broad_unique_code': (record_repository, 'integration/test_record_repository.py', 'unique_translation', 'if state == "23505" and constraint in {', 'if state == "23505" or constraint in {'),
+        'no_version_lock': (record_repository, 'integration/test_record_repository.py', 'version_lock', 'statement.with_for_update().execution_options(', 'statement.execution_options('),
+    }[case]
+    source = inspect.getsource(module)
+    assert old in source, (case, old)
+    exec(compile(source.replace(old,new), module.__file__, 'exec'), module.__dict__)
+    raise SystemExit(pytest.main([str(backend/'tests'/test), '-q', '-k', match, '--tb=short']))
+for case in cases:
+    run = subprocess.run([str(backend/'.venv/bin/python'), __file__, case], capture_output=True, text=True, timeout=60)
+    summary = [line for line in run.stdout.splitlines() if 'failed' in line and ' in ' in line]
+    print(case, run.returncode, ' '.join(summary), flush=True)
+    assert run.returncode == 1 and summary, run.stdout[-2500:] + run.stderr[-1000:]

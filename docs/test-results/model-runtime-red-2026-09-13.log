@@ -1,0 +1,371 @@
+..............FF....F..FFF........                                       [100%]
+=================================== FAILURES ===================================
+_ test_sdk_handler_round_trip_uses_existing_executor_and_records_once[arguments0-False] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7bb05074d0>
+context = RunContext(run_id=11, case_id=22, version_id=33, rule_set_id=44, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+arguments = {}, rejected = False
+
+    @pytest.mark.parametrize(
+        "arguments,rejected", [({}, False), ({"rule_set_id": 999}, True)]
+    )
+    async def test_sdk_handler_round_trip_uses_existing_executor_and_records_once(
+        monkeypatch, context, arguments, rejected
+    ):
+        from app.agent import claude_policy as policy
+    
+        repository = N(
+            get_rules=AsyncMock(return_value={"rule_set_id": context.rule_set_id}),
+            record_result=AsyncMock(),
+        )
+    
+        @asynccontextmanager
+        async def operation(*args):
+            yield repository
+    
+        gateway = N(
+            begin_step=AsyncMock(return_value=7), operation=operation, fail_step=AsyncMock()
+        )
+        executor = ToolExecutor(context, gateway)
+        captured = {}
+    
+        async def query(*, prompt, options):
+            captured["options"] = options
+            captured["prompt"] = [message async for message in prompt]
+            handler = next(tool for tool in AGENT_TOOLS if tool.name == "get_rules")
+            captured["response"] = await handler.handler(arguments)
+            yield result()
+    
+        monkeypatch.setattr(policy, "query", query)
+        stream = policy.claude_policy(context, api_key=SecretStr("synthetic-key"))
+        with executor.bind():
+            call = await anext(stream)
+            gateway.begin_step.assert_not_awaited()
+            with executor.bind(
+                request=AsyncMock(side_effect=AssertionError("recursive SDK request"))
+            ):
+                reply = await executor.call(call.name, call.arguments)
+            with pytest.raises(StopAsyncIteration):
+                signal = await stream.asend(reply)
+                while isinstance(signal, PolicyHeartbeat):
+                    signal = await anext(stream)
+        assert captured["response"]["isError"] is rejected
+        gateway.begin_step.assert_awaited_once()
+        if rejected:
+            repository.get_rules.assert_not_awaited()
+            repository.record_result.assert_not_awaited()
+            gateway.fail_step.assert_awaited_once()
+            assert "E_NOT_FOUND" in captured["response"]["content"][0]["text"]
+        else:
+            assert str(context.rule_set_id) in captured["response"]["content"][0]["text"]
+            repository.record_result.assert_awaited_once()
+        options = captured["options"]
+        assert options.model == definition.MODEL_ID
+        assert options.system_prompt == definition.SYSTEM_PROMPT
+        assert options.max_turns == definition.MAX_TURNS
+        assert options.mcp_servers == {"app": agent_server}
+>       assert options.allowed_tools == ALLOWED_TOOL_NAMES + ["ToolSearch"]
+E       AssertionError: assert ['mcp__app__l..._header', ...] == ['mcp__app__l..._header', ...]
+E         Right contains one more item: 'ToolSearch'
+E         Full diff:
+E           [
+E            'mcp__app__list_case_documents',
+E            'mcp__app__read_document',
+E            'mcp__app__read_email',
+E            'mcp__app__search_documents',
+E            'mcp__app__get_rules',
+E            'mcp__app__record_case_header',
+E            'mcp__app__propose_items',
+E            'mcp__app__record_evidence',
+E            'mcp__app__record_question',
+E            'mcp__app__record_source_inventory',
+E            'mcp__app__report_unreadable',
+E            'mcp__app__validate_draft',
+E            'mcp__app__finalize_draft',
+E         -  'ToolSearch',
+E           ]
+
+tests/unit/test_claude_policy.py:242: AssertionError
+_ test_sdk_handler_round_trip_uses_existing_executor_and_records_once[arguments1-True] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7bb0505310>
+context = RunContext(run_id=11, case_id=22, version_id=33, rule_set_id=44, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+arguments = {'rule_set_id': 999}, rejected = True
+
+    @pytest.mark.parametrize(
+        "arguments,rejected", [({}, False), ({"rule_set_id": 999}, True)]
+    )
+    async def test_sdk_handler_round_trip_uses_existing_executor_and_records_once(
+        monkeypatch, context, arguments, rejected
+    ):
+        from app.agent import claude_policy as policy
+    
+        repository = N(
+            get_rules=AsyncMock(return_value={"rule_set_id": context.rule_set_id}),
+            record_result=AsyncMock(),
+        )
+    
+        @asynccontextmanager
+        async def operation(*args):
+            yield repository
+    
+        gateway = N(
+            begin_step=AsyncMock(return_value=7), operation=operation, fail_step=AsyncMock()
+        )
+        executor = ToolExecutor(context, gateway)
+        captured = {}
+    
+        async def query(*, prompt, options):
+            captured["options"] = options
+            captured["prompt"] = [message async for message in prompt]
+            handler = next(tool for tool in AGENT_TOOLS if tool.name == "get_rules")
+            captured["response"] = await handler.handler(arguments)
+            yield result()
+    
+        monkeypatch.setattr(policy, "query", query)
+        stream = policy.claude_policy(context, api_key=SecretStr("synthetic-key"))
+        with executor.bind():
+            call = await anext(stream)
+            gateway.begin_step.assert_not_awaited()
+            with executor.bind(
+                request=AsyncMock(side_effect=AssertionError("recursive SDK request"))
+            ):
+                reply = await executor.call(call.name, call.arguments)
+            with pytest.raises(StopAsyncIteration):
+                signal = await stream.asend(reply)
+                while isinstance(signal, PolicyHeartbeat):
+                    signal = await anext(stream)
+        assert captured["response"]["isError"] is rejected
+        gateway.begin_step.assert_awaited_once()
+        if rejected:
+            repository.get_rules.assert_not_awaited()
+            repository.record_result.assert_not_awaited()
+            gateway.fail_step.assert_awaited_once()
+            assert "E_NOT_FOUND" in captured["response"]["content"][0]["text"]
+        else:
+            assert str(context.rule_set_id) in captured["response"]["content"][0]["text"]
+            repository.record_result.assert_awaited_once()
+        options = captured["options"]
+        assert options.model == definition.MODEL_ID
+        assert options.system_prompt == definition.SYSTEM_PROMPT
+        assert options.max_turns == definition.MAX_TURNS
+        assert options.mcp_servers == {"app": agent_server}
+>       assert options.allowed_tools == ALLOWED_TOOL_NAMES + ["ToolSearch"]
+E       AssertionError: assert ['mcp__app__l..._header', ...] == ['mcp__app__l..._header', ...]
+E         Right contains one more item: 'ToolSearch'
+E         Full diff:
+E           [
+E            'mcp__app__list_case_documents',
+E            'mcp__app__read_document',
+E            'mcp__app__read_email',
+E            'mcp__app__search_documents',
+E            'mcp__app__get_rules',
+E            'mcp__app__record_case_header',
+E            'mcp__app__propose_items',
+E            'mcp__app__record_evidence',
+E            'mcp__app__record_question',
+E            'mcp__app__record_source_inventory',
+E            'mcp__app__report_unreadable',
+E            'mcp__app__validate_draft',
+E            'mcp__app__finalize_draft',
+E         -  'ToolSearch',
+E           ]
+
+tests/unit/test_claude_policy.py:242: AssertionError
+_ test_runtime_tool_search_is_allowed_and_harness_tools_are_blocked[ToolSearch-True] _
+
+name = 'ToolSearch', allowed = True
+
+    @pytest.mark.parametrize("name,allowed", [("ToolSearch", True), ("Task", False), ("SendMessage", False)])
+    async def test_runtime_tool_search_is_allowed_and_harness_tools_are_blocked(name, allowed):
+        from app.agent.hooks import guard_pre_tool_use
+    
+        output = await guard_pre_tool_use({"tool_name": name, "tool_input": {"query": "https://synthetic.invalid"}}, None, {"signal": None})
+>       assert (output.get("hookSpecificOutput", {}).get("permissionDecision") != "deny") is allowed
+E       AssertionError: assert ('deny' != 'deny') is True
+E        +  where 'deny' = <built-in method get of dict object at 0x7f7bafbea600>('permissionDecision')
+E        +    where <built-in method get of dict object at 0x7f7bafbea600> = {'hookEventName': 'PreToolUse', 'permissionDecision': 'deny', 'permissionDecisionReason': 'E_TOOL_NOT_REGISTERED'}.get
+E        +      where {'hookEventName': 'PreToolUse', 'permissionDecision': 'deny', 'permissionDecisionReason': 'E_TOOL_NOT_REGISTERED'} = <built-in method get of dict object at 0x7f7bafbea200>('hookSpecificOutput', {})
+E        +        where <built-in method get of dict object at 0x7f7bafbea200> = {'hookSpecificOutput': {'hookEventName': 'PreToolUse', 'permissionDecision': 'deny', 'permissionDecisionReason': 'E_TOOL_NOT_REGISTERED'}}.get
+
+tests/unit/test_claude_policy.py:359: AssertionError
+____________ test_runtime_tool_name_is_preserved_in_denial_metadata ____________
+
+    async def test_runtime_tool_name_is_preserved_in_denial_metadata():
+        from app.agent.claude_policy import _record_denials
+    
+        executor = N(record_denial=AsyncMock())
+        await _record_denials(executor, [{"tool_name": "ToolSearch", "tool_input": {"query": "synthetic-private-input"}}])
+>       executor.record_denial.assert_awaited_once_with("ToolSearch", "E_TOOL_NOT_REGISTERED")
+
+tests/unit/test_claude_policy.py:367: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/unittest/mock.py:2363: in assert_awaited_once_with
+    return self.assert_awaited_with(*args, **kwargs)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <AsyncMock id='140169206366032'>
+args = ('ToolSearch', 'E_TOOL_NOT_REGISTERED'), kwargs = {}
+expected = call('ToolSearch', 'E_TOOL_NOT_REGISTERED')
+_error_message = <function AsyncMockMixin.assert_awaited_with.<locals>._error_message at 0x7f7bafba5940>
+actual = call('unregistered', 'E_TOOL_NOT_REGISTERED'), cause = None
+
+    def assert_awaited_with(self, /, *args, **kwargs):
+        """
+        Assert that the last await was with the specified arguments.
+        """
+        if self.await_args is None:
+            expected = self._format_mock_call_signature(args, kwargs)
+            raise AssertionError(f'Expected await: {expected}\nNot awaited')
+    
+        def _error_message():
+            msg = self._format_mock_failure_message(args, kwargs, action='await')
+            return msg
+    
+        expected = self._call_matcher(_Call((args, kwargs), two=True))
+        actual = self._call_matcher(self.await_args)
+        if actual != expected:
+            cause = expected if isinstance(expected, Exception) else None
+>           raise AssertionError(_error_message()) from cause
+E           AssertionError: expected await not found.
+E           Expected: mock('ToolSearch', 'E_TOOL_NOT_REGISTERED')
+E             Actual: mock('unregistered', 'E_TOOL_NOT_REGISTERED')
+
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/unittest/mock.py:2352: AssertionError
+_ test_terminal_result_takes_precedence_over_late_process_error[error_max_turns-max_turns-None] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7bafbff530>
+context = RunContext(run_id=11, case_id=22, version_id=33, rule_set_id=44, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+caplog = <_pytest.logging.LogCaptureFixture object at 0x7f7bafbfe1e0>
+subtype = 'error_max_turns', reason = 'max_turns', detail = None
+
+    @pytest.mark.parametrize("subtype,reason,detail", [("error_max_turns", "max_turns", None), ("success", "failed", "draft_not_finalized")])
+    async def test_terminal_result_takes_precedence_over_late_process_error(monkeypatch, context, caplog, subtype, reason, detail):
+        from claude_agent_sdk import ProcessError
+        from app.agent import claude_policy as policy
+    
+        async def query(**kwargs):
+            yield result(subtype)
+            raise ProcessError("synthetic-private-exit", exit_code=1, stderr="synthetic-private-stderr")
+    
+        monkeypatch.setattr(policy, "query", query)
+        outcome = await LocalAgentWorker(Mock(), partial(policy.claude_policy, api_key=SecretStr("synthetic-key")))(context)
+>       assert (outcome.stop_reason, outcome.detail) == (reason, detail)
+E       AssertionError: assert ('failed', 'model_error') == ('max_turns', None)
+E         At index 0 diff: 'failed' != 'max_turns'
+E         Full diff:
+E         - ('max_turns', None)
+E         + ('failed', 'model_error')
+
+tests/unit/test_claude_policy.py:381: AssertionError
+_ test_terminal_result_takes_precedence_over_late_process_error[success-failed-draft_not_finalized] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7f7bafbff890>
+context = RunContext(run_id=11, case_id=22, version_id=33, rule_set_id=44, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+caplog = <_pytest.logging.LogCaptureFixture object at 0x7f7bafbfc740>
+subtype = 'success', reason = 'failed', detail = 'draft_not_finalized'
+
+    @pytest.mark.parametrize("subtype,reason,detail", [("error_max_turns", "max_turns", None), ("success", "failed", "draft_not_finalized")])
+    async def test_terminal_result_takes_precedence_over_late_process_error(monkeypatch, context, caplog, subtype, reason, detail):
+        from claude_agent_sdk import ProcessError
+        from app.agent import claude_policy as policy
+    
+        async def query(**kwargs):
+            yield result(subtype)
+            raise ProcessError("synthetic-private-exit", exit_code=1, stderr="synthetic-private-stderr")
+    
+        monkeypatch.setattr(policy, "query", query)
+        outcome = await LocalAgentWorker(Mock(), partial(policy.claude_policy, api_key=SecretStr("synthetic-key")))(context)
+>       assert (outcome.stop_reason, outcome.detail) == (reason, detail)
+E       AssertionError: assert ('failed', 'model_error') == ('failed', 'd...ot_finalized')
+E         At index 1 diff: 'model_error' != 'draft_not_finalized'
+E         Full diff:
+E         - ('failed', 'draft_not_finalized')
+E         + ('failed', 'model_error')
+
+tests/unit/test_claude_policy.py:381: AssertionError
+=============================== warnings summary ===============================
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'ruleVersion' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'ruleVersion' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'ruleVersion' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'acknowledgedCarryOver' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'acknowledgedCarryOver' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'acknowledgedCarryOver' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_claude_policy.py::test_sdk_handler_round_trip_uses_existing_executor_and_records_once[arguments0-False] - AssertionError: assert ['mcp__app__l..._header', ...] == ['mcp__app__l..._header', ...]
+  Right contains one more item: 'ToolSearch'
+  Full diff:
+    [
+     'mcp__app__list_case_documents',
+     'mcp__app__read_document',
+     'mcp__app__read_email',
+     'mcp__app__search_documents',
+     'mcp__app__get_rules',
+     'mcp__app__record_case_header',
+     'mcp__app__propose_items',
+     'mcp__app__record_evidence',
+     'mcp__app__record_question',
+     'mcp__app__record_source_inventory',
+     'mcp__app__report_unreadable',
+     'mcp__app__validate_draft',
+     'mcp__app__finalize_draft',
+  -  'ToolSearch',
+    ]
+FAILED tests/unit/test_claude_policy.py::test_sdk_handler_round_trip_uses_existing_executor_and_records_once[arguments1-True] - AssertionError: assert ['mcp__app__l..._header', ...] == ['mcp__app__l..._header', ...]
+  Right contains one more item: 'ToolSearch'
+  Full diff:
+    [
+     'mcp__app__list_case_documents',
+     'mcp__app__read_document',
+     'mcp__app__read_email',
+     'mcp__app__search_documents',
+     'mcp__app__get_rules',
+     'mcp__app__record_case_header',
+     'mcp__app__propose_items',
+     'mcp__app__record_evidence',
+     'mcp__app__record_question',
+     'mcp__app__record_source_inventory',
+     'mcp__app__report_unreadable',
+     'mcp__app__validate_draft',
+     'mcp__app__finalize_draft',
+  -  'ToolSearch',
+    ]
+FAILED tests/unit/test_claude_policy.py::test_runtime_tool_search_is_allowed_and_harness_tools_are_blocked[ToolSearch-True] - AssertionError: assert ('deny' != 'deny') is True
+ +  where 'deny' = <built-in method get of dict object at 0x7f7bafbea600>('permissionDecision')
+ +    where <built-in method get of dict object at 0x7f7bafbea600> = {'hookEventName': 'PreToolUse', 'permissionDecision': 'deny', 'permissionDecisionReason': 'E_TOOL_NOT_REGISTERED'}.get
+ +      where {'hookEventName': 'PreToolUse', 'permissionDecision': 'deny', 'permissionDecisionReason': 'E_TOOL_NOT_REGISTERED'} = <built-in method get of dict object at 0x7f7bafbea200>('hookSpecificOutput', {})
+ +        where <built-in method get of dict object at 0x7f7bafbea200> = {'hookSpecificOutput': {'hookEventName': 'PreToolUse', 'permissionDecision': 'deny', 'permissionDecisionReason': 'E_TOOL_NOT_REGISTERED'}}.get
+FAILED tests/unit/test_claude_policy.py::test_runtime_tool_name_is_preserved_in_denial_metadata - AssertionError: expected await not found.
+Expected: mock('ToolSearch', 'E_TOOL_NOT_REGISTERED')
+  Actual: mock('unregistered', 'E_TOOL_NOT_REGISTERED')
+FAILED tests/unit/test_claude_policy.py::test_terminal_result_takes_precedence_over_late_process_error[error_max_turns-max_turns-None] - AssertionError: assert ('failed', 'model_error') == ('max_turns', None)
+  At index 0 diff: 'failed' != 'max_turns'
+  Full diff:
+  - ('max_turns', None)
+  + ('failed', 'model_error')
+FAILED tests/unit/test_claude_policy.py::test_terminal_result_takes_precedence_over_late_process_error[success-failed-draft_not_finalized] - AssertionError: assert ('failed', 'model_error') == ('failed', 'd...ot_finalized')
+  At index 1 diff: 'model_error' != 'draft_not_finalized'
+  Full diff:
+  - ('failed', 'draft_not_finalized')
+  + ('failed', 'model_error')
+6 failed, 28 passed, 6 warnings in 1.01s
+make: *** [/tmp/model-policy-checks.mk:2: model-policy-test] Error 1

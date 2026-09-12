@@ -9,9 +9,13 @@ from app.models.base import TimestampedBase
 from app.models.cases import Case
 from app.models.documents import Document, DocumentIssue, DocumentPage, EmailPart
 from app.models.rule_sets import RuleSet
+from app.models.records import ItemEdit, Confirmation, QuestionJudgement
 from app.models.versions import Version
 
 __all__ = [
+    "ItemEdit",
+    "Confirmation",
+    "QuestionJudgement",
     "TimestampedBase",
     "Case",
     "Document",

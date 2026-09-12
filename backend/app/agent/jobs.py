@@ -2,6 +2,7 @@
 import asyncio
 import logging
 from app.domain.run_types import RunResult
+from app.domain.errors import DomainError
 from app.agent import definition
 
 _tasks: set[asyncio.Task] = set()
@@ -33,7 +34,10 @@ def _worker_done(task):
     if not task.cancelled():
         exc = task.exception()
         if exc is not None:
-            logger.error("Agent background task failed (%s)", type(exc).__name__)
+            logger.error(
+                "Agent background task failed (%s)",
+                exc.code if isinstance(exc, DomainError) else type(exc).__name__,
+            )
 
 
 async def _cancel_with_grace(task):
@@ -63,7 +67,10 @@ async def _execute(work, on_finish, timeout):
             await _cancel_with_grace(worker)
             result = RunResult("outer_timeout")
         else:
-            result = worker.result()
+            try:
+                result = worker.result()
+            except asyncio.CancelledError:
+                result = RunResult("failed", detail="worker_failed")
     except asyncio.CancelledError:
         await _cancel_with_grace(worker)
         result = RunResult("failed", detail="process_interrupted")

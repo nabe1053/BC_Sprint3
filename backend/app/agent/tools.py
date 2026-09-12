@@ -89,23 +89,24 @@ class ToolExecutor:
     async def invoke(self, name, arguments):
         from app.agent.hooks import guard_pre_tool_use
 
-        if self.closed.is_set():
-            raise asyncio.CancelledError
-        request = _policy_request.get()
-        if request is not None:
-            # SDK handler -> this executor -> runner -> call() -> guarded invoke().
-            # Only the SDK task inherits request; runner execution clears it.
-            return await request(name, arguments)
-        registered = name in TOOL_ARGUMENTS
-        safe_name = name if registered else "guardrail_denied"
-        step_id = await self.gateway.begin_step(
-            self.context,
-            safe_name,
-            digest_args(arguments),
-            tool_stage(safe_name),
-            self.closed,
-        )
+        step_id = None
         try:
+            if self.closed.is_set():
+                raise asyncio.CancelledError
+            request = _policy_request.get()
+            if request is not None:
+                # SDK handler -> this executor -> runner -> call() -> guarded invoke().
+                # Only the SDK task inherits request; runner execution clears it.
+                return await request(name, arguments)
+            registered = name in TOOL_ARGUMENTS
+            safe_name = name if registered else "guardrail_denied"
+            step_id = await self.gateway.begin_step(
+                self.context,
+                safe_name,
+                digest_args(arguments),
+                tool_stage(safe_name),
+                self.closed,
+            )
             decision = await guard_pre_tool_use(
                 {"tool_name": "mcp__app__" + name, "tool_input": arguments},
                 None,
@@ -144,18 +145,41 @@ class ToolExecutor:
             return ToolReply(data)
         except asyncio.CancelledError:
             raise
-        except (DomainError, ValidationError) as exc:
-            code = exc.code if isinstance(exc, DomainError) else "E_REQUEST_INVALID"
-            await self.gateway.fail_step(self.context, step_id, code, self.closed)
-            return ToolReply({"code": code}, is_error=True)
         except Exception as exc:
-            logging.getLogger(__name__).error(
-                "Local tool failed (%s)", type(exc).__name__
+            code = (
+                exc.code
+                if isinstance(exc, DomainError)
+                else "E_REQUEST_INVALID"
+                if isinstance(exc, ValidationError)
+                else "E_INTERNAL"
             )
-            await self.gateway.fail_step(
-                self.context, step_id, "E_REQUEST_INVALID", self.closed
-            )
-            raise
+            if code == "E_INTERNAL":
+                logging.getLogger(__name__).error(
+                    "Local tool failed (%s)", type(exc).__name__
+                )
+            if step_id is not None:
+                try:
+                    await self.gateway.fail_step(
+                        self.context, step_id, code, self.closed
+                    )
+                except asyncio.CancelledError:
+                    raise
+                except Exception as failure:
+                    logging.getLogger(__name__).error(
+                        "Local tool failure recording failed (%s)",
+                        failure.code
+                        if isinstance(failure, DomainError)
+                        else type(failure).__name__,
+                    )
+            data = {"code": code}
+            if isinstance(exc, ValidationError):
+                data["errors"] = [
+                    {"loc": list(error["loc"]), "msg": error["msg"]}
+                    for error in exc.errors(
+                        include_input=False, include_context=False, include_url=False
+                    )
+                ]
+            return ToolReply(data, is_error=True)
 
 
 def _registered_tool(name, schema):
@@ -172,7 +196,9 @@ def _registered_tool(name, schema):
             "isError": result.is_error,
         }
 
-    return tool(name, "agent-plan: " + name, schema.model_json_schema())(bound)
+    return tool(
+        name, schema.__doc__ or "agent-plan: " + name, schema.model_json_schema()
+    )(bound)
 
 
 AGENT_TOOLS = [

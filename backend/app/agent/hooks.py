@@ -48,6 +48,9 @@ async def guard_pre_tool_use(
     tool_name = input_data.get("tool_name", "")
     tool_input = input_data.get("tool_input", {}) or {}
 
+    if tool_name in definition.RUNTIME_META_TOOLS:
+        return {}
+
     # 多重防御: allowed_tools に無いツール名は拒否する。
     from app.agent.tools import ALLOWED_TOOL_NAMES  # 遅延 import（循環回避）
 

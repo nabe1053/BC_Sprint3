@@ -1,3 +1,275 @@
+## L-6 対応（run 7）
+
+2026-09-13。§7 **03:50版**・AD-021 / TODO-021に対応。**除外なしの全体ゲート BE518件 / FE166件、local_dummy評価14/14件がPASS**。希望 Status: REVIEWING。T-301は中断継続。実モデルを呼ばずSDKは完全モック。
+
+### レビュー対応
+
+| 指摘番号 | 変更内容（ファイル:行） | REDを確認したテスト名・実行コマンド・件数 |
+|---|---|---|
+| L-6 1 配列契約 | `backend/app/domain/agent_types.py:64,70` / `services/agent_tool_service.py:43`。evidences/questionsは1件以上の配列のみ。単数キー・空配列・単複併記を拒否。MCP schemaとdescriptionに反映。戻り値も全件のID配列 | `test_batch_sdk_reply_contains_every_saved_id`（4件）、`test_batch_arguments_reject_empty_and_legacy_keys`（6件）。既存4ケースも配列へ置換。下記model-batch-unitで初回14 failed / 47 passed → 61 passed |
+| L-6 1 保存・count | `repositories/agent_tool_repository.py:279`。既存DraftService/Repositoryで同一トランザクションに全件を保存し、observation.countに配列件数を記録 | `test_batch_tool_persists_all_rows_and_exact_observation_count`（1件/3件×2ツール）、`test_invalid_later_batch_row_rolls_back_every_row`（2件）。後続要素の対象不正で全件未保存。model-batch-dbの初回REDに含む |
+| L-6 1 ダミー追従 | `agent/local_policy.py:104,165,222`。根拠・確認事項を集め一括呼出し。unsupportedもquestions配列に変更。`scripts/evaluate_local_agent.py:209`は直接の旧単数呼出しを持たずlocal_dummy_policyを使用するため、呼出し回数・countの検査を追加 | make agent-evalの既存14ケースを全件PASS。正常系はrecord_evidence 1回・count=2。TBA/URL注記の確認事項も各1回。シナリオの削除・期待停止理由の変更なし |
+| L-6 2 閾値SSOT | `agent/definition.py:36`。MAX_TURNS=80。他の期限は不変。`test_single_source_of_truth.py:81`でagent-planの承認値との一致・注入を追加検査 | `test_stop_thresholds_are_only_defined_in_definition` が40対80でRED → GREEN。既存の重複検出を残し、40へ戻す変異も検出 |
+| L-6 3 プロンプト | `agent/definition.py:14` / `docs/requirements/agent-plan.md:47,103,104,217`。代替提案は対象行つき確認事項へ、根拠・確認事項の一括、違反の一括修正、propose_items全行1回を反映。資料が明示する択一・分割はR06/R07として区別 | 決定的な契約検査と14ケース評価がPASS。実モデルの行数・判断品質はClaudeのrun 8で確認する |
+| L-6 4 無応答診断 | `domain/run_types.py:53` / `agent/runner.py:49,55,94,150`。受信済みPolicyHeartbeatの最後の時刻と実行全体の件数を保持し、停止判定時にRunResultへ固定。`repositories/agent_tool_repository.py:158`はjob_interruptedの既存observationへ数値2キーのみ追加 | `test_timeout_diagnostics_capture_last_heartbeat_and_run_total`（未受信 / ツールをまたぐ受信 / 内側期限の3件）と `test_interruption_diagnostics_reach_trace_and_http_stop_reason_once`（2件）がRED → GREEN。DBとJSONLの一致、再試行でも1イベント、既存HTTPの停止理由、本文非混入を検査 |
+| L-6 4 設計 | `docs/requirements/04-db.md:942`。sinceLastHeartbeatS / heartbeatsを記載。未受信なら開始からの秒数。agent-planのL-6補足も内側期限を明記 | スキーマは既存JSONBの数値キー追加。新規migration/APIは不要 |
+
+### 入出力の変更
+
+```text
+record_evidence({evidences: [EvidenceInput, ...]})
+  → {evidences: [{evidence_id: n}, ...]}
+record_question({questions: [QuestionInput, ...]})
+  → {questions: [{question_id: n}, ...]}
+```
+
+1件も配列で渡す。旧evidence/questionキーはE_REQUEST_INVALID。ツール名・13本・各要素の検証規則・保存単位は従来のまま。入力値をtraceへ出さず、成功件数だけを記録する。
+
+### RED → GREEN・既存テストの保全
+
+```sh
+cp docs/test-results/model-batch-checks-2026-09-13.mk /tmp/model-batch-checks.mk
+AGENT_MODE=local_dummy DEBUG=false CI=true make -f Makefile -f /tmp/model-batch-checks.mk model-batch-unit
+AGENT_MODE=local_dummy DEBUG=false CI=true make -f Makefile -f /tmp/model-batch-checks.mk model-batch-db
+```
+
+Makefileの追加ターゲットは単体3ファイル、DB統合1ファイルを実行する作業中の入口。再レビューの根拠は下記の除外なし全体ゲート。
+
+- [単体RED](test-results/model-batch-red-2026-09-13.log): **14 failed / 47 passed**。
+- [DB統合RED](test-results/model-batch-db-red-2026-09-13.log): **8 failed / 13 passed**。
+- [GREEN](test-results/model-batch-green-2026-09-13.log): **単体61 passed / DB統合21 passed**。
+- `test_agent_execution_tools.py`の既存入力4箇所を単数→配列に置換。AD-021で旧キーを受けないため必要な期待更新。既存テスト13関数は全件保持し、既存関数内のassertは**24→24**。新規2関数（10ケース）を追加。
+- `test_runs.py`は承認済み閾値変更に追従し、起動時保存値の期待を40直書きから`default_run_limits().max_turns`へ変更。既存22関数・assert **42→42**、T-301/L-4の変更も保全。
+- SSOT検査は設計値照合を追加。既存検査とAPIパス分離の検査を削除・弱体化していない。
+
+### 変異検証
+
+```sh
+cp docs/test-results/model-batch-mutation-2026-09-13.txt /tmp/model-batch-mutation.py
+AGENT_MODE=local_dummy DEBUG=false CI=true make -f Makefile -f /tmp/model-batch-checks.mk model-batch-mutations
+```
+
+[6/6検出](test-results/model-batch-mutations-2026-09-13.log)。子プロセス内のモジュールだけを変異し、共有ソースは変更しない。
+
+| 変異 | 検出 |
+|---|---|
+| 配列を先頭1件に切る | 2 FAIL |
+| evidence/questionのcountを既定1へ戻す | 2 FAIL |
+| 診断値をjob_interruptedへ渡さない | 2 FAIL |
+| 各bounded呼出しで受信件数をリセット | 2 FAIL |
+| 直近生存信号からの秒数を0に固定 | 3 FAIL |
+| MAX_TURNSを40へ戻す | 1 FAIL |
+
+### 全体ゲート・ミニ評価
+
+```sh
+AGENT_MODE=local_dummy DEBUG=false CI=true make check
+AGENT_MODE=local_dummy DEBUG=false CI=true make agent-eval
+```
+
+[全体ゲート](test-results/model-batch-regression-2026-09-13.log):
+
+```text
+518 passed, 124 warnings in 32.72s
+Test Suites: 15 passed, 15 total
+Tests:       166 passed, 166 total
+Time:        5.777 s
+✅ check: all green
+```
+
+除外・deselectなし。make checkの両DB migration/実索引確認、ruff、OpenAPI/orval、型検査、lintもPASS。
+
+[ミニ評価14/14 PASS](test-results/model-batch-evaluation-2026-09-13.log): normal / ae06_url_in_source / tba / not_applicable / email / unsupported / max_turns / repeated_call / validation_loop / inactivity / inner_timeout / outer_timeout / no_readable / guardrail。traceルートは `backend/traces/evaluations/4b3f08c970f8417393a0cbe2238fa35f/`（git管理外）。
+
+停止診断の実トレース例（評価用の短い期限。既定期限は変更していない）:
+
+```json
+{"code":"inactivity_timeout","count":1,"status":"error","heartbeats":0,"sinceLastHeartbeatS":1.0002567380142864}
+{"code":"inner_timeout","count":1,"status":"error","heartbeats":0,"sinceLastHeartbeatS":2.000349415000528}
+```
+
+L-4/L-5の実モデル確認と同様、run 4/6のprocess_interrupted化の原因は未確定。今回の診断は次回発火時の切り分け材料であり、未再現の原因を解消したとは主張しない。Claudeが提出後にrun 8を行う。
+
+`.claude/memory.md`は未編集、`.env`は閲覧・表示・編集せず、実モデル呼出し・commitはしていない。§7の指示どおりT-301は中断継続。L-3〜L-5とT-301を同一コミット単位とする指示は確認済みで、T-301再開時に同handoff冒頭へ記録する。
+
+再レビュー依頼
+
+---
+
+## L-5 対応（run 5）
+
+2026-09-13。§7 **02:50版**・AD-020に対応。**除外なしの全体ゲート BE497件 / FE166件、local_dummyの既存ミニ評価14/14件がPASS**。希望 Status: REVIEWING。実モデルは呼んでいない。T-301は中断を継続。
+
+### レビュー対応
+
+| 指摘番号 | 変更内容（ファイル:行） | REDを確認したテスト名・実行コマンド・件数 |
+|---|---|---|
+| L-5 1 エラー継続 | `app/agent/runner.py:105`。同一ツール名×同一codeの連続回数を専用カウンタへ分離し、REPEATED_CALL_LIMIT到達でtool_rejected。それまではis_errorのToolReplyを方針へ返す。成功でリセット | `test_only_consecutive_same_tool_error_codes_stop_the_worker`（5ケース） / `test_different_tool_names_do_not_share_the_error_counter`。2回継続・3回停止、別コード・別ツールの区別、成功リセットを確認。初回REDに含む |
+| L-5 1 完了・検証 | `runner.py:115,120`。エラーになったfinalizeを成功とせず、失敗したvalidateの応答にviolationsがあると仮定しない | 上記finalize/validateケースがRED → GREEN。既存のrepeated_call・validation_loop・期限カウンタは維持 |
+| L-5 2 検証情報 | `app/agent/tools.py:147`。PydanticのE_REQUEST_INVALIDはSDK応答へ `errors=[{loc,msg}]` を追加。input・ctx・urlを除外。gatewayへは従来どおり固定codeだけを渡す | `test_invalid_inventory_reply_has_field_messages_but_never_input_values`（status不正 / excludedのbasis欠落）と `test_scope_failure_returns_only_fixed_code`。項目情報を返し、引数値のcanaryは含まれず、scope失敗はcodeだけ。初回REDに含む |
+| L-5 3 inventory説明 | `app/domain/agent_types.py:72` / `tools.py:184`。InventoryArgumentsの説明をMCPのschema/descriptionへ反映。status4語彙・itemIds件数条件・excluded時のbasis・excerptの原文抜粋を明示 | `test_inventory_mcp_description_explains_status_basis_and_excerpt`。説明不足の旧実装でRED → GREEN。業務ツール13本・入力フィールド・バリデーション規則は変更なし |
+| L-5 5 設計 | `docs/requirements/04-db.md:941` のtool_rejected説明を連続3回へ更新 | agent-plan:235はorchestratorのAD-020改定を参照し、重ねて変更していない |
+
+### run 5の引数について
+
+実引数はトレースに保存していないため、**正確な入力の復元はできない**。スキーマ照合により、`status` の語彙違い、`excluded` なのに `basis` が無い等を仮説として再現した。いずれも登録前にE_REQUEST_INVALIDとなり、修正箇所のloc/msgがモデルへ返る。トレースは入力値を含めない方針を維持した。
+
+既存schemaにはstatusのenumがあったが、MCP descriptionはツール名だけだった。現在は `entries`、`documentId`、`position`、正整数`seq`、原項番`sourceNo`、`excerpt`の意味と、mapped=1行 / split=2行以上 / excluded・unmapped=対応行なしを説明する。説明文はInventoryArgumentsの1箇所からschemaとSDK descriptionに使用する。
+
+### RED・変異・全体ゲート
+
+```sh
+AGENT_MODE=local_dummy DEBUG=false CI=true make -f Makefile -f /tmp/model-tool-retry-checks.mk model-tool-retry-test
+# recipe: cd $(BACKEND) && uv run pytest tests/unit/test_policy_tool_errors.py tests/unit/test_agent_execution_tools.py -q
+```
+
+[初回RED](test-results/model-tool-retry-red-2026-09-13.log): **8 failed / 34 passed** → [最終GREEN](test-results/model-tool-retry-green-2026-09-13.log): **44 passed**（basis欠落・scope固定コードを追加）。既存test_agent_execution_toolsの期待は削除せず、新規テストを追加した。検証対象は決定的な失敗応答とカウンタであり、LLMの判断品質ではない。
+
+```sh
+AGENT_MODE=local_dummy DEBUG=false CI=true make -f Makefile -f /tmp/model-tool-retry-checks.mk model-tool-retry-mutations
+```
+
+[変異4/4検出](test-results/model-tool-retry-mutations-2026-09-13.log): 1回目で停止へ戻す（6 FAIL）、成功時リセットを除去（1 FAIL）、項目別情報を除去（2 FAIL）、input値を応答へ混入（2 FAIL）。対象モジュールを子プロセス内だけで変異し、共有ソースは変更していない。
+
+```sh
+AGENT_MODE=local_dummy DEBUG=false CI=true make check
+AGENT_MODE=local_dummy DEBUG=false CI=true make agent-eval
+```
+
+[全体ゲート](test-results/model-tool-retry-regression-2026-09-13.log):
+
+```text
+497 passed, 124 warnings in 30.12s
+Test Suites: 15 passed, 15 total
+Tests:       166 passed, 166 total
+Time:        5.554 s
+✅ check: all green
+```
+
+[ミニ評価14/14 PASS](test-results/model-tool-retry-evaluation-2026-09-13.log): normal / ae06_url_in_source / tba / not_applicable / email / unsupported / max_turns / repeated_call / validation_loop / inactivity / inner_timeout / outer_timeout / no_readable / guardrail。`unsupported`も既存経路のままPASS。評価traceルートは `backend/traces/evaluations/5e419060bb8d4363af36fd977b0313f5/`（git管理外）。評価スクリプト・既定方針は変更していない。
+
+`.claude/memory.md`・`.env`は編集せず、`.env`の閲覧/表示・実モデル呼出し・commitはしていない。中断中T-301とL-3/L-4の未コミット変更は保全した。§7更新まで待機する。
+
+再レビュー依頼
+
+---
+
+## L-4 対応（run 4）
+
+2026-09-13。§7 **02:20版**の最優先指示に対応。T-301を中断したままL-4を実施し、**除外なしの全体ゲート BE487件 / FE166件がPASS**。希望 Status: REVIEWING。実モデルは呼ばず、SDKは完全モック。
+
+### レビュー対応
+
+| 指摘番号 | 変更内容（ファイル:行） | REDを確認したテスト名・実行コマンド・件数 |
+|---|---|---|
+| L-4 A 部分出力 | `app/agent/claude_policy.py:94`。`include_partial_messages=True`。既存の全メッセージ共通経路がStreamEventも受信時刻つきPolicyHeartbeatとして送る | `test_sdk_message_activity_controls_only_inactivity_clock[4-False-True]`、既存SDK optionsテスト2件。20秒間隔のStreamEventが80秒続いても停止せず、ツール1回を実行。初回REDに含む |
+| L-4 B キャンセル分類 | `app/agent/claude_policy.py:145`。SDK後始末を別タスクに置きshieldし、参照を完了まで保持。`app/agent/runner.py:125,142`。内側/無応答期限が確定した場合だけ、後始末からのキャンセルで結果を上書きさせない | `test_timeout_result_survives_cleanup_cancellation_and_keeps_turns`。後始末が呼出し側をcancelしてCancelledErrorを上げるmock policyで旧実装がRED → inactivity_timeout・6ターンを保持してGREEN。期限未確定のキャンセルは従来どおり伝播 |
+| L-4 3 ターン数 | `app/domain/run_types.py:55`。`RunResult.turns` の未指定をNoneで表す。`app/repositories/run_repository.py` の `finish()` はNoneのときDBの既存ターン数を保持 | `test_finish_preserves_recorded_turns_when_job_result_omits_them`（outer_timeout / worker_failed / process_interruptedの3件）。旧実装は6→0でRED、修正後6を保持。`test_finish_respects_explicit_zero_turns` で明示0は保存されることも検査 |
+| L-4 4/設計 | agent-plan T-205末尾へStreamEvent・後始末隔離・未指定ターン数の契約を追記。本handoffに手動確認手順を記載 | 閾値・SDK実呼出し・評価スクリプトの既定は変更なし |
+
+開発用入口:
+
+```sh
+AGENT_MODE=local_dummy DEBUG=false CI=true make -f Makefile -f /tmp/model-timeout-checks.mk model-timeout-test
+# recipe: cd $(BACKEND) && uv run pytest tests/unit/test_claude_policy.py tests/unit/test_policy_activity.py tests/integration/test_runs.py -k "not carryover" -q
+```
+
+[RED](test-results/model-timeout-red-2026-09-13.log): **7 failed / 49 passed / 4 deselected** → [GREEN](test-results/model-timeout-green-2026-09-13.log): **56 passed / 4 deselected**。この絞込後に明示0の検査を追加し、以下の全体ゲートで確認した。既存テストは部分出力optionsのassertとfake-clockケース追加のみで、以前のメッセージ・無応答ケースとassertを保持した。
+
+```sh
+AGENT_MODE=local_dummy DEBUG=false CI=true make -f Makefile -f /tmp/model-timeout-checks.mk model-timeout-mutations
+AGENT_MODE=local_dummy DEBUG=false CI=true make agent-mutations
+```
+
+[L-4変異](test-results/model-timeout-boundary-mutations-2026-09-13.log): **3/3検出**。部分出力を無効へ戻す（1 FAIL）、期限確定後もキャンセルを再送出（1 FAIL）、未指定ターン数を無条件保存（3 FAIL）。子プロセス内だけで変異し、共有ソースは変更していない。[既存の変異ゲート](test-results/model-timeout-mutations-2026-09-13.log)も正常系2種類・故障6種類が期待どおり。
+
+### 最終ゲート（除外なし）
+
+```sh
+AGENT_MODE=local_dummy DEBUG=false CI=true make check
+```
+
+[全出力](test-results/model-timeout-regression-2026-09-13.log):
+
+```text
+487 passed, 124 warnings in 29.76s
+Test Suites: 15 passed, 15 total
+Tests:       166 passed, 166 total
+Time:        5.579 s
+✅ check: all green
+```
+
+§7が除外を許可したT-301のcarry-over4ケースはL-4への切替前にORM移行で解消済みだったため、**今回はdeselect/ignoreとも0件**。これら4件と中断中T-301のテストも含む。T-301自体の完了は別handoffで扱う。
+
+### Claudeへ引き継ぐ実機停止系の確認手順
+
+1. 既存のclaudeモード設定で、承認済みsample-06から新しいrunをUIの案作成操作で起動する。既存のrun 3/4は上書きしない。
+2. #13の進捗と#14のstep一覧で、読取6呼出し後の生成が60秒を超えても、SDKの部分出力が続く間はrunningを保つことを確認する。トレースには本文を追加せず、ツール列・時刻・停止理由・ターン数で照合する。
+3. メッセージ/StreamEventが実際に60秒途絶えた場合、終端が `inactivity_timeout` であり、SDKの後始末後も `process_interrupted` に変化せず、既存のツール呼出しターン数が残ることを確認する。外側期限で終了した場合もDBの記録済みターン数が残ることを確認する。
+4. `INACTIVITY_TIMEOUT_S` はdefinition.pyの固定値で、環境変数によって一時短縮する設定口は現状存在しない。設計外の設定口は追加していない。短時間の決定的な再現は上記fake-clockテストで実施済み。実機での無応答は実際の60秒の観測対象とする。
+
+`scripts/evaluate_local_agent.py` はlocal_dummyのまま。Codexは実評価・キー確認・`.env`の閲覧/表示を行っていない。
+
+### 並行変更の保全
+
+`.claude/memory.md`・`.env`は編集せず、commitしていない。**`run_repository.py` はT-301の `_has_records` ORM化と、L-4の `finish()` ターン数保持が同居している。`test_runs.py` もT-301のcarry-over移行とL-4の終端4ケースが同居している。**L-4だけをcommitする場合はこの差分を区別する必要がある。T-301のORM・migration・入力・Service/Repository・テストは未完タスクの変更として保全した。T-301は§7の「中断継続」に従い、新しい指示まで再開しない。
+
+再レビュー依頼
+
+---
+
+## AD-019 対応（L-3）
+
+2026-09-13。§7 **01:40版**の最優先指示に従い、T-301を8件GREENの区切りで中断して実施した。実モデル呼出しはなく、SDKは完全モック。希望 Status: REVIEWING。
+
+### レビュー対応
+
+| 指摘番号 | 変更内容（ファイル:行） | REDを確認したテスト名・実行コマンド・件数 |
+|---|---|---|
+| AD-019 1 | `app/agent/definition.py:54` に `RUNTIME_META_TOOLS=["ToolSearch"]`、`claude_policy.py:84` で13業務ツールと結合。`hooks.py` で定義取得用メタツールを許可し、その引数検査はしない | `test_runtime_tool_search_is_allowed_and_harness_tools_are_blocked`、既存SDK round-trip。下記RED **6 failed / 28 passed** → GREEN **34 passed**。業務ツール13本は不変 |
+| AD-019 1 拒否名 | `claude_policy.py:32` のsafe_nameにruntimeメタツールを含める | `test_runtime_tool_name_is_preserved_in_denial_metadata`。ToolSearchをunregisteredへ潰す旧実装でRED → GREEN |
+| AD-019 2 | `definition.py:55` の禁止8種へ指定のハーネス18種を追加（計26）。`claude_policy.py:85` に `tools=[]` | SDK round-tripでallowed_tools=13本＋ToolSearch、tools空、disallowed_tools26種の集合をassert。Task / SendMessageはhookで引き続き拒否 |
+| AD-019 3 | `claude_policy.py:75,109,114`。結果受信済みフラグで終端理由を保持し、後続のProcessErrorによるmodel_error上書きを防止 | `test_terminal_result_takes_precedence_over_late_process_error`（max_turns / successの2ケース）。ResultMessage→ProcessError(exit 1)でRED → GREEN。結果前の例外は従来どおりmodel_error |
+| AD-019 5 | `docs/requirements/agent-plan.md` 末尾へランタイムメタツール・ハーネス遮断・結果優先の契約を追記 | 設計と実装の語彙を一致させた。業務ツール一覧は変更なし |
+| 変異検証の追従 | `scripts/check_agent_mutations.py` の例外本文変異を、結果優先分岐に合わせた置換位置へ更新 | `make agent-mutations`。正常系26件PASS、要求クリア漏れ2件FAIL、max_turns誤変換4件FAIL、例外本文漏出3件FAIL。既存hook変異3種類も検出 |
+
+SDK根拠: インストール済み `backend/.venv/lib/python3.12/site-packages/claude_agent_sdk/types.py:1944` の `ClaudeAgentOptions.tools` は `list[str] | ToolsPreset | None`。同docstringに **空リストは組込ツールをすべて無効化する**と明記されているため、指示に従い `tools=[]` を優先し、disallowed_toolsを多重防御として残した。`allowed_tools` は別の許可設定。実際のCLIでのツール取得の再評価はClaude側へ引き継ぐ。
+
+SDK `_errors.py` の `ProcessError` / `ResultError` と評価記録を確認した。SDKが結果フレームを返した後にCLIの非ゼロ終了を例外として通知する順序をモックで再現し、結果前の失敗と区別した。stderrや例外本文は保存していない。
+
+開発用入口:
+
+```sh
+AGENT_MODE=local_dummy DEBUG=false CI=true make -f Makefile -f /tmp/model-policy-checks.mk model-policy-test
+AGENT_MODE=local_dummy DEBUG=false CI=true make agent-mutations
+```
+
+[RED](test-results/model-runtime-red-2026-09-13.log)・[GREEN](test-results/model-runtime-green-2026-09-13.log)・[変異](test-results/model-runtime-mutations-2026-09-13.log)。既存テストは新しい許可/禁止集合へ期待値を更新した。SSOT・パス分離は維持。追加テスト6件。
+
+### 最終ゲートと除外（CV-023）
+
+```sh
+AGENT_MODE=local_dummy DEBUG=false CI=true PYTEST_ADDOPTS='--deselect=tests/integration/test_runs.py::test_carryover_checks_real_schema_and_does_not_copy' make check
+```
+
+T-301中断時点で失敗を実測した **carry-overの4パラメータケースだけ**を除外した。ファイル全体のignoreはせず、同ファイルの残り23件も実行している。新規human_recordsテーブルに旧テストのCREATE TABLEが衝突するためで、ORMへの移行はT-301再開時に行う。今回の結果を除外なしの回帰成功とは扱わない。
+
+[全出力](test-results/model-runtime-regression-2026-09-13.log):
+
+```text
+463 passed, 4 deselected, 124 warnings in 25.52s
+Test Suites: 15 passed, 15 total
+Tests:       166 passed, 166 total
+Time:        5.89 s
+✅ check: all green
+```
+
+L-3の変更対象はagentのdefinition/hooks/claude_policy、SDKモックテスト、変異スクリプト、agent-planと本handoff。中断中T-301の変更は保全し、ゲートのformatterによる整形以外は変更していない。`.claude/memory.md`・`.env`は編集せず、`.env`の閲覧/表示・commitは行っていない。L-3提出後に§7の許可に従いT-301を再開する。DBテストは他セッションのpytestと重ねない。
+
+再レビュー依頼
+
+---
+
 ## RV-030 対応（L-2）
 
 2026-09-12。指示: CODEX-INSTRUCTIONS.md §7 **2026-09-13 00:40** 版。L-2の全項目を反映。最終 `make check` は **BE429件 / FE166件 PASS**。希望 Status: REVIEWING。SDKは完全モックで、実モデルの評価はClaudeへ引き継ぐ。

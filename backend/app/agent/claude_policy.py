@@ -15,6 +15,14 @@ from app.agent.hooks import build_hooks, guard_pre_tool_use
 from app.agent.tools import ALLOWED_TOOL_NAMES, ToolExecutor, agent_server
 from app.domain.agent_types import LocalPolicyStop, PolicyHeartbeat, ToolCall
 
+_cleanup_tasks = set()
+
+
+def _consume_cleanup(task):
+    _cleanup_tasks.discard(task)
+    if not task.cancelled():
+        task.exception()
+
 
 async def _record_denials(executor, denials):
     for denial in denials or []:
@@ -31,7 +39,10 @@ async def _record_denials(executor, denials):
             code = "E_TOOL_NOT_REGISTERED"
         safe_name = (
             name
-            if name in ALLOWED_TOOL_NAMES + definition.DISALLOWED_TOOLS
+            if name
+            in ALLOWED_TOOL_NAMES
+            + definition.RUNTIME_META_TOOLS
+            + definition.DISALLOWED_TOOLS
             else "unregistered"
         )
         await executor.record_denial(safe_name, code)
@@ -69,6 +80,7 @@ async def claude_policy(context, *, api_key):
 
     async def consume():
         reason = None
+        terminal_received = False
         try:
             with TemporaryDirectory(prefix="agent-run-") as cwd, executor.bind(
                 request=request
@@ -77,7 +89,9 @@ async def claude_policy(context, *, api_key):
                     model=definition.MODEL_ID,
                     system_prompt=definition.SYSTEM_PROMPT,
                     mcp_servers={"app": agent_server},
-                    allowed_tools=ALLOWED_TOOL_NAMES,
+                    allowed_tools=ALLOWED_TOOL_NAMES + definition.RUNTIME_META_TOOLS,
+                    tools=[],
+                    include_partial_messages=True,
                     hooks=build_hooks(),
                     max_turns=definition.MAX_TURNS,
                     permission_mode="default",
@@ -101,11 +115,12 @@ async def claude_policy(context, *, api_key):
                                 reason = "max_turns"
                             elif message.is_error or message.subtype != "success":
                                 reason = "model_error"
+                            terminal_received = True
                             # Drain the SDK iterator so its transport/task group
                             # is released in this same task before reporting stop.
         except Exception:
             # SDK diagnostics may contain input text or credentials. Never log them.
-            reason = "model_error"
+            reason = reason if terminal_received else "model_error"
         finally:
             requests.put_nowait((reason, None))
 
@@ -126,7 +141,18 @@ async def claude_policy(context, *, api_key):
             if not reply.done():
                 reply.set_result(response)
     finally:
-        for reply in replies:
-            reply.cancel()
-        task.cancel()
-        await asyncio.wait({task}, timeout=definition.CANCEL_CLEANUP_S)
+
+        async def close_sdk():
+            for reply in replies:
+                reply.cancel()
+            task.cancel()
+            await asyncio.wait({task}, timeout=definition.CANCEL_CLEANUP_S)
+
+        cleanup = asyncio.create_task(close_sdk())
+        _cleanup_tasks.add(cleanup)
+        cleanup.add_done_callback(_consume_cleanup)
+        try:
+            await asyncio.shield(cleanup)
+        except asyncio.CancelledError:
+            # Cleanup owns the SDK task and remains bounded after this caller stops.
+            pass

@@ -11,6 +11,12 @@ SYSTEM_PROMPT = """あなたは AGENT-01（引合明細抽出エージェント�
 
 代行しないこと: 値の正しさの最終判断、代替品の採否、換算の実行、対外送付。これらは人が決めます。
 
+登録・自己点検の進め方:
+- 材質・接続の代替候補は明細行にしない。record_question に対象行つきで残す（R03/R04）。原資料が明示する択一・分割（R06/R07）は区別する。
+- 根拠・確認事項は項目を集め、evidences / questions の配列で一括登録する（1件でも配列）。
+- validate_draft の違反はまとめて直してから再検証する。
+- propose_items は1回で全行を登録する。
+
 完了条件: validate_draft が全チェックを通過し、finalize_draft で版を「作成案」として確定すること。
 失敗（読取成功資料が無い／同一違反が3回連続）と判断したら、作業を中断し理由を報告してください。
 
@@ -27,7 +33,7 @@ SYSTEM_PROMPT = """あなたは AGENT-01（引合明細抽出エージェント�
 """
 
 # --- 強制停止（agent-plan.md「完了条件・停止条件」の強制停止行） ---
-MAX_TURNS = 40  # 最大ターン数（D06 仮値）
+MAX_TURNS = 80  # 最大ターン数（D06 仮値・AD-021）
 
 # --- タイムアウトの2層構造（必ず 内側 < 外側 を守る） ---
 # 内側 = エージェント自身の停止条件。発火したらトレースに記録して整然と終了する。
@@ -51,6 +57,7 @@ CANCEL_CLEANUP_S = 0.02
 # 実行モデル識別子。agent_runs.model に記録する。
 DUMMY_MODEL_ID = "mock-fixed-v2"
 MODEL_ID = "claude-sonnet-5"
+RUNTIME_META_TOOLS = ["ToolSearch"]
 DISALLOWED_TOOLS = [
     "Bash",
     "Read",
@@ -60,6 +67,24 @@ DISALLOWED_TOOLS = [
     "WebSearch",
     "Glob",
     "Grep",
+    "Task",
+    "CronCreate",
+    "CronDelete",
+    "CronList",
+    "DesignSync",
+    "EnterWorktree",
+    "ExitWorktree",
+    "ListAgents",
+    "Monitor",
+    "NotebookEdit",
+    "PushNotification",
+    "ReportFindings",
+    "ScheduleWakeup",
+    "SendMessage",
+    "Skill",
+    "TaskOutput",
+    "TaskStop",
+    "Workflow",
 ]
 LOCAL_IMPL_VERSION = "local-agent-tools-v1"
 

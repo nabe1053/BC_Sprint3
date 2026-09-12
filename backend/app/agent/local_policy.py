@@ -103,11 +103,13 @@ async def local_dummy_policy(context):
         yield ToolCall(
             "record_question",
             {
-                "question": {
-                    "question_code": "LOCAL-UNSUPPORTED",
-                    "target_field": "items",
-                    "reason": "ローカルダミーの対応範囲外のため明細を確定できません",
-                }
+                "questions": [
+                    {
+                        "question_code": "LOCAL-UNSUPPORTED",
+                        "target_field": "items",
+                        "reason": "ローカルダミーの対応範囲外のため明細を確定できません",
+                    }
+                ]
             },
         )
         raise LocalPolicyStop("local_dummy_unsupported")
@@ -160,34 +162,30 @@ async def local_dummy_policy(context):
     reply = yield ToolCall("propose_items", {"rows": rows})
     created = reply.data["items"]
     entries = []
+    evidences = []
+    questions = []
     for seq, (item, source) in enumerate(zip(created, sources, strict=True), 1):
         document_id, locator, line, values = source
         for field in ("kind", "qty"):
-            yield ToolCall(
-                "record_evidence",
+            evidences.append(
                 {
-                    "evidence": {
-                        "item_id": item["item_id"],
-                        "field": field,
-                        "raw_value": values[field],
-                        "adopted_value": values[field],
-                        "document_id": document_id,
-                        "locator": locator,
-                        "quote": line,
-                    }
+                    "item_id": item["item_id"],
+                    "field": field,
+                    "raw_value": values[field],
+                    "adopted_value": values[field],
+                    "document_id": document_id,
+                    "locator": locator,
+                    "quote": line,
                 },
             )
         if values["qty"] == "TBA":
-            yield ToolCall(
-                "record_question",
+            questions.append(
                 {
-                    "question": {
-                        "question_code": f"Q-{seq}",
-                        "item_id": item["item_id"],
-                        "target_field": "qty",
-                        "reason": "数量はTBAと明記されています",
-                        "category": "unknown",
-                    }
+                    "question_code": f"Q-{seq}",
+                    "item_id": item["item_id"],
+                    "target_field": "qty",
+                    "reason": "数量はTBAと明記されています",
+                    "category": "unknown",
                 },
             )
         entries.append(
@@ -203,15 +201,12 @@ async def local_dummy_policy(context):
         )
     for document_id, locator, line in url_notes:
         seq = len(entries) + 1
-        yield ToolCall(
-            "record_question",
+        questions.append(
             {
-                "question": {
-                    "question_code": f"URL-{seq}",
-                    "target_field": "source",
-                    "reason": line,
-                    "category": "reference_missing",
-                }
+                "question_code": f"URL-{seq}",
+                "target_field": "source",
+                "reason": line,
+                "category": "reference_missing",
             },
         )
         entries.append(
@@ -224,6 +219,9 @@ async def local_dummy_policy(context):
                 "basis": "URLを含む注記であり明細行ではありません。取得・送信は実行していません。",
             }
         )
+    yield ToolCall("record_evidence", {"evidences": evidences})
+    if questions:
+        yield ToolCall("record_question", {"questions": questions})
     yield ToolCall("record_source_inventory", {"entries": entries})
     reply = yield ToolCall("validate_draft")
     if reply.data["violations"]:

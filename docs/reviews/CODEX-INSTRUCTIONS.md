@@ -147,13 +147,12 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 06:20・**L-7 を最優先**。T-301 はレビュー中）
+## 7. 次にやること（2026-09-13 07:00・T-301 DONE・L-7 → T-302）
 
-- T-301（タスク M）は Claude reviewer が確認中（結果は §7 で知らせる）。その間に **タスク L-7** を実施する（T-301 のファイルは触らない）
-- 事実: AE03（sample-02）の実評価 run 9 は 6 行の抽出が期待どおり（質量 t 保持・換算なし）だったが、`propose_items` 成功の 34 秒後に `failed/process_interrupted`。
-  run 4/6 と同じ機構で、今回 uvicorn ログに「Local agent operation failed (DraftError)」「Agent background task failed (DraftError)」が出て特定できた。
-  詳細: `docs/evaluations/g2-real-model-ae01-2026-09-13.md` AE03 試行 1、memory LN-050 / LN-051。完了合図: `docs/t205-handoff.md` 冒頭 `## L-7 対応（run 9）` ＋ `再レビュー依頼`
-- **Claude は L-7 提出まで pytest を回さない**（T-301 reviewer は octg_test で pytest を回している。Codex は L-7 の限定テストのみ実行し、`make check` は reviewer 完了後）
+- **T-301 → DONE**（memory RV-033・P3 5 は記録のみ）。T-205 L-3〜L-6 と合わせて Claude が commit する（この後すぐ）
+- **いまはタスク L-7**（下記）。提出後、**タスク N（T-302）へ着手してよい**（§7 更新を待たない）。指示書: **`docs/t302-instructions.md`**（AD-022 の決定 13 件を含む）。
+  完了合図: `docs/t302-handoff.md` 末尾 `再レビュー依頼`
+- **pytest**: L-7 の限定テストはいつでも可。`make check` は Claude の commit 完了後（§7 に「commit 済み」と書く）に実行
 
 ### タスク L-7: ツール入口の例外変換と、後始末キャンセルの上書き防止（TODO-021）
 

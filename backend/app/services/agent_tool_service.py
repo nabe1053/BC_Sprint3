@@ -41,11 +41,11 @@ class AgentToolService:
                 "rejected": [],
             }
         if name == "record_evidence":
-            rows = await self.drafts.add_evidences(version, [args.evidence])
-            return {"evidence_id": rows[0].id}
+            rows = await self.drafts.add_evidences(version, args.evidences)
+            return {"evidences": [{"evidence_id": row.id} for row in rows]}
         if name == "record_question":
-            rows = await self.drafts.add_questions(version, [args.question])
-            return {"question_id": rows[0].id}
+            rows = await self.drafts.add_questions(version, args.questions)
+            return {"questions": [{"question_id": row.id} for row in rows]}
         if name == "record_source_inventory":
             rows = await self.drafts.add_inventory(version, args.entries)
             return {"entries": [{"entry_id": r.id} for r in rows]}

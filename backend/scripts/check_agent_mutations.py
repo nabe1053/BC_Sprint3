@@ -33,8 +33,8 @@ def child(case):
             "claude_exception_body": [
                 ("except Exception:", "except Exception as exc:"),
                 (
-                    'reason = "model_error"\n        finally:',
-                    "reason = str(exc)\n        finally:",
+                    'reason = reason if terminal_received else "model_error"',
+                    "reason = str(exc)",
                 ),
             ],
         }

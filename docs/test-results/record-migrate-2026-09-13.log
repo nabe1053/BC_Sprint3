@@ -1,0 +1,8 @@
+── alembic upgrade head (octg_db / 開発)
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade add_run_step_locator_index -> human_records, Create append-only human records and active-confirmation constraints.
+── alembic upgrade head (octg_test / テスト)
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade add_run_step_locator_index -> human_records, Create append-only human records and active-confirmation constraints.

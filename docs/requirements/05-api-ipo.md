@@ -21,6 +21,8 @@
 
 ### 0.2 通信・形式
 
+> **422 の形（2026-09-13 追記・TODO-005 の明文化）**: 422 も `{code, message, details}` 形で返し `code` を必ず持つ（`E_REQUEST_INVALID` / `E_FIELD_NOT_EDITABLE`）。業務コードの HTTP status は `app/api/errors.py` の対応表 1 箇所で決め、構造違反（path/query 形式・snake_case キー）は 422、それ以外は表の値（既定 400）。
+
 | 項目 | 決定 |
 |------|------|
 | 形式 | JSON over HTTP。ローカルホストのみで待ち受ける（外部公開しない・N02） |
@@ -45,6 +47,8 @@
 この分離は `backend/tests/unit/test_api_path_separation.py` が機械的に検査する（版プレフィックスの一元化／全業務 API が `agent` か `ui` に属すること／人の記録（F群）と出力（G群）が `/agent/*` 配下に無いこと）。**このテストを消さない。**
 
 ### 0.4 フィールド命名・列挙値・範囲指定（T-102 で確定）
+
+> **数値の表現（2026-09-13 追記・AD-022）**: `numeric` 列の値（`qtyValue`・`odValue` 等）は応答・要求とも **JSON 文字列**（例 `"150"`、`"13.375"`）。浮動小数点を経由しない（CLAUDE.md 決定事項2）。取消 API（#30/#32）は新規行を作らない UPDATE のため **200** を返す。
 
 | 項目 | 決定 |
 |------|------|
@@ -117,7 +121,7 @@
 | 29 | `/versions/{versionId}/edits` | POST | 値の訂正を記録する（対象項目・新値・理由・修正者） | 不要 | UI |
 | 30 | `/versions/{versionId}/edits/{editId}/undo` | POST | 訂正を取り消す（行は消さず取消を記録）。**入力 `recordedBy`（取消者・必須・空文字禁止）→ `undone_by`**（2026-09-13・memory AD-017） | 不要 | UI |
 | 31 | `/versions/{versionId}/confirmations` | POST | 一致確認・網羅性確認を記録する | 不要 | UI |
-| 32 | `/versions/{versionId}/confirmations/{id}/undo` | POST | 確認を取り消す（取消も履歴に残す）。**入力 `recordedBy`（取消者・必須）→ `undone_by`**（AD-017） | 不要 | UI |
+| 32 | `/versions/{versionId}/confirmations/{confirmationId}/undo` | POST | 確認を取り消す（取消も履歴に残す）。**入力 `recordedBy`（取消者・必須）→ `undone_by`**（AD-017） | 不要 | UI |
 | 33 | `/versions/{versionId}/questions/{questionId}/judgements` | POST | 確認事項の判断を記録する | 不要 | UI |
 | 34 | `/versions/{versionId}/state-events` | POST | 状態遷移を記録する（担当者確認済み・評価確認済み） | 不要 | UI |
 | 35 | `/versions/{versionId}/bounce-comments` | POST | 行ごとの差し戻しコメントを記録する | 不要 | UI |
@@ -420,7 +424,7 @@
 |-----------|------|------|
 | `itemId` | Yes | 対象行 |
 | `field` | Yes | 対象項目。**編集可能項目のみ**。原表記・出典・原項番・選択グループは受け付けない |
-| `newValue` | 条件付き | 新値。数量の場合は `qtyState` と単位も同時に送る（**1トランザクションで整合させる**）。`newState` が `stated` 以外のときは**送らない** |
+| `newValue` | 条件付き | 新値。数量を数値にする場合は `newState="numeric"` と `qtyUnit` を同時に送る（Service が `qty_value` / `qty_unit` の 2 行を**1トランザクションで**記録。2026-09-13 実装語彙に合わせて改定・memory AD-022）。`newState` が `stated`/`numeric` 以外のときは**送らない** |
 | `newState` | 条件付き | 訂正後の状態（`stated` / `tba` / `not_stated` / `not_applicable`）。**値を消して「記載なし」「適用なし」「TBA」にする訂正**はこれだけで表現する（③SCR-04・X11）。`newValue` と `newState` の**少なくとも一方**が必須（④`item_edits` の CHECK と同じ） |
 | `reason` | Yes | 修正理由。**空文字は不可** |
 | `recordedBy` | Yes | 修正者。**AI が補完しない**（空文字不可） |

@@ -1,0 +1,920 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_carryover_checks_real_schema_and_does_not_copy[item_edits-version_id INTEGER, undone_at TEXT-1,NULL-True] _
+
+self = <sqlalchemy.engine.base.Connection object at 0x7d6b8b1110d0>
+dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x7d6b8b363470>
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x7d6b8b1122d0>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x7d6b8b49f560>
+parameters = [()]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x7d6b8b363470>
+cursor = <sqlite3.Cursor object at 0x7d6b8b119b40>
+statement = 'CREATE TABLE item_edits (version_id INTEGER, undone_at TEXT)'
+parameters = ()
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x7d6b8b1122d0>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+E       sqlite3.OperationalError: table item_edits already exists
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: OperationalError
+
+The above exception was the direct cause of the following exception:
+
+session = <tests.integration.conftest.AsyncTestSession object at 0x7d6b8b3b5760>
+seeded = (<app.models.cases.Case object at 0x7d6b8b3b57c0>, <app.models.rule_sets.RuleSet object at 0x7d6b8b8ab1a0>, <app.models.documents.Document object at 0x7d6b8b8a9b20>)
+table = 'item_edits', create = 'version_id INTEGER, undone_at TEXT'
+insert = '1,NULL', blocks = True
+
+    @pytest.mark.parametrize(
+        "table,create,insert,blocks",
+        [
+            ("item_edits", "version_id INTEGER, undone_at TEXT", "1,NULL", True),
+            ("item_edits", "version_id INTEGER, undone_at TEXT", "1,'2026-01-01'", False),
+            (
+                "confirmations",
+                "version_id INTEGER, undone_at TEXT, kind TEXT",
+                "1,NULL,'coverage'",
+                True,
+            ),
+            ("question_judgements", "question_id INTEGER", "1", True),
+        ],
+    )
+    async def test_carryover_checks_real_schema_and_does_not_copy(
+        session, seeded, table, create, insert, blocks
+    ):
+        from sqlalchemy import text
+        from app.models.drafts import Question
+    
+        case, _, _ = seeded
+        r = repo(session)
+        first = await service(r).start(case.id)
+        session.add(
+            Question(
+                id=1,
+                version_id=first.version_id,
+                question_code="Q",
+                target_field="qty",
+                reason="test",
+            )
+        )
+        await session.commit()
+        await r.finish(first.id, RunResult("failed"))
+>       await session.execute(text(f"CREATE TABLE {table} ({create})"))
+
+tests/integration/test_runs.py:204: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/conftest.py:57: in execute
+    return self.sync.execute(statement)
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x7d6b8b363470>
+cursor = <sqlite3.Cursor object at 0x7d6b8b119b40>
+statement = 'CREATE TABLE item_edits (version_id INTEGER, undone_at TEXT)'
+parameters = ()
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x7d6b8b1122d0>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+E       sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table item_edits already exists
+E       [SQL: CREATE TABLE item_edits (version_id INTEGER, undone_at TEXT)]
+E       (Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: OperationalError
+_ test_carryover_checks_real_schema_and_does_not_copy[item_edits-version_id INTEGER, undone_at TEXT-1,'2026-01-01'-False] _
+
+self = <sqlalchemy.engine.base.Connection object at 0x7d6b8afcb1a0>
+dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x7d6b8b49ffe0>
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x7d6b8afcb2c0>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x7d6b8afcbda0>
+parameters = [()]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x7d6b8b49ffe0>
+cursor = <sqlite3.Cursor object at 0x7d6b8b0ebdc0>
+statement = 'CREATE TABLE item_edits (version_id INTEGER, undone_at TEXT)'
+parameters = ()
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x7d6b8afcb2c0>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+E       sqlite3.OperationalError: table item_edits already exists
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: OperationalError
+
+The above exception was the direct cause of the following exception:
+
+session = <tests.integration.conftest.AsyncTestSession object at 0x7d6b8b112840>
+seeded = (<app.models.cases.Case object at 0x7d6b8b8b8bc0>, <app.models.rule_sets.RuleSet object at 0x7d6b8b8d0170>, <app.models.documents.Document object at 0x7d6b8b141f40>)
+table = 'item_edits', create = 'version_id INTEGER, undone_at TEXT'
+insert = "1,'2026-01-01'", blocks = False
+
+    @pytest.mark.parametrize(
+        "table,create,insert,blocks",
+        [
+            ("item_edits", "version_id INTEGER, undone_at TEXT", "1,NULL", True),
+            ("item_edits", "version_id INTEGER, undone_at TEXT", "1,'2026-01-01'", False),
+            (
+                "confirmations",
+                "version_id INTEGER, undone_at TEXT, kind TEXT",
+                "1,NULL,'coverage'",
+                True,
+            ),
+            ("question_judgements", "question_id INTEGER", "1", True),
+        ],
+    )
+    async def test_carryover_checks_real_schema_and_does_not_copy(
+        session, seeded, table, create, insert, blocks
+    ):
+        from sqlalchemy import text
+        from app.models.drafts import Question
+    
+        case, _, _ = seeded
+        r = repo(session)
+        first = await service(r).start(case.id)
+        session.add(
+            Question(
+                id=1,
+                version_id=first.version_id,
+                question_code="Q",
+                target_field="qty",
+                reason="test",
+            )
+        )
+        await session.commit()
+        await r.finish(first.id, RunResult("failed"))
+>       await session.execute(text(f"CREATE TABLE {table} ({create})"))
+
+tests/integration/test_runs.py:204: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/conftest.py:57: in execute
+    return self.sync.execute(statement)
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x7d6b8b49ffe0>
+cursor = <sqlite3.Cursor object at 0x7d6b8b0ebdc0>
+statement = 'CREATE TABLE item_edits (version_id INTEGER, undone_at TEXT)'
+parameters = ()
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x7d6b8afcb2c0>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+E       sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table item_edits already exists
+E       [SQL: CREATE TABLE item_edits (version_id INTEGER, undone_at TEXT)]
+E       (Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: OperationalError
+_ test_carryover_checks_real_schema_and_does_not_copy[confirmations-version_id INTEGER, undone_at TEXT, kind TEXT-1,NULL,'coverage'-True] _
+
+self = <sqlalchemy.engine.base.Connection object at 0x7d6b8b1bd8b0>
+dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x7d6b8b1a7cb0>
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x7d6b8b1bfc80>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x7d6b8b1b0b60>
+parameters = [()]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x7d6b8b1a7cb0>
+cursor = <sqlite3.Cursor object at 0x7d6b8b2d1140>
+statement = 'CREATE TABLE confirmations (version_id INTEGER, undone_at TEXT, kind TEXT)'
+parameters = ()
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x7d6b8b1bfc80>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+E       sqlite3.OperationalError: table confirmations already exists
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: OperationalError
+
+The above exception was the direct cause of the following exception:
+
+session = <tests.integration.conftest.AsyncTestSession object at 0x7d6b8b405040>
+seeded = (<app.models.cases.Case object at 0x7d6b8b3b5ee0>, <app.models.rule_sets.RuleSet object at 0x7d6b8b3b57f0>, <app.models.documents.Document object at 0x7d6b8b1ab8f0>)
+table = 'confirmations'
+create = 'version_id INTEGER, undone_at TEXT, kind TEXT'
+insert = "1,NULL,'coverage'", blocks = True
+
+    @pytest.mark.parametrize(
+        "table,create,insert,blocks",
+        [
+            ("item_edits", "version_id INTEGER, undone_at TEXT", "1,NULL", True),
+            ("item_edits", "version_id INTEGER, undone_at TEXT", "1,'2026-01-01'", False),
+            (
+                "confirmations",
+                "version_id INTEGER, undone_at TEXT, kind TEXT",
+                "1,NULL,'coverage'",
+                True,
+            ),
+            ("question_judgements", "question_id INTEGER", "1", True),
+        ],
+    )
+    async def test_carryover_checks_real_schema_and_does_not_copy(
+        session, seeded, table, create, insert, blocks
+    ):
+        from sqlalchemy import text
+        from app.models.drafts import Question
+    
+        case, _, _ = seeded
+        r = repo(session)
+        first = await service(r).start(case.id)
+        session.add(
+            Question(
+                id=1,
+                version_id=first.version_id,
+                question_code="Q",
+                target_field="qty",
+                reason="test",
+            )
+        )
+        await session.commit()
+        await r.finish(first.id, RunResult("failed"))
+>       await session.execute(text(f"CREATE TABLE {table} ({create})"))
+
+tests/integration/test_runs.py:204: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/conftest.py:57: in execute
+    return self.sync.execute(statement)
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x7d6b8b1a7cb0>
+cursor = <sqlite3.Cursor object at 0x7d6b8b2d1140>
+statement = 'CREATE TABLE confirmations (version_id INTEGER, undone_at TEXT, kind TEXT)'
+parameters = ()
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x7d6b8b1bfc80>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+E       sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table confirmations already exists
+E       [SQL: CREATE TABLE confirmations (version_id INTEGER, undone_at TEXT, kind TEXT)]
+E       (Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: OperationalError
+_ test_carryover_checks_real_schema_and_does_not_copy[question_judgements-question_id INTEGER-1-True] _
+
+self = <sqlalchemy.engine.base.Connection object at 0x7d6b8b017050>
+dialect = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x7d6b8b1bd4c0>
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x7d6b8b017e60>
+statement = <sqlalchemy.dialects.sqlite.base.SQLiteCompiler object at 0x7d6b8b017f50>
+parameters = [()]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x7d6b8b1bd4c0>
+cursor = <sqlite3.Cursor object at 0x7d6b8b19c7c0>
+statement = 'CREATE TABLE question_judgements (question_id INTEGER)'
+parameters = ()
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x7d6b8b017e60>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+E       sqlite3.OperationalError: table question_judgements already exists
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: OperationalError
+
+The above exception was the direct cause of the following exception:
+
+session = <tests.integration.conftest.AsyncTestSession object at 0x7d6b8b143b90>
+seeded = (<app.models.cases.Case object at 0x7d6b8b8c58e0>, <app.models.rule_sets.RuleSet object at 0x7d6b8b3b6030>, <app.models.documents.Document object at 0x7d6b8b0fc3e0>)
+table = 'question_judgements', create = 'question_id INTEGER', insert = '1'
+blocks = True
+
+    @pytest.mark.parametrize(
+        "table,create,insert,blocks",
+        [
+            ("item_edits", "version_id INTEGER, undone_at TEXT", "1,NULL", True),
+            ("item_edits", "version_id INTEGER, undone_at TEXT", "1,'2026-01-01'", False),
+            (
+                "confirmations",
+                "version_id INTEGER, undone_at TEXT, kind TEXT",
+                "1,NULL,'coverage'",
+                True,
+            ),
+            ("question_judgements", "question_id INTEGER", "1", True),
+        ],
+    )
+    async def test_carryover_checks_real_schema_and_does_not_copy(
+        session, seeded, table, create, insert, blocks
+    ):
+        from sqlalchemy import text
+        from app.models.drafts import Question
+    
+        case, _, _ = seeded
+        r = repo(session)
+        first = await service(r).start(case.id)
+        session.add(
+            Question(
+                id=1,
+                version_id=first.version_id,
+                question_code="Q",
+                target_field="qty",
+                reason="test",
+            )
+        )
+        await session.commit()
+        await r.finish(first.id, RunResult("failed"))
+>       await session.execute(text(f"CREATE TABLE {table} ({create})"))
+
+tests/integration/test_runs.py:204: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/conftest.py:57: in execute
+    return self.sync.execute(statement)
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <sqlalchemy.dialects.sqlite.pysqlite.SQLiteDialect_pysqlite object at 0x7d6b8b1bd4c0>
+cursor = <sqlite3.Cursor object at 0x7d6b8b19c7c0>
+statement = 'CREATE TABLE question_judgements (question_id INTEGER)'
+parameters = ()
+context = <sqlalchemy.dialects.sqlite.base.SQLiteExecutionContext object at 0x7d6b8b017e60>
+
+    def do_execute(self, cursor, statement, parameters, context=None):
+>       cursor.execute(statement, parameters)
+E       sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table question_judgements already exists
+E       [SQL: CREATE TABLE question_judgements (question_id INTEGER)]
+E       (Background on this error at: https://sqlalche.me/e/20/e3q8)
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: OperationalError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  <repo>/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_runs.py::test_carryover_checks_real_schema_and_does_not_copy[item_edits-version_id INTEGER, undone_at TEXT-1,NULL-True] - sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table item_edits already exists
+[SQL: CREATE TABLE item_edits (version_id INTEGER, undone_at TEXT)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+FAILED tests/integration/test_runs.py::test_carryover_checks_real_schema_and_does_not_copy[item_edits-version_id INTEGER, undone_at TEXT-1,'2026-01-01'-False] - sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table item_edits already exists
+[SQL: CREATE TABLE item_edits (version_id INTEGER, undone_at TEXT)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+FAILED tests/integration/test_runs.py::test_carryover_checks_real_schema_and_does_not_copy[confirmations-version_id INTEGER, undone_at TEXT, kind TEXT-1,NULL,'coverage'-True] - sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table confirmations already exists
+[SQL: CREATE TABLE confirmations (version_id INTEGER, undone_at TEXT, kind TEXT)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+FAILED tests/integration/test_runs.py::test_carryover_checks_real_schema_and_does_not_copy[question_judgements-question_id INTEGER-1-True] - sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table question_judgements already exists
+[SQL: CREATE TABLE question_judgements (question_id INTEGER)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+4 failed, 23 deselected, 1 warning in 0.58s
+make: *** [/tmp/record-checks.mk:8: record-carryover] Error 1

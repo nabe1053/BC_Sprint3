@@ -1,0 +1,232 @@
+FFFFFF.FF.................................                               [100%]
+=================================== FAILURES ===================================
+_ test_only_consecutive_same_tool_error_codes_stop_the_worker[codes0-read_document-tool_rejected-3] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7e4af71d0590>
+codes = ['E_REQUEST_INVALID', 'E_REQUEST_INVALID', 'E_REQUEST_INVALID']
+tool = 'read_document', expected = 'tool_rejected', turns = 3
+
+    @pytest.mark.parametrize("codes,tool,expected,turns", [
+        (["E_REQUEST_INVALID"] * 3, "read_document", "tool_rejected", 3),
+        (["E_REQUEST_INVALID", "E_NOT_FOUND", "E_REQUEST_INVALID"], "read_document", "draft_not_finalized", 3),
+        (["E_REQUEST_INVALID", "E_REQUEST_INVALID", None, "E_REQUEST_INVALID", "E_REQUEST_INVALID", None], "read_document", "draft_not_finalized", 6),
+        (["E_REQUEST_INVALID", "E_REQUEST_INVALID", None], "validate_draft", "draft_not_finalized", 3),
+        (["E_REQUEST_INVALID"], "finalize_draft", "draft_not_finalized", 1),
+    ])
+    async def test_only_consecutive_same_tool_error_codes_stop_the_worker(monkeypatch, codes, tool, expected, turns):
+        replies = [ToolReply({"code": code} if code else {"violations": []}, is_error=code is not None) for code in codes]
+        received = []
+    
+        async def policy(context):
+            for index in range(len(replies)):
+                reply = yield ToolCall(tool, {"document_id": index + 1})
+                received.append(reply)
+    
+        monkeypatch.setattr(ToolExecutor, "call", AsyncMock(side_effect=replies))
+        outcome = await LocalAgentWorker(Mock(), policy)(RunContext(1, 2, 3, 4, definition.default_run_limits()))
+        assert outcome.stop_reason == "failed" and outcome.detail == expected
+>       assert outcome.turns == turns
+E       AssertionError: assert 1 == 3
+E        +  where 1 = RunResult(stop_reason='failed', turns=1, detail='tool_rejected').turns
+
+tests/unit/test_policy_tool_errors.py:32: AssertionError
+_ test_only_consecutive_same_tool_error_codes_stop_the_worker[codes1-read_document-draft_not_finalized-3] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7e4af71d0920>
+codes = ['E_REQUEST_INVALID', 'E_NOT_FOUND', 'E_REQUEST_INVALID']
+tool = 'read_document', expected = 'draft_not_finalized', turns = 3
+
+    @pytest.mark.parametrize("codes,tool,expected,turns", [
+        (["E_REQUEST_INVALID"] * 3, "read_document", "tool_rejected", 3),
+        (["E_REQUEST_INVALID", "E_NOT_FOUND", "E_REQUEST_INVALID"], "read_document", "draft_not_finalized", 3),
+        (["E_REQUEST_INVALID", "E_REQUEST_INVALID", None, "E_REQUEST_INVALID", "E_REQUEST_INVALID", None], "read_document", "draft_not_finalized", 6),
+        (["E_REQUEST_INVALID", "E_REQUEST_INVALID", None], "validate_draft", "draft_not_finalized", 3),
+        (["E_REQUEST_INVALID"], "finalize_draft", "draft_not_finalized", 1),
+    ])
+    async def test_only_consecutive_same_tool_error_codes_stop_the_worker(monkeypatch, codes, tool, expected, turns):
+        replies = [ToolReply({"code": code} if code else {"violations": []}, is_error=code is not None) for code in codes]
+        received = []
+    
+        async def policy(context):
+            for index in range(len(replies)):
+                reply = yield ToolCall(tool, {"document_id": index + 1})
+                received.append(reply)
+    
+        monkeypatch.setattr(ToolExecutor, "call", AsyncMock(side_effect=replies))
+        outcome = await LocalAgentWorker(Mock(), policy)(RunContext(1, 2, 3, 4, definition.default_run_limits()))
+>       assert outcome.stop_reason == "failed" and outcome.detail == expected
+E       AssertionError: assert ('failed' == 'failed'
+E           failed and 'tool_rejected' == 'draft_not_finalized'
+E         - draft_not_finalized
+E         + tool_rejected)
+
+tests/unit/test_policy_tool_errors.py:31: AssertionError
+_ test_only_consecutive_same_tool_error_codes_stop_the_worker[codes2-read_document-draft_not_finalized-6] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7e4af71d2de0>
+codes = ['E_REQUEST_INVALID', 'E_REQUEST_INVALID', None, 'E_REQUEST_INVALID', 'E_REQUEST_INVALID', None]
+tool = 'read_document', expected = 'draft_not_finalized', turns = 6
+
+    @pytest.mark.parametrize("codes,tool,expected,turns", [
+        (["E_REQUEST_INVALID"] * 3, "read_document", "tool_rejected", 3),
+        (["E_REQUEST_INVALID", "E_NOT_FOUND", "E_REQUEST_INVALID"], "read_document", "draft_not_finalized", 3),
+        (["E_REQUEST_INVALID", "E_REQUEST_INVALID", None, "E_REQUEST_INVALID", "E_REQUEST_INVALID", None], "read_document", "draft_not_finalized", 6),
+        (["E_REQUEST_INVALID", "E_REQUEST_INVALID", None], "validate_draft", "draft_not_finalized", 3),
+        (["E_REQUEST_INVALID"], "finalize_draft", "draft_not_finalized", 1),
+    ])
+    async def test_only_consecutive_same_tool_error_codes_stop_the_worker(monkeypatch, codes, tool, expected, turns):
+        replies = [ToolReply({"code": code} if code else {"violations": []}, is_error=code is not None) for code in codes]
+        received = []
+    
+        async def policy(context):
+            for index in range(len(replies)):
+                reply = yield ToolCall(tool, {"document_id": index + 1})
+                received.append(reply)
+    
+        monkeypatch.setattr(ToolExecutor, "call", AsyncMock(side_effect=replies))
+        outcome = await LocalAgentWorker(Mock(), policy)(RunContext(1, 2, 3, 4, definition.default_run_limits()))
+>       assert outcome.stop_reason == "failed" and outcome.detail == expected
+E       AssertionError: assert ('failed' == 'failed'
+E           failed and 'tool_rejected' == 'draft_not_finalized'
+E         - draft_not_finalized
+E         + tool_rejected)
+
+tests/unit/test_policy_tool_errors.py:31: AssertionError
+_ test_only_consecutive_same_tool_error_codes_stop_the_worker[codes3-validate_draft-draft_not_finalized-3] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7e4af71e8ce0>
+codes = ['E_REQUEST_INVALID', 'E_REQUEST_INVALID', None]
+tool = 'validate_draft', expected = 'draft_not_finalized', turns = 3
+
+    @pytest.mark.parametrize("codes,tool,expected,turns", [
+        (["E_REQUEST_INVALID"] * 3, "read_document", "tool_rejected", 3),
+        (["E_REQUEST_INVALID", "E_NOT_FOUND", "E_REQUEST_INVALID"], "read_document", "draft_not_finalized", 3),
+        (["E_REQUEST_INVALID", "E_REQUEST_INVALID", None, "E_REQUEST_INVALID", "E_REQUEST_INVALID", None], "read_document", "draft_not_finalized", 6),
+        (["E_REQUEST_INVALID", "E_REQUEST_INVALID", None], "validate_draft", "draft_not_finalized", 3),
+        (["E_REQUEST_INVALID"], "finalize_draft", "draft_not_finalized", 1),
+    ])
+    async def test_only_consecutive_same_tool_error_codes_stop_the_worker(monkeypatch, codes, tool, expected, turns):
+        replies = [ToolReply({"code": code} if code else {"violations": []}, is_error=code is not None) for code in codes]
+        received = []
+    
+        async def policy(context):
+            for index in range(len(replies)):
+                reply = yield ToolCall(tool, {"document_id": index + 1})
+                received.append(reply)
+    
+        monkeypatch.setattr(ToolExecutor, "call", AsyncMock(side_effect=replies))
+        outcome = await LocalAgentWorker(Mock(), policy)(RunContext(1, 2, 3, 4, definition.default_run_limits()))
+>       assert outcome.stop_reason == "failed" and outcome.detail == expected
+E       AssertionError: assert ('failed' == 'failed'
+E           failed and 'tool_rejected' == 'draft_not_finalized'
+E         - draft_not_finalized
+E         + tool_rejected)
+
+tests/unit/test_policy_tool_errors.py:31: AssertionError
+_ test_only_consecutive_same_tool_error_codes_stop_the_worker[codes4-finalize_draft-draft_not_finalized-1] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7e4af71eb980>
+codes = ['E_REQUEST_INVALID'], tool = 'finalize_draft'
+expected = 'draft_not_finalized', turns = 1
+
+    @pytest.mark.parametrize("codes,tool,expected,turns", [
+        (["E_REQUEST_INVALID"] * 3, "read_document", "tool_rejected", 3),
+        (["E_REQUEST_INVALID", "E_NOT_FOUND", "E_REQUEST_INVALID"], "read_document", "draft_not_finalized", 3),
+        (["E_REQUEST_INVALID", "E_REQUEST_INVALID", None, "E_REQUEST_INVALID", "E_REQUEST_INVALID", None], "read_document", "draft_not_finalized", 6),
+        (["E_REQUEST_INVALID", "E_REQUEST_INVALID", None], "validate_draft", "draft_not_finalized", 3),
+        (["E_REQUEST_INVALID"], "finalize_draft", "draft_not_finalized", 1),
+    ])
+    async def test_only_consecutive_same_tool_error_codes_stop_the_worker(monkeypatch, codes, tool, expected, turns):
+        replies = [ToolReply({"code": code} if code else {"violations": []}, is_error=code is not None) for code in codes]
+        received = []
+    
+        async def policy(context):
+            for index in range(len(replies)):
+                reply = yield ToolCall(tool, {"document_id": index + 1})
+                received.append(reply)
+    
+        monkeypatch.setattr(ToolExecutor, "call", AsyncMock(side_effect=replies))
+        outcome = await LocalAgentWorker(Mock(), policy)(RunContext(1, 2, 3, 4, definition.default_run_limits()))
+>       assert outcome.stop_reason == "failed" and outcome.detail == expected
+E       AssertionError: assert ('failed' == 'failed'
+E           failed and 'tool_rejected' == 'draft_not_finalized'
+E         - draft_not_finalized
+E         + tool_rejected)
+
+tests/unit/test_policy_tool_errors.py:31: AssertionError
+___________ test_different_tool_names_do_not_share_the_error_counter ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7e4af71eb920>
+
+    async def test_different_tool_names_do_not_share_the_error_counter(monkeypatch):
+        replies = [ToolReply({"code": "E_REQUEST_INVALID"}, True)] * 3
+    
+        async def policy(context):
+            for tool in ("read_document", "read_email", "read_document"):
+                yield ToolCall(tool, {"document_id": 1})
+    
+        monkeypatch.setattr(ToolExecutor, "call", AsyncMock(side_effect=replies))
+        result = await LocalAgentWorker(Mock(), policy)(RunContext(1, 2, 3, 4, definition.default_run_limits()))
+>       assert result.detail == "draft_not_finalized" and result.turns == 3
+E       AssertionError: assert ('tool_rejected' == 'draft_not_finalized'
+E         - draft_not_finalized
+E         + tool_rejected)
+
+tests/unit/test_policy_tool_errors.py:45: AssertionError
+____ test_invalid_inventory_reply_has_field_messages_but_never_input_values ____
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+
+    async def test_invalid_inventory_reply_has_field_messages_but_never_input_values(context):
+        import json
+        from app.agent.tools import AGENT_TOOLS
+    
+        gateway = Gateway()
+        executor = ToolExecutor(context, gateway)
+        handler = next(tool for tool in AGENT_TOOLS if tool.name == "record_source_inventory")
+        with executor.bind():
+            result = await handler.handler({"entries": [{"document_id": 9, "position": "body:1", "seq": 1, "excerpt": "synthetic-private-source", "status": "invalid-synthetic-source"}]})
+        payload = json.loads(result["content"][0]["text"])
+        assert result["isError"] and payload["code"] == "E_REQUEST_INVALID"
+>       assert payload["errors"][0]["loc"] == ["entries", 0, "status"]
+E       KeyError: 'errors'
+
+tests/unit/test_agent_execution_tools.py:61: KeyError
+_______ test_inventory_mcp_description_explains_status_basis_and_excerpt _______
+
+    def test_inventory_mcp_description_explains_status_basis_and_excerpt():
+        from app.agent.tools import AGENT_TOOLS
+    
+        tool = next(tool for tool in AGENT_TOOLS if tool.name == "record_source_inventory")
+>       assert all(word in tool.description for word in ("mapped", "split", "excluded", "unmapped", "basis", "excerpt"))
+E       assert False
+E        +  where False = all(<generator object test_inventory_mcp_description_explains_status_basis_and_excerpt.<locals>.<genexpr> at 0x7e4af71f93c0>)
+
+tests/unit/test_agent_execution_tools.py:73: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_policy_tool_errors.py::test_only_consecutive_same_tool_error_codes_stop_the_worker[codes0-read_document-tool_rejected-3] - AssertionError: assert 1 == 3
+ +  where 1 = RunResult(stop_reason='failed', turns=1, detail='tool_rejected').turns
+FAILED tests/unit/test_policy_tool_errors.py::test_only_consecutive_same_tool_error_codes_stop_the_worker[codes1-read_document-draft_not_finalized-3] - AssertionError: assert ('failed' == 'failed'
+    failed and 'tool_rejected' == 'draft_not_finalized'
+  - draft_not_finalized
+  + tool_rejected)
+FAILED tests/unit/test_policy_tool_errors.py::test_only_consecutive_same_tool_error_codes_stop_the_worker[codes2-read_document-draft_not_finalized-6] - AssertionError: assert ('failed' == 'failed'
+    failed and 'tool_rejected' == 'draft_not_finalized'
+  - draft_not_finalized
+  + tool_rejected)
+FAILED tests/unit/test_policy_tool_errors.py::test_only_consecutive_same_tool_error_codes_stop_the_worker[codes3-validate_draft-draft_not_finalized-3] - AssertionError: assert ('failed' == 'failed'
+    failed and 'tool_rejected' == 'draft_not_finalized'
+  - draft_not_finalized
+  + tool_rejected)
+FAILED tests/unit/test_policy_tool_errors.py::test_only_consecutive_same_tool_error_codes_stop_the_worker[codes4-finalize_draft-draft_not_finalized-1] - AssertionError: assert ('failed' == 'failed'
+    failed and 'tool_rejected' == 'draft_not_finalized'
+  - draft_not_finalized
+  + tool_rejected)
+FAILED tests/unit/test_policy_tool_errors.py::test_different_tool_names_do_not_share_the_error_counter - AssertionError: assert ('tool_rejected' == 'draft_not_finalized'
+  - draft_not_finalized
+  + tool_rejected)
+FAILED tests/unit/test_agent_execution_tools.py::test_invalid_inventory_reply_has_field_messages_but_never_input_values - KeyError: 'errors'
+FAILED tests/unit/test_agent_execution_tools.py::test_inventory_mcp_description_explains_status_basis_and_excerpt - assert False
+ +  where False = all(<generator object test_inventory_mcp_description_explains_status_basis_and_excerpt.<locals>.<genexpr> at 0x7e4af71f93c0>)
+8 failed, 34 passed in 0.74s
+make: *** [/tmp/model-tool-retry-checks.mk:2: model-tool-retry-test] Error 1

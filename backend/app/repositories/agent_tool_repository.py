@@ -155,7 +155,9 @@ class AgentToolRepository(DraftRepository):
         await self.session.flush()
         return {"issue_id": issue.id}
 
-    async def record_interruption(self, snapshot, violations, reason):
+    async def record_interruption(
+        self, snapshot, violations, reason, heartbeat_diagnostics=None
+    ):
         existing = (
             await self.session.execute(
                 select(AgentRunStep.id).where(
@@ -189,6 +191,18 @@ class AgentToolRepository(DraftRepository):
             self.run.stage,
         )
         self.event(step, self.run.stage, "error", count=len(remaining), code=reason)
+        if heartbeat_diagnostics is not None and reason in (
+            "inactivity_timeout",
+            "inner_timeout",
+        ):
+            step.trace_event = {
+                **step.trace_event,
+                "observation": {
+                    **step.trace_event["observation"],
+                    "sinceLastHeartbeatS": heartbeat_diagnostics.since_last_heartbeat_s,
+                    "heartbeats": heartbeat_diagnostics.heartbeats,
+                },
+            }
 
     async def add_step(self, name, digest, stage, parent_step_id=None):
         # Every caller holds the run row lock; max+1 is serialized across sessions.
@@ -261,6 +275,8 @@ class AgentToolRepository(DraftRepository):
                     "parts",
                     "documents",
                     "items",
+                    "evidences",
+                    "questions",
                     "entries",
                     "violations",
                     "results",

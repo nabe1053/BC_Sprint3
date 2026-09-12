@@ -19,7 +19,7 @@ async def test_start_reserves_same_rule_run_and_version_without_copy(session, se
     run = await service(repo(session), scheduled.append).start(case.id)
     assert run.outcome == "running" and scheduled == [run]
     assert run.rule_set_id == rule.id and run.model == "mock-fixed-v2"
-    assert run.impl_version and run.limits["maxTurns"] == 40
+    assert run.impl_version and run.limits["maxTurns"] == default_run_limits().max_turns
     version = await session.get(Version, run.version_id)
     assert (
         version.rule_set_id == rule.id
@@ -168,24 +168,21 @@ async def test_question_target_error_has_business_code(session, seeded):
 
 
 @pytest.mark.parametrize(
-    "table,create,insert,blocks",
+    "table,undone,blocks",
     [
-        ("item_edits", "version_id INTEGER, undone_at TEXT", "1,NULL", True),
-        ("item_edits", "version_id INTEGER, undone_at TEXT", "1,'2026-01-01'", False),
-        (
-            "confirmations",
-            "version_id INTEGER, undone_at TEXT, kind TEXT",
-            "1,NULL,'coverage'",
-            True,
-        ),
-        ("question_judgements", "question_id INTEGER", "1", True),
+        ("item_edits", False, True),
+        ("item_edits", True, False),
+        ("confirmations", False, True),
+        ("question_judgements", False, True),
     ],
 )
 async def test_carryover_checks_real_schema_and_does_not_copy(
-    session, seeded, table, create, insert, blocks
+    session, seeded, table, undone, blocks
 ):
-    from sqlalchemy import text
-    from app.models.drafts import Question
+    from app.models.drafts import Question, Item
+    from app.domain.draft_types import ItemInput
+    from tests.fixtures.draft_data import item_data
+    from tests.fixtures.record_data import carryover_record
 
     case, _, _ = seeded
     r = repo(session)
@@ -201,8 +198,13 @@ async def test_carryover_checks_real_schema_and_does_not_copy(
     )
     await session.commit()
     await r.finish(first.id, RunResult("failed"))
-    await session.execute(text(f"CREATE TABLE {table} ({create})"))
-    await session.execute(text(f"INSERT INTO {table} VALUES ({insert})"))
+    item = Item(
+        version_id=first.version_id,
+        **ItemInput.model_validate(item_data()).model_dump(exclude={"ends"}),
+    )
+    session.add(item)
+    await session.flush()
+    session.add(carryover_record(table, first.version_id, item.id, 1, undone))
     await session.commit()
     if blocks:
         with pytest.raises(DraftError) as e:
@@ -390,3 +392,33 @@ async def test_legacy_trace_is_preserved_during_poll_and_startup(
     await repository.recover_interrupted()
     await repository.progress(run_id)
     assert path.read_text() == original
+
+
+@pytest.mark.parametrize(
+    "result",
+    [
+        RunResult("outer_timeout"),
+        RunResult("failed", detail="worker_failed"),
+        RunResult("failed", detail="process_interrupted"),
+    ],
+)
+async def test_finish_preserves_recorded_turns_when_job_result_omits_them(
+    session, seeded, result
+):
+    case, _, _ = seeded
+    r = repo(session)
+    run = await service(r).start(case.id)
+    run.turns = 6
+    await session.commit()
+    await r.finish(run.id, result)
+    assert (await r.progress(run.id))["turns"] == 6
+
+
+async def test_finish_respects_explicit_zero_turns(session, seeded):
+    case, _, _ = seeded
+    r = repo(session)
+    run = await service(r).start(case.id)
+    run.turns = 6
+    await session.commit()
+    await r.finish(run.id, RunResult("outer_timeout", turns=0))
+    assert (await r.progress(run.id))["turns"] == 0

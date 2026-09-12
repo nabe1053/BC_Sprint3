@@ -1,0 +1,174 @@
+ current_database 
+------------------
+ octg_db
+(1 row)
+
+                                       Table "public.item_edits"
+   Column    |           Type           | Collation | Nullable |                Default                 
+-------------+--------------------------+-----------+----------+----------------------------------------
+ id          | bigint                   |           | not null | nextval('item_edits_id_seq'::regclass)
+ created_at  | timestamp with time zone |           | not null | now()
+ recorded_by | text                     |           | not null | 
+ recorded_at | timestamp with time zone |           | not null | 
+ undone_at   | timestamp with time zone |           |          | 
+ undone_by   | text                     |           |          | 
+ version_id  | bigint                   |           | not null | 
+ item_id     | bigint                   |           | not null | 
+ field       | text                     |           | not null | 
+ old_value   | text                     |           |          | 
+ old_state   | text                     |           |          | 
+ new_value   | text                     |           |          | 
+ new_state   | text                     |           |          | 
+ reason      | text                     |           | not null | 
+Indexes:
+    "item_edits_pkey" PRIMARY KEY, btree (id)
+    "ix_item_edits_item_id" btree (item_id)
+    "ix_item_edits_version_id" btree (version_id)
+Check constraints:
+    "ck_item_edits_field" CHECK (field = ANY (ARRAY['kind'::text, 'usage_note'::text, 'od_value'::text, 'od_unit'::text, 'wall_value'::text, 'wall_unit'::text, 'weight_value'::text, 'weight_unit'::text, 'grade'::text, 'connection'::text, 'range_class'::text, 'length_value'::text, 'length_unit'::text, 'qty_value'::text, 'qty_unit'::text, 'note'::text]))
+    "ck_item_edits_reason" CHECK (TRIM(BOTH FROM reason) <> ''::text)
+    "ck_item_edits_recorder" CHECK (TRIM(BOTH FROM recorded_by) <> ''::text)
+    "ck_item_edits_state" CHECK (new_state = ANY (ARRAY['stated'::text, 'tba'::text, 'not_stated'::text, 'not_applicable'::text, 'numeric'::text]))
+    "ck_item_edits_undo_recorder" CHECK (undone_at IS NULL OR undone_by IS NOT NULL AND TRIM(BOTH FROM undone_by) <> ''::text)
+    "ck_item_edits_value_or_state" CHECK (new_value IS NOT NULL OR new_state IS NOT NULL)
+Foreign-key constraints:
+    "fk_item_edits_item" FOREIGN KEY (item_id) REFERENCES items(id)
+    "fk_item_edits_version" FOREIGN KEY (version_id) REFERENCES versions(id)
+    "fk_item_edits_version_item" FOREIGN KEY (version_id, item_id) REFERENCES items(version_id, id)
+
+                                       Table "public.confirmations"
+   Column    |           Type           | Collation | Nullable |                  Default                  
+-------------+--------------------------+-----------+----------+-------------------------------------------
+ id          | bigint                   |           | not null | nextval('confirmations_id_seq'::regclass)
+ created_at  | timestamp with time zone |           | not null | now()
+ recorded_by | text                     |           | not null | 
+ recorded_at | timestamp with time zone |           | not null | 
+ undone_at   | timestamp with time zone |           |          | 
+ undone_by   | text                     |           |          | 
+ version_id  | bigint                   |           | not null | 
+ item_id     | bigint                   |           |          | 
+ kind        | text                     |           | not null | 
+Indexes:
+    "confirmations_pkey" PRIMARY KEY, btree (id)
+    "ix_confirmations_item_id" btree (item_id)
+    "ix_confirmations_version_id" btree (version_id)
+    "uq_confirmations_coverage_active" UNIQUE, btree (version_id) WHERE kind = 'coverage'::text AND undone_at IS NULL
+    "uq_confirmations_row_match_active" UNIQUE, btree (version_id, item_id) WHERE kind = 'row_match'::text AND undone_at IS NULL
+Check constraints:
+    "ck_confirmations_kind" CHECK (kind = ANY (ARRAY['row_match'::text, 'coverage'::text]))
+    "ck_confirmations_recorder" CHECK (TRIM(BOTH FROM recorded_by) <> ''::text)
+    "ck_confirmations_target" CHECK (kind = 'row_match'::text AND item_id IS NOT NULL OR kind = 'coverage'::text AND item_id IS NULL)
+    "ck_confirmations_undo_recorder" CHECK (undone_at IS NULL OR undone_by IS NOT NULL AND TRIM(BOTH FROM undone_by) <> ''::text)
+Foreign-key constraints:
+    "fk_confirmations_item" FOREIGN KEY (item_id) REFERENCES items(id)
+    "fk_confirmations_version" FOREIGN KEY (version_id) REFERENCES versions(id)
+    "fk_confirmations_version_item" FOREIGN KEY (version_id, item_id) REFERENCES items(version_id, id)
+
+                                       Table "public.question_judgements"
+   Column    |           Type           | Collation | Nullable |                     Default                     
+-------------+--------------------------+-----------+----------+-------------------------------------------------
+ id          | bigint                   |           | not null | nextval('question_judgements_id_seq'::regclass)
+ created_at  | timestamp with time zone |           | not null | now()
+ recorded_by | text                     |           | not null | 
+ recorded_at | timestamp with time zone |           | not null | 
+ question_id | bigint                   |           | not null | 
+ status      | text                     |           | not null | 
+ resolution  | text                     |           | not null | 
+ note        | text                     |           |          | 
+Indexes:
+    "question_judgements_pkey" PRIMARY KEY, btree (id)
+    "ix_question_judgements_question_id" btree (question_id)
+Check constraints:
+    "ck_question_judgements_recorder" CHECK (TRIM(BOTH FROM recorded_by) <> ''::text)
+    "ck_question_judgements_resolution" CHECK (resolution = ANY (ARRAY['unresolved'::text, 'resolved'::text]))
+    "ck_question_judgements_status" CHECK (status = ANY (ARRAY['open'::text, 'in_progress'::text, 'judged'::text]))
+Foreign-key constraints:
+    "fk_question_judgements_question" FOREIGN KEY (question_id) REFERENCES questions(id)
+
+ current_database 
+------------------
+ octg_test
+(1 row)
+
+                                       Table "public.item_edits"
+   Column    |           Type           | Collation | Nullable |                Default                 
+-------------+--------------------------+-----------+----------+----------------------------------------
+ id          | bigint                   |           | not null | nextval('item_edits_id_seq'::regclass)
+ created_at  | timestamp with time zone |           | not null | now()
+ recorded_by | text                     |           | not null | 
+ recorded_at | timestamp with time zone |           | not null | 
+ undone_at   | timestamp with time zone |           |          | 
+ undone_by   | text                     |           |          | 
+ version_id  | bigint                   |           | not null | 
+ item_id     | bigint                   |           | not null | 
+ field       | text                     |           | not null | 
+ old_value   | text                     |           |          | 
+ old_state   | text                     |           |          | 
+ new_value   | text                     |           |          | 
+ new_state   | text                     |           |          | 
+ reason      | text                     |           | not null | 
+Indexes:
+    "item_edits_pkey" PRIMARY KEY, btree (id)
+    "ix_item_edits_item_id" btree (item_id)
+    "ix_item_edits_version_id" btree (version_id)
+Check constraints:
+    "ck_item_edits_field" CHECK (field = ANY (ARRAY['kind'::text, 'usage_note'::text, 'od_value'::text, 'od_unit'::text, 'wall_value'::text, 'wall_unit'::text, 'weight_value'::text, 'weight_unit'::text, 'grade'::text, 'connection'::text, 'range_class'::text, 'length_value'::text, 'length_unit'::text, 'qty_value'::text, 'qty_unit'::text, 'note'::text]))
+    "ck_item_edits_reason" CHECK (TRIM(BOTH FROM reason) <> ''::text)
+    "ck_item_edits_recorder" CHECK (TRIM(BOTH FROM recorded_by) <> ''::text)
+    "ck_item_edits_state" CHECK (new_state = ANY (ARRAY['stated'::text, 'tba'::text, 'not_stated'::text, 'not_applicable'::text, 'numeric'::text]))
+    "ck_item_edits_undo_recorder" CHECK (undone_at IS NULL OR undone_by IS NOT NULL AND TRIM(BOTH FROM undone_by) <> ''::text)
+    "ck_item_edits_value_or_state" CHECK (new_value IS NOT NULL OR new_state IS NOT NULL)
+Foreign-key constraints:
+    "fk_item_edits_item" FOREIGN KEY (item_id) REFERENCES items(id)
+    "fk_item_edits_version" FOREIGN KEY (version_id) REFERENCES versions(id)
+    "fk_item_edits_version_item" FOREIGN KEY (version_id, item_id) REFERENCES items(version_id, id)
+
+                                       Table "public.confirmations"
+   Column    |           Type           | Collation | Nullable |                  Default                  
+-------------+--------------------------+-----------+----------+-------------------------------------------
+ id          | bigint                   |           | not null | nextval('confirmations_id_seq'::regclass)
+ created_at  | timestamp with time zone |           | not null | now()
+ recorded_by | text                     |           | not null | 
+ recorded_at | timestamp with time zone |           | not null | 
+ undone_at   | timestamp with time zone |           |          | 
+ undone_by   | text                     |           |          | 
+ version_id  | bigint                   |           | not null | 
+ item_id     | bigint                   |           |          | 
+ kind        | text                     |           | not null | 
+Indexes:
+    "confirmations_pkey" PRIMARY KEY, btree (id)
+    "ix_confirmations_item_id" btree (item_id)
+    "ix_confirmations_version_id" btree (version_id)
+    "uq_confirmations_coverage_active" UNIQUE, btree (version_id) WHERE kind = 'coverage'::text AND undone_at IS NULL
+    "uq_confirmations_row_match_active" UNIQUE, btree (version_id, item_id) WHERE kind = 'row_match'::text AND undone_at IS NULL
+Check constraints:
+    "ck_confirmations_kind" CHECK (kind = ANY (ARRAY['row_match'::text, 'coverage'::text]))
+    "ck_confirmations_recorder" CHECK (TRIM(BOTH FROM recorded_by) <> ''::text)
+    "ck_confirmations_target" CHECK (kind = 'row_match'::text AND item_id IS NOT NULL OR kind = 'coverage'::text AND item_id IS NULL)
+    "ck_confirmations_undo_recorder" CHECK (undone_at IS NULL OR undone_by IS NOT NULL AND TRIM(BOTH FROM undone_by) <> ''::text)
+Foreign-key constraints:
+    "fk_confirmations_item" FOREIGN KEY (item_id) REFERENCES items(id)
+    "fk_confirmations_version" FOREIGN KEY (version_id) REFERENCES versions(id)
+    "fk_confirmations_version_item" FOREIGN KEY (version_id, item_id) REFERENCES items(version_id, id)
+
+                                       Table "public.question_judgements"
+   Column    |           Type           | Collation | Nullable |                     Default                     
+-------------+--------------------------+-----------+----------+-------------------------------------------------
+ id          | bigint                   |           | not null | nextval('question_judgements_id_seq'::regclass)
+ created_at  | timestamp with time zone |           | not null | now()
+ recorded_by | text                     |           | not null | 
+ recorded_at | timestamp with time zone |           | not null | 
+ question_id | bigint                   |           | not null | 
+ status      | text                     |           | not null | 
+ resolution  | text                     |           | not null | 
+ note        | text                     |           |          | 
+Indexes:
+    "question_judgements_pkey" PRIMARY KEY, btree (id)
+    "ix_question_judgements_question_id" btree (question_id)
+Check constraints:
+    "ck_question_judgements_recorder" CHECK (TRIM(BOTH FROM recorded_by) <> ''::text)
+    "ck_question_judgements_resolution" CHECK (resolution = ANY (ARRAY['unresolved'::text, 'resolved'::text]))
+    "ck_question_judgements_status" CHECK (status = ANY (ARRAY['open'::text, 'in_progress'::text, 'judged'::text]))
+Foreign-key constraints:
+    "fk_question_judgements_question" FOREIGN KEY (question_id) REFERENCES questions(id)
+

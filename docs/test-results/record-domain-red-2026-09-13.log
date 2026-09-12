@@ -1,0 +1,196 @@
+FFFFFFFFFFFFFF                                                           [100%]
+=================================== FAILURES ===================================
+__________ test_edit_business_validation[changes0-E_REASON_REQUIRED] ___________
+
+changes = {'reason': '  '}, code = 'E_REASON_REQUIRED'
+
+    @pytest.mark.parametrize("changes,code", [
+        ({"reason": "  "}, "E_REASON_REQUIRED"),
+        ({"recorded_by": "  "}, "E_RECORDER_REQUIRED"),
+        ({"field": "grade_raw"}, "E_FIELD_NOT_EDITABLE"),
+        ({"field": "due_raw"}, "E_FIELD_NOT_EDITABLE"),
+        ({"new_value": None, "new_state": None}, "E_STATE_VALUE_CONFLICT"),
+        ({"new_state": "tba"}, "E_STATE_VALUE_CONFLICT"),
+        ({"field": "qty_value", "new_value": "200", "new_state": "numeric"}, "E_QTY_UNIT_REQUIRED"),
+    ])
+    def test_edit_business_validation(changes, code):
+>       from app.domain.record_types import ItemEditInput
+E       ModuleNotFoundError: No module named 'app.domain.record_types'
+
+tests/unit/test_record_inputs.py:17: ModuleNotFoundError
+_________ test_edit_business_validation[changes1-E_RECORDER_REQUIRED] __________
+
+changes = {'recorded_by': '  '}, code = 'E_RECORDER_REQUIRED'
+
+    @pytest.mark.parametrize("changes,code", [
+        ({"reason": "  "}, "E_REASON_REQUIRED"),
+        ({"recorded_by": "  "}, "E_RECORDER_REQUIRED"),
+        ({"field": "grade_raw"}, "E_FIELD_NOT_EDITABLE"),
+        ({"field": "due_raw"}, "E_FIELD_NOT_EDITABLE"),
+        ({"new_value": None, "new_state": None}, "E_STATE_VALUE_CONFLICT"),
+        ({"new_state": "tba"}, "E_STATE_VALUE_CONFLICT"),
+        ({"field": "qty_value", "new_value": "200", "new_state": "numeric"}, "E_QTY_UNIT_REQUIRED"),
+    ])
+    def test_edit_business_validation(changes, code):
+>       from app.domain.record_types import ItemEditInput
+E       ModuleNotFoundError: No module named 'app.domain.record_types'
+
+tests/unit/test_record_inputs.py:17: ModuleNotFoundError
+_________ test_edit_business_validation[changes2-E_FIELD_NOT_EDITABLE] _________
+
+changes = {'field': 'grade_raw'}, code = 'E_FIELD_NOT_EDITABLE'
+
+    @pytest.mark.parametrize("changes,code", [
+        ({"reason": "  "}, "E_REASON_REQUIRED"),
+        ({"recorded_by": "  "}, "E_RECORDER_REQUIRED"),
+        ({"field": "grade_raw"}, "E_FIELD_NOT_EDITABLE"),
+        ({"field": "due_raw"}, "E_FIELD_NOT_EDITABLE"),
+        ({"new_value": None, "new_state": None}, "E_STATE_VALUE_CONFLICT"),
+        ({"new_state": "tba"}, "E_STATE_VALUE_CONFLICT"),
+        ({"field": "qty_value", "new_value": "200", "new_state": "numeric"}, "E_QTY_UNIT_REQUIRED"),
+    ])
+    def test_edit_business_validation(changes, code):
+>       from app.domain.record_types import ItemEditInput
+E       ModuleNotFoundError: No module named 'app.domain.record_types'
+
+tests/unit/test_record_inputs.py:17: ModuleNotFoundError
+_________ test_edit_business_validation[changes3-E_FIELD_NOT_EDITABLE] _________
+
+changes = {'field': 'due_raw'}, code = 'E_FIELD_NOT_EDITABLE'
+
+    @pytest.mark.parametrize("changes,code", [
+        ({"reason": "  "}, "E_REASON_REQUIRED"),
+        ({"recorded_by": "  "}, "E_RECORDER_REQUIRED"),
+        ({"field": "grade_raw"}, "E_FIELD_NOT_EDITABLE"),
+        ({"field": "due_raw"}, "E_FIELD_NOT_EDITABLE"),
+        ({"new_value": None, "new_state": None}, "E_STATE_VALUE_CONFLICT"),
+        ({"new_state": "tba"}, "E_STATE_VALUE_CONFLICT"),
+        ({"field": "qty_value", "new_value": "200", "new_state": "numeric"}, "E_QTY_UNIT_REQUIRED"),
+    ])
+    def test_edit_business_validation(changes, code):
+>       from app.domain.record_types import ItemEditInput
+E       ModuleNotFoundError: No module named 'app.domain.record_types'
+
+tests/unit/test_record_inputs.py:17: ModuleNotFoundError
+________ test_edit_business_validation[changes4-E_STATE_VALUE_CONFLICT] ________
+
+changes = {'new_state': None, 'new_value': None}
+code = 'E_STATE_VALUE_CONFLICT'
+
+    @pytest.mark.parametrize("changes,code", [
+        ({"reason": "  "}, "E_REASON_REQUIRED"),
+        ({"recorded_by": "  "}, "E_RECORDER_REQUIRED"),
+        ({"field": "grade_raw"}, "E_FIELD_NOT_EDITABLE"),
+        ({"field": "due_raw"}, "E_FIELD_NOT_EDITABLE"),
+        ({"new_value": None, "new_state": None}, "E_STATE_VALUE_CONFLICT"),
+        ({"new_state": "tba"}, "E_STATE_VALUE_CONFLICT"),
+        ({"field": "qty_value", "new_value": "200", "new_state": "numeric"}, "E_QTY_UNIT_REQUIRED"),
+    ])
+    def test_edit_business_validation(changes, code):
+>       from app.domain.record_types import ItemEditInput
+E       ModuleNotFoundError: No module named 'app.domain.record_types'
+
+tests/unit/test_record_inputs.py:17: ModuleNotFoundError
+________ test_edit_business_validation[changes5-E_STATE_VALUE_CONFLICT] ________
+
+changes = {'new_state': 'tba'}, code = 'E_STATE_VALUE_CONFLICT'
+
+    @pytest.mark.parametrize("changes,code", [
+        ({"reason": "  "}, "E_REASON_REQUIRED"),
+        ({"recorded_by": "  "}, "E_RECORDER_REQUIRED"),
+        ({"field": "grade_raw"}, "E_FIELD_NOT_EDITABLE"),
+        ({"field": "due_raw"}, "E_FIELD_NOT_EDITABLE"),
+        ({"new_value": None, "new_state": None}, "E_STATE_VALUE_CONFLICT"),
+        ({"new_state": "tba"}, "E_STATE_VALUE_CONFLICT"),
+        ({"field": "qty_value", "new_value": "200", "new_state": "numeric"}, "E_QTY_UNIT_REQUIRED"),
+    ])
+    def test_edit_business_validation(changes, code):
+>       from app.domain.record_types import ItemEditInput
+E       ModuleNotFoundError: No module named 'app.domain.record_types'
+
+tests/unit/test_record_inputs.py:17: ModuleNotFoundError
+_________ test_edit_business_validation[changes6-E_QTY_UNIT_REQUIRED] __________
+
+changes = {'field': 'qty_value', 'new_state': 'numeric', 'new_value': '200'}
+code = 'E_QTY_UNIT_REQUIRED'
+
+    @pytest.mark.parametrize("changes,code", [
+        ({"reason": "  "}, "E_REASON_REQUIRED"),
+        ({"recorded_by": "  "}, "E_RECORDER_REQUIRED"),
+        ({"field": "grade_raw"}, "E_FIELD_NOT_EDITABLE"),
+        ({"field": "due_raw"}, "E_FIELD_NOT_EDITABLE"),
+        ({"new_value": None, "new_state": None}, "E_STATE_VALUE_CONFLICT"),
+        ({"new_state": "tba"}, "E_STATE_VALUE_CONFLICT"),
+        ({"field": "qty_value", "new_value": "200", "new_state": "numeric"}, "E_QTY_UNIT_REQUIRED"),
+    ])
+    def test_edit_business_validation(changes, code):
+>       from app.domain.record_types import ItemEditInput
+E       ModuleNotFoundError: No module named 'app.domain.record_types'
+
+tests/unit/test_record_inputs.py:17: ModuleNotFoundError
+_______________ test_edit_error_precedence_and_recorder_required _______________
+
+    def test_edit_error_precedence_and_recorder_required():
+>       from app.domain.record_types import ItemEditInput
+E       ModuleNotFoundError: No module named 'app.domain.record_types'
+
+tests/unit/test_record_inputs.py:25: ModuleNotFoundError
+________________ test_state_only_and_quantity_inputs_are_valid _________________
+
+    def test_state_only_and_quantity_inputs_are_valid():
+>       from app.domain.record_types import ItemEditInput
+E       ModuleNotFoundError: No module named 'app.domain.record_types'
+
+tests/unit/test_record_inputs.py:38: ModuleNotFoundError
+_______ test_judged_unresolved_and_coverage_are_separate_valid_contracts _______
+
+    def test_judged_unresolved_and_coverage_are_separate_valid_contracts():
+>       from app.domain.record_types import ConfirmationInput, JudgementInput, UndoInput
+E       ModuleNotFoundError: No module named 'app.domain.record_types'
+
+tests/unit/test_record_inputs.py:47: ModuleNotFoundError
+______ test_current_values_use_ordered_active_edits_and_keep_all_history _______
+
+    def test_current_values_use_ordered_active_edits_and_keep_all_history():
+>       from app.services.item_current_values import apply_edits
+E       ModuleNotFoundError: No module named 'app.services.item_current_values'
+
+tests/unit/test_item_current_values.py:7: ModuleNotFoundError
+_______ test_undo_restores_original_and_raw_fields_are_never_overwritten _______
+
+    def test_undo_restores_original_and_raw_fields_are_never_overwritten():
+>       from app.services.item_current_values import apply_edits
+E       ModuleNotFoundError: No module named 'app.services.item_current_values'
+
+tests/unit/test_item_current_values.py:20: ModuleNotFoundError
+_ test_state_only_removes_value_and_units_then_quantity_pair_restores_numeric __
+
+    def test_state_only_removes_value_and_units_then_quantity_pair_restores_numeric():
+>       from app.services.item_current_values import apply_edits
+E       ModuleNotFoundError: No module named 'app.services.item_current_values'
+
+tests/unit/test_item_current_values.py:28: ModuleNotFoundError
+______ test_recorded_time_precedes_id_and_value_only_infers_stated_state _______
+
+    def test_recorded_time_precedes_id_and_value_only_infers_stated_state():
+>       from app.services.item_current_values import apply_edits
+E       ModuleNotFoundError: No module named 'app.services.item_current_values'
+
+tests/unit/test_item_current_values.py:41: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/unit/test_record_inputs.py::test_edit_business_validation[changes0-E_REASON_REQUIRED] - ModuleNotFoundError: No module named 'app.domain.record_types'
+FAILED tests/unit/test_record_inputs.py::test_edit_business_validation[changes1-E_RECORDER_REQUIRED] - ModuleNotFoundError: No module named 'app.domain.record_types'
+FAILED tests/unit/test_record_inputs.py::test_edit_business_validation[changes2-E_FIELD_NOT_EDITABLE] - ModuleNotFoundError: No module named 'app.domain.record_types'
+FAILED tests/unit/test_record_inputs.py::test_edit_business_validation[changes3-E_FIELD_NOT_EDITABLE] - ModuleNotFoundError: No module named 'app.domain.record_types'
+FAILED tests/unit/test_record_inputs.py::test_edit_business_validation[changes4-E_STATE_VALUE_CONFLICT] - ModuleNotFoundError: No module named 'app.domain.record_types'
+FAILED tests/unit/test_record_inputs.py::test_edit_business_validation[changes5-E_STATE_VALUE_CONFLICT] - ModuleNotFoundError: No module named 'app.domain.record_types'
+FAILED tests/unit/test_record_inputs.py::test_edit_business_validation[changes6-E_QTY_UNIT_REQUIRED] - ModuleNotFoundError: No module named 'app.domain.record_types'
+FAILED tests/unit/test_record_inputs.py::test_edit_error_precedence_and_recorder_required - ModuleNotFoundError: No module named 'app.domain.record_types'
+FAILED tests/unit/test_record_inputs.py::test_state_only_and_quantity_inputs_are_valid - ModuleNotFoundError: No module named 'app.domain.record_types'
+FAILED tests/unit/test_record_inputs.py::test_judged_unresolved_and_coverage_are_separate_valid_contracts - ModuleNotFoundError: No module named 'app.domain.record_types'
+FAILED tests/unit/test_item_current_values.py::test_current_values_use_ordered_active_edits_and_keep_all_history - ModuleNotFoundError: No module named 'app.services.item_current_values'
+FAILED tests/unit/test_item_current_values.py::test_undo_restores_original_and_raw_fields_are_never_overwritten - ModuleNotFoundError: No module named 'app.services.item_current_values'
+FAILED tests/unit/test_item_current_values.py::test_state_only_removes_value_and_units_then_quantity_pair_restores_numeric - ModuleNotFoundError: No module named 'app.services.item_current_values'
+FAILED tests/unit/test_item_current_values.py::test_recorded_time_precedes_id_and_value_only_infers_stated_state - ModuleNotFoundError: No module named 'app.services.item_current_values'
+14 failed in 0.09s
+make: *** [/tmp/record-checks.mk:4: record-unit] Error 1

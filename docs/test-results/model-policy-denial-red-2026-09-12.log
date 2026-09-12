@@ -1,0 +1,112 @@
+FF                                                                       [100%]
+=================================== FAILURES ===================================
+_ test_sdk_permission_denial_is_one_sanitized_management_event[Bash-arguments0-E_TOOL_NOT_REGISTERED] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x70e03eedb500>
+tool_run = (RunContext(run_id=1, case_id=1, version_id=1, rule_set_id=1, limits=RunLimits(max_turns=40, inner_timeout_s=900, inac...Document object at 0x70e03ec4c5f0>, <app.repositories.agent_tool_repository.AgentToolGateway object at 0x70e03eed8f20>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x70e03e9ed5e0>
+tmp_path = PosixPath('/tmp/pytest-of-takahiro/pytest-109/test_sdk_permission_denial_is_0')
+tool_name = 'Bash', arguments = {'command': 'synthetic-private-input'}
+code = 'E_TOOL_NOT_REGISTERED'
+
+    @pytest.mark.parametrize("tool_name,arguments,code", [
+        ("Bash", {"command": "synthetic-private-input"}, "E_TOOL_NOT_REGISTERED"),
+        ("mcp__app__search_documents", {"query": "https://synthetic-private-input.invalid"}, "E_EXTERNAL_LINK_BLOCKED"),
+    ])
+    async def test_sdk_permission_denial_is_one_sanitized_management_event(
+        db_session, tool_run, monkeypatch, tmp_path, tool_name, arguments, code,
+    ):
+        from functools import partial
+        from claude_agent_sdk import ResultMessage
+        from pydantic import SecretStr
+        from app.agent import claude_policy
+        from app.agent.runner import LocalAgentWorker
+        from app.repositories.run_trace_store import RunTraceStore
+    
+        context, _, gateway = tool_run
+    
+        async def query(**kwargs):
+            yield ResultMessage(
+                subtype="success", duration_ms=0, duration_api_ms=0, is_error=False,
+                num_turns=0, session_id="synthetic", permission_denials=[{
+                    "tool_name": tool_name, "tool_input": arguments,
+                    "reason": "synthetic-private-input", "tool_use_id": "synthetic-private-input",
+                }],
+            )
+    
+        monkeypatch.setattr(claude_policy, "query", query)
+        outcome = await LocalAgentWorker(gateway, partial(
+            claude_policy.claude_policy, api_key=SecretStr("synthetic-key"),
+        ))(context)
+        assert outcome.turns == 0
+        steps = list((await db_session.execute(select(AgentRunStep).where(
+            AgentRunStep.agent_run_id == context.run_id,
+            AgentRunStep.tool_name == "guardrail_denied",
+        ))).scalars())
+>       assert len(steps) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests/integration/test_agent_tool_repository.py:346: AssertionError
+_ test_sdk_permission_denial_is_one_sanitized_management_event[mcp__app__search_documents-arguments1-E_EXTERNAL_LINK_BLOCKED] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x70e03eade750>
+tool_run = (RunContext(run_id=1, case_id=1, version_id=1, rule_set_id=1, limits=RunLimits(max_turns=40, inner_timeout_s=900, inac...Document object at 0x70e03e8959d0>, <app.repositories.agent_tool_repository.AgentToolGateway object at 0x70e03e92eae0>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x70e03e92e240>
+tmp_path = PosixPath('/tmp/pytest-of-takahiro/pytest-109/test_sdk_permission_denial_is_1')
+tool_name = 'mcp__app__search_documents'
+arguments = {'query': 'https://synthetic-private-input.invalid'}
+code = 'E_EXTERNAL_LINK_BLOCKED'
+
+    @pytest.mark.parametrize("tool_name,arguments,code", [
+        ("Bash", {"command": "synthetic-private-input"}, "E_TOOL_NOT_REGISTERED"),
+        ("mcp__app__search_documents", {"query": "https://synthetic-private-input.invalid"}, "E_EXTERNAL_LINK_BLOCKED"),
+    ])
+    async def test_sdk_permission_denial_is_one_sanitized_management_event(
+        db_session, tool_run, monkeypatch, tmp_path, tool_name, arguments, code,
+    ):
+        from functools import partial
+        from claude_agent_sdk import ResultMessage
+        from pydantic import SecretStr
+        from app.agent import claude_policy
+        from app.agent.runner import LocalAgentWorker
+        from app.repositories.run_trace_store import RunTraceStore
+    
+        context, _, gateway = tool_run
+    
+        async def query(**kwargs):
+            yield ResultMessage(
+                subtype="success", duration_ms=0, duration_api_ms=0, is_error=False,
+                num_turns=0, session_id="synthetic", permission_denials=[{
+                    "tool_name": tool_name, "tool_input": arguments,
+                    "reason": "synthetic-private-input", "tool_use_id": "synthetic-private-input",
+                }],
+            )
+    
+        monkeypatch.setattr(claude_policy, "query", query)
+        outcome = await LocalAgentWorker(gateway, partial(
+            claude_policy.claude_policy, api_key=SecretStr("synthetic-key"),
+        ))(context)
+        assert outcome.turns == 0
+        steps = list((await db_session.execute(select(AgentRunStep).where(
+            AgentRunStep.agent_run_id == context.run_id,
+            AgentRunStep.tool_name == "guardrail_denied",
+        ))).scalars())
+>       assert len(steps) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests/integration/test_agent_tool_repository.py:346: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  <repo>/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_agent_tool_repository.py::test_sdk_permission_denial_is_one_sanitized_management_event[Bash-arguments0-E_TOOL_NOT_REGISTERED] - assert 0 == 1
+ +  where 0 = len([])
+FAILED tests/integration/test_agent_tool_repository.py::test_sdk_permission_denial_is_one_sanitized_management_event[mcp__app__search_documents-arguments1-E_EXTERNAL_LINK_BLOCKED] - assert 0 == 1
+ +  where 0 = len([])
+2 failed, 11 deselected, 1 warning in 0.52s
+make: *** [/tmp/model-policy-checks.mk:8: model-policy-denials] Error 1

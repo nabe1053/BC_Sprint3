@@ -239,7 +239,10 @@ async def test_sdk_handler_round_trip_uses_existing_executor_and_records_once(
     assert options.system_prompt == definition.SYSTEM_PROMPT
     assert options.max_turns == definition.MAX_TURNS
     assert options.mcp_servers == {"app": agent_server}
-    assert options.allowed_tools == ALLOWED_TOOL_NAMES
+    assert options.allowed_tools == ALLOWED_TOOL_NAMES + ["ToolSearch"]
+    assert len(ALLOWED_TOOL_NAMES) == 13
+    assert options.tools == []
+    assert options.include_partial_messages is True
     assert options.permission_mode == "default"
     assert options.setting_sources == []
     from pathlib import Path
@@ -254,6 +257,24 @@ async def test_sdk_handler_round_trip_uses_existing_executor_and_records_once(
         "WebSearch",
         "Glob",
         "Grep",
+        "Task",
+        "CronCreate",
+        "CronDelete",
+        "CronList",
+        "DesignSync",
+        "EnterWorktree",
+        "ExitWorktree",
+        "ListAgents",
+        "Monitor",
+        "NotebookEdit",
+        "PushNotification",
+        "ReportFindings",
+        "ScheduleWakeup",
+        "SendMessage",
+        "Skill",
+        "TaskOutput",
+        "TaskStop",
+        "Workflow",
     }
     assert options.stderr is not None
     assert options.stderr("synthetic-private-stderr") is None
@@ -343,3 +364,66 @@ async def test_settings_and_partial_keep_api_key_secret():
     )
     assert isinstance(configured.ANTHROPIC_API_KEY, SecretStr)
     assert "synthetic-key" not in repr(configured)
+
+
+@pytest.mark.parametrize(
+    "name,allowed", [("ToolSearch", True), ("Task", False), ("SendMessage", False)]
+)
+async def test_runtime_tool_search_is_allowed_and_harness_tools_are_blocked(
+    name, allowed
+):
+    from app.agent.hooks import guard_pre_tool_use
+
+    output = await guard_pre_tool_use(
+        {"tool_name": name, "tool_input": {"query": "https://synthetic.invalid"}},
+        None,
+        {"signal": None},
+    )
+    assert (
+        output.get("hookSpecificOutput", {}).get("permissionDecision") != "deny"
+    ) is allowed
+
+
+async def test_runtime_tool_name_is_preserved_in_denial_metadata():
+    from app.agent.claude_policy import _record_denials
+
+    executor = N(record_denial=AsyncMock())
+    await _record_denials(
+        executor,
+        [
+            {
+                "tool_name": "ToolSearch",
+                "tool_input": {"query": "synthetic-private-input"},
+            }
+        ],
+    )
+    executor.record_denial.assert_awaited_once_with(
+        "ToolSearch", "E_TOOL_NOT_REGISTERED"
+    )
+
+
+@pytest.mark.parametrize(
+    "subtype,reason,detail",
+    [
+        ("error_max_turns", "max_turns", None),
+        ("success", "failed", "draft_not_finalized"),
+    ],
+)
+async def test_terminal_result_takes_precedence_over_late_process_error(
+    monkeypatch, context, caplog, subtype, reason, detail
+):
+    from claude_agent_sdk import ProcessError
+    from app.agent import claude_policy as policy
+
+    async def query(**kwargs):
+        yield result(subtype)
+        raise ProcessError(
+            "synthetic-private-exit", exit_code=1, stderr="synthetic-private-stderr"
+        )
+
+    monkeypatch.setattr(policy, "query", query)
+    outcome = await LocalAgentWorker(
+        Mock(), partial(policy.claude_policy, api_key=SecretStr("synthetic-key"))
+    )(context)
+    assert (outcome.stop_reason, outcome.detail) == (reason, detail)
+    assert "synthetic-private" not in repr(outcome) + caplog.text

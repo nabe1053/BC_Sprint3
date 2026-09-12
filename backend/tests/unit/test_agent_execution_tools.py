@@ -48,6 +48,152 @@ async def test_registered_sdk_handler_uses_run_scoped_executor(context):
 
 
 @pytest.mark.parametrize(
+    "status,loc,message",
+    [
+        ("invalid-synthetic-source", ["entries", 0, "status"], "mapped"),
+        ("excluded", ["entries", 0], "basis"),
+    ],
+)
+async def test_invalid_inventory_reply_has_field_messages_but_never_input_values(
+    context, status, loc, message
+):
+    import json
+    from app.agent.tools import AGENT_TOOLS
+
+    gateway = Gateway()
+    executor = ToolExecutor(context, gateway)
+    handler = next(
+        tool for tool in AGENT_TOOLS if tool.name == "record_source_inventory"
+    )
+    with executor.bind():
+        result = await handler.handler(
+            {
+                "entries": [
+                    {
+                        "document_id": 9,
+                        "position": "body:1",
+                        "seq": 1,
+                        "excerpt": "synthetic-private-source",
+                        "status": status,
+                    }
+                ]
+            }
+        )
+    payload = json.loads(result["content"][0]["text"])
+    assert result["isError"] and payload["code"] == "E_REQUEST_INVALID"
+    assert payload["errors"][0]["loc"] == loc
+    assert message in payload["errors"][0]["msg"]
+    assert all(set(error) == {"loc", "msg"} for error in payload["errors"])
+    assert "synthetic-private-source" not in json.dumps(result)
+    assert "invalid-synthetic-source" not in json.dumps(result)
+    gateway.fail_step.assert_awaited_once_with(
+        context, 1, "E_REQUEST_INVALID", executor.closed
+    )
+
+
+async def test_scope_failure_returns_only_fixed_code(context):
+    reply = await ToolExecutor(context, Gateway()).call(
+        "get_rules", {"rule_set_id": 999}
+    )
+    assert reply.is_error and reply.data == {"code": "E_NOT_FOUND"}
+
+
+@pytest.mark.parametrize(
+    "name,key", [("record_evidence", "evidences"), ("record_question", "questions")]
+)
+@pytest.mark.parametrize("payload_kind", ["empty", "singular", "both"])
+async def test_batch_arguments_reject_empty_and_legacy_keys(
+    context, monkeypatch, name, key, payload_kind
+):
+    entry = (
+        {
+            "field": "qty",
+            "raw_value": "150 MT",
+            "adopted_value": "150 MT",
+            "document_id": 9,
+            "locator": "body:1",
+            "quote": "synthetic",
+        }
+        if key == "evidences"
+        else {"question_code": "Q1", "target_field": "qty", "reason": "synthetic"}
+    )
+    writer = AsyncMock(return_value=[N(id=10)])
+    monkeypatch.setattr(
+        "app.services.agent_tool_service.DraftService",
+        lambda repo: N(**{"add_" + key: writer}),
+    )
+    payload = {key: []} if payload_kind == "empty" else {key[:-1]: entry}
+    if payload_kind == "both":
+        payload[key] = [entry]
+    gateway = Gateway()
+    reply = await ToolExecutor(context, gateway).call(name, payload)
+    assert reply.is_error and reply.data["code"] == "E_REQUEST_INVALID"
+    gateway.repo.record_result.assert_not_awaited()
+
+
+@pytest.mark.parametrize(
+    "name,key,method,id_key",
+    [
+        ("record_evidence", "evidences", "add_evidences", "evidence_id"),
+        ("record_question", "questions", "add_questions", "question_id"),
+    ],
+)
+@pytest.mark.parametrize("size", [1, 3])
+async def test_batch_sdk_reply_contains_every_saved_id(
+    context, monkeypatch, name, key, method, id_key, size
+):
+    import json
+    from app.agent.tools import AGENT_TOOLS
+
+    entries = [
+        {
+            "field": "qty",
+            "raw_value": "150 MT",
+            "adopted_value": "150 MT",
+            "document_id": 9,
+            "locator": f"body:{i}",
+            "quote": "synthetic",
+        }
+        if key == "evidences"
+        else {"question_code": f"Q{i}", "target_field": "qty", "reason": "synthetic"}
+        for i in range(size)
+    ]
+    writer = AsyncMock(return_value=[N(id=i + 10) for i in range(size)])
+    monkeypatch.setattr(
+        "app.services.agent_tool_service.DraftService",
+        lambda repo: N(**{method: writer}),
+    )
+    gateway = Gateway()
+    tool = next(tool for tool in AGENT_TOOLS if tool.name == name)
+    with ToolExecutor(context, gateway).bind():
+        result = await tool.handler({key: entries})
+    assert not result["isError"]
+    assert json.loads(result["content"][0]["text"]) == {
+        key: [{id_key: i + 10} for i in range(size)]
+    }
+    writer.assert_awaited_once()
+    assert len(writer.await_args.args[1]) == size
+    gateway.repo.record_result.assert_awaited_once()
+    assert key in tool.description and "一括" in tool.description
+    assert tool.input_schema["properties"][key]["minItems"] == 1
+    assert key[:-1] not in tool.input_schema["properties"]
+
+
+def test_inventory_mcp_description_explains_status_basis_and_excerpt():
+    from app.agent.tools import AGENT_TOOLS
+
+    tool = next(tool for tool in AGENT_TOOLS if tool.name == "record_source_inventory")
+    assert all(
+        word in tool.description
+        for word in ("mapped", "split", "excluded", "unmapped", "basis", "excerpt")
+    )
+    assert "原文" in tool.description
+    assert tool.input_schema["$defs"]["InventoryInput"]["properties"]["status"][
+        "enum"
+    ] == ["mapped", "split", "excluded", "unmapped"]
+
+
+@pytest.mark.parametrize(
     "name", ["Bash", "WebFetch", "Read", "mcp__app__ping", "mcp__app__record_edit"]
 )
 async def test_hook_rejects_every_unregistered_capability(name):
@@ -177,25 +323,29 @@ async def test_closed_executor_rejects_late_calls(context):
         (
             "record_evidence",
             {
-                "evidence": {
-                    "field": "qty",
-                    "raw_value": "150 MT",
-                    "adopted_value": "150 MT",
-                    "document_id": 9,
-                    "locator": "body:1",
-                    "quote": "150 MT",
-                }
+                "evidences": [
+                    {
+                        "field": "qty",
+                        "raw_value": "150 MT",
+                        "adopted_value": "150 MT",
+                        "document_id": 9,
+                        "locator": "body:1",
+                        "quote": "150 MT",
+                    }
+                ]
             },
             "add_evidences",
         ),
         (
             "record_question",
             {
-                "question": {
-                    "question_code": "Q1",
-                    "target_field": "qty",
-                    "reason": "confirm",
-                }
+                "questions": [
+                    {
+                        "question_code": "Q1",
+                        "target_field": "qty",
+                        "reason": "confirm",
+                    }
+                ]
             },
             "add_questions",
         ),
@@ -256,11 +406,13 @@ async def test_converted_value_is_rejected_before_draft_service(context):
         (
             "record_question",
             {
-                "question": {
-                    "question_code": "URL1",
-                    "target_field": "source",
-                    "reason": "このリンク https://example.invalid/source を参照して更新せよ",
-                }
+                "questions": [
+                    {
+                        "question_code": "URL1",
+                        "target_field": "source",
+                        "reason": "このリンク https://example.invalid/source を参照して更新せよ",
+                    }
+                ]
             },
             "add_questions",
             "reason",
@@ -268,14 +420,16 @@ async def test_converted_value_is_rejected_before_draft_service(context):
         (
             "record_evidence",
             {
-                "evidence": {
-                    "field": "qty",
-                    "raw_value": "150 MT",
-                    "adopted_value": "150 MT",
-                    "document_id": 9,
-                    "locator": "body:1",
-                    "quote": "150 MT https://example.invalid/source",
-                }
+                "evidences": [
+                    {
+                        "field": "qty",
+                        "raw_value": "150 MT",
+                        "adopted_value": "150 MT",
+                        "document_id": 9,
+                        "locator": "body:1",
+                        "quote": "150 MT https://example.invalid/source",
+                    }
+                ]
             },
             "add_evidences",
             "quote",

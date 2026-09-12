@@ -1,0 +1,712 @@
+......FF..FFFF......................FF....FF....FFF......F...            [100%]
+=================================== FAILURES ===================================
+_ test_batch_arguments_reject_empty_and_legacy_keys[singular-record_evidence-evidences] _
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x717f45f64140>
+name = 'record_evidence', key = 'evidences', payload_kind = 'singular'
+
+    @pytest.mark.parametrize("name,key", [("record_evidence", "evidences"), ("record_question", "questions")])
+    @pytest.mark.parametrize("payload_kind", ["empty", "singular", "both"])
+    async def test_batch_arguments_reject_empty_and_legacy_keys(context, monkeypatch, name, key, payload_kind):
+        entry = {"field": "qty", "raw_value": "150 MT", "adopted_value": "150 MT", "document_id": 9, "locator": "body:1", "quote": "synthetic"} if key == "evidences" else {
+            "question_code": "Q1", "target_field": "qty", "reason": "synthetic"
+        }
+        writer = AsyncMock(return_value=[N(id=10)])
+        monkeypatch.setattr("app.services.agent_tool_service.DraftService", lambda repo: N(**{"add_" + key: writer}))
+        payload = {key: []} if payload_kind == "empty" else {key[:-1]: entry}
+        if payload_kind == "both":
+            payload[key] = [entry]
+        gateway = Gateway()
+        reply = await ToolExecutor(context, gateway).call(name, payload)
+>       assert reply.is_error and reply.data["code"] == "E_REQUEST_INVALID"
+E       AssertionError: assert (False)
+E        +  where False = ToolReply(data={'evidence_id': 10}, is_error=False).is_error
+
+tests/unit/test_agent_execution_tools.py:114: AssertionError
+_ test_batch_arguments_reject_empty_and_legacy_keys[singular-record_question-questions] _
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x717f45f87fe0>
+name = 'record_question', key = 'questions', payload_kind = 'singular'
+
+    @pytest.mark.parametrize("name,key", [("record_evidence", "evidences"), ("record_question", "questions")])
+    @pytest.mark.parametrize("payload_kind", ["empty", "singular", "both"])
+    async def test_batch_arguments_reject_empty_and_legacy_keys(context, monkeypatch, name, key, payload_kind):
+        entry = {"field": "qty", "raw_value": "150 MT", "adopted_value": "150 MT", "document_id": 9, "locator": "body:1", "quote": "synthetic"} if key == "evidences" else {
+            "question_code": "Q1", "target_field": "qty", "reason": "synthetic"
+        }
+        writer = AsyncMock(return_value=[N(id=10)])
+        monkeypatch.setattr("app.services.agent_tool_service.DraftService", lambda repo: N(**{"add_" + key: writer}))
+        payload = {key: []} if payload_kind == "empty" else {key[:-1]: entry}
+        if payload_kind == "both":
+            payload[key] = [entry]
+        gateway = Gateway()
+        reply = await ToolExecutor(context, gateway).call(name, payload)
+>       assert reply.is_error and reply.data["code"] == "E_REQUEST_INVALID"
+E       AssertionError: assert (False)
+E        +  where False = ToolReply(data={'question_id': 10}, is_error=False).is_error
+
+tests/unit/test_agent_execution_tools.py:114: AssertionError
+_ test_batch_sdk_reply_contains_every_saved_id[1-record_evidence-evidences-add_evidences-evidence_id] _
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x717f46007380>
+name = 'record_evidence', key = 'evidences', method = 'add_evidences'
+id_key = 'evidence_id', size = 1
+
+    @pytest.mark.parametrize("name,key,method,id_key", [
+        ("record_evidence", "evidences", "add_evidences", "evidence_id"),
+        ("record_question", "questions", "add_questions", "question_id"),
+    ])
+    @pytest.mark.parametrize("size", [1, 3])
+    async def test_batch_sdk_reply_contains_every_saved_id(context, monkeypatch, name, key, method, id_key, size):
+        import json
+        from app.agent.tools import AGENT_TOOLS
+    
+        entries = [
+            {"field": "qty", "raw_value": "150 MT", "adopted_value": "150 MT", "document_id": 9, "locator": f"body:{i}", "quote": "synthetic"}
+            if key == "evidences" else
+            {"question_code": f"Q{i}", "target_field": "qty", "reason": "synthetic"}
+            for i in range(size)
+        ]
+        writer = AsyncMock(return_value=[N(id=i + 10) for i in range(size)])
+        monkeypatch.setattr("app.services.agent_tool_service.DraftService", lambda repo: N(**{method: writer}))
+        gateway = Gateway()
+        tool = next(tool for tool in AGENT_TOOLS if tool.name == name)
+        with ToolExecutor(context, gateway).bind():
+            result = await tool.handler({key: entries})
+>       assert not result["isError"]
+E       assert not True
+
+tests/unit/test_agent_execution_tools.py:139: AssertionError
+_ test_batch_sdk_reply_contains_every_saved_id[1-record_question-questions-add_questions-question_id] _
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x717f45f69820>
+name = 'record_question', key = 'questions', method = 'add_questions'
+id_key = 'question_id', size = 1
+
+    @pytest.mark.parametrize("name,key,method,id_key", [
+        ("record_evidence", "evidences", "add_evidences", "evidence_id"),
+        ("record_question", "questions", "add_questions", "question_id"),
+    ])
+    @pytest.mark.parametrize("size", [1, 3])
+    async def test_batch_sdk_reply_contains_every_saved_id(context, monkeypatch, name, key, method, id_key, size):
+        import json
+        from app.agent.tools import AGENT_TOOLS
+    
+        entries = [
+            {"field": "qty", "raw_value": "150 MT", "adopted_value": "150 MT", "document_id": 9, "locator": f"body:{i}", "quote": "synthetic"}
+            if key == "evidences" else
+            {"question_code": f"Q{i}", "target_field": "qty", "reason": "synthetic"}
+            for i in range(size)
+        ]
+        writer = AsyncMock(return_value=[N(id=i + 10) for i in range(size)])
+        monkeypatch.setattr("app.services.agent_tool_service.DraftService", lambda repo: N(**{method: writer}))
+        gateway = Gateway()
+        tool = next(tool for tool in AGENT_TOOLS if tool.name == name)
+        with ToolExecutor(context, gateway).bind():
+            result = await tool.handler({key: entries})
+>       assert not result["isError"]
+E       assert not True
+
+tests/unit/test_agent_execution_tools.py:139: AssertionError
+_ test_batch_sdk_reply_contains_every_saved_id[3-record_evidence-evidences-add_evidences-evidence_id] _
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x717f46006fc0>
+name = 'record_evidence', key = 'evidences', method = 'add_evidences'
+id_key = 'evidence_id', size = 3
+
+    @pytest.mark.parametrize("name,key,method,id_key", [
+        ("record_evidence", "evidences", "add_evidences", "evidence_id"),
+        ("record_question", "questions", "add_questions", "question_id"),
+    ])
+    @pytest.mark.parametrize("size", [1, 3])
+    async def test_batch_sdk_reply_contains_every_saved_id(context, monkeypatch, name, key, method, id_key, size):
+        import json
+        from app.agent.tools import AGENT_TOOLS
+    
+        entries = [
+            {"field": "qty", "raw_value": "150 MT", "adopted_value": "150 MT", "document_id": 9, "locator": f"body:{i}", "quote": "synthetic"}
+            if key == "evidences" else
+            {"question_code": f"Q{i}", "target_field": "qty", "reason": "synthetic"}
+            for i in range(size)
+        ]
+        writer = AsyncMock(return_value=[N(id=i + 10) for i in range(size)])
+        monkeypatch.setattr("app.services.agent_tool_service.DraftService", lambda repo: N(**{method: writer}))
+        gateway = Gateway()
+        tool = next(tool for tool in AGENT_TOOLS if tool.name == name)
+        with ToolExecutor(context, gateway).bind():
+            result = await tool.handler({key: entries})
+>       assert not result["isError"]
+E       assert not True
+
+tests/unit/test_agent_execution_tools.py:139: AssertionError
+_ test_batch_sdk_reply_contains_every_saved_id[3-record_question-questions-add_questions-question_id] _
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x717f45f690d0>
+name = 'record_question', key = 'questions', method = 'add_questions'
+id_key = 'question_id', size = 3
+
+    @pytest.mark.parametrize("name,key,method,id_key", [
+        ("record_evidence", "evidences", "add_evidences", "evidence_id"),
+        ("record_question", "questions", "add_questions", "question_id"),
+    ])
+    @pytest.mark.parametrize("size", [1, 3])
+    async def test_batch_sdk_reply_contains_every_saved_id(context, monkeypatch, name, key, method, id_key, size):
+        import json
+        from app.agent.tools import AGENT_TOOLS
+    
+        entries = [
+            {"field": "qty", "raw_value": "150 MT", "adopted_value": "150 MT", "document_id": 9, "locator": f"body:{i}", "quote": "synthetic"}
+            if key == "evidences" else
+            {"question_code": f"Q{i}", "target_field": "qty", "reason": "synthetic"}
+            for i in range(size)
+        ]
+        writer = AsyncMock(return_value=[N(id=i + 10) for i in range(size)])
+        monkeypatch.setattr("app.services.agent_tool_service.DraftService", lambda repo: N(**{method: writer}))
+        gateway = Gateway()
+        tool = next(tool for tool in AGENT_TOOLS if tool.name == name)
+        with ToolExecutor(context, gateway).bind():
+            result = await tool.handler({key: entries})
+>       assert not result["isError"]
+E       assert not True
+
+tests/unit/test_agent_execution_tools.py:139: AssertionError
+_ test_artifact_tools_use_existing_draft_service[record_evidence-payload2-add_evidences] _
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x717f45f353a0>
+name = 'record_evidence'
+payload = {'evidences': [{'adopted_value': '150 MT', 'document_id': 9, 'field': 'qty', 'locator': 'body:1', ...}]}
+method = 'add_evidences'
+
+    @pytest.mark.parametrize(
+        "name,payload,method",
+        [
+            (
+                "record_case_header",
+                {
+                    "header": {
+                        "inquiry_no_state": "not_stated",
+                        "customer_name_state": "not_stated",
+                        "due_state": "not_stated",
+                        "place_state": "not_stated",
+                        "incoterms_state": "not_stated",
+                        "quote_deadline_tz_state": "missing",
+                    }
+                },
+                "save_header",
+            ),
+            (
+                "propose_items",
+                {
+                    "rows": [
+                        {
+                            "row_code": "1",
+                            "source_no": "1",
+                            "seq": 1,
+                            "kind": "casing",
+                            "kind_raw": "casing",
+                            "od_state": "not_stated",
+                            "wall_state": "not_stated",
+                            "weight_state": "not_stated",
+                            "grade_state": "not_stated",
+                            "grade_raw": "記載なし",
+                            "connection_state": "not_stated",
+                            "length_state": "not_stated",
+                            "qty_state": "numeric",
+                            "qty_value": "150",
+                            "qty_unit": "MT",
+                            "qty_raw": "150 MT",
+                            "due_state": "not_stated",
+                            "place_state": "not_stated",
+                        }
+                    ]
+                },
+                "add_items",
+            ),
+            (
+                "record_evidence",
+                {
+                    'evidences': [{
+                        "field": "qty",
+                        "raw_value": "150 MT",
+                        "adopted_value": "150 MT",
+                        "document_id": 9,
+                        "locator": "body:1",
+                        "quote": "150 MT",
+                    }]
+                },
+                "add_evidences",
+            ),
+            (
+                "record_question",
+                {
+                    'questions': [{
+                        "question_code": "Q1",
+                        "target_field": "qty",
+                        "reason": "confirm",
+                    }]
+                },
+                "add_questions",
+            ),
+            (
+                "record_source_inventory",
+                {
+                    "entries": [
+                        {
+                            "document_id": 9,
+                            "position": "body:1",
+                            "seq": 1,
+                            "excerpt": "original",
+                            "status": "unmapped",
+                        }
+                    ]
+                },
+                "add_inventory",
+            ),
+            ("validate_draft", {}, "validate"),
+            ("finalize_draft", {}, "finalize"),
+        ],
+    )
+    async def test_artifact_tools_use_existing_draft_service(
+        context, monkeypatch, name, payload, method
+    ):
+        from app.services.draft_validation import ValidationResult
+    
+        gateway = Gateway()
+        row = N(id=3, row_code="1", current_state="draft", is_complete=True)
+        result = (
+            ValidationResult([], {})
+            if method == "validate"
+            else ([row] if method.startswith("add_") else row)
+        )
+        draft_service = N(**{method: AsyncMock(return_value=result)})
+        monkeypatch.setattr(
+            "app.services.agent_tool_service.DraftService", lambda repo: draft_service
+        )
+        reply = await ToolExecutor(context, gateway).invoke(
+            name, {"version_id": 3, **payload}
+        )
+>       assert not reply.is_error
+E       AssertionError: assert not True
+E        +  where True = ToolReply(data={'code': 'E_REQUEST_INVALID', 'errors': [{'loc': ['evidence'], 'msg': 'Field required'}, {'loc': ['evidences'], 'msg': 'Extra inputs are not permitted'}]}, is_error=True).is_error
+
+tests/unit/test_agent_execution_tools.py:353: AssertionError
+_ test_artifact_tools_use_existing_draft_service[record_question-payload3-add_questions] _
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x717f46020fe0>
+name = 'record_question'
+payload = {'questions': [{'question_code': 'Q1', 'reason': 'confirm', 'target_field': 'qty'}]}
+method = 'add_questions'
+
+    @pytest.mark.parametrize(
+        "name,payload,method",
+        [
+            (
+                "record_case_header",
+                {
+                    "header": {
+                        "inquiry_no_state": "not_stated",
+                        "customer_name_state": "not_stated",
+                        "due_state": "not_stated",
+                        "place_state": "not_stated",
+                        "incoterms_state": "not_stated",
+                        "quote_deadline_tz_state": "missing",
+                    }
+                },
+                "save_header",
+            ),
+            (
+                "propose_items",
+                {
+                    "rows": [
+                        {
+                            "row_code": "1",
+                            "source_no": "1",
+                            "seq": 1,
+                            "kind": "casing",
+                            "kind_raw": "casing",
+                            "od_state": "not_stated",
+                            "wall_state": "not_stated",
+                            "weight_state": "not_stated",
+                            "grade_state": "not_stated",
+                            "grade_raw": "記載なし",
+                            "connection_state": "not_stated",
+                            "length_state": "not_stated",
+                            "qty_state": "numeric",
+                            "qty_value": "150",
+                            "qty_unit": "MT",
+                            "qty_raw": "150 MT",
+                            "due_state": "not_stated",
+                            "place_state": "not_stated",
+                        }
+                    ]
+                },
+                "add_items",
+            ),
+            (
+                "record_evidence",
+                {
+                    'evidences': [{
+                        "field": "qty",
+                        "raw_value": "150 MT",
+                        "adopted_value": "150 MT",
+                        "document_id": 9,
+                        "locator": "body:1",
+                        "quote": "150 MT",
+                    }]
+                },
+                "add_evidences",
+            ),
+            (
+                "record_question",
+                {
+                    'questions': [{
+                        "question_code": "Q1",
+                        "target_field": "qty",
+                        "reason": "confirm",
+                    }]
+                },
+                "add_questions",
+            ),
+            (
+                "record_source_inventory",
+                {
+                    "entries": [
+                        {
+                            "document_id": 9,
+                            "position": "body:1",
+                            "seq": 1,
+                            "excerpt": "original",
+                            "status": "unmapped",
+                        }
+                    ]
+                },
+                "add_inventory",
+            ),
+            ("validate_draft", {}, "validate"),
+            ("finalize_draft", {}, "finalize"),
+        ],
+    )
+    async def test_artifact_tools_use_existing_draft_service(
+        context, monkeypatch, name, payload, method
+    ):
+        from app.services.draft_validation import ValidationResult
+    
+        gateway = Gateway()
+        row = N(id=3, row_code="1", current_state="draft", is_complete=True)
+        result = (
+            ValidationResult([], {})
+            if method == "validate"
+            else ([row] if method.startswith("add_") else row)
+        )
+        draft_service = N(**{method: AsyncMock(return_value=result)})
+        monkeypatch.setattr(
+            "app.services.agent_tool_service.DraftService", lambda repo: draft_service
+        )
+        reply = await ToolExecutor(context, gateway).invoke(
+            name, {"version_id": 3, **payload}
+        )
+>       assert not reply.is_error
+E       AssertionError: assert not True
+E        +  where True = ToolReply(data={'code': 'E_REQUEST_INVALID', 'errors': [{'loc': ['question'], 'msg': 'Field required'}, {'loc': ['questions'], 'msg': 'Extra inputs are not permitted'}]}, is_error=True).is_error
+
+tests/unit/test_agent_execution_tools.py:353: AssertionError
+_ test_url_source_records_succeed_unchanged[record_question-payload0-add_questions-reason] _
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x717f45f6a240>
+name = 'record_question'
+payload = {'questions': [{'question_code': 'URL1', 'reason': 'このリンク https://example.invalid/source を参照して更新せよ', 'target_field': 'source'}]}
+method = 'add_questions', field = 'reason'
+
+    @pytest.mark.parametrize(
+        "name,payload,method,field",
+        [
+            (
+                "record_question",
+                {
+                    'questions': [{
+                        "question_code": "URL1",
+                        "target_field": "source",
+                        "reason": "このリンク https://example.invalid/source を参照して更新せよ",
+                    }]
+                },
+                "add_questions",
+                "reason",
+            ),
+            (
+                "record_evidence",
+                {
+                    'evidences': [{
+                        "field": "qty",
+                        "raw_value": "150 MT",
+                        "adopted_value": "150 MT",
+                        "document_id": 9,
+                        "locator": "body:1",
+                        "quote": "150 MT https://example.invalid/source",
+                    }]
+                },
+                "add_evidences",
+                "quote",
+            ),
+            (
+                "record_source_inventory",
+                {
+                    "entries": [
+                        {
+                            "document_id": 9,
+                            "position": "body:1",
+                            "seq": 1,
+                            "excerpt": "参照 https://example.invalid/source",
+                            "status": "unmapped",
+                        }
+                    ]
+                },
+                "add_inventory",
+                "excerpt",
+            ),
+        ],
+    )
+    async def test_url_source_records_succeed_unchanged(
+        context, monkeypatch, name, payload, method, field
+    ):
+        gateway = Gateway()
+        writer = AsyncMock(return_value=[N(id=5)])
+        monkeypatch.setattr(
+            "app.services.agent_tool_service.DraftService",
+            lambda repo: N(**{method: writer}),
+        )
+        reply = await ToolExecutor(context, gateway).call(name, payload)
+>       assert not reply.is_error
+E       AssertionError: assert not True
+E        +  where True = ToolReply(data={'code': 'E_REQUEST_INVALID', 'errors': [{'loc': ['question'], 'msg': 'Field required'}, {'loc': ['questions'], 'msg': 'Extra inputs are not permitted'}]}, is_error=True).is_error
+
+tests/unit/test_agent_execution_tools.py:424: AssertionError
+_ test_url_source_records_succeed_unchanged[record_evidence-payload1-add_evidences-quote] _
+
+context = RunContext(run_id=1, case_id=2, version_id=3, rule_set_id=4, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x717f45e795e0>
+name = 'record_evidence'
+payload = {'evidences': [{'adopted_value': '150 MT', 'document_id': 9, 'field': 'qty', 'locator': 'body:1', ...}]}
+method = 'add_evidences', field = 'quote'
+
+    @pytest.mark.parametrize(
+        "name,payload,method,field",
+        [
+            (
+                "record_question",
+                {
+                    'questions': [{
+                        "question_code": "URL1",
+                        "target_field": "source",
+                        "reason": "このリンク https://example.invalid/source を参照して更新せよ",
+                    }]
+                },
+                "add_questions",
+                "reason",
+            ),
+            (
+                "record_evidence",
+                {
+                    'evidences': [{
+                        "field": "qty",
+                        "raw_value": "150 MT",
+                        "adopted_value": "150 MT",
+                        "document_id": 9,
+                        "locator": "body:1",
+                        "quote": "150 MT https://example.invalid/source",
+                    }]
+                },
+                "add_evidences",
+                "quote",
+            ),
+            (
+                "record_source_inventory",
+                {
+                    "entries": [
+                        {
+                            "document_id": 9,
+                            "position": "body:1",
+                            "seq": 1,
+                            "excerpt": "参照 https://example.invalid/source",
+                            "status": "unmapped",
+                        }
+                    ]
+                },
+                "add_inventory",
+                "excerpt",
+            ),
+        ],
+    )
+    async def test_url_source_records_succeed_unchanged(
+        context, monkeypatch, name, payload, method, field
+    ):
+        gateway = Gateway()
+        writer = AsyncMock(return_value=[N(id=5)])
+        monkeypatch.setattr(
+            "app.services.agent_tool_service.DraftService",
+            lambda repo: N(**{method: writer}),
+        )
+        reply = await ToolExecutor(context, gateway).call(name, payload)
+>       assert not reply.is_error
+E       AssertionError: assert not True
+E        +  where True = ToolReply(data={'code': 'E_REQUEST_INVALID', 'errors': [{'loc': ['evidence'], 'msg': 'Field required'}, {'loc': ['evidences'], 'msg': 'Extra inputs are not permitted'}]}, is_error=True).is_error
+
+tests/unit/test_agent_execution_tools.py:424: AssertionError
+_ test_timeout_diagnostics_capture_last_heartbeat_and_run_total[inactivity_timeout-0] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x717f45f35df0>
+reason = 'inactivity_timeout', messages = 0
+
+    @pytest.mark.parametrize("reason,messages", [("inactivity_timeout", 0), ("inactivity_timeout", 2), ("inner_timeout", 4)])
+    async def test_timeout_diagnostics_capture_last_heartbeat_and_run_total(monkeypatch, reason, messages):
+        from dataclasses import replace
+        from app.domain.agent_types import PolicyHeartbeat
+    
+        clock = Clock()
+        monkeypatch.setattr(runner, "monotonic", lambda: clock.now)
+        monkeypatch.setattr(runner, "asyncio", N(create_task=asyncio.create_task, wait=clock.wait, CancelledError=asyncio.CancelledError))
+        monkeypatch.setattr(ToolExecutor, "call", AsyncMock(return_value=ToolReply({})))
+        limits = definition.default_run_limits()
+        spacing = limits.inactivity_timeout_s / 3
+        if reason == "inner_timeout":
+            limits = replace(limits, inner_timeout_s=spacing * 4.5)
+    
+        async def policy(context):
+            for i in range(messages):
+                await clock.sleep(spacing)
+                yield PolicyHeartbeat(clock.now)
+                if i == 0:
+                    # A tool operation must not reset the run-wide diagnostics.
+                    yield ToolCall("get_rules")
+            await asyncio.Future()
+    
+        outcome = await runner.LocalAgentWorker(Mock(), policy)(RunContext(1, 2, 3, 4, limits))
+        assert outcome.stop_reason == reason
+>       assert outcome.heartbeat_diagnostics.heartbeats == messages
+E       AttributeError: 'RunResult' object has no attribute 'heartbeat_diagnostics'
+
+tests/unit/test_policy_activity.py:68: AttributeError
+_ test_timeout_diagnostics_capture_last_heartbeat_and_run_total[inactivity_timeout-2] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x717f4609f860>
+reason = 'inactivity_timeout', messages = 2
+
+    @pytest.mark.parametrize("reason,messages", [("inactivity_timeout", 0), ("inactivity_timeout", 2), ("inner_timeout", 4)])
+    async def test_timeout_diagnostics_capture_last_heartbeat_and_run_total(monkeypatch, reason, messages):
+        from dataclasses import replace
+        from app.domain.agent_types import PolicyHeartbeat
+    
+        clock = Clock()
+        monkeypatch.setattr(runner, "monotonic", lambda: clock.now)
+        monkeypatch.setattr(runner, "asyncio", N(create_task=asyncio.create_task, wait=clock.wait, CancelledError=asyncio.CancelledError))
+        monkeypatch.setattr(ToolExecutor, "call", AsyncMock(return_value=ToolReply({})))
+        limits = definition.default_run_limits()
+        spacing = limits.inactivity_timeout_s / 3
+        if reason == "inner_timeout":
+            limits = replace(limits, inner_timeout_s=spacing * 4.5)
+    
+        async def policy(context):
+            for i in range(messages):
+                await clock.sleep(spacing)
+                yield PolicyHeartbeat(clock.now)
+                if i == 0:
+                    # A tool operation must not reset the run-wide diagnostics.
+                    yield ToolCall("get_rules")
+            await asyncio.Future()
+    
+        outcome = await runner.LocalAgentWorker(Mock(), policy)(RunContext(1, 2, 3, 4, limits))
+        assert outcome.stop_reason == reason
+>       assert outcome.heartbeat_diagnostics.heartbeats == messages
+E       AttributeError: 'RunResult' object has no attribute 'heartbeat_diagnostics'
+
+tests/unit/test_policy_activity.py:68: AttributeError
+_ test_timeout_diagnostics_capture_last_heartbeat_and_run_total[inner_timeout-4] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x717f46122300>
+reason = 'inner_timeout', messages = 4
+
+    @pytest.mark.parametrize("reason,messages", [("inactivity_timeout", 0), ("inactivity_timeout", 2), ("inner_timeout", 4)])
+    async def test_timeout_diagnostics_capture_last_heartbeat_and_run_total(monkeypatch, reason, messages):
+        from dataclasses import replace
+        from app.domain.agent_types import PolicyHeartbeat
+    
+        clock = Clock()
+        monkeypatch.setattr(runner, "monotonic", lambda: clock.now)
+        monkeypatch.setattr(runner, "asyncio", N(create_task=asyncio.create_task, wait=clock.wait, CancelledError=asyncio.CancelledError))
+        monkeypatch.setattr(ToolExecutor, "call", AsyncMock(return_value=ToolReply({})))
+        limits = definition.default_run_limits()
+        spacing = limits.inactivity_timeout_s / 3
+        if reason == "inner_timeout":
+            limits = replace(limits, inner_timeout_s=spacing * 4.5)
+    
+        async def policy(context):
+            for i in range(messages):
+                await clock.sleep(spacing)
+                yield PolicyHeartbeat(clock.now)
+                if i == 0:
+                    # A tool operation must not reset the run-wide diagnostics.
+                    yield ToolCall("get_rules")
+            await asyncio.Future()
+    
+        outcome = await runner.LocalAgentWorker(Mock(), policy)(RunContext(1, 2, 3, 4, limits))
+        assert outcome.stop_reason == reason
+>       assert outcome.heartbeat_diagnostics.heartbeats == messages
+E       AttributeError: 'RunResult' object has no attribute 'heartbeat_diagnostics'
+
+tests/unit/test_policy_activity.py:68: AttributeError
+_____________ test_stop_thresholds_are_only_defined_in_definition ______________
+
+    def test_stop_thresholds_are_only_defined_in_definition() -> None:
+        """停止閾値（max_turns / 各タイムアウト）を definition.py の外で数値リテラル指定しない。
+    
+        `RunLimits(...)` を数値リテラルで組み立てているモジュールを検出する。既定値は
+        `definition.default_run_limits()` から取り、service 経由で注入する（RV-015 P1-2）。
+        """
+        from app.agent import definition
+    
+        plan = APP_DIR.parents[1] / "docs/requirements/agent-plan.md"
+        approved = re.search(r"最大ターン数 \*\*(\d+)\*\*", plan.read_text())
+        assert approved is not None
+>       assert definition.MAX_TURNS == int(approved.group(1))
+E       AssertionError: assert 40 == 80
+E        +  where 40 = <module 'app.agent.definition' from '<repo>/backend/app/agent/definition.py'>.MAX_TURNS
+E        +  and   80 = int('80')
+E        +    where '80' = <built-in method group of re.Match object at 0x717f45fab910>(1)
+E        +      where <built-in method group of re.Match object at 0x717f45fab910> = <re.Match object; span=(4035, 4048), match='最大ターン数 **80**'>.group
+
+tests/unit/test_single_source_of_truth.py:92: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_agent_execution_tools.py::test_batch_arguments_reject_empty_and_legacy_keys[singular-record_evidence-evidences] - AssertionError: assert (False)
+ +  where False = ToolReply(data={'evidence_id': 10}, is_error=False).is_error
+FAILED tests/unit/test_agent_execution_tools.py::test_batch_arguments_reject_empty_and_legacy_keys[singular-record_question-questions] - AssertionError: assert (False)
+ +  where False = ToolReply(data={'question_id': 10}, is_error=False).is_error
+FAILED tests/unit/test_agent_execution_tools.py::test_batch_sdk_reply_contains_every_saved_id[1-record_evidence-evidences-add_evidences-evidence_id] - assert not True
+FAILED tests/unit/test_agent_execution_tools.py::test_batch_sdk_reply_contains_every_saved_id[1-record_question-questions-add_questions-question_id] - assert not True
+FAILED tests/unit/test_agent_execution_tools.py::test_batch_sdk_reply_contains_every_saved_id[3-record_evidence-evidences-add_evidences-evidence_id] - assert not True
+FAILED tests/unit/test_agent_execution_tools.py::test_batch_sdk_reply_contains_every_saved_id[3-record_question-questions-add_questions-question_id] - assert not True
+FAILED tests/unit/test_agent_execution_tools.py::test_artifact_tools_use_existing_draft_service[record_evidence-payload2-add_evidences] - AssertionError: assert not True
+ +  where True = ToolReply(data={'code': 'E_REQUEST_INVALID', 'errors': [{'loc': ['evidence'], 'msg': 'Field required'}, {'loc': ['evidences'], 'msg': 'Extra inputs are not permitted'}]}, is_error=True).is_error
+FAILED tests/unit/test_agent_execution_tools.py::test_artifact_tools_use_existing_draft_service[record_question-payload3-add_questions] - AssertionError: assert not True
+ +  where True = ToolReply(data={'code': 'E_REQUEST_INVALID', 'errors': [{'loc': ['question'], 'msg': 'Field required'}, {'loc': ['questions'], 'msg': 'Extra inputs are not permitted'}]}, is_error=True).is_error
+FAILED tests/unit/test_agent_execution_tools.py::test_url_source_records_succeed_unchanged[record_question-payload0-add_questions-reason] - AssertionError: assert not True
+ +  where True = ToolReply(data={'code': 'E_REQUEST_INVALID', 'errors': [{'loc': ['question'], 'msg': 'Field required'}, {'loc': ['questions'], 'msg': 'Extra inputs are not permitted'}]}, is_error=True).is_error
+FAILED tests/unit/test_agent_execution_tools.py::test_url_source_records_succeed_unchanged[record_evidence-payload1-add_evidences-quote] - AssertionError: assert not True
+ +  where True = ToolReply(data={'code': 'E_REQUEST_INVALID', 'errors': [{'loc': ['evidence'], 'msg': 'Field required'}, {'loc': ['evidences'], 'msg': 'Extra inputs are not permitted'}]}, is_error=True).is_error
+FAILED tests/unit/test_policy_activity.py::test_timeout_diagnostics_capture_last_heartbeat_and_run_total[inactivity_timeout-0] - AttributeError: 'RunResult' object has no attribute 'heartbeat_diagnostics'
+FAILED tests/unit/test_policy_activity.py::test_timeout_diagnostics_capture_last_heartbeat_and_run_total[inactivity_timeout-2] - AttributeError: 'RunResult' object has no attribute 'heartbeat_diagnostics'
+FAILED tests/unit/test_policy_activity.py::test_timeout_diagnostics_capture_last_heartbeat_and_run_total[inner_timeout-4] - AttributeError: 'RunResult' object has no attribute 'heartbeat_diagnostics'
+FAILED tests/unit/test_single_source_of_truth.py::test_stop_thresholds_are_only_defined_in_definition - AssertionError: assert 40 == 80
+ +  where 40 = <module 'app.agent.definition' from '<repo>/backend/app/agent/definition.py'>.MAX_TURNS
+ +  and   80 = int('80')
+ +    where '80' = <built-in method group of re.Match object at 0x717f45fab910>(1)
+ +      where <built-in method group of re.Match object at 0x717f45fab910> = <re.Match object; span=(4035, 4048), match='最大ターン数 **80**'>.group
+14 failed, 47 passed in 1.03s
+make: *** [/tmp/model-batch-checks.mk:3: model-batch-unit] Error 1

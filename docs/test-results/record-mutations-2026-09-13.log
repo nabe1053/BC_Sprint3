@@ -1,0 +1,10 @@
+allow_blank 1 4 failed, 6 passed in 0.03s
+apply_undone 1 2 failed, 2 passed in 0.02s
+wrong_order 1 2 failed, 2 passed in 0.02s
+retain_state_value 1 1 failed, 3 passed in 0.02s
+omit_quantity_unit 1 1 failed, 3 deselected in 0.02s
+status_is_resolution 1 1 failed, 4 deselected, 1 warning in 0.36s
+old_judgement 1 1 failed, 4 deselected, 1 warning in 0.36s
+allow_unfinalized 1 4 failed, 1 deselected, 1 warning in 1.03s
+broad_unique_code 1 1 failed, 4 deselected, 1 warning in 0.30s
+no_version_lock 1 1 failed, 4 deselected, 1 warning in 1.43s

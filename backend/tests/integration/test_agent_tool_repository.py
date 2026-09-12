@@ -217,6 +217,181 @@ async def test_local_implementation_version_is_saved(db_session, tool_run):
     assert run.impl_version == "local-agent-tools-v1"
 
 
+@pytest.mark.parametrize(
+    "name,key,model_name",
+    [
+        ("record_evidence", "evidences", "Evidence"),
+        ("record_question", "questions", "Question"),
+    ],
+)
+@pytest.mark.parametrize("size", [1, 3])
+async def test_batch_tool_persists_all_rows_and_exact_observation_count(
+    db_session, tool_run, name, key, model_name, size
+):
+    from app.models import drafts
+
+    context, doc, gateway = tool_run
+    rows = [
+        {
+            "field": f"field-{i}",
+            "raw_value": "synthetic-source",
+            "adopted_value": "synthetic-source",
+            "document_id": doc.id,
+            "locator": "body:1",
+            "quote": "synthetic-source",
+        }
+        if key == "evidences"
+        else {
+            "question_code": f"Q{i}",
+            "target_field": "qty",
+            "reason": "synthetic-source",
+        }
+        for i in range(size)
+    ]
+    reply = await ToolExecutor(context, gateway).call(name, {key: rows})
+    assert not reply.is_error
+    model = getattr(drafts, model_name)
+    saved = (
+        (
+            await db_session.execute(
+                select(model)
+                .where(model.version_id == context.version_id)
+                .order_by(model.id)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    assert [row.id for row in saved] == [
+        row[key[:-1] + "_id"] for row in reply.data[key]
+    ]
+    assert len(saved) == size
+    step = (
+        await db_session.execute(
+            select(AgentRunStep).where(
+                AgentRunStep.agent_run_id == context.run_id,
+                AgentRunStep.tool_name == name,
+            )
+        )
+    ).scalar_one()
+    assert step.trace_event["observation"] == {
+        "status": "ok",
+        "count": size,
+        "code": None,
+    }
+    assert "synthetic-source" not in str(step.trace_event) + step.args_summary
+
+
+@pytest.mark.parametrize(
+    "name,key,model_name",
+    [
+        ("record_evidence", "evidences", "Evidence"),
+        ("record_question", "questions", "Question"),
+    ],
+)
+async def test_invalid_later_batch_row_rolls_back_every_row(
+    db_session, tool_run, name, key, model_name
+):
+    from app.models import drafts
+
+    context, doc, gateway = tool_run
+    first = (
+        {
+            "field": "qty",
+            "raw_value": "150 MT",
+            "adopted_value": "150 MT",
+            "document_id": doc.id,
+            "locator": "body:1",
+            "quote": "150 MT",
+        }
+        if key == "evidences"
+        else {"question_code": "Q1", "target_field": "qty", "reason": "synthetic"}
+    )
+    reply = await ToolExecutor(context, gateway).call(
+        name, {key: [first, {**first, "item_id": 999999}]}
+    )
+    assert reply.is_error and reply.data == {
+        "code": "E_NOT_FOUND" if key == "evidences" else "E_TARGET_INVALID"
+    }
+    model = getattr(drafts, model_name)
+    assert (
+        await db_session.execute(
+            select(model).where(model.version_id == context.version_id)
+        )
+    ).scalars().all() == []
+
+
+@pytest.mark.parametrize("reason", ["inactivity_timeout", "inner_timeout"])
+async def test_interruption_diagnostics_reach_trace_and_http_stop_reason_once(
+    db_session, tool_run, reason, tmp_path
+):
+    import json
+    import httpx
+    from fastapi import FastAPI
+    from types import SimpleNamespace
+    from app.agent.runner import LocalAgentWorker
+    from app.domain.run_types import HeartbeatDiagnostics
+    from app.api.dependencies import get_run_service
+    from app.api.ui.endpoints.agent_runs import router
+    from app.repositories.run_trace_store import RunTraceStore
+
+    context, _, gateway = tool_run
+    result = RunResult(reason, 1, heartbeat_diagnostics=HeartbeatDiagnostics(12.5, 7))
+    worker = LocalAgentWorker(gateway)
+    await worker.prepare_finish(context, result)
+    await worker.prepare_finish(context, result)
+    repository = RunRepository(
+        db_session, file_size=lambda d: 1, trace=RunTraceStore(tmp_path)
+    )
+    await repository.finish(context.run_id, result)
+    app = FastAPI()
+    app.include_router(router, prefix="/api/v1/ui")
+    app.dependency_overrides[get_run_service] = lambda: SimpleNamespace(
+        progress=repository.progress
+    )
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.get(f"/api/v1/ui/agent-runs/{context.run_id}")
+    assert response.status_code == 200
+    assert response.json()["stopReason"] == reason
+    events = list(
+        (
+            await db_session.execute(
+                select(AgentRunStep.trace_event).where(
+                    AgentRunStep.agent_run_id == context.run_id,
+                    AgentRunStep.trace_event.is_not(None),
+                )
+            )
+        ).scalars()
+    )
+    interrupted = [event for event in events if event["tool"] == "job_interrupted"]
+    assert len(interrupted) == 1
+    observation = interrupted[0]["observation"]
+    assert observation == {
+        "status": "error",
+        "count": 2,
+        "code": reason,
+        "sinceLastHeartbeatS": 12.5,
+        "heartbeats": 7,
+    }
+    assert all(
+        type(observation[key]) in (int, float)
+        for key in ("sinceLastHeartbeatS", "heartbeats")
+    )
+    assert "synthetic-source" not in json.dumps(events)
+    stored = [
+        json.loads(line)
+        for line in (tmp_path / f"{context.run_id}.jsonl").read_text().splitlines()
+    ]
+    assert (
+        next(event for event in stored if event["tool"] == "job_interrupted")[
+            "observation"
+        ]
+        == observation
+    )
+
+
 async def test_document_progress_uses_unique_fully_read_documents(db_session, tool_run):
     import json
     from app.models import AgentRun

@@ -206,6 +206,13 @@ async def evaluate(
             for e in events
         )
     if expected == "completed":
+        evidence_calls = [e for e in events if e["tool"] == "record_evidence"]
+        assert len(evidence_calls) == 1
+        assert evidence_calls[0]["observation"]["count"] == 2
+        question_calls = [e for e in events if e["tool"] == "record_question"]
+        assert len(question_calls) == (
+            1 if quantity == "TBA" or name == "ae06_url_in_source" else 0
+        )
         async with sessions() as session:
             version = await session.get(Version, progress["versionId"])
             items = list(
@@ -274,6 +281,13 @@ async def evaluate(
             run = await session.get(AgentRun, run_id)
             assert run.validation_result is not None
             assert any(e["tool"] == "job_interrupted" for e in events)
+            if name in ("inactivity", "inner_timeout"):
+                observation = next(
+                    e["observation"] for e in events if e["tool"] == "job_interrupted"
+                )
+                assert type(observation["sinceLastHeartbeatS"]) in (int, float)
+                assert observation["sinceLastHeartbeatS"] >= 0
+                assert observation["heartbeats"] == 0
             if name == "max_turns":
                 issues = list(
                     (

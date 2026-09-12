@@ -1,0 +1,372 @@
+..............FF............FF.......................FFF                 [100%]
+=================================== FAILURES ===================================
+_ test_sdk_handler_round_trip_uses_existing_executor_and_records_once[arguments0-False] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x70ea33bf9010>
+context = RunContext(run_id=11, case_id=22, version_id=33, rule_set_id=44, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+arguments = {}, rejected = False
+
+    @pytest.mark.parametrize(
+        "arguments,rejected", [({}, False), ({"rule_set_id": 999}, True)]
+    )
+    async def test_sdk_handler_round_trip_uses_existing_executor_and_records_once(
+        monkeypatch, context, arguments, rejected
+    ):
+        from app.agent import claude_policy as policy
+    
+        repository = N(
+            get_rules=AsyncMock(return_value={"rule_set_id": context.rule_set_id}),
+            record_result=AsyncMock(),
+        )
+    
+        @asynccontextmanager
+        async def operation(*args):
+            yield repository
+    
+        gateway = N(
+            begin_step=AsyncMock(return_value=7), operation=operation, fail_step=AsyncMock()
+        )
+        executor = ToolExecutor(context, gateway)
+        captured = {}
+    
+        async def query(*, prompt, options):
+            captured["options"] = options
+            captured["prompt"] = [message async for message in prompt]
+            handler = next(tool for tool in AGENT_TOOLS if tool.name == "get_rules")
+            captured["response"] = await handler.handler(arguments)
+            yield result()
+    
+        monkeypatch.setattr(policy, "query", query)
+        stream = policy.claude_policy(context, api_key=SecretStr("synthetic-key"))
+        with executor.bind():
+            call = await anext(stream)
+            gateway.begin_step.assert_not_awaited()
+            with executor.bind(
+                request=AsyncMock(side_effect=AssertionError("recursive SDK request"))
+            ):
+                reply = await executor.call(call.name, call.arguments)
+            with pytest.raises(StopAsyncIteration):
+                signal = await stream.asend(reply)
+                while isinstance(signal, PolicyHeartbeat):
+                    signal = await anext(stream)
+        assert captured["response"]["isError"] is rejected
+        gateway.begin_step.assert_awaited_once()
+        if rejected:
+            repository.get_rules.assert_not_awaited()
+            repository.record_result.assert_not_awaited()
+            gateway.fail_step.assert_awaited_once()
+            assert "E_NOT_FOUND" in captured["response"]["content"][0]["text"]
+        else:
+            assert str(context.rule_set_id) in captured["response"]["content"][0]["text"]
+            repository.record_result.assert_awaited_once()
+        options = captured["options"]
+        assert options.model == definition.MODEL_ID
+        assert options.system_prompt == definition.SYSTEM_PROMPT
+        assert options.max_turns == definition.MAX_TURNS
+        assert options.mcp_servers == {"app": agent_server}
+        assert options.allowed_tools == ALLOWED_TOOL_NAMES + ["ToolSearch"]
+        assert len(ALLOWED_TOOL_NAMES) == 13
+        assert options.tools == []
+>       assert options.include_partial_messages is True
+E       AssertionError: assert False is True
+E        +  where False = ClaudeAgentOptions(tools=[], allowed_tools=['mcp__app__list_case_documents', 'mcp__app__read_document', 'mcp__app__rea...e_file_checkpointing=False, session_store=None, session_store_flush='batched', load_timeout_ms=60000, task_budget=None).include_partial_messages
+
+tests/unit/test_claude_policy.py:245: AssertionError
+_ test_sdk_handler_round_trip_uses_existing_executor_and_records_once[arguments1-True] _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x70ea33bf9f10>
+context = RunContext(run_id=11, case_id=22, version_id=33, rule_set_id=44, limits=RunLimits(max_turns=40, inner_timeout_s=900, inactivity_timeout_s=60, outer_timeout_s=960))
+arguments = {'rule_set_id': 999}, rejected = True
+
+    @pytest.mark.parametrize(
+        "arguments,rejected", [({}, False), ({"rule_set_id": 999}, True)]
+    )
+    async def test_sdk_handler_round_trip_uses_existing_executor_and_records_once(
+        monkeypatch, context, arguments, rejected
+    ):
+        from app.agent import claude_policy as policy
+    
+        repository = N(
+            get_rules=AsyncMock(return_value={"rule_set_id": context.rule_set_id}),
+            record_result=AsyncMock(),
+        )
+    
+        @asynccontextmanager
+        async def operation(*args):
+            yield repository
+    
+        gateway = N(
+            begin_step=AsyncMock(return_value=7), operation=operation, fail_step=AsyncMock()
+        )
+        executor = ToolExecutor(context, gateway)
+        captured = {}
+    
+        async def query(*, prompt, options):
+            captured["options"] = options
+            captured["prompt"] = [message async for message in prompt]
+            handler = next(tool for tool in AGENT_TOOLS if tool.name == "get_rules")
+            captured["response"] = await handler.handler(arguments)
+            yield result()
+    
+        monkeypatch.setattr(policy, "query", query)
+        stream = policy.claude_policy(context, api_key=SecretStr("synthetic-key"))
+        with executor.bind():
+            call = await anext(stream)
+            gateway.begin_step.assert_not_awaited()
+            with executor.bind(
+                request=AsyncMock(side_effect=AssertionError("recursive SDK request"))
+            ):
+                reply = await executor.call(call.name, call.arguments)
+            with pytest.raises(StopAsyncIteration):
+                signal = await stream.asend(reply)
+                while isinstance(signal, PolicyHeartbeat):
+                    signal = await anext(stream)
+        assert captured["response"]["isError"] is rejected
+        gateway.begin_step.assert_awaited_once()
+        if rejected:
+            repository.get_rules.assert_not_awaited()
+            repository.record_result.assert_not_awaited()
+            gateway.fail_step.assert_awaited_once()
+            assert "E_NOT_FOUND" in captured["response"]["content"][0]["text"]
+        else:
+            assert str(context.rule_set_id) in captured["response"]["content"][0]["text"]
+            repository.record_result.assert_awaited_once()
+        options = captured["options"]
+        assert options.model == definition.MODEL_ID
+        assert options.system_prompt == definition.SYSTEM_PROMPT
+        assert options.max_turns == definition.MAX_TURNS
+        assert options.mcp_servers == {"app": agent_server}
+        assert options.allowed_tools == ALLOWED_TOOL_NAMES + ["ToolSearch"]
+        assert len(ALLOWED_TOOL_NAMES) == 13
+        assert options.tools == []
+>       assert options.include_partial_messages is True
+E       AssertionError: assert False is True
+E        +  where False = ClaudeAgentOptions(tools=[], allowed_tools=['mcp__app__list_case_documents', 'mcp__app__read_document', 'mcp__app__rea...e_file_checkpointing=False, session_store=None, session_store_flush='batched', load_timeout_ms=60000, task_budget=None).include_partial_messages
+
+tests/unit/test_claude_policy.py:245: AssertionError
+____ test_sdk_message_activity_controls_only_inactivity_clock[4-False-True] ____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x70ea33aa2480>
+messages = 4, stalls = False, partial_messages = True
+
+    @pytest.mark.parametrize("messages,stalls,partial_messages", [(4, False, False), (1, True, False), (4, False, True)])
+    async def test_sdk_message_activity_controls_only_inactivity_clock(
+        monkeypatch, messages, stalls, partial_messages
+    ):
+        clock = Clock()
+        monkeypatch.setattr(runner, "monotonic", lambda: clock.now)
+        monkeypatch.setattr(claude_policy, "monotonic", lambda: clock.now, raising=False)
+        monkeypatch.setattr(
+            runner,
+            "asyncio",
+            N(
+                create_task=asyncio.create_task,
+                wait=clock.wait,
+                CancelledError=asyncio.CancelledError,
+            ),
+        )
+        limits = definition.default_run_limits()
+        spacing = limits.inactivity_timeout_s / 3
+    
+        async def query(**kwargs):
+            for _ in range(messages):
+                await clock.sleep(spacing)
+                if partial_messages:
+                    assert kwargs["options"].include_partial_messages is True
+                    yield StreamEvent(uuid="synthetic", session_id="synthetic", event={"type": "content_block_delta", "delta": {"type": "text_delta", "text": "synthetic"}})
+                else:
+                    yield SystemMessage(subtype="synthetic", data={})
+            if stalls:
+                await asyncio.Future()
+            else:
+                await next(
+                    tool for tool in AGENT_TOOLS if tool.name == "get_rules"
+                ).handler({})
+    
+        monkeypatch.setattr(claude_policy, "query", query)
+        invoke = AsyncMock(return_value=ToolReply({}))
+        monkeypatch.setattr(ToolExecutor, "call", invoke)
+        outcome = await runner.LocalAgentWorker(
+            Mock(),
+            partial(
+                claude_policy.claude_policy,
+                api_key=SecretStr("synthetic-key"),
+            ),
+        )(RunContext(1, 2, 3, 4, limits))
+        if stalls:
+            assert outcome.stop_reason == "inactivity_timeout"
+            assert clock.now == spacing + limits.inactivity_timeout_s
+            assert outcome.turns == 0
+            invoke.assert_not_awaited()
+        else:
+>           assert (
+                outcome.stop_reason == "failed" and outcome.detail == "draft_not_finalized"
+            )
+E           AssertionError: assert ('failed' == 'failed'
+E               failed and 'model_error' == 'draft_not_finalized'
+E             - draft_not_finalized
+E             + model_error)
+
+tests/unit/test_policy_activity.py:93: AssertionError
+______ test_timeout_result_survives_cleanup_cancellation_and_keeps_turns _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x70ea33aa1e80>
+
+    async def test_timeout_result_survives_cleanup_cancellation_and_keeps_turns(monkeypatch):
+        clock = Clock()
+        owner = asyncio.current_task()
+        monkeypatch.setattr(runner, "monotonic", lambda: clock.now)
+        monkeypatch.setattr(runner, "asyncio", N(create_task=asyncio.create_task, wait=clock.wait, CancelledError=asyncio.CancelledError, current_task=asyncio.current_task))
+        monkeypatch.setattr(ToolExecutor, "call", AsyncMock(return_value=ToolReply({})))
+    
+        class Policy:
+            def __init__(self):
+                self.turn = 0
+    
+            async def asend(self, reply):
+                if self.turn < 6:
+                    self.turn += 1
+                    return ToolCall("read_document", {"document_id": self.turn})
+                await asyncio.Future()
+    
+            async def aclose(self):
+                # Reproduce SDK cleanup cancelling its caller's surrounding scope.
+                owner.cancel()
+                raise asyncio.CancelledError
+    
+>       outcome = await runner.LocalAgentWorker(Mock(), lambda context: Policy())(RunContext(1, 2, 3, 4, definition.default_run_limits()))
+
+tests/unit/test_policy_activity.py:123: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+app/agent/runner.py:146: in __call__
+    done, _ = await asyncio.wait({closer}, timeout=definition.CANCEL_CLEANUP_S)
+tests/unit/test_policy_activity.py:30: in wait
+    await asyncio.sleep(0)
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/tasks.py:656: in sleep
+    await __sleep0()
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    @types.coroutine
+    def __sleep0():
+        """Skip one event loop run cycle.
+    
+        This is a private helper for 'asyncio.sleep()', used
+        when the 'delay' is set to 0.  It uses a bare 'yield'
+        expression (which Task.__step knows how to handle)
+        instead of creating a Future object.
+        """
+>       yield
+E       asyncio.exceptions.CancelledError
+
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/asyncio/tasks.py:650: CancelledError
+___ test_finish_preserves_recorded_turns_when_job_result_omits_them[result0] ___
+
+session = <tests.integration.conftest.AsyncTestSession object at 0x70ea32b15850>
+seeded = (<app.models.cases.Case object at 0x70ea32ce0380>, <app.models.rule_sets.RuleSet object at 0x70ea32ce3920>, <app.models.documents.Document object at 0x70ea32ce3f80>)
+result = RunResult(stop_reason='outer_timeout', turns=0, detail=None)
+
+    @pytest.mark.parametrize("result", [
+        RunResult("outer_timeout"),
+        RunResult("failed", detail="worker_failed"),
+        RunResult("failed", detail="process_interrupted"),
+    ])
+    async def test_finish_preserves_recorded_turns_when_job_result_omits_them(session, seeded, result):
+        case, _, _ = seeded
+        r = repo(session)
+        run = await service(r).start(case.id)
+        run.turns = 6
+        await session.commit()
+        await r.finish(run.id, result)
+>       assert (await r.progress(run.id))["turns"] == 6
+E       assert 0 == 6
+
+tests/integration/test_runs.py:406: AssertionError
+___ test_finish_preserves_recorded_turns_when_job_result_omits_them[result1] ___
+
+session = <tests.integration.conftest.AsyncTestSession object at 0x70ea32b51bb0>
+seeded = (<app.models.cases.Case object at 0x70ea32ce2c60>, <app.models.rule_sets.RuleSet object at 0x70ea32b77e90>, <app.models.documents.Document object at 0x70ea32b9e6c0>)
+result = RunResult(stop_reason='failed', turns=0, detail='worker_failed')
+
+    @pytest.mark.parametrize("result", [
+        RunResult("outer_timeout"),
+        RunResult("failed", detail="worker_failed"),
+        RunResult("failed", detail="process_interrupted"),
+    ])
+    async def test_finish_preserves_recorded_turns_when_job_result_omits_them(session, seeded, result):
+        case, _, _ = seeded
+        r = repo(session)
+        run = await service(r).start(case.id)
+        run.turns = 6
+        await session.commit()
+        await r.finish(run.id, result)
+>       assert (await r.progress(run.id))["turns"] == 6
+E       assert 0 == 6
+
+tests/integration/test_runs.py:406: AssertionError
+___ test_finish_preserves_recorded_turns_when_job_result_omits_them[result2] ___
+
+session = <tests.integration.conftest.AsyncTestSession object at 0x70ea32cbbc50>
+seeded = (<app.models.cases.Case object at 0x70ea32ce1640>, <app.models.rule_sets.RuleSet object at 0x70ea32ce3f20>, <app.models.documents.Document object at 0x70ea32bdfe30>)
+result = RunResult(stop_reason='failed', turns=0, detail='process_interrupted')
+
+    @pytest.mark.parametrize("result", [
+        RunResult("outer_timeout"),
+        RunResult("failed", detail="worker_failed"),
+        RunResult("failed", detail="process_interrupted"),
+    ])
+    async def test_finish_preserves_recorded_turns_when_job_result_omits_them(session, seeded, result):
+        case, _, _ = seeded
+        r = repo(session)
+        run = await service(r).start(case.id)
+        run.turns = 6
+        await session.commit()
+        await r.finish(run.id, result)
+>       assert (await r.progress(run.id))["turns"] == 6
+E       assert 0 == 6
+
+tests/integration/test_runs.py:406: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  <repo>/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'ruleVersion' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'ruleVersion' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'ruleVersion' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'acknowledgedCarryOver' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'acknowledgedCarryOver' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_claude_policy.py::test_mode_selects_policy_and_persists_model_or_returns_http_503[local_dummy-None]
+  <repo>/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'acknowledgedCarryOver' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_claude_policy.py::test_sdk_handler_round_trip_uses_existing_executor_and_records_once[arguments0-False] - AssertionError: assert False is True
+ +  where False = ClaudeAgentOptions(tools=[], allowed_tools=['mcp__app__list_case_documents', 'mcp__app__read_document', 'mcp__app__rea...e_file_checkpointing=False, session_store=None, session_store_flush='batched', load_timeout_ms=60000, task_budget=None).include_partial_messages
+FAILED tests/unit/test_claude_policy.py::test_sdk_handler_round_trip_uses_existing_executor_and_records_once[arguments1-True] - AssertionError: assert False is True
+ +  where False = ClaudeAgentOptions(tools=[], allowed_tools=['mcp__app__list_case_documents', 'mcp__app__read_document', 'mcp__app__rea...e_file_checkpointing=False, session_store=None, session_store_flush='batched', load_timeout_ms=60000, task_budget=None).include_partial_messages
+FAILED tests/unit/test_policy_activity.py::test_sdk_message_activity_controls_only_inactivity_clock[4-False-True] - AssertionError: assert ('failed' == 'failed'
+    failed and 'model_error' == 'draft_not_finalized'
+  - draft_not_finalized
+  + model_error)
+FAILED tests/unit/test_policy_activity.py::test_timeout_result_survives_cleanup_cancellation_and_keeps_turns - asyncio.exceptions.CancelledError
+FAILED tests/integration/test_runs.py::test_finish_preserves_recorded_turns_when_job_result_omits_them[result0] - assert 0 == 6
+FAILED tests/integration/test_runs.py::test_finish_preserves_recorded_turns_when_job_result_omits_them[result1] - assert 0 == 6
+FAILED tests/integration/test_runs.py::test_finish_preserves_recorded_turns_when_job_result_omits_them[result2] - assert 0 == 6
+7 failed, 49 passed, 4 deselected, 7 warnings in 0.92s
+make: *** [/tmp/model-timeout-checks.mk:2: model-timeout-test] Error 1

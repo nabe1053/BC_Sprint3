@@ -1,0 +1,47 @@
+import inspect
+import subprocess
+import sys
+from pathlib import Path
+
+backend = Path.cwd() / 'backend'
+sys.path.insert(0, str(backend))
+cases = ('truncate_batch', 'wrong_count', 'drop_diagnostics', 'reset_heartbeats', 'zero_elapsed', 'old_max_turns')
+if len(sys.argv) > 1:
+    import pytest
+    from app.agent import runner, definition
+    from app.services import agent_tool_service
+    from app.repositories import agent_tool_repository
+    case = sys.argv[1]
+    module, test, match = {
+        'truncate_batch': (agent_tool_service, 'unit/test_agent_execution_tools.py', 'batch_sdk_reply'),
+        'wrong_count': (agent_tool_repository, 'integration/test_agent_tool_repository.py', 'exact_observation_count'),
+        'drop_diagnostics': (agent_tool_repository, 'integration/test_agent_tool_repository.py', 'interruption_diagnostics'),
+        'reset_heartbeats': (runner, 'unit/test_policy_activity.py', 'timeout_diagnostics'),
+        'zero_elapsed': (runner, 'unit/test_policy_activity.py', 'timeout_diagnostics'),
+        'old_max_turns': (definition, 'unit/test_single_source_of_truth.py', 'stop_thresholds'),
+    }[case]
+    source = inspect.getsource(module)
+    original = source
+    if case == 'truncate_batch':
+        source = source.replace('version, args.evidences)', 'version, args.evidences[:1])').replace('version, args.questions)', 'version, args.questions[:1])')
+    elif case == 'wrong_count':
+        source = source.replace('                    "evidences",\n', '').replace('                    "questions",\n', '')
+    elif case == 'drop_diagnostics':
+        source = source.replace('heartbeat_diagnostics is not None', 'False')
+    elif case == 'reset_heartbeats':
+        source = source.replace('last_message = monotonic()', 'last_message = monotonic()\n            heartbeats = 0')
+    elif case == 'zero_elapsed':
+        source = source.replace('max(0, monotonic() - last_heartbeat)', '0')
+    elif case == 'old_max_turns':
+        source = source.replace('MAX_TURNS = 80', 'MAX_TURNS = 40')
+    assert source != original
+    exec(compile(source, module.__file__, 'exec'), module.__dict__)
+    if module is agent_tool_service:
+        from app.agent import tools
+        tools.AgentToolService = agent_tool_service.AgentToolService
+    raise SystemExit(pytest.main([str(backend / 'tests' / test), '-q', '-k', match, '--tb=short']))
+for case in cases:
+    run = subprocess.run([str(backend / '.venv/bin/python'), __file__, case], capture_output=True, text=True, timeout=60)
+    summary = [line for line in run.stdout.splitlines() if 'failed' in line and ' in ' in line]
+    print(case, run.returncode, ' '.join(summary), flush=True)
+    assert run.returncode == 1 and summary, run.stdout[-2500:] + run.stderr[-1000:]

@@ -1,0 +1,9 @@
+3 files left unchanged
+baseline: 11 passed, 23 deselected, 1 warning in 0.05s (expected exit 0)
+block_source_url: 3 failed, 31 deselected, 1 warning in 0.07s (expected exit 1)
+allow_read_url: 2 failed, 1 passed, 31 deselected, 1 warning in 0.07s (expected exit 1)
+allow_unknown_tool: 5 failed, 29 deselected, 1 warning in 0.07s (expected exit 1)
+claude_baseline: 26 passed, 7 warnings in 0.25s (expected exit 0)
+claude_request_clear: 2 failed, 24 passed, 7 warnings in 0.33s (expected exit 1)
+claude_max_turns: 4 failed, 22 passed, 7 warnings in 0.28s (expected exit 1)
+claude_exception_body: 3 failed, 23 passed, 7 warnings in 0.30s (expected exit 1)

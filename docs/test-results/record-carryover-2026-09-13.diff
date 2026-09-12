@@ -1,0 +1,101 @@
+--- before/test_runs.py
++++ after/test_runs.py
+@@ -1,22 +1,19 @@
+ @pytest.mark.parametrize(
+-    "table,create,insert,blocks",
++    "table,undone,blocks",
+     [
+-        ("item_edits", "version_id INTEGER, undone_at TEXT", "1,NULL", True),
+-        ("item_edits", "version_id INTEGER, undone_at TEXT", "1,'2026-01-01'", False),
+-        (
+-            "confirmations",
+-            "version_id INTEGER, undone_at TEXT, kind TEXT",
+-            "1,NULL,'coverage'",
+-            True,
+-        ),
+-        ("question_judgements", "question_id INTEGER", "1", True),
++        ("item_edits", False, True),
++        ("item_edits", True, False),
++        ("confirmations", False, True),
++        ("question_judgements", False, True),
+     ],
+ )
+ async def test_carryover_checks_real_schema_and_does_not_copy(
+-    session, seeded, table, create, insert, blocks
++    session, seeded, table, undone, blocks
+ ):
+-    from sqlalchemy import text
+-    from app.models.drafts import Question
++    from app.models.drafts import Question, Item
++    from app.domain.draft_types import ItemInput
++    from tests.fixtures.draft_data import item_data
++    from tests.fixtures.record_data import carryover_record
+ 
+     case, _, _ = seeded
+     r = repo(session)
+@@ -32,8 +29,13 @@
+     )
+     await session.commit()
+     await r.finish(first.id, RunResult("failed"))
+-    await session.execute(text(f"CREATE TABLE {table} ({create})"))
+-    await session.execute(text(f"INSERT INTO {table} VALUES ({insert})"))
++    item = Item(
++        version_id=first.version_id,
++        **ItemInput.model_validate(item_data()).model_dump(exclude={"ends"}),
++    )
++    session.add(item)
++    await session.flush()
++    session.add(carryover_record(table, first.version_id, item.id, 1, undone))
+     await session.commit()
+     if blocks:
+         with pytest.raises(DraftError) as e:
+
+--- before/run_repository.py
++++ after/run_repository.py
+@@ -1,25 +1,24 @@
+     async def _has_records(self, case_id):
+-        connection = await self.session.connection()
+-        names = await connection.run_sync(lambda conn: inspect(conn).get_table_names())
+-        # Tables are optional until G3 is installed. Names are fixed, never user input.
+-        for name, condition in (
+-            ("item_edits", "undone_at IS NULL"),
+-            ("confirmations", "undone_at IS NULL AND kind IN ('row_match','coverage')"),
+-        ):
+-            if name in names:
+-                result = await self.session.execute(
+-                    text(
+-                        f"SELECT 1 FROM {name} WHERE version_id IN (SELECT id FROM versions WHERE case_id=:case_id) AND {condition} LIMIT 1"
+-                    ).bindparams(case_id=case_id)
++        versions = select(Version.id).where(Version.case_id == case_id)
++        for model in (ItemEdit, Confirmation):
++            result = await self.session.execute(
++                select(model.id)
++                .where(
++                    model.version_id.in_(versions),
++                    model.undone_at.is_(None),
+                 )
+-                if result.first() is not None:
+-                    return True
+-        if "question_judgements" in names:
+-            result = await self.session.execute(
+-                text(
+-                    "SELECT 1 FROM question_judgements j JOIN questions q ON q.id=j.question_id "
+-                    "JOIN versions v ON v.id=q.version_id WHERE v.case_id=:case_id LIMIT 1"
+-                ).bindparams(case_id=case_id)
++                .limit(1)
+             )
+-            return result.first() is not None
+-        return False
++            if result.first() is not None:
++                return True
++        return (
++            await self.session.execute(
++                select(QuestionJudgement.id)
++                .join(
++                    Question,
++                    Question.id == QuestionJudgement.question_id,
++                )
++                .where(Question.version_id.in_(versions))
++                .limit(1)
++            )
++        ).first() is not None

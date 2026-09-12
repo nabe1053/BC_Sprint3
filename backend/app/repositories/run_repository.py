@@ -4,7 +4,7 @@ import json
 import logging
 from datetime import UTC, datetime
 from decimal import Decimal
-from sqlalchemy import select, func, inspect, text
+from sqlalchemy import select, func
 from app.domain.draft_errors import DraftError
 from app.domain.run_types import RunResult
 from app.models import (
@@ -16,6 +16,10 @@ from app.models import (
     Document,
     DocumentPage,
     EmailPart,
+    ItemEdit,
+    Confirmation,
+    Question,
+    QuestionJudgement,
 )
 from app.repositories.draft_repository import DraftRepository
 
@@ -31,30 +35,29 @@ class RunRepository(DraftRepository):
         self.trace = trace
 
     async def _has_records(self, case_id):
-        connection = await self.session.connection()
-        names = await connection.run_sync(lambda conn: inspect(conn).get_table_names())
-        # Tables are optional until G3 is installed. Names are fixed, never user input.
-        for name, condition in (
-            ("item_edits", "undone_at IS NULL"),
-            ("confirmations", "undone_at IS NULL AND kind IN ('row_match','coverage')"),
-        ):
-            if name in names:
-                result = await self.session.execute(
-                    text(
-                        f"SELECT 1 FROM {name} WHERE version_id IN (SELECT id FROM versions WHERE case_id=:case_id) AND {condition} LIMIT 1"
-                    ).bindparams(case_id=case_id)
-                )
-                if result.first() is not None:
-                    return True
-        if "question_judgements" in names:
+        versions = select(Version.id).where(Version.case_id == case_id)
+        for model in (ItemEdit, Confirmation):
             result = await self.session.execute(
-                text(
-                    "SELECT 1 FROM question_judgements j JOIN questions q ON q.id=j.question_id "
-                    "JOIN versions v ON v.id=q.version_id WHERE v.case_id=:case_id LIMIT 1"
-                ).bindparams(case_id=case_id)
+                select(model.id)
+                .where(
+                    model.version_id.in_(versions),
+                    model.undone_at.is_(None),
+                )
+                .limit(1)
             )
-            return result.first() is not None
-        return False
+            if result.first() is not None:
+                return True
+        return (
+            await self.session.execute(
+                select(QuestionJudgement.id)
+                .join(
+                    Question,
+                    Question.id == QuestionJudgement.question_id,
+                )
+                .where(Question.version_id.in_(versions))
+                .limit(1)
+            )
+        ).first() is not None
 
     async def reserve(
         self,
@@ -311,7 +314,8 @@ class RunRepository(DraftRepository):
                 )
                 run.stage = "done"
                 run.stage_detail = result.detail
-                run.turns = result.turns
+                if result.turns is not None:
+                    run.turns = result.turns
                 run.ended_at = datetime.now(UTC)
                 run.elapsed_sec = Decimal(
                     str(

@@ -1,0 +1,124 @@
+FFFFF                                                                    [100%]
+=================================== FAILURES ===================================
+___ test_summary_sets_current_values_history_latest_judgements_and_evidence ____
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x79ce5be97890>
+
+    async def test_summary_sets_current_values_history_latest_judgements_and_evidence(db_session):
+        from app.repositories.record_repository import RecordRepository
+        from app.services.record_service import RecordService
+    
+        seed = await seed_record_version(db_session)
+        # Build the synthetic display snapshot, including two alternatives.
+        seed.item.group_code, seed.item.candidate_label = "G1", "A"
+        second = Item(version_id=seed.version.id, **ItemInput.model_validate({**item_data(), "row_code": "2", "source_no": "2", "seq": 2, "qty_state": "tba", "qty_value": None, "qty_unit": None, "group_code": "G1", "candidate_label": "B"}).model_dump(exclude={"ends"}))
+        doc = Document(case_id=seed.case.id, file_name="synthetic.txt", storage_path="unused", kind="text", read_status="success", received_at=datetime.now(UTC))
+        db_session.add_all([second, doc])
+        await db_session.flush()
+        questions = [Question(version_id=seed.version.id, item_id=seed.item.id if i < 3 else None, question_code=f"Q{i}", target_field="grade", reason="confirm") for i in range(1, 4)]
+        db_session.add_all(questions)
+        await db_session.flush()
+        at = datetime.now(UTC)
+        active = ItemEdit(version_id=seed.version.id, item_id=seed.item.id, field="grade", new_value="L80", new_state="stated", reason="reason", recorded_by="person", recorded_at=at)
+        cancelled = ItemEdit(version_id=seed.version.id, item_id=seed.item.id, field="grade", new_value="N80", reason="reason", recorded_by="person", recorded_at=at, undone_at=at, undone_by="person")
+        evidence = Evidence(version_id=seed.version.id, item_id=seed.item.id, document_id=doc.id, field="grade", raw_value="K55", adopted_value="K55", locator="body:1", quote="K55")
+        db_session.add_all([active, cancelled, evidence,
+            Confirmation(version_id=seed.version.id, item_id=seed.item.id, kind="row_match", recorded_by="person", recorded_at=at),
+            Confirmation(version_id=seed.version.id, item_id=second.id, kind="row_match", recorded_by="person", recorded_at=at, undone_at=at, undone_by="person"),
+            QuestionJudgement(question_id=questions[0].id, status="judged", resolution="resolved", recorded_by="person", recorded_at=at),
+        ])
+        await db_session.flush()
+        latest = QuestionJudgement(question_id=questions[0].id, status="judged", resolution="unresolved", recorded_by="person", recorded_at=at)
+        db_session.add_all([latest, QuestionJudgement(question_id=questions[2].id, status="in_progress", resolution="resolved", recorded_by="person", recorded_at=at)])
+        await db_session.commit()
+        service = RecordService(RecordRepository(db_session))
+>       summary = await service.summary(seed.version.id)
+E       AttributeError: 'RecordService' object has no attribute 'summary'
+
+tests/integration/test_record_queries.py:40: AttributeError
+________________ test_read_rejects_unfinalized_version[summary] ________________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x79ce5bea0530>
+method = 'summary'
+
+    @pytest.mark.parametrize("method", ["summary", "list_items_with_edits", "list_questions_with_latest", "list_item_evidence"])
+    async def test_read_rejects_unfinalized_version(db_session, method):
+        from app.repositories.record_repository import RecordRepository
+        from app.services.record_service import RecordService
+    
+        seed = await seed_record_version(db_session, finalized=False)
+        service = RecordService(RecordRepository(db_session))
+        args = (seed.version.id, seed.item.id) if method == "list_item_evidence" else (seed.version.id,)
+        with pytest.raises(DraftError) as error:
+>           await getattr(service, method)(*args)
+E           AttributeError: 'RecordService' object has no attribute 'summary'
+
+tests/integration/test_record_queries.py:66: AttributeError
+_________ test_read_rejects_unfinalized_version[list_items_with_edits] _________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x79ce5b0394c0>
+method = 'list_items_with_edits'
+
+    @pytest.mark.parametrize("method", ["summary", "list_items_with_edits", "list_questions_with_latest", "list_item_evidence"])
+    async def test_read_rejects_unfinalized_version(db_session, method):
+        from app.repositories.record_repository import RecordRepository
+        from app.services.record_service import RecordService
+    
+        seed = await seed_record_version(db_session, finalized=False)
+        service = RecordService(RecordRepository(db_session))
+        args = (seed.version.id, seed.item.id) if method == "list_item_evidence" else (seed.version.id,)
+        with pytest.raises(DraftError) as error:
+>           await getattr(service, method)(*args)
+E           AttributeError: 'RecordService' object has no attribute 'list_items_with_edits'
+
+tests/integration/test_record_queries.py:66: AttributeError
+______ test_read_rejects_unfinalized_version[list_questions_with_latest] _______
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x79ce5b03aff0>
+method = 'list_questions_with_latest'
+
+    @pytest.mark.parametrize("method", ["summary", "list_items_with_edits", "list_questions_with_latest", "list_item_evidence"])
+    async def test_read_rejects_unfinalized_version(db_session, method):
+        from app.repositories.record_repository import RecordRepository
+        from app.services.record_service import RecordService
+    
+        seed = await seed_record_version(db_session, finalized=False)
+        service = RecordService(RecordRepository(db_session))
+        args = (seed.version.id, seed.item.id) if method == "list_item_evidence" else (seed.version.id,)
+        with pytest.raises(DraftError) as error:
+>           await getattr(service, method)(*args)
+E           AttributeError: 'RecordService' object has no attribute 'list_questions_with_latest'
+
+tests/integration/test_record_queries.py:66: AttributeError
+__________ test_read_rejects_unfinalized_version[list_item_evidence] ___________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x79ce5b03ade0>
+method = 'list_item_evidence'
+
+    @pytest.mark.parametrize("method", ["summary", "list_items_with_edits", "list_questions_with_latest", "list_item_evidence"])
+    async def test_read_rejects_unfinalized_version(db_session, method):
+        from app.repositories.record_repository import RecordRepository
+        from app.services.record_service import RecordService
+    
+        seed = await seed_record_version(db_session, finalized=False)
+        service = RecordService(RecordRepository(db_session))
+        args = (seed.version.id, seed.item.id) if method == "list_item_evidence" else (seed.version.id,)
+        with pytest.raises(DraftError) as error:
+>           await getattr(service, method)(*args)
+E           AttributeError: 'RecordService' object has no attribute 'list_item_evidence'
+
+tests/integration/test_record_queries.py:66: AttributeError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  <repo>/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_record_queries.py::test_summary_sets_current_values_history_latest_judgements_and_evidence - AttributeError: 'RecordService' object has no attribute 'summary'
+FAILED tests/integration/test_record_queries.py::test_read_rejects_unfinalized_version[summary] - AttributeError: 'RecordService' object has no attribute 'summary'
+FAILED tests/integration/test_record_queries.py::test_read_rejects_unfinalized_version[list_items_with_edits] - AttributeError: 'RecordService' object has no attribute 'list_items_with_edits'
+FAILED tests/integration/test_record_queries.py::test_read_rejects_unfinalized_version[list_questions_with_latest] - AttributeError: 'RecordService' object has no attribute 'list_questions_with_latest'
+FAILED tests/integration/test_record_queries.py::test_read_rejects_unfinalized_version[list_item_evidence] - AttributeError: 'RecordService' object has no attribute 'list_item_evidence'
+5 failed, 1 warning in 1.29s
+make: *** [/tmp/record-checks.mk:12: record-read] Error 1

@@ -1,0 +1,2567 @@
+FFFFFFFFFF                                                               [100%]
+=================================== FAILURES ===================================
+____________ test_item_edit_constraints_in_postgres[changes0-23514] ____________
+
+self = <sqlalchemy.engine.base.Connection object at 0x7ae43ae25760>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialectAsync_psycopg object at 0x7ae43f3c9cd0>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x7ae43ae258e0>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x7ae43b2e0680>
+parameters = [{'field': 'grade', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43ad51550>
+query = 'INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_...tem_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)'
+params = {'field': 'grade', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "item_edits" does not exist
+E           LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+E                               ^
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7ae43b2c0a10>
+changes = {'recorded_by': ' '}, sqlstate = '23514'
+
+    @pytest.mark.parametrize("changes,sqlstate", [
+        ({"recorded_by": " "}, "23514"),
+        ({"reason": " "}, "23514"),
+        ({"new_value": None, "new_state": None}, "23514"),
+        ({"field": "grade_raw"}, "23514"),
+        ({"new_state": "unknown"}, "23514"),
+        ({"undone_at": datetime.now(UTC), "undone_by": " "}, "23514"),
+        ({"undone_at": datetime.now(UTC), "undone_by": None}, "23514"),
+        ({"version_id": "other"}, "23503"),
+    ])
+    async def test_item_edit_constraints_in_postgres(db_session, changes, sqlstate):
+        seed = await seed_record_version(db_session)
+        other = await seed_record_version(db_session)
+        values = dict(version_id=seed.version.id, item_id=seed.item.id, field="grade", new_value="L80", new_state="stated", reason="reason", recorded_by="person", recorded_at=datetime.now(UTC), undone_at=None, undone_by=None)
+        values.update(changes)
+        if values["version_id"] == "other":
+            values["version_id"] = other.version.id
+        with pytest.raises(IntegrityError) as error:
+>           await db_session.execute(text("INSERT INTO item_edits (" + ",".join(values) + ") VALUES (" + ",".join(":" + field for field in values) + ")"), values)
+
+tests/integration/test_record_schema.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43ad51550>
+query = 'INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_...tem_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)'
+params = {'field': 'grade', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "item_edits" does not exist
+E           LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+E                               ^
+E           [SQL: INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_by) VALUES (%(version_id)s,%(item_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)]
+E           [parameters: {'version_id': 1, 'item_id': 1, 'field': 'grade', 'new_value': 'L80', 'new_state': 'stated', 'reason': 'reason', 'recorded_by': ' ', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 29, 864979, tzinfo=datetime.timezone.utc), 'undone_at': None, 'undone_by': None}]
+E           (Background on this error at: https://sqlalche.me/e/20/f405)
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: ProgrammingError
+____________ test_item_edit_constraints_in_postgres[changes1-23514] ____________
+
+self = <sqlalchemy.engine.base.Connection object at 0x7ae43a475520>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialectAsync_psycopg object at 0x7ae43f3c9cd0>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x7ae43ae279e0>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x7ae43b2e0680>
+parameters = [{'field': 'grade', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43ad53110>
+query = 'INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_...tem_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)'
+params = {'field': 'grade', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "item_edits" does not exist
+E           LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+E                               ^
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7ae43b2e8650>
+changes = {'reason': ' '}, sqlstate = '23514'
+
+    @pytest.mark.parametrize("changes,sqlstate", [
+        ({"recorded_by": " "}, "23514"),
+        ({"reason": " "}, "23514"),
+        ({"new_value": None, "new_state": None}, "23514"),
+        ({"field": "grade_raw"}, "23514"),
+        ({"new_state": "unknown"}, "23514"),
+        ({"undone_at": datetime.now(UTC), "undone_by": " "}, "23514"),
+        ({"undone_at": datetime.now(UTC), "undone_by": None}, "23514"),
+        ({"version_id": "other"}, "23503"),
+    ])
+    async def test_item_edit_constraints_in_postgres(db_session, changes, sqlstate):
+        seed = await seed_record_version(db_session)
+        other = await seed_record_version(db_session)
+        values = dict(version_id=seed.version.id, item_id=seed.item.id, field="grade", new_value="L80", new_state="stated", reason="reason", recorded_by="person", recorded_at=datetime.now(UTC), undone_at=None, undone_by=None)
+        values.update(changes)
+        if values["version_id"] == "other":
+            values["version_id"] = other.version.id
+        with pytest.raises(IntegrityError) as error:
+>           await db_session.execute(text("INSERT INTO item_edits (" + ",".join(values) + ") VALUES (" + ",".join(":" + field for field in values) + ")"), values)
+
+tests/integration/test_record_schema.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43ad53110>
+query = 'INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_...tem_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)'
+params = {'field': 'grade', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "item_edits" does not exist
+E           LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+E                               ^
+E           [SQL: INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_by) VALUES (%(version_id)s,%(item_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)]
+E           [parameters: {'version_id': 1, 'item_id': 1, 'field': 'grade', 'new_value': 'L80', 'new_state': 'stated', 'reason': ' ', 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 30, 229654, tzinfo=datetime.timezone.utc), 'undone_at': None, 'undone_by': None}]
+E           (Background on this error at: https://sqlalche.me/e/20/f405)
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: ProgrammingError
+____________ test_item_edit_constraints_in_postgres[changes2-23514] ____________
+
+self = <sqlalchemy.engine.base.Connection object at 0x7ae43aedaae0>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialectAsync_psycopg object at 0x7ae43f3c9cd0>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x7ae43a477800>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x7ae43b2e0680>
+parameters = [{'field': 'grade', 'item_id': 1, 'new_state': None, 'new_value': None, ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43ad52ed0>
+query = 'INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_...tem_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)'
+params = {'field': 'grade', 'item_id': 1, 'new_state': None, 'new_value': None, ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "item_edits" does not exist
+E           LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+E                               ^
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7ae43af239b0>
+changes = {'new_state': None, 'new_value': None}, sqlstate = '23514'
+
+    @pytest.mark.parametrize("changes,sqlstate", [
+        ({"recorded_by": " "}, "23514"),
+        ({"reason": " "}, "23514"),
+        ({"new_value": None, "new_state": None}, "23514"),
+        ({"field": "grade_raw"}, "23514"),
+        ({"new_state": "unknown"}, "23514"),
+        ({"undone_at": datetime.now(UTC), "undone_by": " "}, "23514"),
+        ({"undone_at": datetime.now(UTC), "undone_by": None}, "23514"),
+        ({"version_id": "other"}, "23503"),
+    ])
+    async def test_item_edit_constraints_in_postgres(db_session, changes, sqlstate):
+        seed = await seed_record_version(db_session)
+        other = await seed_record_version(db_session)
+        values = dict(version_id=seed.version.id, item_id=seed.item.id, field="grade", new_value="L80", new_state="stated", reason="reason", recorded_by="person", recorded_at=datetime.now(UTC), undone_at=None, undone_by=None)
+        values.update(changes)
+        if values["version_id"] == "other":
+            values["version_id"] = other.version.id
+        with pytest.raises(IntegrityError) as error:
+>           await db_session.execute(text("INSERT INTO item_edits (" + ",".join(values) + ") VALUES (" + ",".join(":" + field for field in values) + ")"), values)
+
+tests/integration/test_record_schema.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43ad52ed0>
+query = 'INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_...tem_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)'
+params = {'field': 'grade', 'item_id': 1, 'new_state': None, 'new_value': None, ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "item_edits" does not exist
+E           LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+E                               ^
+E           [SQL: INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_by) VALUES (%(version_id)s,%(item_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)]
+E           [parameters: {'version_id': 1, 'item_id': 1, 'field': 'grade', 'new_value': None, 'new_state': None, 'reason': 'reason', 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 30, 570061, tzinfo=datetime.timezone.utc), 'undone_at': None, 'undone_by': None}]
+E           (Background on this error at: https://sqlalche.me/e/20/f405)
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: ProgrammingError
+____________ test_item_edit_constraints_in_postgres[changes3-23514] ____________
+
+self = <sqlalchemy.engine.base.Connection object at 0x7ae43a14f0e0>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialectAsync_psycopg object at 0x7ae43f3c9cd0>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x7ae43a476270>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x7ae43b2e0680>
+parameters = [{'field': 'grade_raw', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43ad525d0>
+query = 'INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_...tem_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)'
+params = {'field': 'grade_raw', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "item_edits" does not exist
+E           LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+E                               ^
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7ae43a477a10>
+changes = {'field': 'grade_raw'}, sqlstate = '23514'
+
+    @pytest.mark.parametrize("changes,sqlstate", [
+        ({"recorded_by": " "}, "23514"),
+        ({"reason": " "}, "23514"),
+        ({"new_value": None, "new_state": None}, "23514"),
+        ({"field": "grade_raw"}, "23514"),
+        ({"new_state": "unknown"}, "23514"),
+        ({"undone_at": datetime.now(UTC), "undone_by": " "}, "23514"),
+        ({"undone_at": datetime.now(UTC), "undone_by": None}, "23514"),
+        ({"version_id": "other"}, "23503"),
+    ])
+    async def test_item_edit_constraints_in_postgres(db_session, changes, sqlstate):
+        seed = await seed_record_version(db_session)
+        other = await seed_record_version(db_session)
+        values = dict(version_id=seed.version.id, item_id=seed.item.id, field="grade", new_value="L80", new_state="stated", reason="reason", recorded_by="person", recorded_at=datetime.now(UTC), undone_at=None, undone_by=None)
+        values.update(changes)
+        if values["version_id"] == "other":
+            values["version_id"] = other.version.id
+        with pytest.raises(IntegrityError) as error:
+>           await db_session.execute(text("INSERT INTO item_edits (" + ",".join(values) + ") VALUES (" + ",".join(":" + field for field in values) + ")"), values)
+
+tests/integration/test_record_schema.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43ad525d0>
+query = 'INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_...tem_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)'
+params = {'field': 'grade_raw', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "item_edits" does not exist
+E           LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+E                               ^
+E           [SQL: INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_by) VALUES (%(version_id)s,%(item_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)]
+E           [parameters: {'version_id': 1, 'item_id': 1, 'field': 'grade_raw', 'new_value': 'L80', 'new_state': 'stated', 'reason': 'reason', 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 30, 902075, tzinfo=datetime.timezone.utc), 'undone_at': None, 'undone_by': None}]
+E           (Background on this error at: https://sqlalche.me/e/20/f405)
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: ProgrammingError
+____________ test_item_edit_constraints_in_postgres[changes4-23514] ____________
+
+self = <sqlalchemy.engine.base.Connection object at 0x7ae43a14f6e0>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialectAsync_psycopg object at 0x7ae43f3c9cd0>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x7ae43a14e7e0>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x7ae43b2e0680>
+parameters = [{'field': 'grade', 'item_id': 1, 'new_state': 'unknown', 'new_value': 'L80', ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43a320590>
+query = 'INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_...tem_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)'
+params = {'field': 'grade', 'item_id': 1, 'new_state': 'unknown', 'new_value': 'L80', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "item_edits" does not exist
+E           LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+E                               ^
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7ae43a476210>
+changes = {'new_state': 'unknown'}, sqlstate = '23514'
+
+    @pytest.mark.parametrize("changes,sqlstate", [
+        ({"recorded_by": " "}, "23514"),
+        ({"reason": " "}, "23514"),
+        ({"new_value": None, "new_state": None}, "23514"),
+        ({"field": "grade_raw"}, "23514"),
+        ({"new_state": "unknown"}, "23514"),
+        ({"undone_at": datetime.now(UTC), "undone_by": " "}, "23514"),
+        ({"undone_at": datetime.now(UTC), "undone_by": None}, "23514"),
+        ({"version_id": "other"}, "23503"),
+    ])
+    async def test_item_edit_constraints_in_postgres(db_session, changes, sqlstate):
+        seed = await seed_record_version(db_session)
+        other = await seed_record_version(db_session)
+        values = dict(version_id=seed.version.id, item_id=seed.item.id, field="grade", new_value="L80", new_state="stated", reason="reason", recorded_by="person", recorded_at=datetime.now(UTC), undone_at=None, undone_by=None)
+        values.update(changes)
+        if values["version_id"] == "other":
+            values["version_id"] = other.version.id
+        with pytest.raises(IntegrityError) as error:
+>           await db_session.execute(text("INSERT INTO item_edits (" + ",".join(values) + ") VALUES (" + ",".join(":" + field for field in values) + ")"), values)
+
+tests/integration/test_record_schema.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43a320590>
+query = 'INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_...tem_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)'
+params = {'field': 'grade', 'item_id': 1, 'new_state': 'unknown', 'new_value': 'L80', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "item_edits" does not exist
+E           LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+E                               ^
+E           [SQL: INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_by) VALUES (%(version_id)s,%(item_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)]
+E           [parameters: {'version_id': 1, 'item_id': 1, 'field': 'grade', 'new_value': 'L80', 'new_state': 'unknown', 'reason': 'reason', 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 31, 219466, tzinfo=datetime.timezone.utc), 'undone_at': None, 'undone_by': None}]
+E           (Background on this error at: https://sqlalche.me/e/20/f405)
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: ProgrammingError
+____________ test_item_edit_constraints_in_postgres[changes5-23514] ____________
+
+self = <sqlalchemy.engine.base.Connection object at 0x7ae43a30dd90>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialectAsync_psycopg object at 0x7ae43f3c9cd0>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x7ae43a30d5b0>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x7ae43b2e0680>
+parameters = [{'field': 'grade', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43a321250>
+query = 'INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_...tem_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)'
+params = {'field': 'grade', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "item_edits" does not exist
+E           LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+E                               ^
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7ae43a477050>
+changes = {'undone_at': datetime.datetime(2026, 9, 12, 14, 57, 29, 714777, tzinfo=datetime.timezone.utc), 'undone_by': ' '}
+sqlstate = '23514'
+
+    @pytest.mark.parametrize("changes,sqlstate", [
+        ({"recorded_by": " "}, "23514"),
+        ({"reason": " "}, "23514"),
+        ({"new_value": None, "new_state": None}, "23514"),
+        ({"field": "grade_raw"}, "23514"),
+        ({"new_state": "unknown"}, "23514"),
+        ({"undone_at": datetime.now(UTC), "undone_by": " "}, "23514"),
+        ({"undone_at": datetime.now(UTC), "undone_by": None}, "23514"),
+        ({"version_id": "other"}, "23503"),
+    ])
+    async def test_item_edit_constraints_in_postgres(db_session, changes, sqlstate):
+        seed = await seed_record_version(db_session)
+        other = await seed_record_version(db_session)
+        values = dict(version_id=seed.version.id, item_id=seed.item.id, field="grade", new_value="L80", new_state="stated", reason="reason", recorded_by="person", recorded_at=datetime.now(UTC), undone_at=None, undone_by=None)
+        values.update(changes)
+        if values["version_id"] == "other":
+            values["version_id"] = other.version.id
+        with pytest.raises(IntegrityError) as error:
+>           await db_session.execute(text("INSERT INTO item_edits (" + ",".join(values) + ") VALUES (" + ",".join(":" + field for field in values) + ")"), values)
+
+tests/integration/test_record_schema.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43a321250>
+query = 'INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_...tem_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)'
+params = {'field': 'grade', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "item_edits" does not exist
+E           LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+E                               ^
+E           [SQL: INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_by) VALUES (%(version_id)s,%(item_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)]
+E           [parameters: {'version_id': 1, 'item_id': 1, 'field': 'grade', 'new_value': 'L80', 'new_state': 'stated', 'reason': 'reason', 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 31, 548286, tzinfo=datetime.timezone.utc), 'undone_at': datetime.datetime(2026, 9, 12, 14, 57, 29, 714777, tzinfo=datetime.timezone.utc), 'undone_by': ' '}]
+E           (Background on this error at: https://sqlalche.me/e/20/f405)
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: ProgrammingError
+____________ test_item_edit_constraints_in_postgres[changes6-23514] ____________
+
+self = <sqlalchemy.engine.base.Connection object at 0x7ae43a308b60>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialectAsync_psycopg object at 0x7ae43f3c9cd0>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x7ae43a30fe60>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x7ae43b2e0680>
+parameters = [{'field': 'grade', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43a321790>
+query = 'INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_...tem_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)'
+params = {'field': 'grade', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "item_edits" does not exist
+E           LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+E                               ^
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7ae43a30de50>
+changes = {'undone_at': datetime.datetime(2026, 9, 12, 14, 57, 29, 714780, tzinfo=datetime.timezone.utc), 'undone_by': None}
+sqlstate = '23514'
+
+    @pytest.mark.parametrize("changes,sqlstate", [
+        ({"recorded_by": " "}, "23514"),
+        ({"reason": " "}, "23514"),
+        ({"new_value": None, "new_state": None}, "23514"),
+        ({"field": "grade_raw"}, "23514"),
+        ({"new_state": "unknown"}, "23514"),
+        ({"undone_at": datetime.now(UTC), "undone_by": " "}, "23514"),
+        ({"undone_at": datetime.now(UTC), "undone_by": None}, "23514"),
+        ({"version_id": "other"}, "23503"),
+    ])
+    async def test_item_edit_constraints_in_postgres(db_session, changes, sqlstate):
+        seed = await seed_record_version(db_session)
+        other = await seed_record_version(db_session)
+        values = dict(version_id=seed.version.id, item_id=seed.item.id, field="grade", new_value="L80", new_state="stated", reason="reason", recorded_by="person", recorded_at=datetime.now(UTC), undone_at=None, undone_by=None)
+        values.update(changes)
+        if values["version_id"] == "other":
+            values["version_id"] = other.version.id
+        with pytest.raises(IntegrityError) as error:
+>           await db_session.execute(text("INSERT INTO item_edits (" + ",".join(values) + ") VALUES (" + ",".join(":" + field for field in values) + ")"), values)
+
+tests/integration/test_record_schema.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43a321790>
+query = 'INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_...tem_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)'
+params = {'field': 'grade', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "item_edits" does not exist
+E           LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+E                               ^
+E           [SQL: INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_by) VALUES (%(version_id)s,%(item_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)]
+E           [parameters: {'version_id': 1, 'item_id': 1, 'field': 'grade', 'new_value': 'L80', 'new_state': 'stated', 'reason': 'reason', 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 31, 862427, tzinfo=datetime.timezone.utc), 'undone_at': datetime.datetime(2026, 9, 12, 14, 57, 29, 714780, tzinfo=datetime.timezone.utc), 'undone_by': None}]
+E           (Background on this error at: https://sqlalche.me/e/20/f405)
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: ProgrammingError
+____________ test_item_edit_constraints_in_postgres[changes7-23503] ____________
+
+self = <sqlalchemy.engine.base.Connection object at 0x7ae43a308650>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialectAsync_psycopg object at 0x7ae43f3c9cd0>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x7ae43a476000>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x7ae43b2e0680>
+parameters = [{'field': 'grade', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43a321f10>
+query = 'INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_...tem_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)'
+params = {'field': 'grade', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "item_edits" does not exist
+E           LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+E                               ^
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7ae43a30dfd0>
+changes = {'version_id': 'other'}, sqlstate = '23503'
+
+    @pytest.mark.parametrize("changes,sqlstate", [
+        ({"recorded_by": " "}, "23514"),
+        ({"reason": " "}, "23514"),
+        ({"new_value": None, "new_state": None}, "23514"),
+        ({"field": "grade_raw"}, "23514"),
+        ({"new_state": "unknown"}, "23514"),
+        ({"undone_at": datetime.now(UTC), "undone_by": " "}, "23514"),
+        ({"undone_at": datetime.now(UTC), "undone_by": None}, "23514"),
+        ({"version_id": "other"}, "23503"),
+    ])
+    async def test_item_edit_constraints_in_postgres(db_session, changes, sqlstate):
+        seed = await seed_record_version(db_session)
+        other = await seed_record_version(db_session)
+        values = dict(version_id=seed.version.id, item_id=seed.item.id, field="grade", new_value="L80", new_state="stated", reason="reason", recorded_by="person", recorded_at=datetime.now(UTC), undone_at=None, undone_by=None)
+        values.update(changes)
+        if values["version_id"] == "other":
+            values["version_id"] = other.version.id
+        with pytest.raises(IntegrityError) as error:
+>           await db_session.execute(text("INSERT INTO item_edits (" + ",".join(values) + ") VALUES (" + ",".join(":" + field for field in values) + ")"), values)
+
+tests/integration/test_record_schema.py:29: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43a321f10>
+query = 'INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_...tem_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)'
+params = {'field': 'grade', 'item_id': 1, 'new_state': 'stated', 'new_value': 'L80', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "item_edits" does not exist
+E           LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+E                               ^
+E           [SQL: INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_by) VALUES (%(version_id)s,%(item_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)]
+E           [parameters: {'version_id': 2, 'item_id': 1, 'field': 'grade', 'new_value': 'L80', 'new_state': 'stated', 'reason': 'reason', 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 32, 184982, tzinfo=datetime.timezone.utc), 'undone_at': None, 'undone_by': None}]
+E           (Background on this error at: https://sqlalche.me/e/20/f405)
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: ProgrammingError
+___________ test_confirmation_unique_excludes_undone_rows[row_match] ___________
+
+self = <sqlalchemy.engine.base.Connection object at 0x7ae43a2c50a0>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialectAsync_psycopg object at 0x7ae43f3c9cd0>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x7ae43a2c5250>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x7ae43a2c7320>
+parameters = [{'item_id': 1, 'kind': 'row_match', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 32, 496850, tzinfo=datetime.timezone.utc), 'recorded_by': 'person', ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43a321190>
+query = 'INSERT INTO confirmations(version_id,kind,item_id,recorded_by,recorded_at) VALUES (%(version_id)s,%(kind)s,%(item_id)s,%(recorded_by)s,%(recorded_at)s) RETURNING id'
+params = {'item_id': 1, 'kind': 'row_match', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 32, 496850, tzinfo=datetime.timezone.utc), 'recorded_by': 'person', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "confirmations" does not exist
+E           LINE 1: INSERT INTO confirmations(version_id,kind,item_id,recorded_b...
+E                               ^
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7ae43a30eae0>
+kind = 'row_match'
+
+    @pytest.mark.parametrize("kind", ["row_match", "coverage"])
+    async def test_confirmation_unique_excludes_undone_rows(db_session, kind):
+        seed = await seed_record_version(db_session)
+        values = {"version_id": seed.version.id, "kind": kind, "item_id": seed.item.id if kind == "row_match" else None, "recorded_by": "person", "recorded_at": datetime.now(UTC)}
+        insert = text("INSERT INTO confirmations(version_id,kind,item_id,recorded_by,recorded_at) VALUES (:version_id,:kind,:item_id,:recorded_by,:recorded_at) RETURNING id")
+>       first_id = (await db_session.execute(insert, values)).scalar_one()
+
+tests/integration/test_record_schema.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43a321190>
+query = 'INSERT INTO confirmations(version_id,kind,item_id,recorded_by,recorded_at) VALUES (%(version_id)s,%(kind)s,%(item_id)s,%(recorded_by)s,%(recorded_at)s) RETURNING id'
+params = {'item_id': 1, 'kind': 'row_match', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 32, 496850, tzinfo=datetime.timezone.utc), 'recorded_by': 'person', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "confirmations" does not exist
+E           LINE 1: INSERT INTO confirmations(version_id,kind,item_id,recorded_b...
+E                               ^
+E           [SQL: INSERT INTO confirmations(version_id,kind,item_id,recorded_by,recorded_at) VALUES (%(version_id)s,%(kind)s,%(item_id)s,%(recorded_by)s,%(recorded_at)s) RETURNING id]
+E           [parameters: {'version_id': 1, 'kind': 'row_match', 'item_id': 1, 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 32, 496850, tzinfo=datetime.timezone.utc)}]
+E           (Background on this error at: https://sqlalche.me/e/20/f405)
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: ProgrammingError
+___________ test_confirmation_unique_excludes_undone_rows[coverage] ____________
+
+self = <sqlalchemy.engine.base.Connection object at 0x7ae43a475e50>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialectAsync_psycopg object at 0x7ae43f3c9cd0>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x7ae43a30df10>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x7ae43a2c7320>
+parameters = [{'item_id': None, 'kind': 'coverage', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 32, 953042, tzinfo=datetime.timezone.utc), 'recorded_by': 'person', ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43ad53dd0>
+query = 'INSERT INTO confirmations(version_id,kind,item_id,recorded_by,recorded_at) VALUES (%(version_id)s,%(kind)s,%(item_id)s,%(recorded_by)s,%(recorded_at)s) RETURNING id'
+params = {'item_id': None, 'kind': 'coverage', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 32, 953042, tzinfo=datetime.timezone.utc), 'recorded_by': 'person', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "confirmations" does not exist
+E           LINE 1: INSERT INTO confirmations(version_id,kind,item_id,recorded_b...
+E                               ^
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7ae43a30c050>
+kind = 'coverage'
+
+    @pytest.mark.parametrize("kind", ["row_match", "coverage"])
+    async def test_confirmation_unique_excludes_undone_rows(db_session, kind):
+        seed = await seed_record_version(db_session)
+        values = {"version_id": seed.version.id, "kind": kind, "item_id": seed.item.id if kind == "row_match" else None, "recorded_by": "person", "recorded_at": datetime.now(UTC)}
+        insert = text("INSERT INTO confirmations(version_id,kind,item_id,recorded_by,recorded_at) VALUES (:version_id,:kind,:item_id,:recorded_by,:recorded_at) RETURNING id")
+>       first_id = (await db_session.execute(insert, values)).scalar_one()
+
+tests/integration/test_record_schema.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x7ae43ad53dd0>
+query = 'INSERT INTO confirmations(version_id,kind,item_id,recorded_by,recorded_at) VALUES (%(version_id)s,%(kind)s,%(item_id)s,%(recorded_by)s,%(recorded_at)s) RETURNING id'
+params = {'item_id': None, 'kind': 'coverage', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 32, 953042, tzinfo=datetime.timezone.utc), 'recorded_by': 'person', ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "confirmations" does not exist
+E           LINE 1: INSERT INTO confirmations(version_id,kind,item_id,recorded_b...
+E                               ^
+E           [SQL: INSERT INTO confirmations(version_id,kind,item_id,recorded_by,recorded_at) VALUES (%(version_id)s,%(kind)s,%(item_id)s,%(recorded_by)s,%(recorded_at)s) RETURNING id]
+E           [parameters: {'version_id': 1, 'kind': 'coverage', 'item_id': None, 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 32, 953042, tzinfo=datetime.timezone.utc)}]
+E           (Background on this error at: https://sqlalche.me/e/20/f405)
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: ProgrammingError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  <repo>/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_record_schema.py::test_item_edit_constraints_in_postgres[changes0-23514] - sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "item_edits" does not exist
+LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+                    ^
+[SQL: INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_by) VALUES (%(version_id)s,%(item_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)]
+[parameters: {'version_id': 1, 'item_id': 1, 'field': 'grade', 'new_value': 'L80', 'new_state': 'stated', 'reason': 'reason', 'recorded_by': ' ', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 29, 864979, tzinfo=datetime.timezone.utc), 'undone_at': None, 'undone_by': None}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+FAILED tests/integration/test_record_schema.py::test_item_edit_constraints_in_postgres[changes1-23514] - sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "item_edits" does not exist
+LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+                    ^
+[SQL: INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_by) VALUES (%(version_id)s,%(item_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)]
+[parameters: {'version_id': 1, 'item_id': 1, 'field': 'grade', 'new_value': 'L80', 'new_state': 'stated', 'reason': ' ', 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 30, 229654, tzinfo=datetime.timezone.utc), 'undone_at': None, 'undone_by': None}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+FAILED tests/integration/test_record_schema.py::test_item_edit_constraints_in_postgres[changes2-23514] - sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "item_edits" does not exist
+LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+                    ^
+[SQL: INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_by) VALUES (%(version_id)s,%(item_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)]
+[parameters: {'version_id': 1, 'item_id': 1, 'field': 'grade', 'new_value': None, 'new_state': None, 'reason': 'reason', 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 30, 570061, tzinfo=datetime.timezone.utc), 'undone_at': None, 'undone_by': None}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+FAILED tests/integration/test_record_schema.py::test_item_edit_constraints_in_postgres[changes3-23514] - sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "item_edits" does not exist
+LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+                    ^
+[SQL: INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_by) VALUES (%(version_id)s,%(item_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)]
+[parameters: {'version_id': 1, 'item_id': 1, 'field': 'grade_raw', 'new_value': 'L80', 'new_state': 'stated', 'reason': 'reason', 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 30, 902075, tzinfo=datetime.timezone.utc), 'undone_at': None, 'undone_by': None}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+FAILED tests/integration/test_record_schema.py::test_item_edit_constraints_in_postgres[changes4-23514] - sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "item_edits" does not exist
+LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+                    ^
+[SQL: INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_by) VALUES (%(version_id)s,%(item_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)]
+[parameters: {'version_id': 1, 'item_id': 1, 'field': 'grade', 'new_value': 'L80', 'new_state': 'unknown', 'reason': 'reason', 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 31, 219466, tzinfo=datetime.timezone.utc), 'undone_at': None, 'undone_by': None}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+FAILED tests/integration/test_record_schema.py::test_item_edit_constraints_in_postgres[changes5-23514] - sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "item_edits" does not exist
+LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+                    ^
+[SQL: INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_by) VALUES (%(version_id)s,%(item_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)]
+[parameters: {'version_id': 1, 'item_id': 1, 'field': 'grade', 'new_value': 'L80', 'new_state': 'stated', 'reason': 'reason', 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 31, 548286, tzinfo=datetime.timezone.utc), 'undone_at': datetime.datetime(2026, 9, 12, 14, 57, 29, 714777, tzinfo=datetime.timezone.utc), 'undone_by': ' '}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+FAILED tests/integration/test_record_schema.py::test_item_edit_constraints_in_postgres[changes6-23514] - sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "item_edits" does not exist
+LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+                    ^
+[SQL: INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_by) VALUES (%(version_id)s,%(item_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)]
+[parameters: {'version_id': 1, 'item_id': 1, 'field': 'grade', 'new_value': 'L80', 'new_state': 'stated', 'reason': 'reason', 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 31, 862427, tzinfo=datetime.timezone.utc), 'undone_at': datetime.datetime(2026, 9, 12, 14, 57, 29, 714780, tzinfo=datetime.timezone.utc), 'undone_by': None}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+FAILED tests/integration/test_record_schema.py::test_item_edit_constraints_in_postgres[changes7-23503] - sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "item_edits" does not exist
+LINE 1: INSERT INTO item_edits (version_id,item_id,field,new_value,n...
+                    ^
+[SQL: INSERT INTO item_edits (version_id,item_id,field,new_value,new_state,reason,recorded_by,recorded_at,undone_at,undone_by) VALUES (%(version_id)s,%(item_id)s,%(field)s,%(new_value)s,%(new_state)s,%(reason)s,%(recorded_by)s,%(recorded_at)s,%(undone_at)s,%(undone_by)s)]
+[parameters: {'version_id': 2, 'item_id': 1, 'field': 'grade', 'new_value': 'L80', 'new_state': 'stated', 'reason': 'reason', 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 32, 184982, tzinfo=datetime.timezone.utc), 'undone_at': None, 'undone_by': None}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+FAILED tests/integration/test_record_schema.py::test_confirmation_unique_excludes_undone_rows[row_match] - sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "confirmations" does not exist
+LINE 1: INSERT INTO confirmations(version_id,kind,item_id,recorded_b...
+                    ^
+[SQL: INSERT INTO confirmations(version_id,kind,item_id,recorded_by,recorded_at) VALUES (%(version_id)s,%(kind)s,%(item_id)s,%(recorded_by)s,%(recorded_at)s) RETURNING id]
+[parameters: {'version_id': 1, 'kind': 'row_match', 'item_id': 1, 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 32, 496850, tzinfo=datetime.timezone.utc)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+FAILED tests/integration/test_record_schema.py::test_confirmation_unique_excludes_undone_rows[coverage] - sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "confirmations" does not exist
+LINE 1: INSERT INTO confirmations(version_id,kind,item_id,recorded_b...
+                    ^
+[SQL: INSERT INTO confirmations(version_id,kind,item_id,recorded_by,recorded_at) VALUES (%(version_id)s,%(kind)s,%(item_id)s,%(recorded_by)s,%(recorded_at)s) RETURNING id]
+[parameters: {'version_id': 1, 'kind': 'coverage', 'item_id': None, 'recorded_by': 'person', 'recorded_at': datetime.datetime(2026, 9, 12, 14, 57, 32, 953042, tzinfo=datetime.timezone.utc)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+10 failed, 1 warning in 3.47s
+make: *** [/tmp/record-checks.mk:6: record-schema] Error 1

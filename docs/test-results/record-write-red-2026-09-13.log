@@ -1,0 +1,91 @@
+FFFFFFFF                                                                 [100%]
+=================================== FAILURES ===================================
+____ test_quantity_pair_records_current_old_values_once_in_same_transaction ____
+
+repository = namespace(record=<function repository.<locals>.record at 0x7f78887411c0>, item=<AsyncMock id='140155662344096'>, edits...Mock id='140155667795984'>, question=<AsyncMock id='140155667801696'>, save_judgement=<AsyncMock id='140155662735296'>)
+
+    async def test_quantity_pair_records_current_old_values_once_in_same_transaction(repository):
+>       from app.services.record_service import RecordService
+E       ModuleNotFoundError: No module named 'app.services.record_service'
+
+tests/unit/test_record_service.py:30: ModuleNotFoundError
+______ test_old_value_uses_latest_effective_edit_and_source_is_unchanged _______
+
+repository = namespace(record=<function repository.<locals>.record at 0x7f78887ffe20>, item=<AsyncMock id='140155662741488'>, edits...Mock id='140155660933152'>, question=<AsyncMock id='140155660936992'>, save_judgement=<AsyncMock id='140155660940784'>)
+
+    async def test_old_value_uses_latest_effective_edit_and_source_is_unchanged(repository):
+>       from app.services.record_service import RecordService
+E       ModuleNotFoundError: No module named 'app.services.record_service'
+
+tests/unit/test_record_service.py:44: ModuleNotFoundError
+___________ test_undo_requires_target_then_active_record_then_actor ____________
+
+repository = namespace(record=<function repository.<locals>.record at 0x7f7888740b80>, item=<AsyncMock id='140155660963568'>, edits...Mock id='140155667722656'>, question=<AsyncMock id='140155667823840'>, save_judgement=<AsyncMock id='140155661048560'>)
+
+    async def test_undo_requires_target_then_active_record_then_actor(repository):
+>       from app.services.record_service import RecordService
+E       ModuleNotFoundError: No module named 'app.services.record_service'
+
+tests/unit/test_record_service.py:53: ModuleNotFoundError
+__________________ test_duplicate_confirmation_is_prechecked ___________________
+
+repository = namespace(record=<function repository.<locals>.record at 0x7f788862c0e0>, item=<AsyncMock id='140155661055856'>, edits...Mock id='140155661132496'>, question=<AsyncMock id='140155665073072'>, save_judgement=<AsyncMock id='140155667823168'>)
+
+    async def test_duplicate_confirmation_is_prechecked(repository):
+>       from app.services.record_service import RecordService
+E       ModuleNotFoundError: No module named 'app.services.record_service'
+
+tests/unit/test_record_service.py:75: ModuleNotFoundError
+______________ test_records_are_append_only_and_undo_keeps_actor _______________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7f7888869190>
+
+    async def test_records_are_append_only_and_undo_keeps_actor(db_session):
+>       from app.repositories.record_repository import RecordRepository
+E       ModuleNotFoundError: No module named 'app.repositories.record_repository'
+
+tests/integration/test_record_repository.py:12: ModuleNotFoundError
+___________ test_unfinalized_and_cross_version_targets_are_rejected ____________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7f78886599d0>
+
+    async def test_unfinalized_and_cross_version_targets_are_rejected(db_session):
+>       from app.repositories.record_repository import RecordRepository
+E       ModuleNotFoundError: No module named 'app.repositories.record_repository'
+
+tests/integration/test_record_repository.py:28: ModuleNotFoundError
+____________ test_confirmation_cancel_repeat_and_judged_unresolved _____________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7f7888672720>
+
+    async def test_confirmation_cancel_repeat_and_judged_unresolved(db_session):
+>       from app.repositories.record_repository import RecordRepository
+E       ModuleNotFoundError: No module named 'app.repositories.record_repository'
+
+tests/integration/test_record_repository.py:46: ModuleNotFoundError
+_____ test_unique_translation_is_limited_to_active_confirmation_constraint _____
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7f7888672bd0>
+
+    async def test_unique_translation_is_limited_to_active_confirmation_constraint(db_session):
+>       from app.repositories.record_repository import RecordRepository
+E       ModuleNotFoundError: No module named 'app.repositories.record_repository'
+
+tests/integration/test_record_repository.py:65: ModuleNotFoundError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  <repo>/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_record_service.py::test_quantity_pair_records_current_old_values_once_in_same_transaction - ModuleNotFoundError: No module named 'app.services.record_service'
+FAILED tests/unit/test_record_service.py::test_old_value_uses_latest_effective_edit_and_source_is_unchanged - ModuleNotFoundError: No module named 'app.services.record_service'
+FAILED tests/unit/test_record_service.py::test_undo_requires_target_then_active_record_then_actor - ModuleNotFoundError: No module named 'app.services.record_service'
+FAILED tests/unit/test_record_service.py::test_duplicate_confirmation_is_prechecked - ModuleNotFoundError: No module named 'app.services.record_service'
+FAILED tests/integration/test_record_repository.py::test_records_are_append_only_and_undo_keeps_actor - ModuleNotFoundError: No module named 'app.repositories.record_repository'
+FAILED tests/integration/test_record_repository.py::test_unfinalized_and_cross_version_targets_are_rejected - ModuleNotFoundError: No module named 'app.repositories.record_repository'
+FAILED tests/integration/test_record_repository.py::test_confirmation_cancel_repeat_and_judged_unresolved - ModuleNotFoundError: No module named 'app.repositories.record_repository'
+FAILED tests/integration/test_record_repository.py::test_unique_translation_is_limited_to_active_confirmation_constraint - ModuleNotFoundError: No module named 'app.repositories.record_repository'
+8 failed, 1 warning in 1.01s
+make: *** [/tmp/record-checks.mk:10: record-write] Error 1

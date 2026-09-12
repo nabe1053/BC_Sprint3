@@ -50,10 +50,17 @@ class InputLimits:
 
 
 @dataclass(frozen=True)
+class HeartbeatDiagnostics:
+    since_last_heartbeat_s: float
+    heartbeats: int
+
+
+@dataclass(frozen=True)
 class RunResult:
     stop_reason: StopReason
-    turns: int = 0
+    turns: int | None = None
     detail: str | None = None
+    heartbeat_diagnostics: HeartbeatDiagnostics | None = None
 
     def __post_init__(self):
         if self.stop_reason not in (
@@ -68,7 +75,7 @@ class RunResult:
             "validation_loop",
         ):
             raise ValueError("Invalid stop reason")
-        if self.turns < 0:
+        if self.turns is not None and self.turns < 0:
             raise ValueError("Invalid turns")
 
 
