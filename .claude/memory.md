@@ -20,6 +20,15 @@
   標準ライブラリ email（.eml）。理由: 画像 PDF の OCR は範囲外（②FUNC-01）、マクロ・外部リンクは
   実行しない。影響範囲: openpyxl は `data_only=True` で読み、保存済み値が無いセルは
   読めた値として扱わず確認事項の材料にする。
+- [AD-008] **SCR-02 は Build では実 API を使う**（03-spec の「受付表示のみで本文は読み取らない」「固定サンプルで
+  案を作成」はモック段階の記述）。理由: T-102 で実際の投入・読取 API（#5・#4）が揃っており、
+  ②FUNC-01 の受入基準（X01 読取不能が通知される・X03 二重投入が両方残る）は実読取でしか満たせない。
+  影響範囲: T-103 は「ファイルを投入 → 実際の読取結果（5区分）を一覧表示」を作る。
+  「固定サンプルで案を作成」ボタン＝エージェント起動は **T-204 の範囲**なので T-103 では作らない。
+- [AD-009] 画面ルートは `/cases`（SCR-01）と `/cases/{caseId}/intake`（SCR-02）。
+  ルート `/` は `/cases` へリダイレクトする。理由: 資料投入は案件スコープ配下の操作であり
+  URL に案件が現れる方が API（`/cases/{caseId}/documents`）と対応が取れる。
+  SCR-01 に**新規案件作成のダイアログ**を置く（#5 は caseId を要求するため、案件が無いと投入に進めない）。
 - [AD-007] API の表現規約を確定（`05-api-ipo.md` 0.4 に追記済み）: JSON は camelCase /
   進捗ステータスは `intake`/`draft_review`/`staff_checked`/`review_checked` /
   #6 の範囲指定は `fromSeq`・`toSeq`（locator は形式ごとに表記が違うため範囲指定に使わない）/
@@ -32,13 +41,26 @@
 - [AD-006] **S/MIME 暗号化 .eml は対象外**（`encrypted` 判定を実装しない。`unreadable` + issue のまま）。
   理由: sample-01〜10 に該当が無く、②FUNC-01 の対応形式にも無い。
 
+- [AD-011] **G2 を縦に1本通すまで G3〜G6 に進まない**（バックログの順序変更）。理由: Sprint 3 の主題は
+  エージェントだが、AGENT-01 は一度も動いていない（T-202 の worker は `agent_implementation_pending` で
+  failed 終端する）。横幅（G4〜G6）を広げる前に T-203 → T-204 → ミニ評価でトレースを1本出し、
+  設計の誤りを持ち越さない / 影響範囲: §3 の実施順を T-201・T-202 → C-1 → T-203 → T-204 →
+  ミニ評価 → G3・G4（並行可）→ G5 → G6 とする。
+- [AD-012] **実装は主に Codex セッションが担当し、Claude メインセッションは orchestrator に徹する**
+  （指示・reviewer 起動・memory 転記・品質ゲート・commit）。理由: 研修者の決定（2026-09-12）/
+  影響範囲: 恒久規約は `docs/reviews/CODEX-INSTRUCTIONS.md`。Claude は原則コードを書かない
+  （レビュー指摘の修正も Codex に返す）。レビューは引き続き別エージェント（憲法6）。
+
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
   （0 個なら `partial` ではなく `unreadable`）②例外を外へ投げず必ず `read_status` + `issues` で返す
   ③`unreadable`/`encrypted`/`unsupported`/空 のどの経路でも `ReadIssue` を1件以上残し `detail` を空にしない。
   「読めた単位」は pdf=ページ / xlsx=セル / eml=本文＋添付一覧 / text=本文（各 reader の docstring に明記）。
-- [CV-002] **locator の表記体系**: `document_pages.locator` は PDF=`p.N` / xlsx=シート名 / text・eml 本文=`body:N`。
+- [CV-002] **locator の表記体系**: `document_pages.locator` は PDF=`p.N` / xlsx=シート名 / text=`body:N`。
+  **eml は `document_pages` を作らず、`email_parts` を `email:{part_role}:{seq}` で扱う**
+  （2026-09-12 訂正。旧「eml 本文=`body:N`」は誤り。正は 04-db.md:686 と §3.3「T-201 補足」。
+  T-203 のツールが `body:N` を出すと完了条件が永久に満たせなくなる）。
   **`document_issues.locator` を `document_pages.locator` と同値にしない**（xlsx のセル単位は `Sheet1!B1`、
   資料全体は `None`）。理由: 04-db.md の完了条件は両者を `(document_id, locator)` で差し引くため、
   同値だと範囲が丸ごと相殺され「1セルも読まずに完了」になる。
@@ -64,16 +86,28 @@
   target がここを読む）。別の場所へ出力すると orval が古いスキーマを読み、新規エンドポイントが
   1つもフック生成されないという気づきにくい失敗になる。
 
+- [CV-014] 根拠の機械判定は数値だけでなく明示状態（TBA・適用なし）も対象にし、明細・案件情報・両端仕様を同じ観点で確認する。型が異なる範囲を1つだけ直して終えない。
+- [CV-015] **「1箇所に集約する」と決めた資産（HTTP ステータス対応表 `api/errors.py`・保管パス検証 `document_storage.py`・停止閾値/モデル ID `agent/definition.py`）は import か注入で使い、新スライスで複製しない。**T-102 で指摘した二重化が T-202 で再発した（RV-015 P1-2/P2-3/P2-5）。
+
+- [CV-016] **検証の単一入口は リポジトリ直下の `Makefile`**（`make check` / `check-be` / `check-fe`）。
+  `--confcutdir` や専用 tsconfig で範囲を切った実行は作業中の高速フィードバック用であり、
+  **「検証した」と呼ばない**。再レビュー依頼・DONE 判定の根拠は `make check` の出力とする。
+  `make migrate` は**開発 DB とテスト DB の両方**に適用する（LN-013・LN-017）。
+- [CV-017] **ファイル名にチケット ID を入れない**（`routes_t202.py` 型の命名を作らない）。
+  チケットが閉じると意味を失い、次スライスの置き場が決まらなくなる。配置の正は
+  `docs/reviews/CODEX-INSTRUCTIONS.md` §3 の表（agent/ui/common + `dependencies.py`）。
+
 ## 3. 実装バックログ（プラン状態＝ループの制御表）
 
 | ID | スライス | 種別 | 依存 | Status | レビュー | 最終更新 |
 |----|---------|------|------|--------|---------|---------|
 | T-101 | G1 案件・資料の保存と読取処理（BE） | web | - | DONE | 3回+確認 | 2026-09-12 |
 | T-102 | G1 案件・資料 API #1-10（API） | web | T-101 | DONE | 2回+確認 | 2026-09-12 |
-| T-103 | G1 SCR-01 案件一覧 / SCR-02 資料投入（FE） | web | T-102 | PLANNED | - | 2026-09-11 |
-| T-201 | G2 成果物の保存＋完了条件の機械判定（BE） | web | T-101 | IMPLEMENTING | - | 2026-09-12 |
-| T-202 | G2 エージェント書込 API #15-21 / 起動・監視 #12-14（API・jobs 経由） | web | T-201 | PLANNED | - | 2026-09-11 |
-| T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202 | PLANNED | - | 2026-09-11 |
+| T-103 | G1 SCR-01 案件一覧 / SCR-02 資料投入（FE） | web | T-102 | IMPLEMENTING | - | 2026-09-12 |
+| T-201 | G2 成果物の保存＋完了条件の機械判定（BE） | web | T-101 | FIXING | 5回目 RV-017: P2 1件（索引が実 DB に無い） | 2026-09-12 |
+| T-202 | G2 エージェント書込 API #15-21 / 起動・監視 #12-14（API・jobs 経由） | web | T-201 | DONE | 5回目 RV-018: **DONE 可**（P3 6 は記録のみ） | 2026-09-12 |
+| C-1 | チケット名ファイルの正規配置への移動（振る舞い不変） | chore | T-202 | PLANNED | - | 2026-09-12 |
+| T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202, C-1 | PLANNED | - | 2026-09-12 |
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | PLANNED | - | 2026-09-11 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
 | T-302 | G3 参照 #23-26 / 記録 #29-31,33（API） | web | T-301 | PLANNED | - | 2026-09-11 |
@@ -87,6 +121,11 @@
 | T-601 | G6 .xlsx 5シート生成（BE） | web | T-501 | PLANNED | - | 2026-09-11 |
 | T-602 | G6 出力 API #38,39,40（API） | web | T-601 | PLANNED | - | 2026-09-11 |
 | T-603 | G6 出力ボタン・版の履歴（FE・SCR-03 内） | web | T-602 | PLANNED | - | 2026-09-11 |
+
+> **実施順（AD-011）**: T-201・T-202 クローズ → C-1 → **T-203 → T-204 → ミニ評価** →
+> G3（T-301〜303）・G4（T-401〜403）は並行可 → G5 → G6。
+> 並行してよいのは依存が独立でファイルが重ならない組（T-301 / T-401）のみ。規則は
+> `docs/reviews/CODEX-INSTRUCTIONS.md` §5。
 
 > 人が読む説明版: `docs/tickets.md`（グループ・完了の目安つき）。本表が進捗の正。
 
@@ -109,6 +148,43 @@
 - [RV-007] T-102 確認レビュー: **指摘なし（DONE 可）**。167 テスト PASS。reviewer が
   `realpath`→`abspath` の変異検査まで行い、テストの強度を確認。
 
+- [RV-008] T-201 1回目: P2 3件（不正Decimal入力の変換例外漏れ／TBA・両端仕様の出典検査漏れ／根拠重複エラーコード不一致）。再現テストでREDを確認し全件修正。
+- [RV-009] T-201 2回目: P2 1件（案件情報の明示状態の出典検査漏れ）。due=tba・place/incoterms=not_applicableの3テストでREDを確認し修正。同種の見落としが2回あったためCV-014へ昇格。
+- [RV-010] T-201 最終確認: 利用制限解除後に別reviewerが前回修正と76テストを独立確認し、残存コード指摘なし。G1 CV-011への追従としてdetailsのcamelCase回帰テストを追加、RED→GREENで77件PASS。追加差分も別reviewerが確認し9件のServiceテストPASS・指摘なし。全体回帰はユーザー指示で保留のためDONEにしない。
+
+- [RV-011] T-202 1回目: P2 2件（DB commit失敗時のJSONL重複／evidenceの出典不足エラーコード不一致）。4件の再現テストでREDを確認。確定済みtrace_eventからJSONLを冪等再構築する方式と、エンドポイント別のエラー変換に修正。
+- [RV-012] T-202 2回目: P2 1件（旧実行のJSONLを空または回収結果だけに置換）。旧failed/旧runningの2件でREDを確認し、開始イベントのない旧実行を再構築対象外として保全。
+- [RV-013] T-202 最終確認: 別reviewerが62件を独立再実行しPASS・残存指摘なし。T-201 77件・Ruff・PostgreSQL追加migration制約・生成API単独型検査もPASS。全体回帰はユーザー指示で保留、全体FE型検査はG1並行作業の8件で保留。実装詳細とT-203接続点はdocs/t202-handoff.md。
+- [RV-015] T-202 4回目（Codex 実装・Claude reviewer 独立。Codex 側 RV-013「残存指摘なし」の後に実施）: **DONE 不可**。P1 2（migration 未適用で全体回帰 44 ERROR / 停止閾値・モデル ID が definition.py 外に複製）+ P2 9（GET #13 が毎回 FOR UPDATE＋JSONL 全書換 / トレース書込失敗が GET 経由で実行中 run を failed に / エラー表・保管パス検証の二重化 / Pydantic メッセージ文字列からのコード復元 / #12 の 404 が契約外 / 新コードが 05 §6 に無い / ワーカー例外の握りつぶし / 外側 timeout で cancel を待たない）+ P3 9。詳細: `docs/reviews/g2-review-2026-09-12.md`。二重化3件同根 → **CV-015 へ昇格**。
+- [RV-016] T-201 4回目（T-202 追随分の確認）: P1 0。T-202 によるテスト変更は改竄ではない。P2 4（走査済み/相殺の正常系テスト 0 本 / 明細の明示状態テストが 1 本 / 版行ロック直列化が SQLite で未検証 / 04-db.md:861 の索引未作成）+ P3 8。テスト追加で閉じられるため FIXING。
+
+- [RV-017] T-201 5回目（Codex 修正 → Claude reviewer 独立確認・2026-09-12）: **DONE 不可**。P1 0 / P2 1 / P3 4。
+  P2-1〜P2-3 は実体として閉じている（走査済み/相殺の正常系は他範囲が残ることまでアサート・明示状態は
+  9項目×2状態を違反リスト完全一致で判定・SQLite の FOR UPDATE 限界は docstring と 04-db.md:942 に明記）。
+  **残 P2: `ix_agent_run_steps_document_locator` が実 DB に無い。**`create_index` を**適用済みリビジョン
+  `t201_artifacts` の中**に追記したため `upgrade head` で作成されず、orchestrator の実測では
+  octg_db（今回まっさらから適用）には索引があり octg_test（既に t201_artifacts 適用済み）には無い、という
+  **DB 間スキーマ分岐**が発生している。→ 新規リビジョン（down_revision = `t202_run_metadata`）で作成し、
+  `t201_artifacts` 側の追記は取り消す。`test_scan_index_exists_in_model_and_migration` は migration の
+  **ソース文字列**しか見ていないため false green（`tests/t201/conftest.py` が `create_all` でスキーマを作る
+  構造上、原理的に適用差分を検出できない）。実スキーマ確認は `check_t201_postgres.py` 側に置く。
+  P3: 残範囲を件数でなく集合一致で書く / `read_email`×非 `email:` locator の否定側テストが無い /
+  CV-002 の eml 記述が 04-db と矛盾（→ orchestrator が訂正済み）/ `email_parts` の
+  `UNIQUE(document_id, part_role, seq)` 未追加のまま `email:{part_role}:{seq}` を走査判定の一意キーに
+  使っている（T-203 着手前の TODO として維持）。
+
+- [RV-018] T-202 5回目（Codex 修正 → Claude reviewer 独立確認・2026-09-12）: **DONE 可**。P1 0 / P2 0 / P3 6。
+  RV-015 の P1-1・P1-2・P2-1〜P2-9 を**行単位＋全体回帰＋変異検査で全件クローズ確認**（handoff の
+  自己申告ではない）。退行なし（tracked テストの diff は `test_api_path_separation.py` に
+  `"agent-runs"` を足す**検査強化のみ**。skip/xfail の新規導入なし）。実測 356 passed / 単一ヘッド /
+  ruff 124 files unchanged。P3: ①`stage_detail` の `trace_write_failed` が既存 detail を上書き
+  ②`recover_interrupted()` が起動のたびに全 run の JSONL を再構築（実行数に比例して起動が重い）
+  ③`trace.sync()`（同期 I/O）を FOR UPDATE トランザクション内で実行（T-203 のツール step 単位
+  export でロック保持が問題になる）④`routes_t202.py` に「フィールド名に `_` を含むか」の
+  ヒューリスティックが残存（P2-4 で消したはずの名前推測の変種）⑤ruff F401（orchestrator 追加分・修正済み）
+  ⑥`case_service.py` / `document_query_service.py` / `document_intake_service.py` が `app.models` を
+  直接 import（T-101/T-102 由来・**別スライスの改修候補**）。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -128,8 +204,38 @@
   `StringConstraints(strip_whitespace=True, min_length=1)` とセットで使う。
 - [LN-008] **ファイルを書く統合テストは `STORAGE_ROOT` を `tmp_path` に差し替える。**DB は TRUNCATE
   されてもディスクは残り、実行のたびに孤児ファイルが溜まる。
+- [LN-010] **orval の `mutator` は `output.override.mutator` に書く。**`output` 直下に書くと orval は
+  黙って無視し、生成コードが素の `fetch`（baseURL が効かない・非 2xx を投げない）になる。
+  Foundation から T-102 まで気づかれず、画面を作る T-103 で発覚した。
+  **生成物が `customInstance` を呼んでいるか**を統合ポイントで確認する。
+- [LN-011] `@types/jest` が devDependencies に無く、最初のテストを書いた時点で `npm run typecheck` が
+  壊れた。テストが1本も無い状態では気づけないギャップ。
 - [LN-009] パス検証のテストは「変異させたら落ちるか」で強度を測る（`realpath`→`abspath` に戻したら
   落ちること）。通るだけのテストは退行を検知しない。
+
+- [LN-012] DBとファイルを同じ結果として扱う処理は、commit失敗・再試行・プロセス中断・旧記録を含めて検証する。再構築は開始時からの確定イベントがある場合だけ行い、不完全な記録で既存ファイルを置換しない。
+- [LN-013] **ORM に列を足したら同じ手順の中で migration をテスト DB へ適用する。**`tests/conftest.py` が `Base.metadata` で TRUNCATE するため、モデルだけ先行すると無関係な既存統合テストが全滅する（T-202）。
+- [LN-014] **SQLite インメモリのテストは `with_for_update()` を検証しない**（SQLAlchemy の SQLite 方言は FOR UPDATE を出力しない）。「行ロックで直列化した」は PostgreSQL 2セッション確認か docstring 明記なしに DONE にしない。
+- [LN-015] **レビュー対象はスナップショットで固定する。**別セッション（Codex）が並行編集中で、レビュー中にテスト数が 55→60 に変わった。handoff の自己申告数値は着手時点で古い前提で扱う。
+- [LN-016] 業務エラーコードは例外側（`PydanticCustomError(code)`）で持ち、Presentation でメッセージ文字列やフィールド名から復元しない。GET（安全メソッド）に永続化・行ロック・ファイル書込を持たせない。
+
+- [LN-017] **統合テストは開発 DB（octg_db）のスキーマにも依存する。**`tests/integration/conftest.py` は
+  `get_db` を override してテスト DB を使わせるが、`TestClient(app)` の lifespan で走る起動処理
+  （T-202 の残存 running 回収）は**アプリ本体のエンジン（`settings.DATABASE_URL`）**を使う。
+  テスト DB にだけ migration を当てても `tests/integration` は全滅したままになる。
+  `make migrate` が両方に適用する理由がこれ。（将来的には lifespan 側も override 可能にするのが正）
+
+- [LN-018] **適用済みの Alembic リビジョンを後から編集しても `upgrade head` では反映されない。**
+  スキーマ変更の「完了」は migration のソース検査ではなく、**実 DB（`\d {table}`）で確認する**。
+  `Base.metadata.create_all()` でスキーマを作るテストは、migration の適用差分を原理的に検出できない
+  （T-201 の索引が「モデルと migration にはあるがテスト DB には無い」状態で緑になっていた）。
+
+- [LN-019] **副作用禁止（GET は書かない）の検証は、mock の「呼ばれないこと」で終わらせない。**
+  `session.execute` を包んで `_for_update_arg is None` と `commit` 禁止をアサートすると、
+  実装を書き換えても検出力が落ちない（T-202 P2-1 の閉じ方）。
+- [LN-020] **同種のレビュー指摘が2度出たら、直すのではなく規約自体をテストで固定する。**
+  「1箇所に集約」の指摘は T-102 → T-202 で2度出た。`test_single_source_of_truth.py` /
+  `test_api_path_separation.py` の形（ソースを機械検査する単体テスト）にすると再発が止まる。
 
 ## 6. 未解決 / BLOCKED / TODO
 
@@ -137,11 +243,27 @@
 - [TODO-002] **eml には `document_pages` が無い**ため、04-db.md の完了条件の機械判定
   （`document_pages` − `document_issues` を `(document_id, locator)` で差し引く）が eml に適用できない。
   `email_parts` の `part_role`/`seq` 単位で判定するのか、設計側の方針を **T-201（完了条件の機械判定）の前に**決める。
+- [AD-010 相当・2026-09-12 研修者決定] **memory.md の編集者は Claude メインセッションのみ。Codex は読むだけ**で、修正結果は `docs/t{ID}-handoff.md` に書き、Claude が転記する（指示書: `docs/reviews/CODEX-INSTRUCTIONS.md`）。TODO-004 はこれで解消。
 - [TODO-004] **別セッションが T-201 を並行実装している**（`backend/tests/t201/`・`app/services/draft_*`・
   `alembic/versions/t201_*`）。memory §3 のバックログと二重進行になっており、memory の編集者を1つに
   限る取り決めとも衝突する。**どちらが T-201 を持つか研修者が決める必要がある**（2026-09-12 時点で未解決）。
+- [TODO-006] **ガードレールが未接続**。`app/agent/hooks.py` は `tests/unit/test_agent_guardrails.py`
+  からしか呼ばれておらず、`app/agent/runner.py` / `trace.py` はどこからも import されていない
+  （新 `RunTraceStore` と2系統が同居）。現状はループ自体が `local_worker_unavailable` で即 failed
+  するため実害はないが、**T-203 で `RunDispatcher` に差し込むまで「hooks で強制」は成立していない**
+  （agent-development.md §5）。T-203 の着手前に「旧 runner/trace/hooks と新系統のどちらを正にするか」
+  を決める（設計課題は `agent-plan.md` 末尾「T-202 ジョブ境界の補足（RV-015）」に記載済み）。
+- [TODO-007] `email_parts` に `UNIQUE(document_id, part_role, seq)` が無いまま、
+  `email:{part_role}:{seq}` を完了条件の走査判定の一意キーとして使っている（04-db.md:944 の残件）。
+  重複パーツが入ると走査済み集合が壊れる。**T-203 着手前に制約を足すか、判定側で重複を弾く**。
 - [TODO-005] 05-api-ipo 0.2 に「エラーコード不要の 422（標準バリデーション扱い）」の指針が無い。
   T-102 では `fromSeq > toSeq` を 422（コードなし）とした。同種の入力検証が増えるなら明文化する。
 - [TODO-003] `document_issues.issue_type` の語彙（特に `reference_missing` / `not_scanned`）の
   意味づけが 04-db.md に無い。T-101 では「付随情報の欠落（引用元の日付が解釈できない等）」に
   `reference_missing` を割り当てた。設計書に用語定義を追記するとよい。
+
+- [T-201 引き継ぎ 2026-09-12] TODO-004の別セッションは本タスク（ユーザーがT-201の担当を指示し再開を指示済み）。T-201担当を継続。TODO-002/003の判定方針は04-db.md §3.3「T-201補足」に明文化・実装済み。77件の独立テストとPostgreSQL制約15件はPASS。全体回帰はユーザーの明示指示により保留。詳細は `docs/t201-handoff.md`。DONEにはしていない。
+
+- [T-202 着手 2026-09-12] ユーザーがT-201の全体回帰保留を維持したままT-202への着手を明示指示。依存DONEの通常ルールに対する今回の指示としてT-202を開始。全体回帰・既存設定読込・別テストDB初期化は保留を継続。G1 FEの編集中ファイルを保全する。
+
+- [T-202 引き継ぎ 2026-09-12] API #12-21（#20共通）と永続ジョブ管理を実装、独立レビュー済。T-203未接続のローカルworkerはagent_implementation_pendingとしてfailed終端する。通常設定読込・実DBへのmigration適用・現行規則設定・実案件起動・コミット/プッシュは未実施。全体回帰とG1側型エラーは保留。

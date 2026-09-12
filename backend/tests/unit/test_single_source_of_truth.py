@@ -1,0 +1,116 @@
+"""「1箇所に集約する」と決めた資産が複製されていないことを機械的に検査する（memory CV-015）。
+
+同じ指摘（二重化）が T-102 → T-202 で 2 度出た。レビュアーが目視で探すのではなく、
+規約をテストで固定する（`test_api_path_separation.py` と同じ方針）。
+
+集約先の正:
+- 停止閾値・モデル識別子 … `app/agent/definition.py`（agent-development.md §1: definition は
+  agent-plan.md の写し。片方だけ変えない）
+- DomainError.code → HTTP status … `app/api/errors.py`（T-102 決定8）
+- 保管ファイルのパス検証 … `app/repositories/document_storage.py` の `resolve_readable_path()`
+"""
+
+import re
+import tokenize
+from pathlib import Path
+
+APP_DIR = Path(__file__).resolve().parents[2] / "app"
+
+DEFINITION = APP_DIR / "agent" / "definition.py"
+ERRORS = APP_DIR / "api" / "errors.py"
+STORAGE = APP_DIR / "repositories" / "document_storage.py"
+
+
+def _source_without_comments(path: Path) -> str:
+    """コメント・docstring を空白で潰した実コードを返す。
+
+    解説文を違反と誤検出しないために消す。**トークンを連結し直さず、元の行・桁のまま
+    空白で潰す**（連結すると `document.storage_path` のような属性アクセスが分断され、
+    検査が素通りする）。
+    """
+    lines = path.read_text(encoding="utf-8").splitlines(keepends=True)
+    blanked = [list(line) for line in lines]
+    prev_type = tokenize.INDENT
+    with path.open(encoding="utf-8") as fh:
+        for tok in tokenize.generate_tokens(fh.readline):
+            is_docstring = tok.type == tokenize.STRING and prev_type in (
+                tokenize.INDENT,
+                tokenize.NEWLINE,
+                tokenize.NL,
+                tokenize.DEDENT,
+            )
+            if tok.type == tokenize.COMMENT or is_docstring:
+                (r1, c1), (r2, c2) = tok.start, tok.end
+                for row in range(r1 - 1, r2):
+                    line = blanked[row]
+                    lo = c1 if row == r1 - 1 else 0
+                    hi = c2 if row == r2 - 1 else len(line)
+                    for col in range(lo, min(hi, len(line))):
+                        if line[col] != "\n":
+                            line[col] = " "
+            if tok.type not in (tokenize.NL, tokenize.NEWLINE):
+                prev_type = tok.type
+    return "".join("".join(line) for line in blanked)
+
+
+def _app_modules(exclude: Path) -> list[tuple[Path, str]]:
+    return [
+        (p, _source_without_comments(p))
+        for p in sorted(APP_DIR.rglob("*.py"))
+        if p != exclude and "__pycache__" not in p.parts
+    ]
+
+
+def test_dummy_model_id_is_only_defined_in_definition() -> None:
+    """ダミー応答のモデル識別子を definition.py の外に直書きしない（RV-015 P1-2）。"""
+    for path, source in _app_modules(exclude=DEFINITION):
+        assert "mock-fixed" not in source, (
+            f"モデル識別子が {path.relative_to(APP_DIR.parent)} に複製されている。"
+            "`app.agent.definition.DUMMY_MODEL_ID` を注入して使うこと（CV-015）"
+        )
+
+
+def test_stop_thresholds_are_only_defined_in_definition() -> None:
+    """停止閾値（max_turns / 各タイムアウト）を definition.py の外で数値リテラル指定しない。
+
+    `RunLimits(...)` を数値リテラルで組み立てているモジュールを検出する。既定値は
+    `definition.default_run_limits()` から取り、service 経由で注入する（RV-015 P1-2）。
+    """
+    call = re.compile(r"RunLimits\s*\(([^)]*)\)", re.S)
+    for path, source in _app_modules(exclude=DEFINITION):
+        for args in call.findall(source):
+            assert not re.search(r"=\s*\d+", args), (
+                f"停止閾値が {path.relative_to(APP_DIR.parent)} で数値リテラル指定されている: "
+                f"RunLimits({args.strip()})。"
+                "`app.agent.definition.default_run_limits()` を使うこと（CV-015）"
+            )
+
+
+def test_domain_error_status_table_is_not_duplicated() -> None:
+    """E_* → HTTP status の対応表を errors.py の外に作らない（RV-015 P2-3）。"""
+    entry = re.compile(r"""["']E_[A-Z_]+["']\s*:\s*\d{3}""")
+    for path, source in _app_modules(exclude=ERRORS):
+        assert not entry.search(source), (
+            f"エラーコード→HTTP status の対応が {path.relative_to(APP_DIR.parent)} にある。"
+            "`app.api.errors.DOMAIN_ERROR_STATUS_BY_CODE` に集約すること（CV-015）"
+        )
+
+
+def test_storage_path_validation_goes_through_the_gateway() -> None:
+    """`storage_path` は `resolve_readable_path()` の引数としてしか現れない（RV-015 P2-5）。
+
+    独自にパスを組み立てると `realpath` による脱出検査が抜け、
+    `STORAGE_ROOT` の相対パス既定と合わさって CWD 依存で壊れる。
+    「同じファイルのどこかで gateway も呼んでいる」では不十分なので、
+    `.storage_path` の出現箇所そのものを検査する。
+    """
+    use = re.compile(r"[\w.]*\.storage_path\b")
+    wrapped = re.compile(r"resolve_readable_path\s*\(\s*[\w.]*\.storage_path\b")
+    for path, source in _app_modules(exclude=STORAGE):
+        total = len(use.findall(source))
+        if not total:
+            continue
+        assert total == len(wrapped.findall(source)), (
+            f"{path.relative_to(APP_DIR.parent)} が storage_path を "
+            "`resolve_readable_path()` を通さずに扱っている（CV-015）"
+        )

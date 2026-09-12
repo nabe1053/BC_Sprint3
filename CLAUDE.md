@@ -184,6 +184,20 @@ Phase 5: 開発環境の設定     /r2b-env-sprint3（評価の自動化など�
 - `.claude/skills/build-loop/agent-slices.md` は**エージェントスライスの手順書として引き続き参照する**
   （スキル本体 SKILL.md は使わない）
 
+### 6. 実装は Codex に寄せ、検証は `make check` に一本化する（2026-09-12）
+
+- **実装担当は主に Codex セッション**。Claude メインセッションは orchestrator に徹する
+  （スライス指示・reviewer 起動・memory 転記・品質ゲート・commit）。恒久規約は
+  `docs/reviews/CODEX-INSTRUCTIONS.md`（memory AD-012）
+- Codex は **memory.md を読むだけ**。進捗・学び・希望 Status は `docs/t{ID}-handoff.md` に書き、
+  Claude が memory へ転記する
+- **品質ゲートの単一入口はリポジトリ直下の `Makefile`**（memory CV-016）:
+  `make check-be` / `make check-fe` / `make check`。範囲を切った実行を「検証した」と呼ばない。
+  `make migrate` は**開発 DB とテスト DB の両方**に migration を適用する（memory LN-013・LN-017）
+- **ファイル名にチケット ID を入れない**（memory CV-017）
+- **G2 を縦に1本通すまで G3〜G6 に進まない**（memory AD-011）。T-203（AGENT-01 本体）→ T-204 →
+  ミニ評価を優先する。Sprint 3 の主題はエージェントであり、まだ一度も動いていないため
+
 ## ディレクトリ構造
 
 ```
