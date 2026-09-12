@@ -530,9 +530,11 @@
 
 | フィールド | 意味 |
 |-----------|------|
-| （本体） | .xlsx バイナリ。5シート（案件情報／Item List／根拠／確認事項／変更・確認記録） |
-| `fileName` | 案件ID・版・評価状態を含む名前。**どの記録時点の写しか判別できる** |
-| `exportId` | 出力記録のID |
+| （本体） | .xlsx バイナリ。5シート（案件情報／Item List／根拠／確認事項／変更・確認記録）。`Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet` |
+| ヘッダ `Content-Disposition` | `attachment; filename="{fileName}"`。`fileName` = `{案件ID}_v{版}_{評価状態}_{YYYYMMDD-HHMMSS}.xlsx`（評価状態は機械語彙 `draft`/`staff_checked`/`review_checked`、案件IDは `[A-Za-z0-9._-]` 以外を `_` に置換。ASCII 安全）。**どの記録時点の写しか判別できる** |
+| ヘッダ `X-Export-Id` | 出力記録のID（#39 の行と対応） |
+
+> 2026-09-13 Build AD-030 ㉑: 本体と JSON を 1 応答で両立できないため、`fileName`・`exportId` はヘッダで返す。リクエスト body は無い（出力は人の「記録」ではなく写しの保全）。書き出した .xlsx を読み戻す API は作らない（④§3.5）。
 
 #### レスポンス（エラー）
 
@@ -583,7 +585,7 @@
 | 31 | `POST /versions/{id}/confirmations` | 種別・行ID・確認者 | 確認記録 | 400 `E_RECORDER_REQUIRED` / 400 `E_TARGET_INVALID` / 409 `E_ALREADY_CONFIRMED`（**未取消の確認が既にある**・④`confirmations` の部分UNIQUE） |
 | 33 | `POST /versions/{id}/questions/{qid}/judgements` | 対応状況・解決状態・判断内容・判断者 | 判断記録 | 400 `E_RECORDER_REQUIRED` / 404 `E_NOT_FOUND`（**その版に属さない確認事項**・④原則2） |
 | 35 | `POST /versions/{id}/bounce-comments` | 行ID・コメント・確認者 | 行コメント | 400 `E_RECORDER_REQUIRED` / 400 `E_COMMENT_REQUIRED`（コメント空・Build AD-028 ⑰）/ 404 `E_NOT_FOUND`（その版に属さない行） |
-| 39 | `GET /versions/{id}/exports` | 版ID | 出力履歴・初回出力（`storage_path` / `content_hash` / 照合結果） | 404 |
+| 39 | `GET /versions/{id}/exports` | 版ID | 出力履歴・初回出力（`storage_path` / `content_hash` / 照合結果 `integrity: intact｜modified｜missing`・Build AD-030 ⑱） | 404 |
 
 #### 22 の「引き継ぎ警告の材料」（③3章の警告文と1対1）
 
