@@ -1,0 +1,44 @@
+OpenAPI schema exported to: openapi.json
+
+> training-sprint3-frontend@0.1.0 orval
+> orval
+
+🍻 orval v8.30.0 - A swagger client generator for typescript
+api Cleaning output folder
+🎉 api - Your OpenAPI spec has been converted into ready to use orval!
+
+> training-sprint3-frontend@0.1.0 typecheck
+> tsc --noEmit
+
+
+> training-sprint3-frontend@0.1.0 lint
+> eslint .
+
+
+/home/takahiro/Documents/BC_Sprint3/frontend/orval.t202.config.ts
+  3:1  warning  Assign object to a variable before exporting as module default  import/no-anonymous-default-export
+
+✖ 1 problem (0 errors, 1 warning)
+
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/app/__tests__/providers.test.tsx
+PASS src/features/documents/__tests__/hooks.test.tsx
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx
+PASS src/app/__tests__/screen-theme.test.tsx
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx
+
+Test Suites: 11 passed, 11 total
+Tests:       78 passed, 78 total
+Snapshots:   0 total
+Time:        3.482 s
+Ran all test suites.
+✅ check-fe: frontend green

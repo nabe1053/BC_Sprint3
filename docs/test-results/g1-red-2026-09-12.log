@@ -1,0 +1,459 @@
+
+/tmp/t103-baseline-tests.log
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+FAIL src/features/cases/components/__tests__/CaseListPage.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '../CaseListPage' from 'src/features/cases/components/__tests__/CaseListPage.test.tsx'
+
+      25 | import { CaseListPage } from "@/features/cases/components/CaseListPage";
+      26 |
+    > 27 | const mockedUseCases = useCases as jest.Mock;
+         |                       ^
+      28 | const mockedUseCreateCase = useCreateCase as jest.Mock;
+      29 |
+      30 | const sampleCase = {
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.<anonymous> (src/features/cases/components/__tests__/CaseListPage.test.tsx:27:23)
+
+FAIL src/features/documents/components/__tests__/IntakePage.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '../IntakePage' from 'src/features/documents/components/__tests__/IntakePage.test.tsx'
+
+      27 | import { IntakePage } from "@/features/documents/components/IntakePage";
+      28 |
+    > 29 | const mockedUseDocuments = useDocuments as jest.Mock;
+         |                     ^
+      30 | const mockedUseIntakeDocument = useIntakeDocument as jest.Mock;
+      31 |
+      32 | const CASE_ID = 1;
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.<anonymous> (src/features/documents/components/__tests__/IntakePage.test.tsx:29:21)
+
+FAIL src/features/cases/__tests__/hooks.test.tsx
+  ● useCreateCase › 作成成功後に一覧(useCases)が再取得される（キャッシュ無効化）
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 10
+    + Received  +  1
+
+    - Array [
+    -   Object {
+    -     "caseCode": "S04",
+    -     "caseId": 1,
+    -     "createdAt": "2026-09-01T00:00:00+09:00",
+    -     "customerName": "顧客A",
+    -     "progressStatus": "intake",
+    -     "title": "OCTG 引合",
+    -   },
+    - ]
+    + Array []
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [36m<div />[39m
+        [36m<div />[39m
+      [36m</body>[39m
+    [36m</html>[39m
+
+      92 |
+      93 |     await waitFor(() => expect(mockedListCases).toHaveBeenCalledTimes(2));
+    > 94 |     await waitFor(() => expect(listResult.current.data).toEqual([sampleCase]));
+         |                                                         ^
+      95 |   });
+      96 |
+      97 |   it("重複した照会番号(409 E_DUPLICATE_CASE_CODE)を呼び出し側が判別できる", async () => {
+
+      at toEqual (src/features/cases/__tests__/hooks.test.tsx:94:57)
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+FAIL src/features/documents/__tests__/hooks.test.tsx
+  ● Console
+
+    console.log
+      [DEBUG] onError invalidate start 1789199040752
+
+      at Object.log [as onError] (src/features/documents/hooks.ts:38:17)
+
+    console.log
+      [DEBUG] onError invalidate done 1789199040761
+
+      at log (src/features/documents/hooks.ts:40:19)
+
+  ● useIntakeDocument › 415 E_UNSUPPORTED_FORMAT は details.documentId を持ち、投入の事実が記録されるため一覧が再取得される
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 8
+    + Received  + 1
+
+    - Array [
+    -   Object {
+    -     "documentId": 9,
+    -     "fileName": "note.zip",
+    -     "kind": "unsupported",
+    -     "readStatus": "unsupported",
+    -   },
+    - ]
+    + Array []
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [36m<div />[39m
+        [36m<div />[39m
+      [36m</body>[39m
+    [36m</html>[39m
+
+      155 |
+      156 |     await waitFor(() => expect(mockedListDocuments).toHaveBeenCalledTimes(2));
+    > 157 |     await waitFor(() => expect(listResult.current.data).toEqual([
+          |                                                         ^
+      158 |       { documentId: 9, fileName: "note.zip", kind: "unsupported", readStatus: "unsupported" },
+      159 |     ]));
+      160 |   });
+
+      at toEqual (src/features/documents/__tests__/hooks.test.tsx:157:57)
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+Test Suites: 4 failed, 4 total
+Tests:       2 failed, 11 passed, 13 total
+Snapshots:   0 total
+Time:        2.813 s
+Ran all test suites.
+make: *** [Makefile:77: fe-test] Error 1
+
+/tmp/t103-baseline-types.log
+
+> training-sprint3-frontend@0.1.0 typecheck
+> tsc --noEmit
+
+src/features/cases/api.ts(21,3): error TS2322: Type 'CaseResponse | ErrorResponse | HTTPValidationError' is not assignable to type 'CaseResponse'.
+  Type 'ErrorResponse' is missing the following properties from type 'CaseResponse': caseId, caseCode, customerName, title, createdAt
+src/features/cases/components/__tests__/CaseListPage.test.tsx(25,30): error TS2307: Cannot find module '@/features/cases/components/CaseListPage' or its corresponding type declarations.
+src/features/cases/components/__tests__/CaseListPage.test.tsx(84,34): error TS2739: Type 'Error' is missing the following properties from type 'ApiError': status, code
+src/features/documents/api.ts(14,24): error TS2339: Property 'documents' does not exist on type 'ErrorResponse | HTTPValidationError | DocumentsListResponse'.
+  Property 'documents' does not exist on type 'ErrorResponse'.
+src/features/documents/api.ts(22,3): error TS2322: Type 'ErrorResponse | HTTPValidationError | DocumentIntakeResponse' is not assignable to type 'DocumentIntakeResponse'.
+  Type 'ErrorResponse' is missing the following properties from type 'DocumentIntakeResponse': documentId, readStatus
+src/features/documents/components/__tests__/IntakePage.test.tsx(27,28): error TS2307: Cannot find module '@/features/documents/components/IntakePage' or its corresponding type declarations.
+src/features/documents/components/__tests__/IntakePage.test.tsx(92,38): error TS2739: Type 'Error' is missing the following properties from type 'ApiError': status, code
+src/features/documents/components/__tests__/IntakePage.test.tsx(114,11): error TS2322: Type 'string' is not assignable to type 'DocumentSummaryReadStatus'.
+make: *** [Makefile:71: fe-type] Error 1
+
+/tmp/t103-provider-red.log
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/features/documents/__tests__/api.test.ts
+FAIL src/features/documents/components/__tests__/IntakePage.test.tsx
+  ● Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module @/features/cases mapped as:
+    /home/takahiro/Documents/BC_Sprint3/frontend/src/$1.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^@\/(.*)$/": "/home/takahiro/Documents/BC_Sprint3/frontend/src/$1"
+      },
+      "resolver": undefined
+    }
+
+      22 | import { renderWithProviders } from "@/shared/testing/test-utils";
+      23 |
+    > 24 | jest.mock("@/features/cases", () => ({ CaseMetadata: () => <div data-testid="case-metadata" /> }));
+         |      ^
+      25 |
+      26 | jest.mock("@/features/documents/hooks", () => ({
+      27 |   useDocuments: jest.fn(),
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.mock (src/features/documents/components/__tests__/IntakePage.test.tsx:24:6)
+
+FAIL src/features/cases/components/__tests__/CaseListPage.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '../CaseListPage' from 'src/features/cases/components/__tests__/CaseListPage.test.tsx'
+
+      32 | const mockedUseCases = useCases as jest.Mock;
+      33 | const mockedUseCreateCase = useCreateCase as jest.Mock;
+    > 34 |
+         | ^
+      35 | const sampleCase = {
+      36 |   caseId: 1,
+      37 |   caseCode: "S04",
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.<anonymous> (src/features/cases/components/__tests__/CaseListPage.test.tsx:34:23)
+
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/features/documents/__tests__/hooks.test.tsx
+FAIL src/app/__tests__/providers.test.tsx
+  ● 本番Providersの記録系POSTは自動再送しない（415でも1回）
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: 1
+
+      14 |   render(<Providers><Probe /></Providers>);
+      15 |   expect(screen.getByText("ready")).toBeInTheDocument();
+    > 16 |   expect(client.getDefaultOptions().mutations?.retry).toBe(false);
+         |                                                       ^
+      17 |   const post = jest.fn().mockRejectedValue(new ApiError(415, { code: "E_UNSUPPORTED_FORMAT" }));
+      18 |   const mutation = client.getMutationCache().build(client, { mutationFn: post });
+      19 |   await expect(mutation.execute(undefined)).rejects.toBeInstanceOf(ApiError);
+
+      at Object.toBe (src/app/__tests__/providers.test.tsx:16:55)
+
+Test Suites: 3 failed, 5 passed, 8 total
+Tests:       1 failed, 33 passed, 34 total
+Snapshots:   0 total
+Time:        3.211 s
+Ran all test suites.
+make: *** [Makefile:77: fe-test] Error 1
+
+/tmp/t103-components-red.log
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/features/cases/__tests__/api.test.ts
+FAIL src/app/__tests__/case-routes.test.tsx
+  ● Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module @/features/cases mapped as:
+    /home/takahiro/Documents/BC_Sprint3/frontend/src/$1.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^@\/(.*)$/": "/home/takahiro/Documents/BC_Sprint3/frontend/src/$1"
+      },
+      "resolver": undefined
+    }
+
+       6 | import { screen } from "@testing-library/react";
+       7 | jest.mock("next/navigation", () => ({ redirect: jest.fn(), notFound: jest.fn(() => { throw new Error("not found"); }) }));
+    >  8 | jest.mock("@/features/cases", () => ({ CaseListPage: () => <div>cases view</div> }));
+         |      ^
+       9 | jest.mock("@/features/documents", () => ({ IntakePage: ({ caseId }: { caseId: number }) => <div>case {caseId}</div> }));
+      10 | it("トップはcasesへリダイレクトする", () => { Home(); expect(redirect).toHaveBeenCalledWith("/cases"); });
+      11 | it("案件一覧は公開featureを表示する", () => { renderWithProviders(<Cases />); expect(screen.getByText("cases view")).toBeInTheDocument(); });
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.mock (src/app/__tests__/case-routes.test.tsx:8:6)
+
+FAIL src/features/documents/components/__tests__/IntakePage.test.tsx
+  ● Test suite failed to run
+
+    Configuration error:
+
+    Could not locate module @/features/cases mapped as:
+    /home/takahiro/Documents/BC_Sprint3/frontend/src/$1.
+
+    Please check your configuration for these entries:
+    {
+      "moduleNameMapper": {
+        "/^@\/(.*)$/": "/home/takahiro/Documents/BC_Sprint3/frontend/src/$1"
+      },
+      "resolver": undefined
+    }
+
+      22 | import { renderWithProviders } from "@/shared/testing/test-utils";
+      23 |
+    > 24 | jest.mock("@/features/cases", () => ({ CaseMetadata: () => <div data-testid="case-metadata" /> }));
+         |      ^
+      25 |
+      26 | jest.mock("@/features/documents/hooks", () => ({
+      27 |   useDocuments: jest.fn(),
+
+      at createNoMappedModuleFoundError (node_modules/jest-resolve/build/resolver.js:759:17)
+      at Object.mock (src/features/documents/components/__tests__/IntakePage.test.tsx:24:6)
+
+FAIL src/features/cases/components/__tests__/CaseMetadata.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '../CaseMetadata' from 'src/features/cases/components/__tests__/CaseMetadata.test.tsx'
+
+      10 |   renderWithProviders(<CaseMetadata caseId={8} />);
+      11 |   expect(mockUseCase).toHaveBeenCalledWith(8);
+    > 12 |   for (const value of ["REAL", "Buyer", "Inquiry"]) expect(screen.getByText(value)).toBeInTheDocument();
+         |                       ^
+      13 |   expect(screen.getAllByText("—")).toHaveLength(3);
+      14 |   expect(screen.getByText(/納期・納地・見積期限は/)).toBeInTheDocument();
+      15 | });
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.<anonymous> (src/features/cases/components/__tests__/CaseMetadata.test.tsx:12:23)
+
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/shared/api/__tests__/unwrap.test.ts
+FAIL src/features/cases/components/__tests__/CaseListPage.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '../CaseListPage' from 'src/features/cases/components/__tests__/CaseListPage.test.tsx'
+
+      32 | const mockedUseCases = useCases as jest.Mock;
+      33 | const mockedUseCreateCase = useCreateCase as jest.Mock;
+    > 34 |
+         | ^
+      35 | const sampleCase = {
+      36 |   caseId: 1,
+      37 |   caseCode: "S04",
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.<anonymous> (src/features/cases/components/__tests__/CaseListPage.test.tsx:34:23)
+
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/features/documents/__tests__/hooks.test.tsx
+FAIL src/app/__tests__/providers.test.tsx
+  ● 本番Providersの記録系POSTは自動再送しない（415でも1回）
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: false
+    Received: 1
+
+      14 |   render(<Providers><Probe /></Providers>);
+      15 |   expect(screen.getByText("ready")).toBeInTheDocument();
+    > 16 |   expect(client.getDefaultOptions().mutations?.retry).toBe(false);
+         |                                                       ^
+      17 |   const post = jest.fn().mockRejectedValue(new ApiError(415, { code: "E_UNSUPPORTED_FORMAT" }));
+      18 |   const mutation = client.getMutationCache().build(client, { mutationFn: post });
+      19 |   await expect(mutation.execute(undefined)).rejects.toBeInstanceOf(ApiError);
+
+      at Object.toBe (src/app/__tests__/providers.test.tsx:16:55)
+
+Test Suites: 5 failed, 5 passed, 10 total
+Tests:       1 failed, 33 passed, 34 total
+Snapshots:   0 total
+Time:        3.409 s
+Ran all test suites.
+make: *** [Makefile:77: fe-test] Error 1
+
+/tmp/t103-theme-red.log
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/features/documents/__tests__/hooks.test.tsx
+PASS src/app/__tests__/providers.test.tsx
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx
+FAIL src/app/__tests__/screen-theme.test.tsx
+  ● 本番テーマでcasesの表を描画できる（color-mixも維持）
+
+    MUI: Unsupported `color-mix(in srgb,#1d1f20 16%,transparent)` color.
+    The following formats are supported: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla(), color().
+
+      19 | }));
+      20 | it.each(["cases", "intake"])("本番テーマで%sの表を描画できる（color-mixも維持）", view => {
+    > 21 |   render(<Providers>{view === "cases" ? <CaseListPage /> : <IntakePage caseId={1} />}</Providers>);
+         |         ^
+      22 |   expect(screen.getByRole("table")).toBeInTheDocument();
+      23 |   expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+      24 | });
+
+      at decomposeColor (node_modules/@mui/system/colorManipulator.js:84:11)
+      at alpha (node_modules/@mui/system/colorManipulator.js:249:11)
+      at node_modules/@mui/material/node/TableCell/TableCell.js:58:99
+      at processStyleArg (node_modules/@mui/system/createStyled.js:73:67)
+      at node_modules/@mui/system/createStyled.js:187:18
+      at handleInterpolation (node_modules/@emotion/serialize/dist/emotion-serialize.cjs.js:119:24)
+      at Object.serializeStyles (node_modules/@emotion/serialize/dist/emotion-serialize.cjs.js:219:15)
+      at node_modules/@emotion/styled/base/dist/emotion-styled-base.browser.cjs.js:141:34
+      at MuiTableCell-root (node_modules/@emotion/react/dist/emotion-element-25f9958c.browser.cjs.js:57:12)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateForwardRef (node_modules/react-dom/cjs/react-dom-client.development.js:10123:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12536:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at src/app/__tests__/screen-theme.test.tsx:21:9
+
+  ● 本番テーマでintakeの表を描画できる（color-mixも維持）
+
+    MUI: Unsupported `color-mix(in srgb,#1d1f20 16%,transparent)` color.
+    The following formats are supported: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla(), color().
+
+      19 | }));
+      20 | it.each(["cases", "intake"])("本番テーマで%sの表を描画できる（color-mixも維持）", view => {
+    > 21 |   render(<Providers>{view === "cases" ? <CaseListPage /> : <IntakePage caseId={1} />}</Providers>);
+         |         ^
+      22 |   expect(screen.getByRole("table")).toBeInTheDocument();
+      23 |   expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
+      24 | });
+
+      at decomposeColor (node_modules/@mui/system/colorManipulator.js:84:11)
+      at alpha (node_modules/@mui/system/colorManipulator.js:249:11)
+      at node_modules/@mui/material/node/TableCell/TableCell.js:58:99
+      at processStyleArg (node_modules/@mui/system/createStyled.js:73:67)
+      at node_modules/@mui/system/createStyled.js:187:18
+      at handleInterpolation (node_modules/@emotion/serialize/dist/emotion-serialize.cjs.js:119:24)
+      at Object.serializeStyles (node_modules/@emotion/serialize/dist/emotion-serialize.cjs.js:219:15)
+      at node_modules/@emotion/styled/base/dist/emotion-styled-base.browser.cjs.js:141:34
+      at MuiTableCell-root (node_modules/@emotion/react/dist/emotion-element-25f9958c.browser.cjs.js:57:12)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateForwardRef (node_modules/react-dom/cjs/react-dom-client.development.js:10123:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12536:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at src/app/__tests__/screen-theme.test.tsx:21:9
+
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx
+
+Test Suites: 1 failed, 10 passed, 11 total
+Tests:       2 failed, 74 passed, 76 total
+Snapshots:   0 total
+Time:        3.465 s
+Ran all test suites.
+make: *** [Makefile:77: fe-test] Error 1

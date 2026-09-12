@@ -56,6 +56,13 @@
   不一致を作らない / 影響範囲: G3 で #1 を `versions` から拡張（T-302）し「案件を開く→SCR-03」を追加（T-303）。
   03-spec SCR-01 と 05-api-ipo #1 に暫定注記を書き戻し済み。TODO-008 は解消。
 
+- [AD-014] **スライス区切りの研修者確認を省き、orchestrator が自律で回す**（2026-09-12 研修者決定）。自動で進める範囲:
+  reviewer 起動 → 指摘の指示書化（CODEX-INSTRUCTIONS §7）→ 再レビュー → DONE 判定 → `make check` → commit → 次スライスの指示。
+  **必ず確認する**: 設計判断（AD 級の仕様選択）・破壊的操作（削除 / reset / migration 巻き戻し）・外部 LLM 送信（D05）・スコープ変更・BLOCKED 化。
+  Codex への伝達は**案 B（常駐ループ）**: Codex は `docs/reviews/CODEX-INSTRUCTIONS.md` §7 を読んでタスクを完了 → handoff に再レビュー依頼 →
+  §7 の更新時刻が変わるまで待って再読、を繰り返す（指示文は同 §0）。Claude は handoff を監視して §7 を更新する。
+  理由: 毎スライスで研修者の判断を仰ぐと実装が進まない / 影響範囲: CLAUDE.md 憲法7 を改定。
+
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
@@ -102,13 +109,18 @@
   チケットが閉じると意味を失い、次スライスの置き場が決まらなくなる。配置の正は
   `docs/reviews/CODEX-INSTRUCTIONS.md` §3 の表（agent/ui/common + `dependencies.py`）。
 
+- [CV-018] **テスト用 Provider と本番 Provider で既定値が分岐する設定（retry・staleTime 等）は、本番 Provider を直接レンダリングするテストで固定する。**
+  T-103 RV-019 P1-3（mutation retry）は「テスト用 QueryClient では原理的に検出できない欠陥」だった。
+- [CV-019] **API 由来の内部識別子（`details.limit` 等）を画面にそのまま出さない。**i18n のラベル＋単位に写し、識別子が出ないことを否定 assert で固定する
+  （T-103 RV-019 P1-2 とその変異テストが型）。未知値のときも API の `code` で分岐し、記録の有無（AD-005）と矛盾する案内を出さない（RV-024 P2-1）。
+
 ## 3. 実装バックログ（プラン状態＝ループの制御表）
 
 | ID | スライス | 種別 | 依存 | Status | レビュー | 最終更新 |
 |----|---------|------|------|--------|---------|---------|
 | T-101 | G1 案件・資料の保存と読取処理（BE） | web | - | DONE | 3回+確認 | 2026-09-12 |
 | T-102 | G1 案件・資料 API #1-10（API） | web | T-101 | DONE | 2回+確認 | 2026-09-12 |
-| T-103 | G1 SCR-01 案件一覧 / SCR-02 資料投入（FE） | web | T-102 | FIXING | 1回目 RV-019: P1 5 / P2 8 / P3 5（途中段階。components/pages 未作成） | 2026-09-12 |
+| T-103 | G1 SCR-01 案件一覧 / SCR-02 資料投入（FE） | web | T-102 | DONE | 3回目 RV-025: **DONE**（新規指摘なし。P3-4/6 は記録のみ・TODO-011） | 2026-09-12 |
 | T-201 | G2 成果物の保存＋完了条件の機械判定（BE） | web | T-101 | DONE | 7回目 RV-023: **DONE**（P3 4 は記録のみ・TODO-010） | 2026-09-12 |
 | T-202 | G2 エージェント書込 API #15-21 / 起動・監視 #12-14（API・jobs 経由） | web | T-201 | DONE | 5回目 RV-018: **DONE 可**（P3 6 は記録のみ） | 2026-09-12 |
 | C-1 | チケット名ファイルの正規配置への移動（振る舞い不変） | chore | T-202 | PLANNED | - | 2026-09-12 |
@@ -226,6 +238,21 @@
   ゲート順序が崩れる（`.NOTPARALLEL:` 推奨）/ `INDEX_TEST_URL`（パスワード入り）がグローバル export / `export` が `TEST_DB :=` 定義より前 /
   script を make 外から叩くと KeyError → TODO-010。実測 404 passed。
 
+- [RV-024] T-103 2回目（Codex 修正＋未完成9件実装 → 同一 reviewer 独立確認・2026-09-12）: **DONE 可（条件付き）**。P1 0 / P2 2 / P3 6。
+  RV-019 の P1 5・P2 8・P3 5 を全件クローズ、未完成 9 件も実装済み。413 の 4 値を hooks / 実 HTTP 境界 / 画面の 3 層で固定、本番 Providers を
+  直接レンダリングして retry=false と 415 の単発 POST を検証、AD-013 準拠（両列「—」・「投入画面へ」のみ・`openButton` 不在の否定テスト）。
+  clean-architecture / design-guidelines のチェックリスト全項目 OK、モック #SCR-01/#SCR-02 と構成一致（スクリーンショット確認）。
+  Codex が本番テーマの起動不具合（oklch の contrastText / divider の color-mix を MUI JS 演算に渡す）を自ら検出し `mui-color.ts` で同値変換
+  （新しいデザイン判断ではない）。実測 typecheck 0 / lint 0 errors / jest 77 passed / design-lint 0。
+  P2-1: 未知の `limit` 値のとき 413 でも汎用文言「一覧で記録を確認」を出し、記録が残らない AD-005 と矛盾 → **DONE 条件として修正**。
+  P2-2: 上限の実数値が `ja.json` にハードコード（真実源は `config.py`）→ TODO-001 に併記。P3: 死にキー `caseCodeRequired` / `notAvailable` 二重定義 /
+  利用者文言に「G3」露出 / `E_UNEXPECTED_RESPONSE` が 05 §6 外 / ノーアサート行 / 素の file input（英語 UI 露出）。
+  03-spec SCR-02 にモック→実装の対応注記を orchestrator が書き戻し済み。
+
+- [RV-025] T-103 3回目（Codex 短ラウンド → 同一 reviewer 独立確認・2026-09-12）: **DONE 可**。新規指摘なし。RV-024 P2-1（`E_LIMIT_EXCEEDED` の判定を
+  details 解釈と分離、未知 `limit` でも見出し＋「記録は残っていない」hint、`unknown_kind` 非露出のテスト追加）と P3-1/2/3/5 をクローズ。
+  既存テスト変更は文言更新1件・検査強化1件のみ、総件数 77→78 の純増。実測 typecheck 0 / lint 0 errors / jest 78 passed / design-lint 0。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -302,6 +329,9 @@
 - [LN-029] **LN-018 の適用範囲は「revision ID / down_revision / upgrade の内容」。**未実行の `downgrade()` の訂正は適用済み DB との整合を壊さないので対象外。
 - [LN-030] **設計書への追記は「実装の語彙一覧」（管理イベント名・stage_detail 固定コード・observation.code）と1対1で列挙する。**レビューが grep 照合で済む。
 
+- [LN-031] **MUI v5 の `palette` に渡す色は JS 色演算の対象になる。**`oklch()` / `color-mix()` をそのまま渡すと起動時例外。CSS で使うトークン値と
+  MUI の JS に渡す値の変換境界を 1 関数（`shared/theme/mui-color.ts`）に閉じ、同値性をテストで固定する（T-103）。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
@@ -315,7 +345,11 @@
 - [TODO-010] **T-201 の記録のみ P3（RV-023）**: Makefile に `.NOTPARALLEL:`（`-j` 継承でゲート順序が崩れる）/ `INDEX_TEST_URL` を target-specific export に /
   `export` 行を `TEST_DB :=` の後ろへ / `check_t201_postgres.py` を make 外から叩いたときの KeyError を案内メッセージに / 同一索引の定義が
   t201_artifacts と add_run_step_locator_index の2リビジョンにある事実（意図的・LN-025）。C-1 と同時に整理。
+- [TODO-011] **T-103 の記録のみ P3（RV-024）**: ①`shared/api/unwrap.ts` の `E_UNEXPECTED_RESPONSE` は 05-api-ipo §6 のコード一覧外（クライアント合成コード）。
+  05 §6 に「クライアント合成コード」節を設けるか接頭辞で区別する（orchestrator 判断）②SCR-02 のファイル選択が素の `<input type="file">` で
+  ブラウザ既定の英語 UI が出る → T-204 の SCR-02 改修と同時に `Button component="label"` 化。
 - [TODO-001] D02（入力上限）は AD-003 の**仮値**。初版受入（X09 の上限試験）の前に研修者が実値を確定する。
+  **確定時は `backend/app/core/config.py` と `frontend/src/shared/i18n/ja.json` の上限注記の両方を直す**（RV-024 P2-2。API が上限を返さないため画面側に複製がある）。
 - [TODO-002] **eml には `document_pages` が無い**ため、04-db.md の完了条件の機械判定
   （`document_pages` − `document_issues` を `(document_id, locator)` で差し引く）が eml に適用できない。
   `email_parts` の `part_role`/`seq` 単位で判定するのか、設計側の方針を **T-201（完了条件の機械判定）の前に**決める。

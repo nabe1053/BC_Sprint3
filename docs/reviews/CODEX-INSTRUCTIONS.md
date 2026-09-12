@@ -20,6 +20,23 @@
 
 ---
 
+## 0b. 常駐ループ（2026-09-12 研修者決定・memory AD-014 案 B）
+
+Codex はこのループで動く。研修者の中継を待たない。
+
+```
+1. 本ファイル §7「次にやること」を読む（見出しの更新時刻を控える）
+2. §7 の最優先タスクを1つ実施する（WIP=1。§7 に無いことはしない）
+3. `make check`（BE のみなら check-be / FE のみなら check-fe）green と handoff の
+   「レビュー対応」表・「再レビュー依頼」を書いて止まる（commit はしない）
+4. §7 の見出しの更新時刻が変わるまで待つ（例: 60 秒ごとに `head -n 140 docs/reviews/CODEX-INSTRUCTIONS.md | grep '^## 7'`）。
+   変わったら 1 へ戻る。§7 に「停止」と書かれていたら終了する
+```
+
+Claude（orchestrator）は handoff を監視し、レビュー結果を §7 に書いて更新時刻を変える。
+§7 の更新前に次のタスクを推測して着手しない。研修者確認が要る判断（設計・破壊的操作・D05）は
+§7 に「研修者確認待ち」と書かれるので、その間は待つ。
+
 ## 1. 品質ゲートは `make check`（2026-09-12 新設）
 
 **リポジトリ直下の `Makefile` が検証の単一入口。**個別コマンドを手で組み立てない。
@@ -130,67 +147,29 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-12 15:40・T-203 1回目 / T-201 6回目レビュー後に更新）
+## 7. 次にやること（2026-09-12 18:05・T-103 2回目レビュー後・常駐ループ開始）
 
-再レビュー結果（Claude reviewer 2体・独立実行。詳細と orchestrator の判断は
-**`docs/reviews/g2-review-2026-09-12-2.md`** — 着手前に全文を読む）:
+- **T-201 / T-202 / T-203 → DONE**（commit `7eeddea`）。触らない
+- **T-103 → DONE 可（条件付き）**（memory RV-024。P1 0 / P2 2 / P3 6。RV-019 は全件クローズ）。
+  **下記タスク G の短ラウンドを直して再レビュー依頼 → DONE**。修正はいずれも小さい。WIP=1 のまま
 
-- **T-203 → DONE 不可**（P1 1 / P2 5 / P3 6）。memory RV-020
-- **T-201 → DONE 可（条件付き）**（P2 1 / P3 5）。memory RV-021。条件 = 下記タスク B
-- **T-202 → DONE**（RV-018）。触らない
+### タスク G: T-103 RV-024 の短ラウンド（DONE 条件）
 
-**今回のラウンドで A → B → C を1サイクルで直し、`make check-be` green を貼って再レビュー依頼する。**
-全体回帰の保留は解除済み（研修者承認・t203-handoff 冒頭）。`DEBUG=false make check-be` を最終差分で必ず実行する。
+1. **P2-1（必須）** `features/documents/components/IntakePage.tsx:184-192`: `error.code === "E_LIMIT_EXCEEDED"` なら `details.limit` が
+   未知でも `limitExceeded.title` ＋「今回の投入記録は残っていません」系の hint を出す（AD-005: 413 は記録が残らない）。現状は汎用文言
+   「一覧を再読み込みして記録を確認」に落ちて誤誘導。RED: 未知 `limit`（例 `"unknown_kind"`）のテスト1本を先に書く
+2. **P2-2** コード修正不要。`ja.json` の上限実数値は TODO-001 に併記済み（Claude 対応済み）
+3. **P3（安いので同時に）**: P3-1 死にキー `cases.newCaseDialog.caseCodeRequired` 削除 / P3-2 `common.notAvailable` と `cases.notAvailable` を
+   1つに / P3-3 `cases.list.versionNote` の「G3 以降」を利用者向け文言（「案の作成後に表示します」等）に / P3-5 `documents/__tests__/api.test.ts:55`
+   の `expect(ApiError).toBeDefined()` を `rejects.toBeInstanceOf(ApiError)` に
+4. **P3-4 / P3-6 は記録のみ**（`E_UNEXPECTED_RESPONSE` の扱いは Claude が 05 §6 に「クライアント合成コード」を書くか判断 / file input の
+   見た目は T-204 の SCR-02 改修と同時に）
+5. 完了条件: `DEBUG=false CI=true make check-fe` green ＋ design-lint 0 ＋ `docs/t103-handoff.md` 冒頭に RV-024 対応表 ＋「再レビュー依頼」
 
-### タスク A: T-203 RV-020 の修正（最優先）
-
-1. **P1 — URL ガードレールの過剰遮断（`app/agent/hooks.py:69`）**: コードを直す。agent-plan AE06 は変えない。
-   - URL 検査は「取得・送信の意図を持つ引数」（読取系ツールのスカラ引数）に限定する。
-     記録系ツールの原文フィールド（`quote` / `excerpt` / `reason` / `*_raw`）は検査対象から外す
-   - RED: 原文に `https://…` を含む `record_question` / `record_evidence` / `record_source_inventory` が
-     **成功**する単体テストを書き、現コードで失敗を確認してから直す
-   - ミニ評価にシナリオ `ae06_url_in_source` を追加（原文中に URL 指示がある資料 → `completed`、
-     確認事項に当該記述が残る、外部取得の呼出しがトレースに無い）
-   - 未登録ツール拒否と外部 URL 拒否を区別する固定コード（`E_TOOL_NOT_REGISTERED` /
-     `E_EXTERNAL_LINK_BLOCKED`）を `observation.code` に載せる（P3-2 を同時に閉じる）
-2. **P2-1 / P2-2 — 設計書追記で閉じる（実装変更なし）**: agent-plan.md「T-203 ローカル実行の具体化」節に
-   停止理由の内訳 `tool_rejected` と管理イベント `guardrail_denied` を明記。04-db.md §3.2 補足の一覧に
-   `tool_rejected` / `local_dummy_unsupported` / `validation_unresolved` と `guardrail_denied` を追記。
-   追記した行を handoff に引用する
-3. **P2-3 — `stage_detail` を `資料 n/N` の材料にする**（`agent_tool_repository.py:281-282`）:
-   読取段階は `{"documentsRead": x, "documentsTotal": N}` 相当（`list_case_documents` の件数と
-   `read_*` の進捗から算出）。固定診断コードとの混在をやめる形を handoff で説明。T-204 が直接依存する
-4. **P2-4 — 旧 `app/agent/trace.py`（`TraceRecorder`）を削除**。**削除は本指示で承認済み**。
-   `tools.py` の `digest_args` 二重定義も解消。参照 0 を `grep` で確認して handoff に貼る
-5. **P2-5 は記録のみ**（既定ダミー方針では同一違反3回ループに到達しない）。handoff「残件」に
-   「実モデル接続時に方針側へ自己修復ループを実装」と明記
-6. P3-1（`ping` / `SYSTEM_PROMPT` / `build_hooks` の未使用にコメント）・P3-3（`CANCEL_CLEANUP_S` と
-   `CANCEL_GRACE_S` の二重定数）・P3-5（hook に `HookContext` を渡す）は安いので同時に閉じる。
-   P3-4（`read_email` の `email:*` 全走査）は要確認として記録のみ
-
-### タスク B: T-201 RV-021 の条件（Makefile 1行）
-
-- `check-be` の依存に `check-run-step-index` を追加する（`Makefile:30` 付近）。理由は RV-021 P2
-  （`create_all` の conftest では migration 差分を検出できず、自動で守るものがゼロ）。
-- できれば `tests/integration/` にテスト DB の `pg_indexes` を読むテストを1本（`be-test` に入る）。
-- P3-1（`add_run_step_locator_index.py` の downgrade を `pass`＋所有者コメントに）・P3-4（接続先の
-  直書きを Makefile の変数から渡す）は同時に閉じてよい。P3-2/3/5 は記録のみ。
-- これを直した時点で **T-201 は DONE**（Claude が memory を更新する）。
-
-### タスク C: 再レビュー依頼の書き方
-
-- `docs/t203-handoff.md` / `docs/t201-handoff.md` の冒頭に「レビュー対応（RV-020 / RV-021）」表:
-  指摘番号 / 変更ファイル:行 / RED を確認した検査・コマンド・件数 / 変異内容1行（LN-009）
-- 最終差分で `DEBUG=false make check-be` と `DEBUG=false make agent-eval`（14 ケース: 既存 13 + ae06）の
-  実出力を貼る。範囲を切った実行を「検証した」と呼ばない（CV-016）
-- 末尾に「再レビュー依頼」と希望 Status を書いて**止まる**。T-204・C-1・G3 には進まない
-
-### タスク C-1 / D / E（T-203 完了後）
-
-- C-1（チケット名ファイルの正規配置への移動・§3）は T-203 DONE 後に着手。`dependencies_t202.py` /
-  `routes_t202.py` / `tests/t201` `tests/t202` / `check_t201_postgres.py` / `orval.t202.config.ts` /
-  `tsconfig.t202.json` が対象（CV-017）。振る舞い不変・`make check` green のまま
-- T-204（ポーリング UI）は T-203 DONE ＋ Claude の指示後。T-103 との先後は Claude が決める
+### T-103 の後
+- C-1（チケット名ファイルの正規配置移動。対象: `dependencies_t202.py` / `routes_t202.py` / `tests/t201` `tests/t202` / `check_t201_postgres.py` /
+  `orval.t202.config.ts` / `tsconfig.t202.json`。振る舞い不変・`make check` green）→ T-204（事前整理 `docs/t204-handoff.md`。着手は Claude の指示待ち）
+- G3 以降には進まない（AD-011）
 
 ### タスク F: T-103（G1 FE）の指摘修正 — 指示書は `docs/t103-instructions.md`
 

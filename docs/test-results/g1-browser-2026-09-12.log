@@ -1,0 +1,4 @@
+console: Failed to load resource: the server responded with a status of 415 (Unsupported Media Type)
+console: Failed to load resource: the server responded with a status of 413 (Payload Too Large)
+PASS: root redirect / case POST201 -> intake / duplicate uploads -> 2 rows / partial labels / 415 records once / 413 translated units / 1 h1 / mobile no overflow / no pageerror
+HTTP responses are isolated browser fixtures; no real DB writes. Screenshots: /tmp/t103-{cases-desktop,intake-desktop,intake-mobile}.png

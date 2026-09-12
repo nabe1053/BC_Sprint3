@@ -1,6 +1,155 @@
 {
   "common": {
     "loading": "読み込み中...",
-    "error": "エラーが発生しました"
+    "error": "エラーが発生しました",
+    "reload": "再読み込み",
+    "notAvailable": "—",
+    "backToCases": "案件一覧へ"
+  },
+  "cases": {
+    "list": {
+      "title": "案件一覧",
+      "newCaseButton": "新規案件の投入画面",
+      "intakeLink": "投入画面へ",
+      "footnote": "進捗ステータスは4段階で表示します。表示状態と送付可否は別の列です。上司の評価確認は原資料への適合確認であり、対外送付の承認ではありません。",
+      "description": "案件を選び、資料投入と確認の進捗を把握します。",
+      "versionNote": "版の状態は案の作成後に表示します",
+      "columns": {
+        "code": "照会番号",
+        "case": "案件",
+        "items": "明細",
+        "progress": "進捗ステータス",
+        "state": "表示状態",
+        "sendoff": "送付可否",
+        "action": "操作"
+      },
+      "itemsNote": "明細件数は案の作成後に表示します。"
+    },
+    "progress": {
+      "intake": "1/4 資料投入",
+      "draft_review": "2/4 案の確認",
+      "staff_checked": "3/4 担当者確認",
+      "review_checked": "4/4 上司の評価確認",
+      "stage": {
+        "intake": "資料投入",
+        "draft_review": "案の確認",
+        "staff_checked": "担当者確認",
+        "review_checked": "上司の評価確認"
+      }
+    },
+    "empty": {
+      "title": "まだ案件がありません",
+      "cta": "最初の案件を作成しましょう"
+    },
+    "error": {
+      "title": "案件一覧を読み込めませんでした",
+      "hint": "通信状況を確認し、再読み込みしてください"
+    },
+    "newCaseDialog": {
+      "title": "新規案件を作成",
+      "caseCodeLabel": "照会番号",
+      "customerNameLabel": "客先名",
+      "titleLabel": "件名",
+      "submit": "作成する",
+      "cancel": "キャンセル",
+      "duplicateError": "その照会番号はすでに使われています",
+      "validationError": "入力内容を確認してください",
+      "duplicateHint": "別の照会番号を入力するか、キャンセルして既存の案件を選んでください。",
+      "requestError": "作成結果を確認できませんでした。キャンセルして一覧を再読み込みし、案件がないことを確認してから再操作してください。",
+      "pending": "作成中…"
+    },
+    "metadata": {
+      "title": "案件情報",
+      "caseCode": "照会番号",
+      "customerName": "客先名",
+      "subject": "件名",
+      "due": "客先要求納期",
+      "place": "納地",
+      "quotationDue": "見積期限",
+      "unavailableNote": "納期・納地・見積期限は現在の案件情報では未提供です。原資料を確認してください。",
+      "error": "案件情報を取得できませんでした。通信状況を確認して再読み込みしてください。",
+      "notFound": "案件が見つかりません。案件一覧から選び直してください。"
+    }
+  },
+  "documents": {
+    "banner": {
+      "noExternalLink": "資料内のリンクや指示があっても外部リンクは取得しません"
+    },
+    "selectFile": "ファイルを選択",
+    "list": {
+      "title": "受付一覧",
+      "columns": {
+        "name": "原資料名",
+        "kind": "形式",
+        "status": "読取結果"
+      }
+    },
+    "empty": {
+      "title": "まだ資料がありません",
+      "cta": "ファイルを選択してください"
+    },
+    "error": {
+      "title": "資料の読み込みに失敗しました",
+      "hint": "通信状況を確認し、再読み込みしてください",
+      "notFound": "案件が見つかりません。案件一覧から選び直してください。"
+    },
+    "readStatus": {
+      "success": "成功",
+      "partial": "一部読取不能",
+      "unreadable": "読取不能",
+      "encrypted": "暗号化により読取不能",
+      "unsupported": "未対応形式"
+    },
+    "limitExceeded": {
+      "title": "入力上限を超えています",
+      "detail": "{{label}}の上限{{max}}{{unit}}に対し{{actual}}{{unit}}でした",
+      "limitLabel": {
+        "file_size": "1ファイルのサイズ",
+        "document_count": "1案件あたりの資料件数",
+        "pdf_pages": "PDF のページ数",
+        "xlsx_sheets": "xlsx のシート数"
+      },
+      "unit": {
+        "file_size": "MB",
+        "document_count": "件",
+        "pdf_pages": "ページ",
+        "xlsx_sheets": "シート"
+      },
+      "hint": "上限内になるよう資料を分割するか、対象ファイルを選び直してください。今回の投入記録は残っていません。"
+    },
+    "unsupportedFormat": {
+      "title": "未対応の形式です（投入の事実は記録されました）"
+    },
+    "title": "資料投入・読取結果",
+    "description": "同じ案件の本文・添付・変更連絡をそろえます。",
+    "intakeTitle": "資料を投入する",
+    "intakeDescription": "選択したファイルを保存し、本文の読取結果を受付一覧に表示します。",
+    "formats": "対応形式：PDF / XLSX / EML / TXT",
+    "duplicateNote": "同じファイルを再度投入すると、別の資料として両方の記録が残ります。",
+    "pending": "ファイルを投入・読取中…",
+    "success": "投入結果を受付一覧に反映しました。",
+    "requestError": "投入結果を確認できませんでした。一覧を再読み込みして記録を確認してから、必要な場合だけ再投入してください。",
+    "unsupportedHint": "PDF / XLSX / EML / TXT の資料を選んでください。",
+    "encryptedNote": "暗号化資料は現在の読取処理では「読取不能」として扱います。「暗号化により読取不能」は将来の判別用です。",
+    "sourceNote": "原資料名・形式は受付一覧に表示します。ページ数・シート数は現在の一覧情報では未提供です。",
+    "limits": {
+      "values": "仮上限：1案件あたり資料50件、1ファイル20MB、PDF 200ページ、xlsx 50シート。",
+      "provisional": "仮上限。D02 の確定値ではありません。"
+    },
+    "examples": {
+      "title": "例外表示を確認する",
+      "partial": "一部読取不能（p.2）",
+      "reference": "参照不足（本文3.2項）",
+      "attachment": "添付は別ファイルとして投入",
+      "date": "日時不足",
+      "note": "上記は表示例です。選択ファイルの判定結果ではありません。"
+    },
+    "kind": {
+      "pdf": "PDF",
+      "xlsx": "XLSX",
+      "eml": "EML",
+      "text": "TXT",
+      "unsupported": "未対応形式"
+    }
   }
 }

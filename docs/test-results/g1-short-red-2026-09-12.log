@@ -1,0 +1,59 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/features/documents/__tests__/hooks.test.tsx
+PASS src/app/__tests__/providers.test.tsx
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx
+PASS src/app/__tests__/screen-theme.test.tsx
+FAIL src/features/documents/components/__tests__/IntakePage.test.tsx
+  ● 413のlimitが未知でも上限超過と記録が残らない旨を案内する
+
+    expect(element).toHaveTextContent()
+
+    Expected element to have text content:
+      入力上限を超えています
+    Received:
+      投入結果を確認できませんでした。一覧を再読み込みして記録を確認してから、必要な場合だけ再投入してください。
+
+      235 |   await user.upload(screen.getByLabelText("ファイルを選択"), makeFile());
+      236 |   const alert = await screen.findByRole("alert");
+    > 237 |   expect(alert).toHaveTextContent(i18n.t("documents.limitExceeded.title"));
+          |                 ^
+      238 |   expect(alert).toHaveTextContent(i18n.t("documents.limitExceeded.hint"));
+      239 |   expect(alert).not.toHaveTextContent(i18n.t("documents.requestError"));
+      240 |   expect(alert).not.toHaveTextContent("unknown_kind");
+
+      at Object.toHaveTextContent (src/features/documents/components/__tests__/IntakePage.test.tsx:237:17)
+
+FAIL src/features/cases/components/__tests__/CaseListPage.test.tsx
+  ● 版の暫定表示と評価確認が送付承認ではない旨を明記する
+
+    expect(element).toHaveTextContent()
+
+    Expected element to have text content:
+      版の状態は案の作成後に表示します
+    Received:
+      版の状態は G3 以降に表示します
+
+      207 |   setUseCreateCase();
+      208 |   renderWithProviders(<CaseListPage />);
+    > 209 |   expect(screen.getByText(i18n.t("cases.list.versionNote"))).toHaveTextContent(
+          |                                                              ^
+      210 |     "版の状態は案の作成後に表示します",
+      211 |   );
+      212 |   expect(screen.getByText(i18n.t("cases.list.footnote"))).toHaveTextContent(
+
+      at Object.toHaveTextContent (src/features/cases/components/__tests__/CaseListPage.test.tsx:209:62)
+
+Test Suites: 2 failed, 9 passed, 11 total
+Tests:       2 failed, 76 passed, 78 total
+Snapshots:   0 total
+Time:        4.026 s
+Ran all test suites.
+make: *** [Makefile:77: fe-test] Error 1

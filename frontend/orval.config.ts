@@ -12,12 +12,17 @@ const config = {
       // TanStack Query のフックを生成（features/*/api.ts が wrap して使う）
       client: 'react-query',
       httpClient: 'fetch',
-      mutator: {
-        path: './src/shared/api/mutator.ts',
-        name: 'customInstance',
-      },
       clean: true,
       prettier: true,
+      override: {
+        // mutator は output.override 配下でないと生成コードに反映されない。
+        // 直下に書くと orval は黙って無視し、生成物が素の fetch（baseURL 無し・
+        // 非2xx を投げない）になる。T-103 で発覚（memory LN-010）。
+        mutator: {
+          path: './src/shared/api/mutator.ts',
+          name: 'customInstance',
+        },
+      },
     },
   },
 }

@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
+import { muiColor } from "@/shared/theme/mui-color";
 import { tokens } from "@/shared/theme/tokens";
 import "@/shared/i18n";
 
@@ -21,23 +22,27 @@ const theme = createTheme({
       contrastText: colors.onDark,
     },
     secondary: { main: colors.n[700] },
+    // MUI v5はoklchの文字色を自動計算できないため、既存トークンでcontrastTextも明示。
     // 状態色は文字ラベルの補助にのみ使う（03-spec 運用原則2）。装飾に使わない。
     error: {
       main: colors.danger.main,
       light: colors.danger[100],
       dark: colors.danger[800],
+      contrastText: colors.onDark,
     },
     warning: {
       main: colors.warn.main,
       light: colors.warn[100],
       dark: colors.warn[800],
+      contrastText: colors.onDark,
     },
     success: {
       main: colors.ok.main,
       light: colors.ok[100],
       dark: colors.ok[800],
+      contrastText: colors.onDark,
     },
-    divider: colors.divider,
+    divider: muiColor(colors.divider),
     background: { default: colors.bg, paper: colors.paper },
     text: { primary: colors.text, secondary: colors.n[500] },
   },
@@ -143,7 +148,7 @@ export function Providers({ children }: { children: ReactNode }) {
       new QueryClient({
         defaultOptions: {
           queries: { retry: 1, refetchOnWindowFocus: false },
-          mutations: { retry: 1 },
+          mutations: { retry: false },
         },
       }),
   );
