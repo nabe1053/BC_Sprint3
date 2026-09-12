@@ -1,0 +1,309 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/inventory-model.test.ts
+
+FAIL src/features/versions/__tests__/inventory-model.test.ts
+  ✕ 資料側は不整合・欠落・seq/id、入力を変えない (1 ms)
+  ✕ 明細側は対応元なし・seq/id、入力を変えない
+  ✕ inconsistentの文字とトーン
+  ✕ missingの文字とトーン
+  ✕ mappedの文字とトーン (1 ms)
+  ✕ splitの文字とトーン
+  ✕ excludedの文字とトーン
+  ✕ 9件数は3数値と6配列長であり行照合から推測しない
+  ✕ 資料名は初出順distinct、未解決名をnullで保つ
+  ✕ coverage要求は名前とkindだけ、IDと時刻なし
+  ✕ 空白名はクライアントで拒否 "" (8 ms)
+  ✕ 空白名はクライアントで拒否 " 
+	 " (1 ms)
+  ✕ 既存確認の競合は網羅性向けの文言にする
+  ✕ 既知E_RECORDER_REQUIREDは既存文言へ
+  ✕ 既知E_ALREADY_UNDONEは既存文言へ
+  ✕ 既知E_NOT_FOUNDは既存文言へ
+  ✕ 既知E_TARGET_INVALIDは既存文言へ
+  ✕ 未知エラーは固定文言
+  ✕ 未知エラーは固定文言
+
+  ● 資料側は不整合・欠落・seq/id、入力を変えない
+
+    TypeError: (0 , _model.sortEntries) is not a function
+
+      3 | import { ApiError } from "@/shared/api/mutator";
+      4 | it("資料側は不整合・欠落・seq/id、入力を変えない",()=>{
+    > 5 |  const input=[...inventory.entries].reverse();const before=[...input];expect(sortEntries(input).map(row=>row.entryId)).toEqual([15,14,11,12,13]);expect(input).toEqual(before);
+        |                                                                                         ^
+      6 |  const ties=[{...inventory.entries[0],seq:1,entryId:30},{...inventory.entries[0],seq:1,entryId:20}];expect(sortEntries(ties).map(row=>row.entryId)).toEqual([20,30]);
+      7 | });
+      8 | it("明細側は対応元なし・seq/id、入力を変えない",()=>{
+
+      at Object.<anonymous> (src/features/versions/__tests__/inventory-model.test.ts:5:89)
+
+  ● 明細側は対応元なし・seq/id、入力を変えない
+
+    TypeError: (0 , _model.sortItems) is not a function
+
+       7 | });
+       8 | it("明細側は対応元なし・seq/id、入力を変えない",()=>{
+    >  9 |  const input=[...inventory.items].reverse();const before=[...input];expect(sortItems(input).map(row=>row.rowCode)).toEqual(["R3","R1","R2"]);expect(input).toEqual(before);
+         |                                                                                     ^
+      10 | });
+      11 | it.each([["inconsistent","danger"],["missing","warn"],["mapped","ok"],["split","ok"],["excluded",null]] as const)("%sの文字とトーン",(state,tone)=>expect(inventoryState(state)).toEqual({key:`versions.inventory.judgement.${state}`,tone}));
+      12 | it("9件数は3数値と6配列長であり行照合から推測しない",()=>expect(inventoryCounts(inventory.summary)).toEqual({sourceEntry:5,sourceItem:4,outputRow:3,split:1,excluded:1,unmapped:1,orphan:1,multiMapped:1,inconsistent:2}));
+
+      at Object.<anonymous> (src/features/versions/__tests__/inventory-model.test.ts:9:85)
+
+  ● inconsistentの文字とトーン
+
+    TypeError: (0 , _model.inventoryState) is not a function
+
+       9 |  const input=[...inventory.items].reverse();const before=[...input];expect(sortItems(input).map(row=>row.rowCode)).toEqual(["R3","R1","R2"]);expect(input).toEqual(before);
+      10 | });
+    > 11 | it.each([["inconsistent","danger"],["missing","warn"],["mapped","ok"],["split","ok"],["excluded",null]] as const)("%sの文字とトーン",(state,tone)=>expect(inventoryState(state)).toEqual({key:`versions.inventory.judgement.${state}`,tone}));
+         |                                                                                                                                                                  ^
+      12 | it("9件数は3数値と6配列長であり行照合から推測しない",()=>expect(inventoryCounts(inventory.summary)).toEqual({sourceEntry:5,sourceItem:4,outputRow:3,split:1,excluded:1,unmapped:1,orphan:1,multiMapped:1,inconsistent:2}));
+      13 | it("資料名は初出順distinct、未解決名をnullで保つ",()=>expect(documentNames(inventory.entries)).toEqual(["明細.pdf",null]));
+      14 | it("coverage要求は名前とkindだけ、IDと時刻なし",()=>expect(buildCoverageRequest("  確認者  ")).toEqual({kind:"coverage",recordedBy:"確認者"}));
+
+      at src/features/versions/__tests__/inventory-model.test.ts:11:162
+
+  ● missingの文字とトーン
+
+    TypeError: (0 , _model.inventoryState) is not a function
+
+       9 |  const input=[...inventory.items].reverse();const before=[...input];expect(sortItems(input).map(row=>row.rowCode)).toEqual(["R3","R1","R2"]);expect(input).toEqual(before);
+      10 | });
+    > 11 | it.each([["inconsistent","danger"],["missing","warn"],["mapped","ok"],["split","ok"],["excluded",null]] as const)("%sの文字とトーン",(state,tone)=>expect(inventoryState(state)).toEqual({key:`versions.inventory.judgement.${state}`,tone}));
+         |                                                                                                                                                                  ^
+      12 | it("9件数は3数値と6配列長であり行照合から推測しない",()=>expect(inventoryCounts(inventory.summary)).toEqual({sourceEntry:5,sourceItem:4,outputRow:3,split:1,excluded:1,unmapped:1,orphan:1,multiMapped:1,inconsistent:2}));
+      13 | it("資料名は初出順distinct、未解決名をnullで保つ",()=>expect(documentNames(inventory.entries)).toEqual(["明細.pdf",null]));
+      14 | it("coverage要求は名前とkindだけ、IDと時刻なし",()=>expect(buildCoverageRequest("  確認者  ")).toEqual({kind:"coverage",recordedBy:"確認者"}));
+
+      at src/features/versions/__tests__/inventory-model.test.ts:11:162
+
+  ● mappedの文字とトーン
+
+    TypeError: (0 , _model.inventoryState) is not a function
+
+       9 |  const input=[...inventory.items].reverse();const before=[...input];expect(sortItems(input).map(row=>row.rowCode)).toEqual(["R3","R1","R2"]);expect(input).toEqual(before);
+      10 | });
+    > 11 | it.each([["inconsistent","danger"],["missing","warn"],["mapped","ok"],["split","ok"],["excluded",null]] as const)("%sの文字とトーン",(state,tone)=>expect(inventoryState(state)).toEqual({key:`versions.inventory.judgement.${state}`,tone}));
+         |                                                                                                                                                                  ^
+      12 | it("9件数は3数値と6配列長であり行照合から推測しない",()=>expect(inventoryCounts(inventory.summary)).toEqual({sourceEntry:5,sourceItem:4,outputRow:3,split:1,excluded:1,unmapped:1,orphan:1,multiMapped:1,inconsistent:2}));
+      13 | it("資料名は初出順distinct、未解決名をnullで保つ",()=>expect(documentNames(inventory.entries)).toEqual(["明細.pdf",null]));
+      14 | it("coverage要求は名前とkindだけ、IDと時刻なし",()=>expect(buildCoverageRequest("  確認者  ")).toEqual({kind:"coverage",recordedBy:"確認者"}));
+
+      at src/features/versions/__tests__/inventory-model.test.ts:11:162
+
+  ● splitの文字とトーン
+
+    TypeError: (0 , _model.inventoryState) is not a function
+
+       9 |  const input=[...inventory.items].reverse();const before=[...input];expect(sortItems(input).map(row=>row.rowCode)).toEqual(["R3","R1","R2"]);expect(input).toEqual(before);
+      10 | });
+    > 11 | it.each([["inconsistent","danger"],["missing","warn"],["mapped","ok"],["split","ok"],["excluded",null]] as const)("%sの文字とトーン",(state,tone)=>expect(inventoryState(state)).toEqual({key:`versions.inventory.judgement.${state}`,tone}));
+         |                                                                                                                                                                  ^
+      12 | it("9件数は3数値と6配列長であり行照合から推測しない",()=>expect(inventoryCounts(inventory.summary)).toEqual({sourceEntry:5,sourceItem:4,outputRow:3,split:1,excluded:1,unmapped:1,orphan:1,multiMapped:1,inconsistent:2}));
+      13 | it("資料名は初出順distinct、未解決名をnullで保つ",()=>expect(documentNames(inventory.entries)).toEqual(["明細.pdf",null]));
+      14 | it("coverage要求は名前とkindだけ、IDと時刻なし",()=>expect(buildCoverageRequest("  確認者  ")).toEqual({kind:"coverage",recordedBy:"確認者"}));
+
+      at src/features/versions/__tests__/inventory-model.test.ts:11:162
+
+  ● excludedの文字とトーン
+
+    TypeError: (0 , _model.inventoryState) is not a function
+
+       9 |  const input=[...inventory.items].reverse();const before=[...input];expect(sortItems(input).map(row=>row.rowCode)).toEqual(["R3","R1","R2"]);expect(input).toEqual(before);
+      10 | });
+    > 11 | it.each([["inconsistent","danger"],["missing","warn"],["mapped","ok"],["split","ok"],["excluded",null]] as const)("%sの文字とトーン",(state,tone)=>expect(inventoryState(state)).toEqual({key:`versions.inventory.judgement.${state}`,tone}));
+         |                                                                                                                                                                  ^
+      12 | it("9件数は3数値と6配列長であり行照合から推測しない",()=>expect(inventoryCounts(inventory.summary)).toEqual({sourceEntry:5,sourceItem:4,outputRow:3,split:1,excluded:1,unmapped:1,orphan:1,multiMapped:1,inconsistent:2}));
+      13 | it("資料名は初出順distinct、未解決名をnullで保つ",()=>expect(documentNames(inventory.entries)).toEqual(["明細.pdf",null]));
+      14 | it("coverage要求は名前とkindだけ、IDと時刻なし",()=>expect(buildCoverageRequest("  確認者  ")).toEqual({kind:"coverage",recordedBy:"確認者"}));
+
+      at src/features/versions/__tests__/inventory-model.test.ts:11:162
+
+  ● 9件数は3数値と6配列長であり行照合から推測しない
+
+    TypeError: (0 , _model.inventoryCounts) is not a function
+
+      10 | });
+      11 | it.each([["inconsistent","danger"],["missing","warn"],["mapped","ok"],["split","ok"],["excluded",null]] as const)("%sの文字とトーン",(state,tone)=>expect(inventoryState(state)).toEqual({key:`versions.inventory.judgement.${state}`,tone}));
+    > 12 | it("9件数は3数値と6配列長であり行照合から推測しない",()=>expect(inventoryCounts(inventory.summary)).toEqual({sourceEntry:5,sourceItem:4,outputRow:3,split:1,excluded:1,unmapped:1,orphan:1,multiMapped:1,inconsistent:2}));
+         |                                                          ^
+      13 | it("資料名は初出順distinct、未解決名をnullで保つ",()=>expect(documentNames(inventory.entries)).toEqual(["明細.pdf",null]));
+      14 | it("coverage要求は名前とkindだけ、IDと時刻なし",()=>expect(buildCoverageRequest("  確認者  ")).toEqual({kind:"coverage",recordedBy:"確認者"}));
+      15 | it.each([""," \n\t "])("空白名はクライアントで拒否 %p",name=>expect(()=>buildCoverageRequest(name)).toThrow(expect.objectContaining({code:"E_RECORDER_REQUIRED"})));
+
+      at Object.<anonymous> (src/features/versions/__tests__/inventory-model.test.ts:12:58)
+
+  ● 資料名は初出順distinct、未解決名をnullで保つ
+
+    TypeError: (0 , _model.documentNames) is not a function
+
+      11 | it.each([["inconsistent","danger"],["missing","warn"],["mapped","ok"],["split","ok"],["excluded",null]] as const)("%sの文字とトーン",(state,tone)=>expect(inventoryState(state)).toEqual({key:`versions.inventory.judgement.${state}`,tone}));
+      12 | it("9件数は3数値と6配列長であり行照合から推測しない",()=>expect(inventoryCounts(inventory.summary)).toEqual({sourceEntry:5,sourceItem:4,outputRow:3,split:1,excluded:1,unmapped:1,orphan:1,multiMapped:1,inconsistent:2}));
+    > 13 | it("資料名は初出順distinct、未解決名をnullで保つ",()=>expect(documentNames(inventory.entries)).toEqual(["明細.pdf",null]));
+         |                                                           ^
+      14 | it("coverage要求は名前とkindだけ、IDと時刻なし",()=>expect(buildCoverageRequest("  確認者  ")).toEqual({kind:"coverage",recordedBy:"確認者"}));
+      15 | it.each([""," \n\t "])("空白名はクライアントで拒否 %p",name=>expect(()=>buildCoverageRequest(name)).toThrow(expect.objectContaining({code:"E_RECORDER_REQUIRED"})));
+      16 | it("既存確認の競合は網羅性向けの文言にする",()=>expect(inventoryErrorKey(new ApiError(409,{code:"E_ALREADY_CONFIRMED"}))).toBe("versions.inventory.errors.E_ALREADY_CONFIRMED"));
+
+      at Object.<anonymous> (src/features/versions/__tests__/inventory-model.test.ts:13:59)
+
+  ● coverage要求は名前とkindだけ、IDと時刻なし
+
+    TypeError: (0 , _model.buildCoverageRequest) is not a function
+
+      12 | it("9件数は3数値と6配列長であり行照合から推測しない",()=>expect(inventoryCounts(inventory.summary)).toEqual({sourceEntry:5,sourceItem:4,outputRow:3,split:1,excluded:1,unmapped:1,orphan:1,multiMapped:1,inconsistent:2}));
+      13 | it("資料名は初出順distinct、未解決名をnullで保つ",()=>expect(documentNames(inventory.entries)).toEqual(["明細.pdf",null]));
+    > 14 | it("coverage要求は名前とkindだけ、IDと時刻なし",()=>expect(buildCoverageRequest("  確認者  ")).toEqual({kind:"coverage",recordedBy:"確認者"}));
+         |                                                                  ^
+      15 | it.each([""," \n\t "])("空白名はクライアントで拒否 %p",name=>expect(()=>buildCoverageRequest(name)).toThrow(expect.objectContaining({code:"E_RECORDER_REQUIRED"})));
+      16 | it("既存確認の競合は網羅性向けの文言にする",()=>expect(inventoryErrorKey(new ApiError(409,{code:"E_ALREADY_CONFIRMED"}))).toBe("versions.inventory.errors.E_ALREADY_CONFIRMED"));
+      17 | it.each(["E_RECORDER_REQUIRED","E_ALREADY_UNDONE","E_NOT_FOUND","E_TARGET_INVALID"])("既知%sは既存文言へ",code=>expect(inventoryErrorKey(new ApiError(400,{code}))).toBe(`versions.errors.${code}`));
+
+      at Object.<anonymous> (src/features/versions/__tests__/inventory-model.test.ts:14:66)
+
+  ● 空白名はクライアントで拒否 ""
+
+    expect(received).toThrow(expected)
+
+    Expected asymmetric matcher: ObjectContaining {"code": "E_RECORDER_REQUIRED"}
+
+    Received name:    "TypeError"
+    Received message: "(0 , _model.buildCoverageRequest) is not a function"
+
+          13 | it("資料名は初出順distinct、未解決名をnullで保つ",()=>expect(documentNames(inventory.entries)).toEqual(["明細.pdf",null]));
+          14 | it("coverage要求は名前とkindだけ、IDと時刻なし",()=>expect(buildCoverageRequest("  確認者  ")).toEqual({kind:"coverage",recordedBy:"確認者"}));
+        > 15 | it.each([""," \n\t "])("空白名はクライアントで拒否 %p",name=>expect(()=>buildCoverageRequest(name)).toThrow(expect.objectContaining({code:"E_RECORDER_REQUIRED"})));
+             |                                                                                ^
+          16 | it("既存確認の競合は網羅性向けの文言にする",()=>expect(inventoryErrorKey(new ApiError(409,{code:"E_ALREADY_CONFIRMED"}))).toBe("versions.inventory.errors.E_ALREADY_CONFIRMED"));
+          17 | it.each(["E_RECORDER_REQUIRED","E_ALREADY_UNDONE","E_NOT_FOUND","E_TARGET_INVALID"])("既知%sは既存文言へ",code=>expect(inventoryErrorKey(new ApiError(400,{code}))).toBe(`versions.errors.${code}`));
+          18 | it.each([new Error("private"),new ApiError(500,{code:"private"})])("未知エラーは固定文言",error=>expect(inventoryErrorKey(error)).toBe("versions.errors.unknown"));
+
+      at src/features/versions/__tests__/inventory-model.test.ts:15:80
+      at Object.<anonymous> (node_modules/expect/build/toThrowMatchers.js:74:11)
+      at Object.throwingMatcher [as toThrow] (node_modules/expect/build/index.js:320:21)
+      at toThrow (src/features/versions/__tests__/inventory-model.test.ts:15:88)
+      at toThrow (src/features/versions/__tests__/inventory-model.test.ts:15:88)
+
+  ● 空白名はクライアントで拒否 " 
+	 "
+
+    expect(received).toThrow(expected)
+
+    Expected asymmetric matcher: ObjectContaining {"code": "E_RECORDER_REQUIRED"}
+
+    Received name:    "TypeError"
+    Received message: "(0 , _model.buildCoverageRequest) is not a function"
+
+          13 | it("資料名は初出順distinct、未解決名をnullで保つ",()=>expect(documentNames(inventory.entries)).toEqual(["明細.pdf",null]));
+          14 | it("coverage要求は名前とkindだけ、IDと時刻なし",()=>expect(buildCoverageRequest("  確認者  ")).toEqual({kind:"coverage",recordedBy:"確認者"}));
+        > 15 | it.each([""," \n\t "])("空白名はクライアントで拒否 %p",name=>expect(()=>buildCoverageRequest(name)).toThrow(expect.objectContaining({code:"E_RECORDER_REQUIRED"})));
+             |                                                                                ^
+          16 | it("既存確認の競合は網羅性向けの文言にする",()=>expect(inventoryErrorKey(new ApiError(409,{code:"E_ALREADY_CONFIRMED"}))).toBe("versions.inventory.errors.E_ALREADY_CONFIRMED"));
+          17 | it.each(["E_RECORDER_REQUIRED","E_ALREADY_UNDONE","E_NOT_FOUND","E_TARGET_INVALID"])("既知%sは既存文言へ",code=>expect(inventoryErrorKey(new ApiError(400,{code}))).toBe(`versions.errors.${code}`));
+          18 | it.each([new Error("private"),new ApiError(500,{code:"private"})])("未知エラーは固定文言",error=>expect(inventoryErrorKey(error)).toBe("versions.errors.unknown"));
+
+      at src/features/versions/__tests__/inventory-model.test.ts:15:80
+      at Object.<anonymous> (node_modules/expect/build/toThrowMatchers.js:74:11)
+      at Object.throwingMatcher [as toThrow] (node_modules/expect/build/index.js:320:21)
+      at toThrow (src/features/versions/__tests__/inventory-model.test.ts:15:88)
+      at toThrow (src/features/versions/__tests__/inventory-model.test.ts:15:88)
+
+  ● 既存確認の競合は網羅性向けの文言にする
+
+    TypeError: (0 , _model.inventoryErrorKey) is not a function
+
+      14 | it("coverage要求は名前とkindだけ、IDと時刻なし",()=>expect(buildCoverageRequest("  確認者  ")).toEqual({kind:"coverage",recordedBy:"確認者"}));
+      15 | it.each([""," \n\t "])("空白名はクライアントで拒否 %p",name=>expect(()=>buildCoverageRequest(name)).toThrow(expect.objectContaining({code:"E_RECORDER_REQUIRED"})));
+    > 16 | it("既存確認の競合は網羅性向けの文言にする",()=>expect(inventoryErrorKey(new ApiError(409,{code:"E_ALREADY_CONFIRMED"}))).toBe("versions.inventory.errors.E_ALREADY_CONFIRMED"));
+         |                                                      ^
+      17 | it.each(["E_RECORDER_REQUIRED","E_ALREADY_UNDONE","E_NOT_FOUND","E_TARGET_INVALID"])("既知%sは既存文言へ",code=>expect(inventoryErrorKey(new ApiError(400,{code}))).toBe(`versions.errors.${code}`));
+      18 | it.each([new Error("private"),new ApiError(500,{code:"private"})])("未知エラーは固定文言",error=>expect(inventoryErrorKey(error)).toBe("versions.errors.unknown"));
+      19 |
+
+      at Object.<anonymous> (src/features/versions/__tests__/inventory-model.test.ts:16:54)
+
+  ● 既知E_RECORDER_REQUIREDは既存文言へ
+
+    TypeError: (0 , _model.inventoryErrorKey) is not a function
+
+      15 | it.each([""," \n\t "])("空白名はクライアントで拒否 %p",name=>expect(()=>buildCoverageRequest(name)).toThrow(expect.objectContaining({code:"E_RECORDER_REQUIRED"})));
+      16 | it("既存確認の競合は網羅性向けの文言にする",()=>expect(inventoryErrorKey(new ApiError(409,{code:"E_ALREADY_CONFIRMED"}))).toBe("versions.inventory.errors.E_ALREADY_CONFIRMED"));
+    > 17 | it.each(["E_RECORDER_REQUIRED","E_ALREADY_UNDONE","E_NOT_FOUND","E_TARGET_INVALID"])("既知%sは既存文言へ",code=>expect(inventoryErrorKey(new ApiError(400,{code}))).toBe(`versions.errors.${code}`));
+         |                                                                                                                                 ^
+      18 | it.each([new Error("private"),new ApiError(500,{code:"private"})])("未知エラーは固定文言",error=>expect(inventoryErrorKey(error)).toBe("versions.errors.unknown"));
+      19 |
+
+      at src/features/versions/__tests__/inventory-model.test.ts:17:129
+
+  ● 既知E_ALREADY_UNDONEは既存文言へ
+
+    TypeError: (0 , _model.inventoryErrorKey) is not a function
+
+      15 | it.each([""," \n\t "])("空白名はクライアントで拒否 %p",name=>expect(()=>buildCoverageRequest(name)).toThrow(expect.objectContaining({code:"E_RECORDER_REQUIRED"})));
+      16 | it("既存確認の競合は網羅性向けの文言にする",()=>expect(inventoryErrorKey(new ApiError(409,{code:"E_ALREADY_CONFIRMED"}))).toBe("versions.inventory.errors.E_ALREADY_CONFIRMED"));
+    > 17 | it.each(["E_RECORDER_REQUIRED","E_ALREADY_UNDONE","E_NOT_FOUND","E_TARGET_INVALID"])("既知%sは既存文言へ",code=>expect(inventoryErrorKey(new ApiError(400,{code}))).toBe(`versions.errors.${code}`));
+         |                                                                                                                                 ^
+      18 | it.each([new Error("private"),new ApiError(500,{code:"private"})])("未知エラーは固定文言",error=>expect(inventoryErrorKey(error)).toBe("versions.errors.unknown"));
+      19 |
+
+      at src/features/versions/__tests__/inventory-model.test.ts:17:129
+
+  ● 既知E_NOT_FOUNDは既存文言へ
+
+    TypeError: (0 , _model.inventoryErrorKey) is not a function
+
+      15 | it.each([""," \n\t "])("空白名はクライアントで拒否 %p",name=>expect(()=>buildCoverageRequest(name)).toThrow(expect.objectContaining({code:"E_RECORDER_REQUIRED"})));
+      16 | it("既存確認の競合は網羅性向けの文言にする",()=>expect(inventoryErrorKey(new ApiError(409,{code:"E_ALREADY_CONFIRMED"}))).toBe("versions.inventory.errors.E_ALREADY_CONFIRMED"));
+    > 17 | it.each(["E_RECORDER_REQUIRED","E_ALREADY_UNDONE","E_NOT_FOUND","E_TARGET_INVALID"])("既知%sは既存文言へ",code=>expect(inventoryErrorKey(new ApiError(400,{code}))).toBe(`versions.errors.${code}`));
+         |                                                                                                                                 ^
+      18 | it.each([new Error("private"),new ApiError(500,{code:"private"})])("未知エラーは固定文言",error=>expect(inventoryErrorKey(error)).toBe("versions.errors.unknown"));
+      19 |
+
+      at src/features/versions/__tests__/inventory-model.test.ts:17:129
+
+  ● 既知E_TARGET_INVALIDは既存文言へ
+
+    TypeError: (0 , _model.inventoryErrorKey) is not a function
+
+      15 | it.each([""," \n\t "])("空白名はクライアントで拒否 %p",name=>expect(()=>buildCoverageRequest(name)).toThrow(expect.objectContaining({code:"E_RECORDER_REQUIRED"})));
+      16 | it("既存確認の競合は網羅性向けの文言にする",()=>expect(inventoryErrorKey(new ApiError(409,{code:"E_ALREADY_CONFIRMED"}))).toBe("versions.inventory.errors.E_ALREADY_CONFIRMED"));
+    > 17 | it.each(["E_RECORDER_REQUIRED","E_ALREADY_UNDONE","E_NOT_FOUND","E_TARGET_INVALID"])("既知%sは既存文言へ",code=>expect(inventoryErrorKey(new ApiError(400,{code}))).toBe(`versions.errors.${code}`));
+         |                                                                                                                                 ^
+      18 | it.each([new Error("private"),new ApiError(500,{code:"private"})])("未知エラーは固定文言",error=>expect(inventoryErrorKey(error)).toBe("versions.errors.unknown"));
+      19 |
+
+      at src/features/versions/__tests__/inventory-model.test.ts:17:129
+
+  ● 未知エラーは固定文言
+
+    TypeError: (0 , _model.inventoryErrorKey) is not a function
+
+      16 | it("既存確認の競合は網羅性向けの文言にする",()=>expect(inventoryErrorKey(new ApiError(409,{code:"E_ALREADY_CONFIRMED"}))).toBe("versions.inventory.errors.E_ALREADY_CONFIRMED"));
+      17 | it.each(["E_RECORDER_REQUIRED","E_ALREADY_UNDONE","E_NOT_FOUND","E_TARGET_INVALID"])("既知%sは既存文言へ",code=>expect(inventoryErrorKey(new ApiError(400,{code}))).toBe(`versions.errors.${code}`));
+    > 18 | it.each([new Error("private"),new ApiError(500,{code:"private"})])("未知エラーは固定文言",error=>expect(inventoryErrorKey(error)).toBe("versions.errors.unknown"));
+         |                                                                                                                ^
+      19 |
+
+      at src/features/versions/__tests__/inventory-model.test.ts:18:112
+
+  ● 未知エラーは固定文言
+
+    TypeError: (0 , _model.inventoryErrorKey) is not a function
+
+      16 | it("既存確認の競合は網羅性向けの文言にする",()=>expect(inventoryErrorKey(new ApiError(409,{code:"E_ALREADY_CONFIRMED"}))).toBe("versions.inventory.errors.E_ALREADY_CONFIRMED"));
+      17 | it.each(["E_RECORDER_REQUIRED","E_ALREADY_UNDONE","E_NOT_FOUND","E_TARGET_INVALID"])("既知%sは既存文言へ",code=>expect(inventoryErrorKey(new ApiError(400,{code}))).toBe(`versions.errors.${code}`));
+    > 18 | it.each([new Error("private"),new ApiError(500,{code:"private"})])("未知エラーは固定文言",error=>expect(inventoryErrorKey(error)).toBe("versions.errors.unknown"));
+         |                                                                                                                ^
+      19 |
+
+      at src/features/versions/__tests__/inventory-model.test.ts:18:112
+
+Test Suites: 1 failed, 1 total
+Tests:       19 failed, 19 total
+Snapshots:   0 total
+Time:        0.413 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/inventory-model.test.ts/i.
+make: *** [/tmp/coverage-review-checks.mk:4: coverage-review-model] Error 1

@@ -1,0 +1,57 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/inventory-model.test.ts
+
+FAIL src/features/versions/__tests__/inventory-model.test.ts
+  ✓ 資料側は不整合・欠落・seq/id、入力を変えない (2 ms)
+  ✓ 明細側は対応元なし・seq/id、入力を変えない (1 ms)
+  ✓ inconsistentの文字とトーン
+  ✓ missingの文字とトーン (4 ms)
+  ✓ mappedの文字とトーン (1 ms)
+  ✓ splitの文字とトーン
+  ✓ excludedの文字とトーン
+  ✓ 9件数は3数値と6配列長であり行照合から推測しない
+  ✓ 資料名は初出順distinct、未解決名をnullで保つ
+  ✕ coverage要求は名前とkindだけ、IDと時刻なし (2 ms)
+  ✓ 空白名はクライアントで拒否 "" (4 ms)
+  ✓ 空白名はクライアントで拒否 " 
+	 " (1 ms)
+  ✓ 既存確認の競合は網羅性向けの文言にする
+  ✓ 既知E_RECORDER_REQUIREDは既存文言へ
+  ✓ 既知E_ALREADY_UNDONEは既存文言へ
+  ✓ 既知E_NOT_FOUNDは既存文言へ
+  ✓ 既知E_TARGET_INVALIDは既存文言へ
+  ✓ 未知エラーは固定文言
+  ✓ 未知エラーは固定文言
+
+  ● coverage要求は名前とkindだけ、IDと時刻なし
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 1
+
+      Object {
+    +   "itemId": null,
+        "kind": "coverage",
+        "recordedBy": "確認者",
+      }
+
+      60 |   expect(documentNames(inventory.entries)).toEqual(["明細.pdf", null]));
+      61 | it("coverage要求は名前とkindだけ、IDと時刻なし", () =>
+    > 62 |   expect(buildCoverageRequest("  確認者  ")).toEqual({
+         |                                           ^
+      63 |     kind: "coverage",
+      64 |     recordedBy: "確認者",
+      65 |   }));
+
+      at Object.toEqual (src/features/versions/__tests__/inventory-model.test.ts:62:43)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 18 passed, 19 total
+Snapshots:   0 total
+Time:        0.384 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/inventory-model.test.ts/i.
+make[1]: *** [/tmp/coverage-review-checks.mk:4: coverage-review-model] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

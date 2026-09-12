@@ -1,0 +1,9 @@
+entry-priority: detected; Tests:       1 failed, 18 passed, 19 total
+item-priority: detected; Tests:       1 failed, 18 passed, 19 total
+counts: detected; Tests:       1 failed, 18 passed, 19 total
+retry: detected; Tests:       1 failed, 8 passed, 9 total
+version-invalidation: detected; Tests:       8 failed, 1 passed, 9 total
+recorder-validation: detected; Tests:       2 failed, 17 passed, 19 total
+coverage-item-id: detected; Tests:       1 failed, 18 passed, 19 total
+conflict-message: detected; Tests:       1 failed, 18 passed, 19 total
+original-file-rel: detected; Tests:       1 failed, 18 passed, 19 total

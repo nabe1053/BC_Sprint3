@@ -475,6 +475,82 @@
       "E_ALREADY_CONFIRMED": "この行は照合済みです。最新の一覧を確認してください。",
       "E_NOT_FOUND": "対象の記録が見つかりません。一覧を再読み込みしてください。",
       "unknown": "記録結果を確認できませんでした。一覧を再読み込みしてから再操作してください。"
+    },
+    "inventory": {
+      "title": "網羅性照合",
+      "link": "網羅性照合へ",
+      "back": "Item List へ",
+      "description": "元資料 {{source}} 項目 → Item List {{output}} 行（分割 {{split}}・除外 {{excluded}}・対応なし {{missing}}）",
+      "noticeLead": "対応なし 0 件は網羅性の保証ではありません",
+      "noticeBody": "この対応表は抽出できた範囲どうしの突合です。抽出処理が最初から読まなかったページ・別紙・後続メールは、元資料側にも出力側にも現れないため表では検出できません。全ページ・別紙・追加明細を元資料で確認してください。",
+      "counts": {
+        "sourceEntry": "総要素",
+        "sourceItem": "原明細",
+        "outputRow": "出力行",
+        "split": "分割",
+        "excluded": "除外",
+        "unmapped": "対応なし",
+        "orphan": "余分",
+        "multiMapped": "多重対応",
+        "inconsistent": "不整合"
+      },
+      "scope": "照合する範囲",
+      "unknownDocument": "資料名を取得できません",
+      "openDocument": "元資料を開く",
+      "openDocumentLabel": "元資料を開く：{{name}}",
+      "scopeNote": "全ページ・全シート・本文と、追加・別紙・脚注の有無を確認します。この対応表に抽出漏れ検出機能はありません",
+      "recordTitle": "網羅性確認の記録",
+      "recorder": "確認者名（取消時は取消者名）",
+      "recorderHint": "AI は補完しません",
+      "record": "記録",
+      "undo": "取消",
+      "recorded": "記録済み：{{name}} / {{at}}",
+      "unrecorded": "未記録",
+      "requiredNote": "担当者確認済みにするには本記録が必要です",
+      "undoNote": "取り消すと前提は未達に戻ります",
+      "entriesTitle": "原明細一覧（資料側）",
+      "itemsTitle": "Item List 対応表（明細側）",
+      "columns": {
+        "position": "位置",
+        "sourceNo": "原項番",
+        "excerpt": "原文抜粋",
+        "linkedItems": "対応",
+        "state": "状態",
+        "rowCode": "行ID",
+        "candidate": "候補",
+        "sources": "対応元"
+      },
+      "judgement": {
+        "mapped": "対応済み",
+        "split": "分割",
+        "excluded": "除外",
+        "missing": "対応なし（欠落の可能性）",
+        "inconsistent": "不整合（記録された状態と対応関係が一致しません）"
+      },
+      "status": {
+        "mapped": "対応済み",
+        "split": "分割",
+        "excluded": "除外",
+        "unmapped": "対応なし"
+      },
+      "savedStatus": "記録: {{value}}",
+      "basis": "根拠: {{value}}",
+      "hasSource": "対応あり",
+      "noSource": "対応なし（余分の可能性）",
+      "multiMapped": "多重対応（{{total}} 要素）",
+      "source": "{{position}}（原項番 {{number}}）",
+      "entriesNote": "明細 {{source}} 件 → 出力 {{output}} 行（うち分割 {{split}} 件）／除外 {{excluded}} 件／対応なし {{missing}} 件。対応なし（欠落の可能性）は先頭に表示されます",
+      "itemsNote": "元資料に対応元がない出力行 {{total}} 件。対応なしは、除外の根拠があれば意図した除外、なければ欠落として扱います",
+      "notFound": "版が見つかりません。案件一覧から版を選び直してください",
+      "loadError": "照合データを取得できませんでした。接続を確認して再取得してください",
+      "empty": "この版にはインベントリがありません。資料投入画面で案を作成してください",
+      "intake": "資料投入へ",
+      "none": "該当なし",
+      "reload": "再取得",
+      "errors": {
+        "E_ALREADY_CONFIRMED": "網羅性確認は既に記録されています。最新の記録を表示します"
+      },
+      "countsLabel": "照合件数"
     }
   }
 }

@@ -1,0 +1,55 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/inventory-api.test.ts
+
+FAIL src/features/versions/__tests__/inventory-api.test.ts
+  ✕ #27 は生成GETの200を並べ替えず返す (1 ms)
+  ✕ #27 の404はApiErrorで1回のみ (1 ms)
+  ✕ #27 の500はApiErrorで1回のみ
+
+  ● #27 は生成GETの200を並べ替えず返す
+
+    TypeError: _api.getInventory is not a function
+
+       7 | function respond(status:number,data:unknown){request.mockResolvedValue({ok:status===200,status,headers:new Headers({"Content-Type":"application/json"}),json:async()=>data});}
+       8 | it("#27 は生成GETの200を並べ替えず返す",async()=>{
+    >  9 |  respond(200,inventory);expect(await api.getInventory(9)).toEqual(inventory);
+         |                                          ^
+      10 |  expect(request.mock.calls[0][0]).toContain("/api/v1/ui/versions/9/inventory");expect(request.mock.calls[0][1].method).toBe("GET");
+      11 | });
+      12 | it.each([404,500])("#27 の%sはApiErrorで1回のみ",async status=>{
+
+      at Object.getInventory (src/features/versions/__tests__/inventory-api.test.ts:9:42)
+
+  ● #27 の404はApiErrorで1回のみ
+
+    TypeError: _api.getInventory is not a function
+
+      11 | });
+      12 | it.each([404,500])("#27 の%sはApiErrorで1回のみ",async status=>{
+    > 13 |  respond(status,{code:"E_NOT_FOUND",message:"private"});const action=api.getInventory(9);await expect(action).rejects.toBeInstanceOf(ApiError);await expect(action).rejects.toMatchObject({status});expect(request).toHaveBeenCalledTimes(1);
+         |                                                                          ^
+      14 | });
+      15 |
+
+      at getInventory (src/features/versions/__tests__/inventory-api.test.ts:13:74)
+
+  ● #27 の500はApiErrorで1回のみ
+
+    TypeError: _api.getInventory is not a function
+
+      11 | });
+      12 | it.each([404,500])("#27 の%sはApiErrorで1回のみ",async status=>{
+    > 13 |  respond(status,{code:"E_NOT_FOUND",message:"private"});const action=api.getInventory(9);await expect(action).rejects.toBeInstanceOf(ApiError);await expect(action).rejects.toMatchObject({status});expect(request).toHaveBeenCalledTimes(1);
+         |                                                                          ^
+      14 | });
+      15 |
+
+      at getInventory (src/features/versions/__tests__/inventory-api.test.ts:13:74)
+
+Test Suites: 1 failed, 1 total
+Tests:       3 failed, 3 total
+Snapshots:   0 total
+Time:        0.472 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/inventory-api.test.ts/i.
+make: *** [/tmp/coverage-review-checks.mk:2: coverage-review-api] Error 1

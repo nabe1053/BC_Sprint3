@@ -1,3 +1,4 @@
+import InventoryReview from "../(portal)/cases/[caseId]/versions/[versionId]/inventory/page";
 import Home from "../page";
 import Cases from "../(portal)/cases/page";
 import ItemReview from "../(portal)/cases/[caseId]/versions/[versionId]/page";
@@ -42,6 +43,17 @@ it.each(["0", "-1", "1.5", "abc", "9007199254740992"])(
 );
 
 jest.mock("@/features/versions", () => ({
+  InventoryPage: ({
+    caseId,
+    versionId,
+  }: {
+    caseId: number;
+    versionId: number;
+  }) => (
+    <div>
+      inventory case {caseId} version {versionId}
+    </div>
+  ),
   ItemListPage: ({
     caseId,
     versionId,
@@ -70,6 +82,30 @@ it.each(["0", "-1", "1.5", "abc", "9007199254740992"])(
     ).rejects.toThrow("not found");
     await expect(
       ItemReview({ params: Promise.resolve({ caseId: "8", versionId: bad }) }),
+    ).rejects.toThrow("not found");
+  },
+);
+
+it("照合ルートは正整数の案件・版を公開featureへ渡す", async () => {
+  renderWithProviders(
+    await InventoryReview({
+      params: Promise.resolve({ caseId: "8", versionId: "9" }),
+    }),
+  );
+  expect(screen.getByText("inventory case 8 version 9")).toBeInTheDocument();
+});
+it.each(["0", "-1", "1.5", "abc", "9007199254740992"])(
+  "照合ルートは不正ID %sを双方で拒否",
+  async (bad) => {
+    await expect(
+      InventoryReview({
+        params: Promise.resolve({ caseId: bad, versionId: "9" }),
+      }),
+    ).rejects.toThrow("not found");
+    await expect(
+      InventoryReview({
+        params: Promise.resolve({ caseId: "8", versionId: bad }),
+      }),
     ).rejects.toThrow("not found");
   },
 );

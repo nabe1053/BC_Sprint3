@@ -1,5 +1,6 @@
 import { unwrapSuccess } from "@/shared/api/unwrap";
 import {
+  getInventoryApiV1UiVersionsVersionIdInventoryGet,
   listVersionsApiV1UiCasesCaseIdVersionsGet,
   getVersionApiV1UiVersionsVersionIdGet,
   listItemsApiV1UiVersionsVersionIdItemsGet,
@@ -103,5 +104,12 @@ export async function judge(
       input,
     ),
     201,
+  );
+}
+
+export async function getInventory(versionId: number) {
+  return unwrapSuccess(
+    await getInventoryApiV1UiVersionsVersionIdInventoryGet(versionId),
+    200,
   );
 }

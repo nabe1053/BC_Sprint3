@@ -239,7 +239,7 @@
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | DONE | 2回目 RV-041: **DONE**（P3 8 は記録のみ・TODO-030）。**G3 完了** | 2026-09-13 |
 | T-401 | G4 照合集計（BE。保存は T-201・記録は T-301 済） | web | T-201 | DONE | 1回目 RV-040: **DONE**（P3 4 は記録のみ・TODO-031） | 2026-09-13 |
 | T-402 | G4 照合 API #27（UI GET）＋#19 同パス整理（API） | web | T-401 | DONE | 1回目 RV-042: **DONE**（P3 4 は記録のみ・TODO-033） | 2026-09-13 |
-| T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | FIXING | RV-043 P2-1（N03 注記文言）→ §7 R-2 | 2026-09-13 |
+| T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | DONE | 2回目 RV-044: **DONE**（P3 5 は記録のみ・TODO-035）。**G4 完了** | 2026-09-13 |
 | T-501 | G5 状態遷移・差し戻し・送付可否の記録（BE） | web | T-301 | IMPLEMENTING | 指示書 `docs/t501-instructions.md`（AD-028）。Codex 着手可（§7） | 2026-09-13 |
 | T-502 | G5 承認・状態 API #1,#22,28,34-37（API） | web | T-501 | PLANNED | 指示書 `docs/t502-instructions.md`（AD-029）。T-501 DONE 後に §7 で投入 | 2026-09-13 |
 | T-503 | G5 SCR-06 引合書承認＋SCR-03/01 の G5 追加（FE） | web | T-502 | PLANNED | 指示書 `docs/t503-instructions.md`（AD-031）。T-502 DONE 後に §7 で投入 | 2026-09-13 |
@@ -481,6 +481,9 @@
   P3: ①`notice/requiredNote/undoNote` の文体（常体）②同名資料の「元資料を開く」`aria-label` が重複・`key={index}` ③範囲一覧が entries 由来で要素 0 の資料が出ない（AD-027 ⑩どおり。#4 で補完は G5 以降）
   ④fixtures のインライン `import()` 型 → TODO-035。
 
+- [RV-044] T-403 R-2（同一 reviewer 独立・2026-09-13）: RV-043 **P2-1 / P3-1 をクローズ**（notice をモック原文どおり lead＋body の 2 文に復元・強調は `tokens.typography.weight.bold` のみ・
+  文体を敬体に統一）。既存 assert は削除せず期待更新、`make check-fe` 24 suites / **327 PASS**・design-lint 0 を再現。**DONE**。新規 P3-5（追加ケースのみ `test(`＋英語名。他は `it(`＋日本語）→ TODO-035 ⑤。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -676,7 +679,7 @@
 - [TODO-019]（転記済み: AD-028 ⑨・`docs/t501-instructions.md` §0）**T-501 の指示書に転記**: `review_checked` 版への訂正は `review_checked→staff_checked` の状態イベントを同一トランザクションで積む（05:438 / 04-db:775）。
   T-301 では未実装（G3 で到達不能。t301-instructions §0 ⑤）。
 - [TODO-035] **T-403 の記録のみ P3（RV-043）**: ①`versions.inventory.{notice,requiredNote,undoNote}` の文体を敬体に ②`InventoryScopePanel` 同名資料の `aria-label` に識別子・`key` を documentId に
-  ③「照合する範囲」を #4 資料一覧で補完するか（要素 0 の資料）④`testing/fixtures.ts:77` のインライン `import()` 型。①②④は C-3（FE 分）、③は G5 以降の判断材料。
+  ③「照合する範囲」を #4 資料一覧で補完するか（要素 0 の資料）④`testing/fixtures.ts:77` のインライン `import()` 型 ⑤`inventory-components.test.tsx:302` を `it(`＋日本語名に（RV-044）。①②④⑤は C-3（FE 分）、③は G5 以降の判断材料。
 - [TODO-037] **05 #22「生成所要」の API 露出が未実装**（AD-029 ⑭。DB 上は `agent_runs.version_id` UNIQUE FK で結線済み・T-601 は案件情報シートに `elapsed_sec` を書く）。#22/#23 への露出は G6 T-603 で。
 - [TODO-041] **SCR-04（根拠詳細）の「上司の差し戻しコメント」表示が未実装**（03-spec SCR-04・AD-031 ③）。`EvidenceDrawer` に #28 由来の `bounceComments` prop を渡す小改修。G5 完了後の改修スライス。
 - [TODO-040] **SCR-01 の「差し戻しあり」補足**（03-spec SCR-01）は #1 に `bounced` が無く未実装（AD-031 ㉔）。#1 拡張は G6 か C-3 で。

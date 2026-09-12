@@ -1,0 +1,20 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/inventory-hooks.test.tsx
+
+PASS src/features/versions/__tests__/inventory-hooks.test.tsx
+  ✓ confirm / 200 はinventoryと版を更新しitemsに触らない (72 ms)
+  ✓ confirm / 409 はinventoryと版を更新しitemsに触らない (58 ms)
+  ✓ confirm / 404 はinventoryと版を更新しitemsに触らない (59 ms)
+  ✓ confirm / 400 はinventoryと版を更新しitemsに触らない (57 ms)
+  ✓ undoConfirmation / 200 はinventoryと版を更新しitemsに触らない (57 ms)
+  ✓ undoConfirmation / 409 はinventoryと版を更新しitemsに触らない (55 ms)
+  ✓ undoConfirmation / 404 はinventoryと版を更新しitemsに触らない (57 ms)
+  ✓ undoConfirmation / 400 はinventoryと版を更新しitemsに触らない (59 ms)
+  ✓ 本番Providersで400 POSTは1回、既定retryよりhook設定を優先 (15 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       9 passed, 9 total
+Snapshots:   0 total
+Time:        1.391 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/inventory-hooks.test.tsx/i.

@@ -1,0 +1,2 @@
+✓ design-lint: 違反なし
+PASS browser: 8 screenshots, h1=1, contained=0, 390px overflow=0, pageerror=0, source/item priority, literal excerpts, original-file href/rel, empty name POST=0, confirm/undo POST=1 each, response metadata, empty/error/404

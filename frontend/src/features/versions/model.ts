@@ -1,4 +1,8 @@
 import type {
+  InventoryEntryResponse,
+  InventoryItemResponse,
+  InventorySummaryResponse,
+  ConfirmationRequest,
   ItemCurrentResponse,
   ItemEditRecord,
   ItemEditRequest,
@@ -197,4 +201,59 @@ export function recordErrorKey(error: unknown) {
   return error instanceof ApiError && recordCodes.has(error.code)
     ? `versions.errors.${error.code}`
     : "versions.errors.unknown";
+}
+
+export function sortEntries(entries: readonly InventoryEntryResponse[]) {
+  const priority = (row: InventoryEntryResponse) =>
+    row.judgement === "inconsistent" ? 0 : row.judgement === "missing" ? 1 : 2;
+  return [...entries].sort(
+    (a, b) =>
+      priority(a) - priority(b) || a.seq - b.seq || a.entryId - b.entryId,
+  );
+}
+export function sortItems(items: readonly InventoryItemResponse[]) {
+  return [...items].sort(
+    (a, b) =>
+      Number(a.hasSource) - Number(b.hasSource) ||
+      a.seq - b.seq ||
+      a.itemId - b.itemId,
+  );
+}
+export function inventoryState(judgement: InventoryEntryResponse["judgement"]) {
+  const tones = {
+    inconsistent: "danger",
+    missing: "warn",
+    mapped: "ok",
+    split: "ok",
+    excluded: null,
+  } as const;
+  return {
+    key: `versions.inventory.judgement.${judgement}`,
+    tone: tones[judgement],
+  };
+}
+export function inventoryCounts(summary: InventorySummaryResponse) {
+  return {
+    sourceEntry: summary.sourceEntryCount,
+    sourceItem: summary.sourceItemCount,
+    outputRow: summary.outputRowCount,
+    split: summary.splitEntryIds.length,
+    excluded: summary.excludedEntryIds.length,
+    unmapped: summary.unmappedEntryIds.length,
+    orphan: summary.orphanItemIds.length,
+    multiMapped: summary.multiMappedItemIds.length,
+    inconsistent: summary.inconsistentEntryIds.length,
+  };
+}
+export function documentNames(entries: readonly InventoryEntryResponse[]) {
+  return [...new Set(entries.map((entry) => entry.documentFileName))];
+}
+export function buildCoverageRequest(recordedBy: string): ConfirmationRequest {
+  if (!recordedBy.trim()) invalid("E_RECORDER_REQUIRED");
+  return { kind: "coverage", recordedBy: recordedBy.trim() };
+}
+export function inventoryErrorKey(error: unknown) {
+  return error instanceof ApiError && error.code === "E_ALREADY_CONFIRMED"
+    ? "versions.inventory.errors.E_ALREADY_CONFIRMED"
+    : recordErrorKey(error);
 }

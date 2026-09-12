@@ -160,6 +160,12 @@ export function ItemListPage({
                   ),
                 })}
               </Typography>
+              <Button
+                component={Link}
+                href={`/cases/${caseId}/versions/${versionId}/inventory`}
+              >
+                {t("versions.inventory.link")}
+              </Button>
             </Box>
             <ItemFilters
               items={items.data ?? []}

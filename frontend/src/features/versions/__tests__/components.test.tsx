@@ -527,3 +527,17 @@ it.each([
     within(row.children[index] as HTMLElement).getAllByText("記載なし"),
   ).toHaveLength(1);
 });
+
+it.each([true, false])(
+  "網羅性照合への導線は確認済み=%sでも常に表示",
+  (coverageConfirmed) => {
+    mock.useVersion.mockReturnValue(
+      query({ ...version, coverageConfirmed }) as never,
+    );
+    render();
+    expect(screen.getByRole("link", { name: "網羅性照合へ" })).toHaveAttribute(
+      "href",
+      "/cases/8/versions/9/inventory",
+    );
+  },
+);

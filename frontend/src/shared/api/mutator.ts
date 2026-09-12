@@ -16,6 +16,7 @@
 
 // Next.js: ブラウザに公開する環境変数は NEXT_PUBLIC_ プレフィックス（.env.local で設定）
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+export const apiBaseUrl = baseURL;
 
 /** API が返す共通エラー形（05-api-ipo.md 0.2） */
 export type ApiErrorBody = {

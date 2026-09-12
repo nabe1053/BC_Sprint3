@@ -1,0 +1,51 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/inventory-model.test.ts
+
+FAIL src/features/versions/__tests__/inventory-model.test.ts
+  ✓ 資料側は不整合・欠落・seq/id、入力を変えない (2 ms)
+  ✓ 明細側は対応元なし・seq/id、入力を変えない
+  ✓ inconsistentの文字とトーン
+  ✓ missingの文字とトーン (1 ms)
+  ✓ mappedの文字とトーン
+  ✓ splitの文字とトーン
+  ✓ excludedの文字とトーン
+  ✓ 9件数は3数値と6配列長であり行照合から推測しない
+  ✓ 資料名は初出順distinct、未解決名をnullで保つ
+  ✓ coverage要求は名前とkindだけ、IDと時刻なし (1 ms)
+  ✓ 空白名はクライアントで拒否 "" (5 ms)
+  ✓ 空白名はクライアントで拒否 " 
+	 " (1 ms)
+  ✕ 既存確認の競合は網羅性向けの文言にする (1 ms)
+  ✓ 既知E_RECORDER_REQUIREDは既存文言へ (1 ms)
+  ✓ 既知E_ALREADY_UNDONEは既存文言へ
+  ✓ 既知E_NOT_FOUNDは既存文言へ
+  ✓ 既知E_TARGET_INVALIDは既存文言へ
+  ✓ 未知エラーは固定文言
+  ✓ 未知エラーは固定文言
+
+  ● 既存確認の競合は網羅性向けの文言にする
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "versions.inventory.errors.E_ALREADY_CONFIRMED"
+    Received: "versions.errors.E_ALREADY_CONFIRMED"
+
+      72 |   expect(
+      73 |     inventoryErrorKey(new ApiError(409, { code: "E_ALREADY_CONFIRMED" })),
+    > 74 |   ).toBe("versions.inventory.errors.E_ALREADY_CONFIRMED"));
+         |     ^
+      75 | it.each([
+      76 |   "E_RECORDER_REQUIRED",
+      77 |   "E_ALREADY_UNDONE",
+
+      at Object.toBe (src/features/versions/__tests__/inventory-model.test.ts:74:5)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 18 passed, 19 total
+Snapshots:   0 total
+Time:        0.365 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/inventory-model.test.ts/i.
+make[1]: *** [/tmp/coverage-review-checks.mk:4: coverage-review-model] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

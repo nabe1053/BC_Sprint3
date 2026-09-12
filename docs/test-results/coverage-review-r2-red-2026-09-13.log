@@ -1,0 +1,611 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/inventory-components.test.tsx
+
+FAIL src/features/versions/__tests__/inventory-components.test.tsx
+  ✕ 見出し・9件数・前提注記・primary0・URL導線 (179 ms)
+  ✕ 対応なし0でも前提の注記は表示 (42 ms)
+  ✓ 資料側の並びと2系統の状態を文字で識別し原文はリンク化しない (193 ms)
+  ✓ 明細側の余分優先・候補区切り・多重対応・集計注記 (105 ms)
+  ✓ 資料名distinct・資料ごとの原本リンクにbaseURL/rel/別タブ (58 ms)
+  ✓ 空名でPOSTせず、trimした名前とkindだけを一度記録 (144 ms)
+  ✓ 送信中の二重操作をロックする (80 ms)
+  ✓ 記録済みは応答名日時と取消のみ・取消者名必須でpath ID使用 (111 ms)
+  ✓ 記録系409/E_ALREADY_CONFIRMEDを固定文言にし生値を隠す (95 ms)
+  ✓ 記録系409/E_ALREADY_UNDONEを固定文言にし生値を隠す (90 ms)
+  ✓ 記録系404/E_NOT_FOUNDを固定文言にし生値を隠す (107 ms)
+  ✓ 記録系400/E_TARGET_INVALIDを固定文言にし生値を隠す (83 ms)
+  ✓ 記録系500/E_UNKNOWNを固定文言にし生値を隠す (78 ms)
+  ✓ 読取中を明示する (7 ms)
+  ✓ versionの404は版選び直しの導線 (19 ms)
+  ✓ inventoryの404は版選び直しの導線 (17 ms)
+  ✓ versionの読取失敗は原因と再取得 (15 ms)
+  ✓ inventoryの読取失敗は原因と再取得 (17 ms)
+  ✓ 両側空なら案作成へ、片側空ならその表に該当なし (54 ms)
+  ✕ notice explains extraction blind spots and uses polite record guidance (32 ms)
+
+  ● 見出し・9件数・前提注記・primary0・URL導線
+
+    TestingLibraryElementError: Unable to find an element with the text: 対応なし 0 件は網羅性の保証ではありません. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<main[39m
+          [33mclass[39m=[32m"MuiBox-root css-146mbm9"[39m
+        [36m>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"MuiBox-root css-1vwoemc"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h1 css-o2w69a-MuiTypography-root"[39m
+              [36m>[39m
+                [0m網羅性照合[0m
+              [36m</h1>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m元資料 4 項目 → Item List 3 行（分割 1・除外 1・対応なし 1）[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mhref[39m=[32m"/cases/8/versions/9"[39m
+              [33mtabindex[39m=[32m"0"[39m
+            [36m>[39m
+              [0mItem List へ[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</a>[39m
+          [36m</header>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+          [36m>[39m
+            [0m対応なし 0 件は網羅性の保証ではない[0m
+          [36m</p>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-10egq61"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m版 1[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m作成案[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<section[39m
+            [33maria-label[39m=[32m"照合件数"[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<dl[39m
+              [33mclass[39m=[32m"MuiBox-root css-1nbwj0x"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m総要素[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m5[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m原明細[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m4[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m出力行[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m3[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m分割[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m1[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m除外[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m1[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m対応なし[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m1[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m余分[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m1[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m多重対応[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m1[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                ...
+
+      60 |   );
+      61 |   expect(
+    > 62 |     screen.getByText("対応なし 0 件は網羅性の保証ではありません"),
+         |            ^
+      63 |   ).toBeInTheDocument();
+      64 | });
+      65 | it("対応なし0でも前提の注記は表示", () => {
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByText (src/features/versions/__tests__/inventory-components.test.tsx:62:12)
+
+  ● 対応なし0でも前提の注記は表示
+
+    TestingLibraryElementError: Unable to find an element with the text: 対応なし 0 件は網羅性の保証ではありません. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<main[39m
+          [33mclass[39m=[32m"MuiBox-root css-146mbm9"[39m
+        [36m>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"MuiBox-root css-1vwoemc"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h1 css-o2w69a-MuiTypography-root"[39m
+              [36m>[39m
+                [0m網羅性照合[0m
+              [36m</h1>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m元資料 4 項目 → Item List 3 行（分割 1・除外 1・対応なし 0）[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mhref[39m=[32m"/cases/8/versions/9"[39m
+              [33mtabindex[39m=[32m"0"[39m
+            [36m>[39m
+              [0mItem List へ[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</a>[39m
+          [36m</header>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+          [36m>[39m
+            [0m対応なし 0 件は網羅性の保証ではない[0m
+          [36m</p>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-10egq61"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m版 1[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m作成案[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<section[39m
+            [33maria-label[39m=[32m"照合件数"[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<dl[39m
+              [33mclass[39m=[32m"MuiBox-root css-1nbwj0x"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m総要素[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m5[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m原明細[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m4[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m出力行[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m3[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m分割[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m1[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m除外[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m1[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m対応なし[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m0[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m余分[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m1[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m多重対応[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m1[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                ...
+
+      67 |   render();
+      68 |   expect(
+    > 69 |     screen.getByText("対応なし 0 件は網羅性の保証ではありません"),
+         |            ^
+      70 |   ).toBeInTheDocument();
+      71 | });
+      72 | it("資料側の並びと2系統の状態を文字で識別し原文はリンク化しない", () => {
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByText (src/features/versions/__tests__/inventory-components.test.tsx:69:12)
+
+  ● notice explains extraction blind spots and uses polite record guidance
+
+    TestingLibraryElementError: Unable to find an element with the text: この対応表は抽出できた範囲どうしの突合です。抽出処理が最初から読まなかったページ・別紙・後続メールは、元資料側にも出力側にも現れないため表では検出できません。全ページ・別紙・追加明細を元資料で確認してください。. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<main[39m
+          [33mclass[39m=[32m"MuiBox-root css-146mbm9"[39m
+        [36m>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"MuiBox-root css-1vwoemc"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h1 css-o2w69a-MuiTypography-root"[39m
+              [36m>[39m
+                [0m網羅性照合[0m
+              [36m</h1>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m元資料 4 項目 → Item List 3 行（分割 1・除外 1・対応なし 1）[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mhref[39m=[32m"/cases/8/versions/9"[39m
+              [33mtabindex[39m=[32m"0"[39m
+            [36m>[39m
+              [0mItem List へ[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</a>[39m
+          [36m</header>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+          [36m>[39m
+            [0m対応なし 0 件は網羅性の保証ではない[0m
+          [36m</p>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-10egq61"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m版 1[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m作成案[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<section[39m
+            [33maria-label[39m=[32m"照合件数"[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<dl[39m
+              [33mclass[39m=[32m"MuiBox-root css-1nbwj0x"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m総要素[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m5[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m原明細[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m4[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m出力行[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m3[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m分割[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m1[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m除外[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m1[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m対応なし[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m1[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m余分[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m1[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<dt[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m多重対応[0m
+                [36m</dt>[39m
+                [36m<dd[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-qb0a2g-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m1[0m
+                [36m</dd>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                ...
+
+      302 |  test("notice explains extraction blind spots and uses polite record guidance", () => {
+      303 |   const view = render();
+    > 304 |   expect(screen.getByText("この対応表は抽出できた範囲どうしの突合です。抽出処理が最初から読まなかったページ・別紙・後続メールは、元資料側にも出力側にも現れないため表では検出できません。全ページ・別紙・追加明細を元資料で確認してください。")).toBeInTheDocument();
+          |                 ^
+      305 |   expect(screen.getByText("担当者確認済みにするには本記録が必要です")).toBeInTheDocument();
+      306 |   view.unmount();
+      307 |   data({ summary: { ...inventory.summary, coverage: { confirmationId: 12, recordedBy: "確認者", recordedAt: "2026-09-13T00:00:00Z" } } });
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByText (src/features/versions/__tests__/inventory-components.test.tsx:304:17)
+
+Test Suites: 1 failed, 1 total
+Tests:       3 failed, 17 passed, 20 total
+Snapshots:   0 total
+Time:        2.444 s, estimated 5 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/inventory-components.test.tsx/i.
+make: *** [/tmp/coverage-review-checks.mk:8: coverage-review-components] Error 1

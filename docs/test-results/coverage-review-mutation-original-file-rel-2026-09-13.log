@@ -1,0 +1,52 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/inventory-components.test.tsx
+
+FAIL src/features/versions/__tests__/inventory-components.test.tsx
+  ✓ 見出し・9件数・前提注記・primary0・URL導線 (152 ms)
+  ✓ 対応なし0でも前提の注記は表示 (38 ms)
+  ✓ 資料側の並びと2系統の状態を文字で識別し原文はリンク化しない (173 ms)
+  ✓ 明細側の余分優先・候補区切り・多重対応・集計注記 (101 ms)
+  ✕ 資料名distinct・資料ごとの原本リンクにbaseURL/rel/別タブ (60 ms)
+  ✓ 空名でPOSTせず、trimした名前とkindだけを一度記録 (139 ms)
+  ✓ 送信中の二重操作をロックする (82 ms)
+  ✓ 記録済みは応答名日時と取消のみ・取消者名必須でpath ID使用 (108 ms)
+  ✓ 記録系409/E_ALREADY_CONFIRMEDを固定文言にし生値を隠す (100 ms)
+  ✓ 記録系409/E_ALREADY_UNDONEを固定文言にし生値を隠す (95 ms)
+  ✓ 記録系404/E_NOT_FOUNDを固定文言にし生値を隠す (98 ms)
+  ✓ 記録系400/E_TARGET_INVALIDを固定文言にし生値を隠す (80 ms)
+  ✓ 記録系500/E_UNKNOWNを固定文言にし生値を隠す (79 ms)
+  ✓ 読取中を明示する (9 ms)
+  ✓ versionの404は版選び直しの導線 (16 ms)
+  ✓ inventoryの404は版選び直しの導線 (14 ms)
+  ✓ versionの読取失敗は原因と再取得 (16 ms)
+  ✓ inventoryの読取失敗は原因と再取得 (16 ms)
+  ✓ 両側空なら案作成へ、片側空ならその表に該当なし (51 ms)
+
+  ● 資料名distinct・資料ごとの原本リンクにbaseURL/rel/別タブ
+
+    expect(element).toHaveAttribute("rel", "noopener noreferrer") // element.getAttribute("rel") === "noopener noreferrer"
+
+    Expected the element to have attribute:
+      rel="noopener noreferrer"
+    Received:
+      null
+
+      124 |   for (const a of links) {
+      125 |     expect(a).toHaveAttribute("target", "_blank");
+    > 126 |     expect(a).toHaveAttribute("rel", "noopener noreferrer");
+          |               ^
+      127 |   }
+      128 |   expect(
+      129 |     within(scope).getByText(/この対応表に抽出漏れ検出機能はありません/),
+
+      at Object.toHaveAttribute (src/features/versions/__tests__/inventory-components.test.tsx:126:15)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 18 passed, 19 total
+Snapshots:   0 total
+Time:        2.311 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/inventory-components.test.tsx/i.
+make[1]: *** [/tmp/coverage-review-checks.mk:8: coverage-review-components] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

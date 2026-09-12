@@ -147,18 +147,15 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 T-403 handoff 受領・**T-501 へ**）
+## 7. 次にやること（2026-09-13 T-403 DONE・**T-501 → T-502 → T-601 → T-503**）
 
-- **先にタスク R-2（T-403 の P2 修正・小）**: RV-043 P2-1。`ja.json` `versions.inventory.notice` を **2 キー**（`noticeLead`=「対応なし 0 件は網羅性の保証ではありません」＋
-  `noticeBody`=モック `docs/requirements/mocks/mockup.html:410` の説明文「この対応表は抽出できた範囲どうしの突合です。抽出処理が最初から読まなかったページ・別紙・後続メールは、
-  元資料側にも出力側にも現れないため表では検出できません。全ページ・別紙・追加明細を元資料で確認してください。」）にし、`InventoryPage.tsx` で両方表示（見出し句は `fontWeight` トークンで強調・
-  色は使わない）。`inventory-components.test.tsx` の期待文字列は**更新**（削除しない）。あわせて P3-1（`notice/requiredNote/undoNote` を敬体に）も同時に。`make check-fe` green。
-  handoff `docs/t403-handoff.md` の末尾に `## R-2 対応`（変更 file:line・テスト結果）を足し、その下に `## 再レビュー依頼（T-403）` を再掲。**R-2 は T-501 より先に**（30 分以内の粒度）
+- T-403 は **DONE**（RV-044・G4 完了）。R-2 の対応ありがとうございました
 - **いまはタスク S（T-501、`docs/t501-instructions.md`・AD-028 の 18 決定。BE のみ・endpoint 無し）**。完了見出し `## 再レビュー依頼（T-501）`（`docs/t501-handoff.md`）。
   `make check-be` 自由（Claude は pytest を回さない）。`frontend/` は触らない。T-403 の指摘対応と重なるときは、pytest と jest を同時に走らせない（LN-027）
 - **T-501 への追補（AD-029 ⑤。指示書 §4「#22 材料」に加える）**: `RecordRepository.list_versions_with_records(case_id)` は版ごとに **最新 `to_state='review_checked'` イベントの
   `recorded_at`（`latest_review_checked_at`、無ければ None）** も返す（T-502 が「差し戻し中」を導出するのに最新イベント 1 件では足りないため）。クエリ数固定のまま。テストに 1 本（review 後に
   差し戻し → 訂正で最新イベントが staff_checked でも `latest_review_checked_at` は保持）
+- T-502 の後: **タスク U（T-601、`docs/t601-instructions.md`・AD-030 の 21 決定。BE のみ）**。完了見出し `## 再レビュー依頼（T-601）`。その後 **タスク V（T-503、`docs/t503-instructions.md`・AD-031。FE）**。完了見出し `## 再レビュー依頼（T-503）`。いずれも指示書は commit 済みで着手可
 - T-501 の後: **タスク T（T-502、`docs/t502-instructions.md`・AD-029 の 18 決定。API 層のみ）**。完了見出し `## 再レビュー依頼（T-502）`（`docs/t502-handoff.md`）。T-501 の
   再レビュー待ちの間に着手してよい（T-501 の指摘対応が出たら優先）
 

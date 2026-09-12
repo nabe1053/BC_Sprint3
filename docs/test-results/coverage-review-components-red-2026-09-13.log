@@ -1,0 +1,26 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/inventory-components.test.tsx
+
+FAIL src/features/versions/__tests__/inventory-components.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '../components/InventoryPage' from 'src/features/versions/__tests__/inventory-components.test.tsx'
+
+       7 | import i18n from "@/shared/i18n";
+       8 | jest.mock("../hooks");
+    >  9 | const mock=jest.mocked(hooks),confirm=jest.fn(),undo=jest.fn(),refetch=jest.fn();
+         |                        ^
+      10 | const query=(data:unknown)=>({data,isLoading:false,isError:false,error:null,refetch});
+      11 | beforeEach(()=>{jest.resetAllMocks();confirm.mockResolvedValue({});undo.mockResolvedValue({});mock.useVersion.mockReturnValue(query(version) as never);mock.useInventory.mockReturnValue(query(inventory) as never);mock.useCoverageMutations.mockReturnValue({confirm:{mutateAsync:confirm},undoConfirmation:{mutateAsync:undo}} as never);});
+      12 | const render=()=>renderWithProviders(<InventoryPage caseId={8} versionId={9}/>);
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.<anonymous> (src/features/versions/__tests__/inventory-components.test.tsx:9:24)
+
+Test Suites: 1 failed, 1 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        0.47 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/inventory-components.test.tsx/i.
+make: *** [/tmp/coverage-review-checks.mk:8: coverage-review-components] Error 1

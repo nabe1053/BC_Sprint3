@@ -12,6 +12,8 @@ import * as api from "./api";
 export const versionsKey = (caseId: number) => ["versions", caseId] as const;
 export const versionKey = (versionId: number) =>
   ["version", versionId] as const;
+export const inventoryKey = (versionId: number) =>
+  ["version", versionId, "inventory"] as const;
 export const itemsKey = (versionId: number) =>
   ["version", versionId, "items"] as const;
 export const questionsKey = (versionId: number) =>
@@ -51,7 +53,7 @@ export function useEvidence(versionId: number, itemId: number) {
 function useRecordMutation<Input, Result>(
   versionId: number,
   mutationFn: (input: Input) => Promise<Result>,
-  resource: "items" | "questions",
+  resource: "items" | "questions" | "inventory",
 ) {
   const client = useQueryClient();
   const refresh = () =>
@@ -62,7 +64,11 @@ function useRecordMutation<Input, Result>(
       }),
       client.invalidateQueries({
         queryKey:
-          resource === "items" ? itemsKey(versionId) : questionsKey(versionId),
+          resource === "inventory"
+            ? inventoryKey(versionId)
+            : resource === "items"
+              ? itemsKey(versionId)
+              : questionsKey(versionId),
         exact: true,
       }),
     ]);
@@ -110,4 +116,25 @@ export function useRecordMutations(versionId: number) {
     "questions",
   );
   return { edit, undoEdit, confirm, undoConfirmation, judge };
+}
+
+export function useInventory(versionId: number) {
+  return useQuery({
+    queryKey: inventoryKey(versionId),
+    queryFn: () => api.getInventory(versionId),
+  });
+}
+export function useCoverageMutations(versionId: number) {
+  const confirm = useRecordMutation(
+    versionId,
+    (input: ConfirmationRequest) => api.confirm(versionId, input),
+    "inventory",
+  );
+  const undoConfirmation = useRecordMutation(
+    versionId,
+    ({ confirmationId, ...input }: UndoRequest & { confirmationId: number }) =>
+      api.undoConfirmation(versionId, confirmationId, input),
+    "inventory",
+  );
+  return { confirm, undoConfirmation };
 }

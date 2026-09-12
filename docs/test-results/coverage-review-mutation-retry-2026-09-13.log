@@ -1,0 +1,40 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/inventory-hooks.test.tsx
+
+FAIL src/features/versions/__tests__/inventory-hooks.test.tsx
+  ✓ confirm / 200 はinventoryと版を更新しitemsに触らない (81 ms)
+  ✓ confirm / 409 はinventoryと版を更新しitemsに触らない (59 ms)
+  ✓ confirm / 404 はinventoryと版を更新しitemsに触らない (59 ms)
+  ✓ confirm / 400 はinventoryと版を更新しitemsに触らない (58 ms)
+  ✓ undoConfirmation / 200 はinventoryと版を更新しitemsに触らない (58 ms)
+  ✓ undoConfirmation / 409 はinventoryと版を更新しitemsに触らない (57 ms)
+  ✓ undoConfirmation / 404 はinventoryと版を更新しitemsに触らない (56 ms)
+  ✓ undoConfirmation / 400 はinventoryと版を更新しitemsに触らない (56 ms)
+  ✕ 本番Providersで400 POSTは1回、既定retryよりhook設定を優先 (17 ms)
+
+  ● 本番Providersで400 POSTは1回、既定retryよりhook設定を優先
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 2
+
+      146 |       ).rejects.toMatchObject({ code: "E_RECORDER_REQUIRED" });
+      147 |     });
+    > 148 |     expect(request).toHaveBeenCalledTimes(1);
+          |                     ^
+      149 |   } finally {
+      150 |     global.fetch = original;
+      151 |   }
+
+      at Object.toHaveBeenCalledTimes (src/features/versions/__tests__/inventory-hooks.test.tsx:148:21)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 8 passed, 9 total
+Snapshots:   0 total
+Time:        1.577 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/inventory-hooks.test.tsx/i.
+make[1]: *** [/tmp/coverage-review-checks.mk:6: coverage-review-hooks] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'
