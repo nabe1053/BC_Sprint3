@@ -1,0 +1,41 @@
+............FF.                                                          [100%]
+=================================== FAILURES ===================================
+_________________ test_recovery_grace_and_predicate_are_shared _________________
+
+    def test_recovery_grace_and_predicate_are_shared() -> None:
+        import ast
+        from app.agent import definition
+        from app.domain import run_types
+    
+>       assert run_types.RECOVERY_GRACE_S == definition.RECOVERY_GRACE_S == 16
+E       AttributeError: module 'app.domain.run_types' has no attribute 'RECOVERY_GRACE_S'
+
+tests/unit/test_single_source_of_truth.py:148: AttributeError
+_________________ test_repositories_do_not_import_agent_layer __________________
+
+    def test_repositories_do_not_import_agent_layer() -> None:
+        import ast
+        for path in sorted((APP_DIR / "repositories").rglob("*.py")):
+            for node in ast.walk(ast.parse(path.read_text())):
+                if isinstance(node, ast.ImportFrom):
+>                   assert not (node.module == "app.agent" or (node.module or "").startswith("app.agent.")), path
+E                   AssertionError: PosixPath('/home/takahiro/Documents/BC_Sprint3/backend/app/repositories/run_repository.py')
+E                   assert not ('app.agent.definition' == 'app.agent'
+E                     - app.agent
+E                     + app.agent.definition or True)
+E                    +  where True = <built-in method startswith of str object at 0x73444af712f0>('app.agent.')
+E                    +    where <built-in method startswith of str object at 0x73444af712f0> = ('app.agent.definition').startswith
+E                    +      where 'app.agent.definition' = <ast.ImportFrom object at 0x73444a71d150>.module
+
+tests/unit/test_single_source_of_truth.py:182: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_single_source_of_truth.py::test_recovery_grace_and_predicate_are_shared - AttributeError: module 'app.domain.run_types' has no attribute 'RECOVERY_GRACE_S'
+FAILED tests/unit/test_single_source_of_truth.py::test_repositories_do_not_import_agent_layer - AssertionError: PosixPath('/home/takahiro/Documents/BC_Sprint3/backend/app/repositories/run_repository.py')
+assert not ('app.agent.definition' == 'app.agent'
+  - app.agent
+  + app.agent.definition or True)
+ +  where True = <built-in method startswith of str object at 0x73444af712f0>('app.agent.')
+ +    where <built-in method startswith of str object at 0x73444af712f0> = ('app.agent.definition').startswith
+ +      where 'app.agent.definition' = <ast.ImportFrom object at 0x73444a71d150>.module
+2 failed, 13 passed in 0.27s
+make: *** [/tmp/recovery-grace-checks.mk:2: recovery-grace-unit] Error 1

@@ -5,9 +5,8 @@ import logging
 from datetime import UTC, datetime
 from decimal import Decimal
 from sqlalchemy import select, func
-from app.agent.definition import RECOVERY_GRACE_S
 from app.domain.draft_errors import DraftError
-from app.domain.run_types import RunResult
+from app.domain.run_types import RECOVERY_GRACE_S, RunResult
 from app.models import (
     Case,
     RuleSet,

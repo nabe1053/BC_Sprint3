@@ -1,5 +1,6 @@
 """Human-record inputs; no HTTP, ORM, clock or agent dependencies."""
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Annotated, Literal, get_args
 
 from pydantic import Field, StringConstraints, model_validator
@@ -118,6 +119,14 @@ class JudgementInput(UndoInput):
 
 
 @dataclass(frozen=True)
+class RowMatch:
+    confirmation_id: int
+    recorded_by: str
+    recorded_at: datetime
+
+
+@dataclass(frozen=True)
 class CurrentItem:
     values: dict
     history: list
+    row_match: RowMatch | None = None

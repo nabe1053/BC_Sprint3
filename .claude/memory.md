@@ -187,10 +187,10 @@
 | T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202, C-1 | DONE | 2回目 RV-022: **DONE**（P3 5 は記録のみ・TODO-009。C-1 は未完のまま） | 2026-09-12 |
 | C-2 | 記録のみ P3 の整理 chore（TODO-010/012、backend/app 非接触分） | chore | C-1, T-204 | DONE | 2回目: RV-029 P2-1（`MAKEFLAGS=-j8`）を確認して DONE。残 P3 は TODO-012 ⑦・TODO-017 | 2026-09-12 |
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | DONE | 2回目 RV-028: **DONE**（P3 1 は記録のみ・TODO-012 へ） | 2026-09-12 |
-| T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | FIXING | 8回目 RV-037: L-8b DONE 可。残 P2 1（依存の逆流）→ L-8c。commit `02e97b9` | 2026-09-13 |
+| T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | DONE | 9回目 RV-038: L-8c **DONE**。L-3〜L-8c 全 DONE・AE01/02/03 合格。残 P3 は TODO-020/023/026 | 2026-09-13 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | DONE | 1回目 RV-033: **DONE**（P3 5 は記録のみ・TODO-025） | 2026-09-13 |
-| T-302 | G3 参照 #23-26 / 記録 #29-33・#22 最小・#1 拡張（API） | web | T-301 | DONE | 1回目 RV-036: **DONE**（AD-022 13/13・P3 5 は記録のみ・TODO-027） | 2026-09-13 |
-| T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | PLANNED | 指示書 `docs/t303-instructions.md`（AD-024）。N-2 の後に Codex 着手 | 2026-09-13 |
+| T-302 | G3 参照 #23-26 / 記録 #29-33・#22 最小・#1 拡張（API） | web | T-301 | DONE | RV-036 DONE ＋ 追補 N-2（#24 `rowMatch`）RV-038 DONE | 2026-09-13 |
+| T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | IMPLEMENTING | Codex 着手（指示書 `docs/t303-instructions.md`・AD-024） | 2026-09-13 |
 | T-401 | G4 インベントリ・対応関係・照合集計（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
 | T-402 | G4 照合 API #19,27（API） | web | T-401 | PLANNED | - | 2026-09-11 |
 | T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | PLANNED | - | 2026-09-11 |
@@ -398,6 +398,11 @@
 - [RV-037] T-205 8回目 L-8b（unit・静的確認のみ）: **DONE 可**。P2 1（`run_repository` が `app.agent.definition` を import＝Data Access → Business Logic の逆流。定数を
   `app/domain/run_types.py` へ移し definition が再公開する案 a → L-8c）/ P3 1（`RECOVERY_GRACE_S=16` と jobs の猶予 15.3 秒の結び付きを assert する 1 行）。unit 379 passed。
 
+- [RV-038] L-8c / N-2（Codex → Claude reviewer 独立・2026-09-13）: 両方 **DONE 可**。P1 0 / P2 0 / P3 3。L-8c: `RECOVERY_GRACE_S` の定義元を domain へ、`app/repositories` →
+  `app.agent` の import 0、AST 逆流検査（3 形式）と猶予算定 assert を追加。SSOT 検査は除外の付け替えで範囲拡大。N-2: `rowMatch` を版単位 1 クエリで一括取得、書込・ORM・
+  migration 不変、応答 3 項目のみ（ダミー属性混入で検査）、coverage 確認では null のまま、orval model 137→138（消失 0）。実測 579 passed / tsc 0。P3: 再公開 import の
+  コメント / 関数内 import をトップへ / 部分 UNIQUE 前提のコメント → TODO-027 へ追記。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -594,7 +599,8 @@
   ターン数は 14。許容か、モデル/プロンプトで詰めるか（D06 仮値の見直し材料）。
 - [TODO-027] **T-302 の記録のみ P3（RV-036）**: ①`tests/unit/test_api_path_separation_live.py` → `test_ui_route_presence.py` に改名（integration 側と basename 重複）
   ②`test_single_source_of_truth.py` に「`field_error_codes` 全コード × 表の非 400 エントリの交差 == {E_FIELD_NOT_EDITABLE}」の検査 ③`VersionCounts` は明示コピー
-  ④`record_response` の属性名一致前提を docstring に ⑤`Item.__table__.columns` と `ItemCurrentResponse` の差分 = 意図的除外リストの検査。C-3 で。
+  ④`record_response` の属性名一致前提を docstring に ⑤`Item.__table__.columns` と `ItemCurrentResponse` の差分 = 意図的除外リストの検査 ⑥`definition.py` の再公開 import にコメント ⑦`record_repository` の関数内 import をトップへ
+  ⑧`rowMatch` dict 構築に部分 UNIQUE 前提のコメント（RV-038）。C-3 で。
 - [TODO-026] **L-8 の記録のみ P3（RV-035）**: ①`trace_write_failed` の JSONL を DB の trace_event から再構築する手動手順 or `scripts/rebuild_trace.py`（Env フェーズの素材）
   ②`limits.outerTimeoutS` 不正の running run はどの回収にも掛からない → ログ 1 行（run_id）。
 - [TODO-023] **T-205 L-5/L-6 の記録のみ P3（RV-032）**: ①`check_agent_mutations.py` に L-5 の 4 変異（エラー継続を 1 回停止に戻す / 成功時リセット除去 / 項目別情報の除去 /

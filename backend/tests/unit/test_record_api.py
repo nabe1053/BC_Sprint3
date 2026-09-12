@@ -339,3 +339,32 @@ async def test_agent_namespace_cannot_write_human_records(record_http):
     response = await client.post("/api/v1/agent/versions/1/edits", json=EDIT)
     assert response.status_code == 404
     service.edit.assert_not_awaited()
+
+
+@pytest.mark.parametrize("matched", [False, True])
+async def test_items_expose_only_active_row_match_metadata(record_http, matched):
+    client, service = record_http
+    current = service.list_items_with_edits.return_value[0]
+    service.list_items_with_edits.return_value = [
+        N(
+            values=current.values,
+            history=current.history,
+            row_match=N(
+                confirmation_id=12,
+                recorded_by="確認担当",
+                recorded_at=AT,
+                private="hidden",
+            )
+            if matched
+            else None,
+        )
+    ]
+    response = await client.get("/api/v1/ui/versions/1/items")
+    assert response.status_code == 200
+    match = response.json()["items"][0]["rowMatch"]
+    if matched:
+        assert set(match) == {"confirmationId", "recordedBy", "recordedAt"}
+        assert match["confirmationId"] == 12 and match["recordedBy"] == "確認担当"
+        assert datetime.fromisoformat(match["recordedAt"]) == AT
+    else:
+        assert match is None

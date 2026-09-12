@@ -1,5 +1,6 @@
 """Human record policy and server timestamps; no ORM or HTTP dependencies."""
 from datetime import UTC, datetime
+from dataclasses import replace
 from types import SimpleNamespace
 
 from pydantic import ValidationError
@@ -141,8 +142,10 @@ class RecordService:
 
     async def list_items_with_edits(self, version_id):
         return [
-            apply_edits(item, edits)
-            for item, edits in await self.repository.list_items_with_edits(version_id)
+            replace(apply_edits(item, edits), row_match=row_match)
+            for item, edits, row_match in await self.repository.list_items_with_edits(
+                version_id
+            )
         ]
 
     async def list_questions_with_latest(self, version_id):
@@ -156,7 +159,7 @@ class RecordService:
 
     async def summary(self, version_id):
         data = await self.repository.summary(version_id)
-        items = [apply_edits(item, edits) for item, edits in data["items"]]
+        items = [apply_edits(item, edits) for item, edits, _ in data["items"]]
         active_edits = [
             edit for item in items for edit in item.history if edit.undone_at is None
         ]

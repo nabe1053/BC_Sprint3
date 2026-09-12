@@ -2,6 +2,8 @@
 from dataclasses import dataclass
 from typing import Literal
 
+RECOVERY_GRACE_S = 16  # 終端保存の3回再試行と後始末を待ってから回収する。
+
 StopReason = Literal[
     "completed",
     "failed",

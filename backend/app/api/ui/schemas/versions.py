@@ -66,6 +66,12 @@ class VersionResponse(CamelModel):
     coverage_confirmed: bool
 
 
+class RowMatchResponse(CamelModel):
+    confirmation_id: int
+    recorded_by: str
+    recorded_at: datetime
+
+
 class ItemCurrentResponse(CamelModel):
     item_id: int
     row_code: str
@@ -111,6 +117,7 @@ class ItemCurrentResponse(CamelModel):
     candidate_label: str | None = None
     is_inherit_candidate: bool = False
     history: list[ItemEditRecord]
+    row_match: RowMatchResponse | None
 
 
 class ItemsResponse(CamelModel):

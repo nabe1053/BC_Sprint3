@@ -1,3 +1,23 @@
+## L-8c 対応
+
+§7 **2026-09-13 09:50版**に従いRV-037 P2/P3へ対応。希望Status: REVIEWING。commit・memory編集なし。
+
+### レビュー対応
+
+| 指摘番号 | 変更内容（file:line） | REDテスト・コマンド・件数 |
+|---|---|---|
+| RV-037 P2 依存方向 | `backend/app/domain/run_types.py:5`をRECOVERY_GRACE_Sの定義元にし、`app/agent/definition.py:5`から再公開。`repositories/run_repository.py:9`はdomainからimport。agent-planの定義元説明も追従 | `test_recovery_grace_and_predicate_are_shared` / `test_repositories_do_not_import_agent_layer`、recovery-grace-unitで初回2 FAIL / 13 PASS→15 PASS |
+| 逆流の機械検査 | `backend/tests/unit/test_single_source_of_truth.py:177`でrepositories以下のImport/ImportFromをAST検査。app.agentとappからのagent importを禁止。既存述語集約・重複禁止のassertを維持 | 上記逆流テストが変更前のrepository importを検出（RED）。定数の正をdomainへ変更し、agent側再公開との同値も確認 |
+| RV-037 P3 猶予の算定 | 同`:198`にRECOVERY_GRACE_S > FINISH_TIMEOUT_S*3 + 0.3 + CANCEL_CLEANUP_Sのassertを追加 | 既存16秒でPASS。算定関係の追加検証のため架空のREDは割り当てない |
+
+[RED](test-results/recovery-layer-red-2026-09-13.log) / [限定GREEN](test-results/recovery-layer-green-2026-09-13.log)。入口は前節L-8bのMake補助ファイルによるrecovery-grace-unit。
+
+[全体ゲート](test-results/recovery-row-match-regression-2026-09-13.log): `AGENT_MODE=local_dummy DEBUG=false CI=true make check` **BE579件 / FE166件（15 suites）PASS**、ruff・OpenAPI/orval・tsc・eslint all green。L-8bの更新済み実DB境界もここで検証済み。N-2と同じ全体ゲート。
+
+**再レビュー依頼（L-8c）**。§7の明示指示により、N-2完了後はT-303を順に実施する。
+
+---
+
 ## L-8b 対応
 
 2026-09-13。§7 **09:10版**に従い回収判定を共通化。限定unitテストはGREEN。**全体ゲートは§7の更新待ち**（T-302 reviewerがoctg_test使用中のため、今回DBテストは未実行）。commit・memory編集なし。

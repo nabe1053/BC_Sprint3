@@ -1,0 +1,14 @@
+import inspect
+import sys
+import textwrap
+from pathlib import Path
+sys.path.insert(0, str(Path.cwd()))
+import pytest
+from app.repositories import record_repository
+source = textwrap.dedent(inspect.getsource(record_repository.RecordRepository.list_items_with_edits))
+assert "Confirmation.undone_at.is_(None)," in source
+source = source.replace("Confirmation.undone_at.is_(None),", "True,")
+scope = dict(vars(record_repository))
+exec(compile(source, "<row-match-mutation>", "exec"), scope)
+record_repository.RecordRepository.list_items_with_edits = scope["list_items_with_edits"]
+sys.exit(pytest.main(["tests/integration/test_api_records.py", "-q", "-k", "row_match_confirmation"]))

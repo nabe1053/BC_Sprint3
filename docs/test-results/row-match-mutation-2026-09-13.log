@@ -1,0 +1,106 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+___________ test_row_match_confirmation_appears_and_undo_removes_it ____________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x78c7989638f0>
+
+    async def test_row_match_confirmation_appears_and_undo_removes_it(db_session):
+        from app.api.dependencies import get_record_service
+        from app.api.ui.router import router
+    
+        seed = await seed_record_version(db_session)
+        app = FastAPI()
+        app.add_exception_handler(ApiError, api_error_handler)
+        app.include_router(router, prefix="/api/v1")
+        app.dependency_overrides[get_record_service] = lambda: RecordService(
+            RecordRepository(db_session)
+        )
+        path = f"/api/v1/ui/versions/{seed.version.id}"
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            initial = await client.get(path + "/items")
+            assert (
+                initial.status_code == 200
+                and initial.json()["items"][0]["rowMatch"] is None
+            )
+            coverage = await client.post(
+                path + "/confirmations",
+                json={"kind": "coverage", "recordedBy": "網羅性担当"},
+            )
+            assert coverage.status_code == 201
+            assert (await client.get(path + "/items")).json()["items"][0][
+                "rowMatch"
+            ] is None
+            response = await client.post(
+                path + "/confirmations",
+                json={
+                    "kind": "row_match",
+                    "itemId": seed.item.id,
+                    "recordedBy": "照合担当",
+                },
+            )
+            assert response.status_code == 201
+            confirmation = response.json()
+            match = (await client.get(path + "/items")).json()["items"][0]["rowMatch"]
+            assert match == {
+                key: confirmation[key]
+                for key in ("confirmationId", "recordedBy", "recordedAt")
+            }
+            response = await client.post(
+                path + f"/confirmations/{confirmation['confirmationId']}/undo",
+                json={"recordedBy": "取消担当"},
+            )
+            assert response.status_code == 200
+>           assert (await client.get(path + "/items")).json()["items"][0][
+                "rowMatch"
+            ] is None
+E           AssertionError: assert {'confirmationId': 2, 'recordedAt': '2026-09-12T17:26:24.103239Z', 'recordedBy': '照合担当'} is None
+
+tests/integration/test_api_records.py:165: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+tests/integration/test_api_records.py::test_row_match_confirmation_appears_and_undo_removes_it
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'recordedBy' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_records.py::test_row_match_confirmation_appears_and_undo_removes_it
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'recordedBy' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_records.py::test_row_match_confirmation_appears_and_undo_removes_it
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'recordedBy' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_records.py::test_row_match_confirmation_appears_and_undo_removes_it
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'kind' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_records.py::test_row_match_confirmation_appears_and_undo_removes_it
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'kind' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_records.py::test_row_match_confirmation_appears_and_undo_removes_it
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'kind' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_records.py::test_row_match_confirmation_appears_and_undo_removes_it
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'itemId' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_records.py::test_row_match_confirmation_appears_and_undo_removes_it
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'itemId' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_records.py::test_row_match_confirmation_appears_and_undo_removes_it
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'itemId' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_api_records.py::test_row_match_confirmation_appears_and_undo_removes_it - AssertionError: assert {'confirmationId': 2, 'recordedAt': '2026-09-12T17:26:24.103239Z', 'recordedBy': '照合担当'} is None
+1 failed, 2 deselected, 10 warnings in 0.37s
+make: *** [/tmp/row-match-checks.mk:5: row-match-mutation] Error 1

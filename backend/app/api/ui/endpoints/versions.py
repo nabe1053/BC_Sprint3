@@ -12,6 +12,7 @@ from app.api.ui.schemas.versions import (
     VersionCounts,
     VersionResponse,
     ItemCurrentResponse,
+    RowMatchResponse,
     ItemsResponse,
     EvidenceResponse,
     ItemEvidenceResponse,
@@ -61,6 +62,11 @@ async def list_items(versionId: Id, service: Service):
                     if key in ItemCurrentResponse.model_fields
                 },
                 item_id=row.values["id"],
+                row_match=RowMatchResponse.model_validate(
+                    row.row_match, from_attributes=True
+                )
+                if row.row_match is not None
+                else None,
                 history=[
                     record_response(ItemEditRecord, edit, "edit_id")
                     for edit in row.history

@@ -3,6 +3,8 @@
 このファイルの値は設計書（agent-plan.md）の写しであり、変更するときは agent-plan.md 側も更新する。
 """
 
+from app.domain.run_types import RECOVERY_GRACE_S as RECOVERY_GRACE_S
+
 # The approved real-model policy uses this; local_dummy does not consume a prompt.
 SYSTEM_PROMPT = """あなたは AGENT-01（引合明細抽出エージェント）です。
 渡辺（引合担当）が引合書類を1行ずつ Excel に転記している作業を代行します。
@@ -53,7 +55,6 @@ assert INACTIVITY_TIMEOUT_S < INNER_TIMEOUT_S < OUTER_TIMEOUT_S, (
 REPEATED_CALL_LIMIT = 3
 VALIDATION_REPEAT_LIMIT = 3
 CANCEL_CLEANUP_S = 0.02
-RECOVERY_GRACE_S = 16  # 終端保存の3回再試行と後始末を待ってから回収する。
 
 # 実行モデル識別子。agent_runs.model に記録する。
 DUMMY_MODEL_ID = "mock-fixed-v2"

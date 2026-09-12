@@ -1,3 +1,31 @@
+## N-2 対応
+
+§7 **2026-09-13 09:50版**・AD-024①に従い、#24へ必須nullableの`rowMatch: {confirmationId, recordedBy, recordedAt} | null`を追加。希望Status: REVIEWING。書込処理は変更していない。
+
+### レビュー対応
+
+| 指摘番号 | 変更内容（file:line） | REDテスト・コマンド・件数 |
+|---|---|---|
+| N-2 読取拡張 | `backend/app/repositories/record_repository.py:158`で版内のkind=row_matchかつundone_at IS NULLの確認を一括取得。`domain/record_types.py:122`のRowMatchをCurrentItemへ保持し、`services/record_service.py:143`で現在値・全履歴と合わせる。summaryのtuple読取も追従 | `test_row_match_confirmation_appears_and_undo_removes_it`。実HTTPで初期null→coverage登録後もnull→row_match登録201→ID/担当者/応答日時がitemsに現れる→取消200→nullを確認 |
+| N-2 応答契約 | `api/ui/schemas/versions.py:69,120`、`api/ui/endpoints/versions.py:65`。明示した3項目だけをcamelCaseで返す | `test_items_expose_only_active_row_match_metadata`（Service mock、有無2件）。余分属性の非露出・日時同値もassert。row-match-testは初回3 FAIL / 28 PASS→31 PASS |
+| 変異 | 子プロセス内だけで未取消条件を除去。共有ソースは不変 | 取消後null期待が破られ1 FAIL。通信・環境原因の失敗ではない |
+
+[RED](test-results/row-match-red-2026-09-13.log) / [対象GREEN](test-results/row-match-green-2026-09-13.log) / [変異](test-results/row-match-mutation-2026-09-13.log)。追加3件、既存テストの削除・assert除去なし。書込API/ServiceとORM/migrationは変更なし。
+
+```sh
+cp docs/test-results/row-match-checks-2026-09-13.mk /tmp/row-match-checks.mk
+cp docs/test-results/row-match-mutation-2026-09-13.txt /tmp/row-match-mutation.py
+AGENT_MODE=local_dummy DEBUG=false CI=true make -f Makefile -f /tmp/row-match-checks.mk row-match-test
+AGENT_MODE=local_dummy DEBUG=false CI=true make -f Makefile -f /tmp/row-match-checks.mk row-match-mutation
+AGENT_MODE=local_dummy DEBUG=false CI=true make check
+```
+
+[全体出力](test-results/recovery-row-match-regression-2026-09-13.log): **BE579 / FE166（15 suites）PASS**、OpenAPI/orval/tsc/eslint all green。生成modelは**137→138、追加rowMatchResponse.tsの1つ、消失0**（[差分](test-results/row-match-model-diff-2026-09-13.json)）。N-2のFE手書き変更なし。commit・memory編集なし。
+
+N-2の独立確認を依頼する。T-303は§7の明示順序に従い次に着手する。
+
+---
+
 # T-302 handoff
 
 §7 2026-09-13 07:05版に従い、L-7提出後に着手。Status: REVIEWING。§7 08:20版のfixture例外を適用し、L-8と合わせた全体ゲートはBE567件 / FE166件PASS。

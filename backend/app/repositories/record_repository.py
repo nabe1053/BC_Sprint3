@@ -153,7 +153,24 @@ class RecordRepository:
         by_item = {}
         for edit in edits:
             by_item.setdefault(edit.item_id, []).append(edit)
-        return [(item, by_item.get(item.id, [])) for item in items]
+        from app.domain.record_types import RowMatch
+
+        confirmations = (
+            await self.session.execute(
+                select(Confirmation).where(
+                    Confirmation.version_id == version_id,
+                    Confirmation.kind == "row_match",
+                    Confirmation.undone_at.is_(None),
+                )
+            )
+        ).scalars()
+        matches = {
+            row.item_id: RowMatch(row.id, row.recorded_by, row.recorded_at)
+            for row in confirmations
+        }
+        return [
+            (item, by_item.get(item.id, []), matches.get(item.id)) for item in items
+        ]
 
     async def list_questions_with_latest(self, version_id):
         await self.version(version_id)

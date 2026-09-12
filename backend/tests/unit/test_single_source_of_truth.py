@@ -143,9 +143,10 @@ def test_storage_path_validation_goes_through_the_gateway() -> None:
 def test_recovery_grace_and_predicate_are_shared() -> None:
     import ast
     from app.agent import definition
+    from app.domain import run_types
 
-    assert definition.RECOVERY_GRACE_S == 16
-    for path, source in _app_modules(exclude=DEFINITION):
+    assert run_types.RECOVERY_GRACE_S == definition.RECOVERY_GRACE_S == 16
+    for path, source in _app_modules(exclude=APP_DIR / "domain" / "run_types.py"):
         assert not re.search(r"RECOVERY_GRACE_S\s*=", source), path
     path = APP_DIR / "repositories" / "run_repository.py"
     tree = ast.parse(path.read_text())
@@ -171,3 +172,31 @@ def test_recovery_grace_and_predicate_are_shared() -> None:
             isinstance(node, ast.Constant) and node.value == 16
             for node in ast.walk(method)
         )
+
+
+def test_repositories_do_not_import_agent_layer() -> None:
+    import ast
+
+    for path in sorted((APP_DIR / "repositories").rglob("*.py")):
+        for node in ast.walk(ast.parse(path.read_text())):
+            if isinstance(node, ast.ImportFrom):
+                assert not (
+                    node.module == "app.agent"
+                    or (node.module or "").startswith("app.agent.")
+                ), path
+                assert not (
+                    node.module == "app"
+                    and any(alias.name == "agent" for alias in node.names)
+                ), path
+            elif isinstance(node, ast.Import):
+                assert not any(
+                    alias.name == "app.agent" or alias.name.startswith("app.agent.")
+                    for alias in node.names
+                ), path
+
+
+def test_recovery_grace_covers_terminal_persistence() -> None:
+    from app.agent.definition import CANCEL_CLEANUP_S, RECOVERY_GRACE_S
+    from app.agent.jobs import FINISH_TIMEOUT_S
+
+    assert RECOVERY_GRACE_S > FINISH_TIMEOUT_S * 3 + 0.3 + CANCEL_CLEANUP_S

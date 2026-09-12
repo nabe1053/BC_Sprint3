@@ -112,3 +112,56 @@ async def test_latest_case_version_and_version_list_ignore_unfinalized(db_sessio
         seed.case.id
     )
     assert [version.id for version in versions] == [second.id, seed.version.id]
+
+
+async def test_row_match_confirmation_appears_and_undo_removes_it(db_session):
+    from app.api.dependencies import get_record_service
+    from app.api.ui.router import router
+
+    seed = await seed_record_version(db_session)
+    app = FastAPI()
+    app.add_exception_handler(ApiError, api_error_handler)
+    app.include_router(router, prefix="/api/v1")
+    app.dependency_overrides[get_record_service] = lambda: RecordService(
+        RecordRepository(db_session)
+    )
+    path = f"/api/v1/ui/versions/{seed.version.id}"
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        initial = await client.get(path + "/items")
+        assert (
+            initial.status_code == 200
+            and initial.json()["items"][0]["rowMatch"] is None
+        )
+        coverage = await client.post(
+            path + "/confirmations",
+            json={"kind": "coverage", "recordedBy": "網羅性担当"},
+        )
+        assert coverage.status_code == 201
+        assert (await client.get(path + "/items")).json()["items"][0][
+            "rowMatch"
+        ] is None
+        response = await client.post(
+            path + "/confirmations",
+            json={
+                "kind": "row_match",
+                "itemId": seed.item.id,
+                "recordedBy": "照合担当",
+            },
+        )
+        assert response.status_code == 201
+        confirmation = response.json()
+        match = (await client.get(path + "/items")).json()["items"][0]["rowMatch"]
+        assert match == {
+            key: confirmation[key]
+            for key in ("confirmationId", "recordedBy", "recordedAt")
+        }
+        response = await client.post(
+            path + f"/confirmations/{confirmation['confirmationId']}/undo",
+            json={"recordedBy": "取消担当"},
+        )
+        assert response.status_code == 200
+        assert (await client.get(path + "/items")).json()["items"][0][
+            "rowMatch"
+        ] is None
