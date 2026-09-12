@@ -140,6 +140,11 @@
   を別に持つ）/ ファイル名 `{case}_v{n}_{state}_{ts}.xlsx`（機械語彙・ASCII）/ 日時は `YYYY-MM-DD HH:MM:SS+09:00` 文字列（TODO-030 ⑥ 確定）/ `Decimal` をそのままセルへ / 全文字列 `write_text` で数式化防止 /
   変更・確認記録は 1 記録 1 行（judgements・bounce_comments 含む）/ 生成所要は案件情報シートに / 資料一覧は第 2 表 / `integrity` 3 値 / 記録者列は持たない（TODO-038）/
   #38 は 200 バイナリ＋`Content-Disposition`＋`X-Export-Id`。
+- [AD-031] **T-503 の未決 25 件を確定**（2026-09-13 orchestrator。`docs/t503-instructions.md` §0。03-spec SCR-06 に Build 注記を追記済み）: SCR-06 新規＋SCR-03 の G5 追加（「担当者確認済みにする」
+  primary・差し戻し中バナー・再確認が必要・導線）＋SCR-01 送付可否列を 1 スライス / `features/versions/` に追加 / 行コメントは明示「記録」ボタンで POST / `EvidenceDrawer` に `readOnly` /
+  索引は MUI Drawer 2 モード・API 追加なし / 「変更採用」タグは出さない（TODO-039）/ review_checked 版では①両ボタン無効化 / 記録者名は確認者・判断者の 2 欄 / 要約「差し戻しコメント」=
+  `unlinkedComments.length` / `useRecordMutation` に `resource:"approvals"`・`caseId?` を足し `versionsKey` も invalidate / 日時は応答値のまま（書式統一は C-3）/ SCR-01「差し戻しあり」は出さない（TODO-040）/
+  SCR-04 の差し戻しコメント表示は後続（TODO-041）。理由: G5 の経路（draft→staff→review／差し戻し）を 1 スライスで閉じる。
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
@@ -237,7 +242,7 @@
 | T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | FIXING | RV-043 P2-1（N03 注記文言）→ §7 R-2 | 2026-09-13 |
 | T-501 | G5 状態遷移・差し戻し・送付可否の記録（BE） | web | T-301 | IMPLEMENTING | 指示書 `docs/t501-instructions.md`（AD-028）。Codex 着手可（§7） | 2026-09-13 |
 | T-502 | G5 承認・状態 API #1,#22,28,34-37（API） | web | T-501 | PLANNED | 指示書 `docs/t502-instructions.md`（AD-029）。T-501 DONE 後に §7 で投入 | 2026-09-13 |
-| T-503 | G5 SCR-06 引合書承認（FE） | web | T-502 | PLANNED | - | 2026-09-11 |
+| T-503 | G5 SCR-06 引合書承認＋SCR-03/01 の G5 追加（FE） | web | T-502 | PLANNED | 指示書 `docs/t503-instructions.md`（AD-031）。T-502 DONE 後に §7 で投入 | 2026-09-13 |
 | T-601 | G6 .xlsx 5シート生成（BE） | web | T-501 | PLANNED | 指示書 `docs/t601-instructions.md`（AD-030）。T-502 の後に §7 で投入 | 2026-09-13 |
 | T-602 | G6 出力 API #38,39,40（API） | web | T-601 | PLANNED | - | 2026-09-11 |
 | T-603 | G6 出力ボタン・版の履歴（FE・SCR-03 内） | web | T-602 | PLANNED | - | 2026-09-11 |
@@ -673,6 +678,10 @@
 - [TODO-035] **T-403 の記録のみ P3（RV-043）**: ①`versions.inventory.{notice,requiredNote,undoNote}` の文体を敬体に ②`InventoryScopePanel` 同名資料の `aria-label` に識別子・`key` を documentId に
   ③「照合する範囲」を #4 資料一覧で補完するか（要素 0 の資料）④`testing/fixtures.ts:77` のインライン `import()` 型。①②④は C-3（FE 分）、③は G5 以降の判断材料。
 - [TODO-037] **05 #22「生成所要」の API 露出が未実装**（AD-029 ⑭。DB 上は `agent_runs.version_id` UNIQUE FK で結線済み・T-601 は案件情報シートに `elapsed_sec` を書く）。#22/#23 への露出は G6 T-603 で。
+- [TODO-041] **SCR-04（根拠詳細）の「上司の差し戻しコメント」表示が未実装**（03-spec SCR-04・AD-031 ③）。`EvidenceDrawer` に #28 由来の `bounceComments` prop を渡す小改修。G5 完了後の改修スライス。
+- [TODO-040] **SCR-01 の「差し戻しあり」補足**（03-spec SCR-01）は #1 に `bounced` が無く未実装（AD-031 ㉔）。#1 拡張は G6 か C-3 で。
+- [TODO-039] **SCR-06 索引の「変更採用（P.S./Rev.）」タグ**は #24/#26 に判別項目が無く初版では出さない（AD-031 ⑯）。`evidences.change_reason` を行単位に集約して #24 に `hasAdoptedChange` を足すか、
+  索引から外すかは研修者判断。
 - [TODO-038] **`exports` に記録者列（`exported_by`）を持つか**（研修者判断・AD-030 ⑥）。04-db §3.5 は無し。E 層は写しの保全記録で D 層の「人の記録」ではないため初版は持たないが、
   06 の採点手順で「誰が初回出力を保全したか」が要るなら 04-db を改定して T-601 改修スライスへ。
 - [TODO-036] **TODO-027 ② の式**（`field_error_codes` × 非 400 == {E_FIELD_NOT_EDITABLE}）は T-502 で `E_STATE_ROLLBACK_FORBIDDEN`（422）が加わり 2 要素になる。C-3 実装時に式を更新（AD-029 ⑩）。
