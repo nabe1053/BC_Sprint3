@@ -113,6 +113,10 @@
   unmapped>0 は何も拒否しない / 原明細数 = status≠excluded / migration なし・版外 link は inconsistent / #27 に `coverage` / 並びは BE `(seq,id)`・強調は UI / 多重対応を含める /
   T-401 は照合集計のみ（保存は T-201・記録は T-301 済。tickets 訂正）。05 #27 に応答形を書き戻し済み。
 
+- [AD-026] **T-402 の未決 11 件を確定**（2026-09-13 orchestrator。`docs/t402-instructions.md` §0）: `coverage` は `summary` 内 / 同パス異メソッドの越境は 405（本文の共通形は
+  TODO-032）/ `UI_ONLY_SEGMENTS` に `inventory` を入れず `(method,path)` 検査で守る（05 0.3 追記）/ DTO の `position`/`excerpt` は `str` / `Literal` は domain から import /
+  #27 は `documentFileName` を返す（一覧系で資料名が主表示なら API が返す）/ 未確定版は `E_NOT_FOUND`。tickets T-402 を「#27＋同パス整理」に訂正。
+
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
@@ -203,7 +207,7 @@
 | T-302 | G3 参照 #23-26 / 記録 #29-33・#22 最小・#1 拡張（API） | web | T-301 | DONE | RV-036 DONE ＋ 追補 N-2（#24 `rowMatch`）RV-038 DONE | 2026-09-13 |
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | FIXING | 1回目 RV-039: **DONE 可** P2 2（状態ラベル二重・prettier 未適用）を短ラウンド O-2 で | 2026-09-13 |
 | T-401 | G4 照合集計（BE。保存は T-201・記録は T-301 済） | web | T-201 | DONE | 1回目 RV-040: **DONE**（P3 4 は記録のみ・TODO-031） | 2026-09-13 |
-| T-402 | G4 照合 API #19,27（API） | web | T-401 | PLANNED | - | 2026-09-11 |
+| T-402 | G4 照合 API #27（UI GET）＋#19 同パス整理（API） | web | T-401 | PLANNED | 指示書 `docs/t402-instructions.md`（AD-026）。O-2 の後に Codex 着手 | 2026-09-13 |
 | T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | PLANNED | - | 2026-09-11 |
 | T-501 | G5 状態遷移・差し戻し・送付可否の記録（BE） | web | T-301 | PLANNED | - | 2026-09-11 |
 | T-502 | G5 承認・状態 API #22,28,34-37（API） | web | T-501 | PLANNED | - | 2026-09-11 |
@@ -630,7 +634,8 @@
 - [TODO-028] **実モデルのインベントリ status の使い方をプロンプトで是正**: run 8 は脚注 *1〜*3 を `split`、注記を `unmapped` にした（AE01 期待「除外 4・対応なし 0」と構造集計が
   ずれる）。脚注・注記は `excluded`＋basis（複数行に関わる根拠は excerpt に）へ寄せる指示を `SYSTEM_PROMPT` と `record_source_inventory` の description に（T-205 追補 L-9）。
 - [TODO-029] **`inventory_links` に `version_id`・複合 FK `(version_id, item_id)` が無い**（04-db:670-681）。版外 item への link は書込時検査のみ。複合 FK 追加は 04-db 変更＝設計判断（研修者）。
-- [TODO-031] **T-401 の記録のみ P3（RV-040）**: ①不明 entry link のとき `has_source=bool(source_entries)` に揃える ②版外 link が split と inconsistent の両方に入る意図をコメント
+- [TODO-032] **405（同パス異メソッド）の本文が Starlette 既定 `{"detail": …}` で 05 0.2 の `{code,message,details}` 形でない。**`main.py` に `HTTPException` ハンドラを足すか許容するか（共有ファイル・C-3 で）。
+- [TODO-031] **T-401 の記録のみ P3（RV-040）**: ⑤domain `EntryView.position/excerpt` を DB NOT NULL に合わせ `str` に（AD-026 ④）。 ①不明 entry link のとき `has_source=bool(source_entries)` に揃える ②版外 link が split と inconsistent の両方に入る意図をコメント
   ③`InventoryService.reconcile` とモジュール関数 `reconcile` の同名（`reconcile_inventory` に改名）④T-402 の DTO 注記「`inconsistentEntryIds` は entries の部分集合とは限らない」。C-3 で。
 - [TODO-030] **T-303 の記録のみ P3（RV-039）**: ①`groupCode`+`candidateLabel` の区切り ②原表記 blockquote に項目名 ③i18next `count` → 非予約名 ④判断 3 列の見出しとセルの対応
   ⑤ドロワー開時 contained≤1 の assert ⑥キーワード検索の対象を表示値に限定・日時の書式（G5 で決める）。C-3（FE 分）で。
