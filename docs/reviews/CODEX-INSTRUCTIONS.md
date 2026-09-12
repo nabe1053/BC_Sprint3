@@ -147,7 +147,7 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 11:40・T-303 DONE 可 → **O-2（小）**。T-401 は継続）
+## 7. 次にやること（2026-09-13 12:20・T-401 DONE・O-2 待ち）
 
 - T-303 は reviewer **DONE 可**（RV-039。P2 2 / P3 6）。**タスク O-2 を先に**（FE のみ・小さい）。T-401 は中断せず区切りのよいところで O-2 を挟む
 - 完了見出し: `## O-2 対応（RV-039）`（t303-handoff）
@@ -159,7 +159,7 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
    `make check-fe` / `make check` が整形漏れを検出する）。既存の未整形（`features/documents/__tests__/hooks.test.tsx`）も同時に整形
 3. 完了条件: `AGENT_MODE=local_dummy DEBUG=false CI=true make check-fe` all green（prettier --check 含む）＋ design-lint 0。commit しない
 
-### タスク P: T-401（`docs/t401-instructions.md`・AD-025）— 継続。完了見出し `## 再レビュー依頼（T-401）`
+### タスク P: T-401 — **DONE**（RV-040・commit `949d043`）。次のタスク Q（T-402 #27 API）は指示書準備中。O-2 提出後は §7 更新を待つ
 
 ### タスク L-8c: 依存の逆流を解消（RV-037 P2）
 - `RECOVERY_GRACE_S` を `app/domain/run_types.py` へ移し、`app/agent/definition.py` はそこから import して再公開（`from app.domain.run_types import RECOVERY_GRACE_S`）。
