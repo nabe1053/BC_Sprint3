@@ -307,3 +307,82 @@ async def test_reading_progress_is_exposed_by_http(db_session, tool_run):
                 "documentsRead": read,
                 "documentsTotal": 1,
             }
+
+
+@pytest.mark.parametrize(
+    "tool_name,arguments,code",
+    [
+        ("Bash", {"command": "synthetic-private-input"}, "E_TOOL_NOT_REGISTERED"),
+        (
+            "mcp__app__search_documents",
+            {"query": "https://synthetic-private-input.invalid"},
+            "E_EXTERNAL_LINK_BLOCKED",
+        ),
+    ],
+)
+async def test_sdk_permission_denial_is_one_sanitized_management_event(
+    db_session,
+    tool_run,
+    monkeypatch,
+    tmp_path,
+    tool_name,
+    arguments,
+    code,
+):
+    from functools import partial
+    from claude_agent_sdk import ResultMessage
+    from pydantic import SecretStr
+    from app.agent import claude_policy
+    from app.agent.runner import LocalAgentWorker
+    from app.repositories.run_trace_store import RunTraceStore
+
+    context, _, gateway = tool_run
+
+    async def query(**kwargs):
+        yield ResultMessage(
+            subtype="success",
+            duration_ms=0,
+            duration_api_ms=0,
+            is_error=False,
+            num_turns=0,
+            session_id="synthetic",
+            permission_denials=[
+                {
+                    "tool_name": tool_name,
+                    "tool_input": arguments,
+                    "reason": "synthetic-private-input",
+                    "tool_use_id": "synthetic-private-input",
+                }
+            ],
+        )
+
+    monkeypatch.setattr(claude_policy, "query", query)
+    outcome = await LocalAgentWorker(
+        gateway,
+        partial(
+            claude_policy.claude_policy,
+            api_key=SecretStr("synthetic-key"),
+        ),
+    )(context)
+    assert outcome.turns == 0
+    steps = list(
+        (
+            await db_session.execute(
+                select(AgentRunStep).where(
+                    AgentRunStep.agent_run_id == context.run_id,
+                    AgentRunStep.tool_name == "guardrail_denied",
+                )
+            )
+        ).scalars()
+    )
+    assert len(steps) == 1
+    event = steps[0].trace_event
+    assert event["observation"]["code"] == code
+    assert event["tool_use"]["deniedTool"] == tool_name
+    assert "synthetic-private-input" not in repr(event) + steps[0].args_summary
+    store = RunTraceStore(tmp_path)
+    store.sync(context.run_id, [event])
+    assert (
+        "synthetic-private-input"
+        not in (tmp_path / f"{context.run_id}.jsonl").read_text()
+    )

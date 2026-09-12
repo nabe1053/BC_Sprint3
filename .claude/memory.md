@@ -137,6 +137,10 @@
 - [CV-022] **規約ファイル（CLAUDE.md / `.claude/rules/`）を機械置換して別エージェント用の複製を作らない。**AGENTS.md 等は原典への参照 1 枚に留める。
   複製は原典と乖離し、「memory の編集者は誰か」のような単一真実源の根幹が静かに反転する（C-2 RV-029）。
 
+- [CV-023] **同一ツリーで別スライスが進行中のときの commit とゲート**: ①commit は必ず pathspec で自スライスのファイルだけ（LN-038）②ゲートは進行中スライスの
+  RED テストファイルを `--ignore` して実行し、その事実と件数を memory / commit メッセージに残す（範囲を切ったことを隠さない。CV-016 の例外条件）③pytest は同時に
+  走らせない（LN-027）。Claude が pytest を回す時間帯は §7 に書く。T-205 DONE 判定時、T-301 の RED 3 ファイル＋同時 pytest で 4 failed / 1 error が出た（RV-031 後）。
+
 ## 3. 実装バックログ（プラン状態＝ループの制御表）
 
 | ID | スライス | 種別 | 依存 | Status | レビュー | 最終更新 |
@@ -150,7 +154,7 @@
 | T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202, C-1 | DONE | 2回目 RV-022: **DONE**（P3 5 は記録のみ・TODO-009。C-1 は未完のまま） | 2026-09-12 |
 | C-2 | 記録のみ P3 の整理 chore（TODO-010/012、backend/app 非接触分） | chore | C-1, T-204 | DONE | 2回目: RV-029 P2-1（`MAKEFLAGS=-j8`）を確認して DONE。残 P3 は TODO-012 ⑦・TODO-017 | 2026-09-12 |
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | DONE | 2回目 RV-028: **DONE**（P3 1 は記録のみ・TODO-012 へ） | 2026-09-12 |
-| T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | FIXING | 1回目 RV-030: **DONE 可** P2 3（拒否のトレース欠落 / 無応答時計の意味変化 / setting_sources 未指定）を実評価前に短ラウンド | 2026-09-13 |
+| T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | DONE | 2回目 RV-031: **DONE**（P3 4 は記録のみ・TODO-020） | 2026-09-13 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
 | T-302 | G3 参照 #23-26 / 記録 #29-31,33（API） | web | T-301 | PLANNED | - | 2026-09-11 |
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | PLANNED | - | 2026-09-11 |
@@ -317,6 +321,13 @@
   P3: SDK 子プロセス stderr が uvicorn へ直行 / `impl_version` が local のまま / キーが素の str（`SecretStr` 推奨）/ `disallowed_tools` 未使用 / 変異 7 種がリポジトリから再現不能。
   orchestrator 判断: **実評価の前に P2 3 件＋P3-1/3/4 を短ラウンド（L-2）で塞ぐ**。
 
+- [RV-031] T-205 2回目（Codex L-2 → 同一 reviewer 独立確認・2026-09-13）: **DONE 可**。P1 0 / P2 0 / P3 4。RV-030 の P2 3・P3 5 を全件クローズ: `setting_sources=[]`＋run ごとの
+  一時 `cwd`（リポジトリ外・実行後削除を reviewer が実測）/ `PolicyHeartbeat` 型で無応答時計のみ更新（fake clock 両方向・2000 通で残タスク 0）/ `permission_denials` →
+  hook 分類 → run 行ロック内で `guardrail_denied` を `add_step`（turns 不変・原文なし）/ `SecretStr` の復号は 1 箇所 / `disallowed_tools` 8 / stderr 破棄 /
+  `check_agent_mutations.py` に claude 系 3 変異（`make agent-mutations` 8/8）。実測 429 passed / ruff 0 / format 144 unchanged。
+  P3: 拒否記録が `ResultMessage` 到達時のみで seq が末尾に付く / CLI の拒否 dict キー名が実データ未確認 / `cwd` テストがリポジトリ外を直接 assert していない /
+  `bounded()` の heartbeat 分岐が stream 決め打ち → TODO-020。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -459,6 +470,8 @@
   初版は編集不可（AD-018）。編集可にするなら `due`/`place` の値列（非 raw）を items に足す設計変更が要る。
 - [TODO-019] **T-501 の指示書に転記**: `review_checked` 版への訂正は `review_checked→staff_checked` の状態イベントを同一トランザクションで積む（05:438 / 04-db:775）。
   T-301 では未実装（G3 で到達不能。t301-instructions §0 ⑤）。
+- [TODO-020] **T-205 の記録のみ P3（RV-031）**: ①拒否記録を PreToolUse deny 時点に寄せて時系列を揃える ②実評価で `permission_denials` の実 JSON キー名を確認して固定
+  ③`cwd` テストを「リポジトリルート配下でない」「実行後に削除済み」の assert に ④`bounded()` の heartbeat 分岐を stream 専用ラッパへ。実評価の観察結果と合わせて次ラウンド。
 - [TODO-001] D02（入力上限）は AD-003 の**仮値**。初版受入（X09 の上限試験）の前に研修者が実値を確定する。
   **確定時は `backend/app/core/config.py` と `frontend/src/shared/i18n/ja.json` の上限注記の両方を直す**（RV-024 P2-2。API が上限を返さないため画面側に複製がある）。
 - [TODO-002] **eml には `document_pages` が無い**ため、04-db.md の完了条件の機械判定

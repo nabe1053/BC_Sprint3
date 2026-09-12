@@ -264,3 +264,11 @@ sample-10（GulfTex／.eml のスレッド。最新本文で item 1 の数量が
   例外本文はトレースに載せない。04-db §3.2 補足の一覧に追記）
 - **単体テストは SDK をモックした `claude_policy` の分岐（設定切替・キー未設定・model_error・max_turns の写し）のみ。**実モデルの振る舞いは Phase 3 の評価で検証する
 - ミニ評価: `make agent-eval` は `local_dummy` のまま（決定性）。実モデルは研修者がキーを投入後、Claude が sample-06（AE01）を 1 本通してトレースを本表と突き合わせる
+
+
+T-205 RV-030 補足（L-2）:
+- SDKは `setting_sources=[]` と実行ごとの一時ディレクトリ `cwd` を明示し、ユーザー・プロジェクトの設定、CLAUDE.md、スラッシュコマンドを文脈へ読み込ませない。
+- `disallowed_tools=["Bash","Read","Write","Edit","WebFetch","WebSearch","Glob","Grep"]` を重ねる。主防御は既存PreToolUse hook。子プロセスのstderrは破棄し、入力やキーをサーバーログに出さない。
+- SDKメッセージ（テキスト・部分出力・SystemMessageを含む）受信ごとに受信時刻つき生存シグナルを方針キューへ送る。runnerはその時刻で無応答時計だけを更新する。生存シグナルはツール・ターン数・repeated_callへ数えず、実行全体の内側期限も延長しない。
+- `ResultMessage.permission_denials` の拒否を既存の `guardrail_denied` 管理イベントへ記録する。固定コードは `E_TOOL_NOT_REGISTERED` / `E_EXTERNAL_LINK_BLOCKED`。引数は既存hookによるコード判定にだけ使い、原文・引数・拒否理由本文は保存しない。`tool_use.deniedTool` は登録済みツール名または禁止リスト内の固定名のみ（その他は `unregistered`）とする。管理イベントはツール実行ターンへ数えない。
+- APIキーは `SecretStr` のまま方針へ渡し、SDK options.env構築時だけ復号する。`impl_version` はツール実装の版であり、判断役は `model` で区別する。

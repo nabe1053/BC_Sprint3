@@ -51,6 +51,16 @@ CANCEL_CLEANUP_S = 0.02
 # 実行モデル識別子。agent_runs.model に記録する。
 DUMMY_MODEL_ID = "mock-fixed-v2"
 MODEL_ID = "claude-sonnet-5"
+DISALLOWED_TOOLS = [
+    "Bash",
+    "Read",
+    "Write",
+    "Edit",
+    "WebFetch",
+    "WebSearch",
+    "Glob",
+    "Grep",
+]
 LOCAL_IMPL_VERSION = "local-agent-tools-v1"
 
 

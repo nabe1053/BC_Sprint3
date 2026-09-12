@@ -10,7 +10,7 @@ from time import monotonic
 from app.agent import definition
 from app.agent.local_policy import local_dummy_policy
 from app.agent.tools import ToolExecutor, digest_args
-from app.domain.agent_types import LocalPolicyStop
+from app.domain.agent_types import LocalPolicyStop, PolicyHeartbeat
 from app.domain.run_types import RunResult
 from app.services.draft_validation import validate_snapshot
 
@@ -58,30 +58,40 @@ class LocalAgentWorker:
         reply = None
 
         async def bounded(awaitable):
-            remaining = deadline - monotonic()
-            with executor.bind():
-                task = asyncio.create_task(awaitable)
-            _pending.add(task)
-            task.add_done_callback(_consume)
-            try:
-                done, _ = await asyncio.wait(
-                    {task},
-                    timeout=max(0, min(remaining, context.limits.inactivity_timeout_s)),
+            last_message = monotonic()
+            while True:
+                remaining = deadline - monotonic()
+                inactivity = context.limits.inactivity_timeout_s - (
+                    monotonic() - last_message
                 )
-                if not done:
+                with executor.bind():
+                    task = asyncio.create_task(awaitable)
+                _pending.add(task)
+                task.add_done_callback(_consume)
+                try:
+                    done, _ = await asyncio.wait(
+                        {task},
+                        timeout=max(0, min(remaining, inactivity)),
+                    )
+                    if not done:
+                        executor.close()
+                        task.cancel()
+                        reason = (
+                            "inner_timeout"
+                            if monotonic() >= deadline
+                            else "inactivity_timeout"
+                        )
+                        raise LocalPolicyStop(reason)
+                    result = task.result()
+                    if isinstance(result, PolicyHeartbeat):
+                        last_message = result.received_at
+                        awaitable = stream.asend(reply)
+                        continue
+                    return result
+                except asyncio.CancelledError:
                     executor.close()
                     task.cancel()
-                    reason = (
-                        "inner_timeout"
-                        if monotonic() >= deadline
-                        else "inactivity_timeout"
-                    )
-                    raise LocalPolicyStop(reason)
-                return task.result()
-            except asyncio.CancelledError:
-                executor.close()
-                task.cancel()
-                raise
+                    raise
 
         try:
             while True:

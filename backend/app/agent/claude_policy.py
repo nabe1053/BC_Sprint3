@@ -5,13 +5,36 @@ ToolExecutor, retaining its turn limits, completion checks and trace writes.
 """
 import asyncio
 from contextlib import aclosing
+from tempfile import TemporaryDirectory
+from time import monotonic
 
 from claude_agent_sdk import ClaudeAgentOptions, ResultMessage, query
 
 from app.agent import definition
-from app.agent.hooks import build_hooks
+from app.agent.hooks import build_hooks, guard_pre_tool_use
 from app.agent.tools import ALLOWED_TOOL_NAMES, ToolExecutor, agent_server
-from app.domain.agent_types import LocalPolicyStop, ToolCall
+from app.domain.agent_types import LocalPolicyStop, PolicyHeartbeat, ToolCall
+
+
+async def _record_denials(executor, denials):
+    for denial in denials or []:
+        if not isinstance(denial, dict):
+            continue
+        name = denial.get("tool_name")
+        decision = await guard_pre_tool_use(
+            {"tool_name": name, "tool_input": denial.get("tool_input", {})},
+            None,
+            {"signal": None},
+        )
+        code = decision.get("hookSpecificOutput", {}).get("permissionDecisionReason")
+        if code not in ("E_TOOL_NOT_REGISTERED", "E_EXTERNAL_LINK_BLOCKED"):
+            code = "E_TOOL_NOT_REGISTERED"
+        safe_name = (
+            name
+            if name in ALLOWED_TOOL_NAMES + definition.DISALLOWED_TOOLS
+            else "unregistered"
+        )
+        await executor.record_denial(safe_name, code)
 
 
 async def claude_policy(context, *, api_key):
@@ -47,7 +70,9 @@ async def claude_policy(context, *, api_key):
     async def consume():
         reason = None
         try:
-            with executor.bind(request=request):
+            with TemporaryDirectory(prefix="agent-run-") as cwd, executor.bind(
+                request=request
+            ):
                 options = ClaudeAgentOptions(
                     model=definition.MODEL_ID,
                     system_prompt=definition.SYSTEM_PROMPT,
@@ -56,13 +81,19 @@ async def claude_policy(context, *, api_key):
                     hooks=build_hooks(),
                     max_turns=definition.MAX_TURNS,
                     permission_mode="default",
-                    env={"ANTHROPIC_API_KEY": api_key},
+                    setting_sources=[],
+                    cwd=cwd,
+                    disallowed_tools=definition.DISALLOWED_TOOLS,
+                    stderr=lambda line: None,
+                    env={"ANTHROPIC_API_KEY": api_key.get_secret_value()},
                 )
                 async with aclosing(
                     query(prompt=prompt(), options=options)
                 ) as messages:
                     async for message in messages:
+                        requests.put_nowait((PolicyHeartbeat(monotonic()), None))
                         if isinstance(message, ResultMessage):
+                            await _record_denials(executor, message.permission_denials)
                             if (
                                 message.subtype == "error_max_turns"
                                 or message.terminal_reason == "max_turns"
@@ -84,6 +115,9 @@ async def claude_policy(context, *, api_key):
     try:
         while True:
             call, reply = await requests.get()
+            if isinstance(call, PolicyHeartbeat):
+                yield call
+                continue
             if reply is None:
                 if call is not None:
                     raise LocalPolicyStop(call)

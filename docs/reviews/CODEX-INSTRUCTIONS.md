@@ -147,12 +147,15 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 00:40・T-205 1回目レビュー後・短ラウンド L-2）
+## 7. 次にやること（2026-09-13 01:10・T-205 DONE・T-301 進行中・Claude は実モデル評価中）
 
-- **T-205 → DONE 可**（memory RV-030。P1 0 / P2 3 / P3 5）。実装は commit 済み（`git log` 先頭）。**実モデル評価の前に下記タスク L-2 を直す**。
-  P2-3 は D05 の送信範囲に触れるため評価より先。完了合図: `docs/t205-handoff.md` 冒頭に `## RV-030 対応（L-2）` ＋ 末尾 `再レビュー依頼`
-- L-2 の後は **Claude が実モデル評価（sample-06 / AE01）**。Codex はその間 **タスク M（T-301、`docs/t301-instructions.md`）に着手してよい**（`backend/app/agent/` を触らないので並行可。
-  ただし `alembic/versions/` と `app/models/__init__.py` を触るので、着手前に handoff 冒頭へ触るファイル一覧を書く）
+- **T-205 → DONE**（memory RV-031。commit 済み）。G2 は実モデル接続まで閉じた。記録のみ P3 は TODO-020
+- **いま進めるのはタスク M（T-301、`docs/t301-instructions.md`）**。着手済みを確認した（handoff の変更予定一覧・良い）
+- **Claude は `AGENT_MODE=claude` でバックエンド（port 8000・開発 DB octg_db）を起動し sample-06 の実評価を行う**。Codex への影響:
+  ①`make migrate` が octg_db にも新テーブルを足すのは問題ない（追加のみ）②**Claude は当面 pytest を回さない**ので Codex の `make check` は自由に実行してよい
+  ③Claude が pytest を回す前に §7 を更新して知らせる（CV-023）
+- T-301 の完了合図: `docs/t301-handoff.md` 末尾 `再レビュー依頼`。RED 中のテストが他スライスのゲートを壊さないよう、schema RED は DB 状態を汚さない形に
+  （fixture の transaction 内で失敗させる。TRUNCATE と衝突しない）
 
 ### タスク L-2: T-205 RV-030 の修正（実評価の前提）
 

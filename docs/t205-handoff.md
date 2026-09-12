@@ -1,3 +1,54 @@
+## RV-030 対応（L-2）
+
+2026-09-12。指示: CODEX-INSTRUCTIONS.md §7 **2026-09-13 00:40** 版。L-2の全項目を反映。最終 `make check` は **BE429件 / FE166件 PASS**。希望 Status: REVIEWING。SDKは完全モックで、実モデルの評価はClaudeへ引き継ぐ。
+
+### レビュー対応
+
+| 指摘番号 | 変更内容（ファイル:行） | REDを確認したテスト名・実行コマンド・件数 |
+|---|---|---|
+| RV-030 P2-3 | `app/agent/claude_policy.py:73`。`setting_sources=[]`、実行専用の一時ディレクトリcwdを指定 | `test_sdk_handler_round_trip_uses_existing_executor_and_records_once`。optionsの設定読込元をassert。下記開発用makeでRED **5 failed / 23 passed** のうち2件 → GREEN |
+| RV-030 P2-2 | `app/domain/agent_types.py` の `PolicyHeartbeat`、`app/agent/claude_policy.py:94`、`app/agent/runner.py:60`。すべてのSDKメッセージを受信時刻つき生存通知へ変換し、bounded内で無応答時計だけを更新。ターン数・repeated_call・内側期限・閾値は維持 | `test_sdk_message_activity_controls_only_inactivity_clock`（2件、fake clock）。**20秒間隔の4メッセージ＝80秒を経てツール1回を実行**、**20秒時点の最後のメッセージから60秒停止＝80秒でinactivity_timeout・0ターン**。REDは旧実装がいずれも60秒で誤停止 → GREEN |
+| RV-030 P2-1 | `app/agent/claude_policy.py:19`、`app/agent/tools.py` の `record_denial`、`app/repositories/agent_tool_repository.py:363`。permission_denialsを既存hookで固定コードに分類し、runの行ロック中に `guardrail_denied` を1件記録。原文・引数は保持しない。既知のツール名だけ `tool_use.deniedTool` へ残し、未知名は `unregistered` | `test_sdk_permission_denial_is_one_sanitized_management_event`（実PostgreSQL、SDKはモック）。未登録拒否・URL拒否の2件がRED **2 failed / 11 deselected**（イベント0件）→ GREEN **2 passed**。DB・JSONLに本文が無いこともassert |
+| RV-030 P3-1 | `app/agent/claude_policy.py`。stderrコールバックを明示し破棄 | 既存round-tripテストへstderrコールバックの存在と呼出しを追加。全体ゲートPASS |
+| RV-030 P3-3 | `app/core/config.py:30`。キーを `SecretStr` とし、policyへのpartialも秘匿型を保持。`get_secret_value()` は `ClaudeAgentOptions.env` 構築の1箇所だけ | `test_settings_and_partial_keep_api_key_secret` がRED（strのまま）→ GREEN。既存モード切替テストでもpartialのreprへキーが出ないことをassert |
+| RV-030 P3-4 | `app/agent/definition.py` / `claude_policy.py`。指定された組込ツール8個をdisallowed_toolsへ追加。主防御のhookは維持 | round-tripテストに禁止8ツールの集合をassert。全体ゲートPASS |
+| RV-030 P3-5 | `scripts/check_agent_mutations.py:23`。子プロセス内だけでClaude側3種類の変異を適用。共有ソースは変更しない | `make agent-mutations`。要求コールバックのクリア漏れ **2 failed**、max_turns写しの除去 **3 failed**、例外本文の流出 **1 failed**。正常系 **20 passed**。既存hook変異3種類も検出 |
+| RV-030 P3-2・設計 | `docs/requirements/agent-plan.md` 末尾「T-205 RV-030補足」。設定読込元・cwd・禁止ツール・stderr・生存通知・拒否イベントの保存語彙を追記。`impl_version`はツール実装の版で、判断役はmodelで区別することを明記 | 設計の記録のみ。impl_versionの値は変更しない |
+
+### 証跡
+
+```sh
+AGENT_MODE=local_dummy DEBUG=false CI=true make -f Makefile -f /tmp/model-policy-checks.mk model-policy-test
+# recipe: cd $(BACKEND) && uv run pytest tests/unit/test_claude_policy.py tests/unit/test_single_source_of_truth.py tests/unit/test_policy_activity.py -q
+AGENT_MODE=local_dummy DEBUG=false CI=true make -f Makefile -f /tmp/model-policy-checks.mk model-policy-denials
+# recipe: cd $(BACKEND) && uv run pytest tests/integration/test_agent_tool_repository.py -k sdk_permission_denial -q
+```
+
+開発中の絞込証跡: [設定・時計RED](test-results/model-policy-review-red-2026-09-12.log)、[拒否記録RED](test-results/model-policy-denial-red-2026-09-12.log)、[GREEN（unit28件＋統合2件）](test-results/model-policy-review-green-2026-09-12.log)。一時makeターゲットは高速フィードバック用であり、完了根拠は以下の通常ゲート。
+
+```sh
+AGENT_MODE=local_dummy DEBUG=false CI=true make agent-mutations
+AGENT_MODE=local_dummy DEBUG=false CI=true make check
+```
+
+[変異の全結果](test-results/model-policy-review-mutations-2026-09-12.log)、[全体ゲートの全結果](test-results/model-policy-review-regression-2026-09-12.log):
+
+```text
+429 passed, 124 warnings in 19.37s
+Test Suites: 15 passed, 15 total
+Tests:       166 passed, 166 total
+Time:        5.918 s
+✅ check: all green
+```
+
+既存テストの変更理由: SecretStrへの型変更に合わせてモック入力も秘匿型にした。直接policyを読むround-tripテストは生存通知を読み飛ばしてから終端を検査する。既存assertは保持し、SDK options・partialのrepr・executor.callが要求転送を解除することを追加で固定した。既存のSSOT・パス分離テストは変更していない。新規は秘匿型1件・fake clock2件・DB拒否イベント2件の計5件。
+
+`.claude/memory.md`・`.env` は編集していない。`.env`の閲覧/表示・実API呼出し・commitはしていない。`frontend/tsconfig.tsbuildinfo` の既存変更を保全した。§7の明示に従い、このhandoff提出後はClaudeの実モデル評価と独立してタスクM（T-301）へ着手可能。
+
+再レビュー依頼
+
+---
+
 # T-205 実モデル接続 handoff
 
 2026-09-12。対象指示: CODEX-INSTRUCTIONS.md §7 タスク L（見出し更新時刻: 2026-09-13 00:05）。希望 Status: REVIEWING。

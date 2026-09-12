@@ -6,6 +6,7 @@ Sprint 3 は認証を実装しない（CLAUDE.md 決定事項1）。JWT_SECRET_K
 
 from typing import Literal
 
+from pydantic import SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -26,7 +27,7 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: list[str] = ["http://localhost:3000"]
 
     # Claude Agent SDK（Slice 0-7。未設定でも起動できる。実行時にチェックする）
-    ANTHROPIC_API_KEY: str | None = None
+    ANTHROPIC_API_KEY: SecretStr | None = None
     AGENT_MODE: Literal["local_dummy", "claude"] = "local_dummy"
 
     # ファイル入力（読取専用の原本パス。references/ 配下のみを対象にする想定。D02 の上限は別途アプリで判定）

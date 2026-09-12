@@ -360,6 +360,21 @@ class AgentToolGateway:
             check_open(closed)
             return step.id
 
+    async def record_denial(self, context, name, code, digest, closed):
+        check_open(closed)
+        async with self.sessions() as session, session.begin():
+            repository = await self.locked(session, context)
+            check_open(closed)
+            step = await repository.add_step(
+                "guardrail_denied", digest, repository.run.stage
+            )
+            repository.event(step, repository.run.stage, "error", code=code)
+            step.trace_event = {
+                **step.trace_event,
+                "tool_use": {**step.trace_event["tool_use"], "deniedTool": name},
+            }
+            check_open(closed)
+
     @asynccontextmanager
     async def operation(self, context, step_id, closed):
         check_open(closed)

@@ -109,6 +109,11 @@ class ToolCall:
 
 
 @dataclass(frozen=True)
+class PolicyHeartbeat:
+    received_at: float
+
+
+@dataclass(frozen=True)
 class ToolReply:
     data: dict
     is_error: bool = False

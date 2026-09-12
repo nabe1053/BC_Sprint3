@@ -9,7 +9,7 @@ import httpx
 import pytest
 from claude_agent_sdk import ResultMessage
 from fastapi import FastAPI
-from pydantic import ValidationError
+from pydantic import SecretStr, ValidationError
 
 from app.agent import definition
 from app.agent.runner import LocalAgentWorker
@@ -19,6 +19,7 @@ from app.api.errors import ApiError, api_error_handler
 from app.api.ui.endpoints.agent_runs import router
 from app.core.config import Settings
 from app.domain.run_types import RunContext
+from app.domain.agent_types import PolicyHeartbeat
 
 
 @pytest.fixture
@@ -67,7 +68,11 @@ async def test_mode_selects_policy_and_persists_model_or_returns_http_503(
     from datetime import UTC, datetime
 
     monkeypatch.setattr(dependencies.settings, "AGENT_MODE", mode)
-    monkeypatch.setattr(dependencies.settings, "ANTHROPIC_API_KEY", key)
+    monkeypatch.setattr(
+        dependencies.settings,
+        "ANTHROPIC_API_KEY",
+        SecretStr(key) if key is not None else None,
+    )
     worker = Mock(prepare_finish=AsyncMock())
     worker_factory = Mock(return_value=worker)
     scheduler = Mock()
@@ -90,6 +95,7 @@ async def test_mode_selects_policy_and_persists_model_or_returns_http_503(
     assert (factory.func if isinstance(factory, partial) else factory) is (
         claude_policy if mode == "claude" else local_dummy_policy
     )
+    assert "synthetic-key" not in repr(factory)
     app = FastAPI()
     app.add_exception_handler(ApiError, api_error_handler)
     app.include_router(router, prefix="/api/v1/ui")
@@ -141,7 +147,7 @@ async def test_sdk_terminal_maps_to_run_result_without_error_body(
 
     monkeypatch.setattr(policy, "query", query)
     outcome = await LocalAgentWorker(
-        Mock(), partial(policy.claude_policy, api_key="synthetic-key")
+        Mock(), partial(policy.claude_policy, api_key=SecretStr("synthetic-key"))
     )(context)
     assert (outcome.stop_reason, outcome.detail) == (reason, detail)
     assert "synthetic-private-error-body" not in repr(outcome) + caplog.text
@@ -153,7 +159,7 @@ async def test_sdk_requires_bound_executor_before_query(monkeypatch, context):
     query = Mock()
     monkeypatch.setattr(policy, "query", query)
     with pytest.raises(RuntimeError, match="run-scoped"):
-        await anext(policy.claude_policy(context, api_key="synthetic-key"))
+        await anext(policy.claude_policy(context, api_key=SecretStr("synthetic-key")))
     query.assert_not_called()
 
 
@@ -169,7 +175,7 @@ async def test_sdk_terminal_drains_transport_cleanup(monkeypatch, context):
 
     monkeypatch.setattr(policy, "query", query)
     outcome = await LocalAgentWorker(
-        Mock(), partial(policy.claude_policy, api_key="synthetic-key")
+        Mock(), partial(policy.claude_policy, api_key=SecretStr("synthetic-key"))
     )(context)
     assert outcome.stop_reason == "max_turns"
     assert drained.is_set()
@@ -206,13 +212,18 @@ async def test_sdk_handler_round_trip_uses_existing_executor_and_records_once(
         yield result()
 
     monkeypatch.setattr(policy, "query", query)
-    stream = policy.claude_policy(context, api_key="synthetic-key")
+    stream = policy.claude_policy(context, api_key=SecretStr("synthetic-key"))
     with executor.bind():
         call = await anext(stream)
         gateway.begin_step.assert_not_awaited()
-        reply = await executor.call(call.name, call.arguments)
+        with executor.bind(
+            request=AsyncMock(side_effect=AssertionError("recursive SDK request"))
+        ):
+            reply = await executor.call(call.name, call.arguments)
         with pytest.raises(StopAsyncIteration):
-            await stream.asend(reply)
+            signal = await stream.asend(reply)
+            while isinstance(signal, PolicyHeartbeat):
+                signal = await anext(stream)
     assert captured["response"]["isError"] is rejected
     gateway.begin_step.assert_awaited_once()
     if rejected:
@@ -230,6 +241,22 @@ async def test_sdk_handler_round_trip_uses_existing_executor_and_records_once(
     assert options.mcp_servers == {"app": agent_server}
     assert options.allowed_tools == ALLOWED_TOOL_NAMES
     assert options.permission_mode == "default"
+    assert options.setting_sources == []
+    from pathlib import Path
+
+    assert options.cwd and not (Path(options.cwd) / ".claude").exists()
+    assert set(options.disallowed_tools) == {
+        "Bash",
+        "Read",
+        "Write",
+        "Edit",
+        "WebFetch",
+        "WebSearch",
+        "Glob",
+        "Grep",
+    }
+    assert options.stderr is not None
+    assert options.stderr("synthetic-private-stderr") is None
     assert options.env["ANTHROPIC_API_KEY"] == "synthetic-key"
     hook = options.hooks["PreToolUse"][0].hooks[0]
     denied = await hook({"tool_name": "Bash", "tool_input": {}}, None, {"signal": None})
@@ -258,7 +285,7 @@ async def test_closing_policy_cancels_pending_sdk_handler(monkeypatch, context):
     monkeypatch.setattr(policy, "query", query)
     executor = ToolExecutor(context, Mock())
     with executor.bind():
-        stream = policy.claude_policy(context, api_key="synthetic-key")
+        stream = policy.claude_policy(context, api_key=SecretStr("synthetic-key"))
         await anext(stream)
         executor.close()
         await stream.aclose()
@@ -273,7 +300,9 @@ async def test_sdk_rejects_mismatched_run_binding(monkeypatch, context):
     monkeypatch.setattr(policy, "query", query)
     with ToolExecutor(replace(context, case_id=999), Mock()).bind():
         with pytest.raises(RuntimeError, match="matching run-scoped"):
-            await anext(policy.claude_policy(context, api_key="synthetic-key"))
+            await anext(
+                policy.claude_policy(context, api_key=SecretStr("synthetic-key"))
+            )
     query.assert_not_called()
 
 
@@ -296,7 +325,9 @@ async def test_sdk_tasks_keep_concurrent_run_bindings_separate(monkeypatch, cont
     async def start(run_context):
         executor = ToolExecutor(run_context, Mock())
         with executor.bind():
-            stream = policy.claude_policy(run_context, api_key="synthetic-key")
+            stream = policy.claude_policy(
+                run_context, api_key=SecretStr("synthetic-key")
+            )
             assert (await anext(stream)).name == "get_rules"
             await stream.aclose()
 
@@ -304,3 +335,11 @@ async def test_sdk_tasks_keep_concurrent_run_bindings_separate(monkeypatch, cont
     assert sorted(seen) == [context.case_id, 999]
     with pytest.raises(RuntimeError, match="run-scoped"):
         ToolExecutor.current()
+
+
+async def test_settings_and_partial_keep_api_key_secret():
+    configured = Settings(
+        _env_file=None, DEBUG=False, ANTHROPIC_API_KEY="synthetic-key"
+    )
+    assert isinstance(configured.ANTHROPIC_API_KEY, SecretStr)
+    assert "synthetic-key" not in repr(configured)

@@ -48,6 +48,15 @@ class ToolExecutor:
     def close(self):
         self.closed.set()
 
+    async def record_denial(self, name, code):
+        await self.gateway.record_denial(
+            self.context,
+            name,
+            code,
+            digest_args({"tool": name, "code": code}),
+            self.closed,
+        )
+
     @classmethod
     def current(cls):
         executor = _executor.get()
