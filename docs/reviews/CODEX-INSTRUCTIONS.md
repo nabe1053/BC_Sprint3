@@ -147,20 +147,12 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-12 23:50・C-2 1回目レビュー後）
+## 7. 次にやること（2026-09-13 00:05・C-2 DONE・いまは T-205）
 
-- **C-2 → DONE 可（条件付き）**（memory RV-029。P2 1 のみ）。**下記タスク K-2（1 行）を直して handoff に `RV-029 対応` を追記 → DONE**。
-  Claude が commit したら §7 を更新するので、K-2 の後は**そのまま続けてタスク L（T-205）に着手してよい**（§7 更新を待たない。設計は agent-plan.md で確定済み）
-- **禁止**: `CLAUDE.md` / `.claude/` を機械置換した複製（`AGENTS.md` の本文コピー・`.agents/` `.codex/` の生成）を作らない（memory CV-022）。
-  `AGENTS.md` は Claude が参照 1 枚に置換済み。`.agents/` `.codex/` は .gitignore 済み（ローカル利用は可）。**再生成しない**
-
-### タスク K-2: C-2 の DONE 条件（1 行）
-
-- `backend/tests/unit/test_regression_gate.py:28`: 子 make の環境を `"MAKEFLAGS": ""` → `"MAKEFLAGS": "-j8"`。
-  理由: 空にすると `.NOTPARALLEL:` を消してもテストが通る（回帰ガード喪失）。`-j8` 固定なら決定性を保ちつつ `.NOTPARALLEL:` 削除で FAIL する
-  （reviewer がプローブで確認済み）。RED: `.NOTPARALLEL:` を一時的に外して FAIL を確認 → 戻して PASS
-- P3（記録のみ・任意）: `test_run_endpoints_are_in_ui_only_route_contract` を `tests/unit/` へ / TODO-012 ⑦の空 dir 削除（`rmdir` 相当、`__pycache__` のみ）
-- `DEBUG=false CI=true make check` all green → `docs/c2-handoff.md` 冒頭に `## RV-029 対応` を追記
+- **C-2 → DONE**（memory RV-029、commit `79e3c17`）。G1・G2・C-1・C-2 が閉じた
+- **いま進めるのはタスク L（T-205 実モデル接続）**。設計の正は agent-plan.md 末尾「T-205 実モデル接続」。完了合図は `docs/t205-handoff.md` の `再レビュー依頼`
+- `ANTHROPIC_API_KEY` は研修者が投入中（TODO-016）。**Codex は `.env` を読まない・表示しない**。キー有無で分岐する挙動はモックで検証する
+- 禁止事項は変わらず: CLAUDE.md / `.claude/` の複製生成（CV-022）、実モデルを呼ぶテスト、`make agent-eval` の既定を `claude` にすること
 
 ### タスク L: T-205 実モデル接続（**K-2 の直後に着手。§7 更新を待たない**）
 
