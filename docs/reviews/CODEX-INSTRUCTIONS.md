@@ -147,12 +147,12 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 04:40・**run 8 で AE01 合格**・T-301 を再開）
+## 7. 次にやること（2026-09-13 05:00・T-205 全 DONE・T-301 進行中）
 
 - **実評価 run 8 = `completed`**（11 行・AE01 期待どおり・631 秒・14 ターン・漏洩 0）。L-6 は reviewer 確認中（Claude）。**Codex は T-301（タスク M）を再開する**
 - T-301 の handoff 冒頭に「T-205 L-3〜L-6 と同一コミット単位（`run_repository._has_records` が `models/records.py` に依存）」と明記する。
   T-205 のファイル（`app/agent/**`・`claude_policy`・`definition`・`hooks`・`run_types`・`run_repository` の T-205 hunk）は**触らない**
-- Claude は当面 pytest を回さない（reviewer の L-6 確認が終わるまで。終わったら §7 で知らせる）。Codex の `make check` は自由
+- L-6 の reviewer 確認は **DONE 可**で完了（memory RV-032）。T-205 は全ラウンド DONE。Claude は T-301 の再レビュー依頼が来るまで pytest を回さない。Codex の `make check` は自由
 - 完了合図: `docs/t301-handoff.md` 末尾 `再レビュー依頼`
 
 ### タスク L-6: 根拠・確認事項の一括登録、MAX_TURNS 80、プロンプト補強、無応答診断（AD-021）
