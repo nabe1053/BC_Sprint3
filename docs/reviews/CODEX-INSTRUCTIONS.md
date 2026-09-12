@@ -147,7 +147,7 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-12 23:10・T-204 DONE・G2 が縦に1本通った）
+## 7. 次にやること（2026-09-12 23:30・T-204 DONE・ミニ評価合格・D05 承認）
 
 - **T-204 → DONE**（memory RV-028、commit `58f79f0`）。G1 全部・G2 全部・C-1 が閉じた
 - **Claude が G2 ミニ評価を実施中**（実ジョブ 1 本を起動しトレースを agent-plan.md と突き合わせ。`backend/app/**` と DB は Claude が触っている）。
@@ -174,8 +174,22 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
    **注意**: `make check` は Claude のミニ評価と DB（octg_test）を共有しない（開発 DB は octg_db）が、pytest の同時実行は避ける（LN-027）。
    Claude が `backend/app` を触っている間に `make check-be` が失敗したら、再実行せず handoff に時刻と出力を書いて止まる
 
-### C-2 の後（着手は §7 更新待ち）
-- TODO-009 / TODO-011 ①（`backend/app/` を触る整理）→ G3 T-301（BE）。並行可は T-401（§5）
+### C-2 の後 → タスク L: T-205 実モデル接続（**着手は §7 更新待ち。ただし設計は確定済みなので先読みしてよい**）
+
+設計の正: `docs/requirements/agent-plan.md` 末尾「T-205 実モデル接続（D05 承認）」。**この範囲を出ない**（判断役の差し替えのみ。ツール・hook・トレース・ジョブ・完了判定・期限は T-203 のまま）。
+1. `app/core/config.py`: `AGENT_MODE: Literal["local_dummy","claude"] = "local_dummy"`。`definition.py`: `MODEL_ID = "claude-sonnet-5"`（SSOT テストの対象に含める）
+2. `app/agent/claude_policy.py`（新規）: 既存 `local_dummy_policy` と同じ「方針」の口で、SDK `query()` を `ClaudeAgentOptions(model, system_prompt=SYSTEM_PROMPT,
+   mcp_servers={"app": agent_server}, allowed_tools=ALLOWED_TOOL_NAMES, hooks=build_hooks(), max_turns=MAX_TURNS)` で起動。ツール実行は**登録済み SDK handler →
+   run 束縛 `ToolExecutor`** の既存経路（`tools.py` の ContextVar）を通す。`query()` を `ToolExecutor` 外で呼ばない。SDK の `max_turns` 終了は `stop_reason=max_turns` に写し、
+   SDK 例外は `failed` / `stage_detail=model_error`（例外本文をトレースに載せない）。runner の内側 / 無応答期限・jobs の外側期限は不変
+3. 組み立て（`app/api/dependencies.py`）: `AGENT_MODE` で `policy_factory` を選ぶ。`claude` かつ `ANTHROPIC_API_KEY` 未設定なら `RunService(external=True)` 相当で
+   #12 を 503 `E_EXTERNAL_SEND_NOT_APPROVED`（文言「実モデルが構成されていません」）。`agent_runs.model` に `MODEL_ID` / `DUMMY_MODEL_ID` を保存
+4. 設計書追記: 04-db §3.2 補足の固定診断コード一覧に `model_error`。05-api-ipo 6章の 503 文言更新
+5. テスト: **SDK をモック**した `claude_policy` の分岐（切替・キー未設定 503・model_error・max_turns の写し・ツール呼出しが ToolExecutor を通ること）のみ。
+   **実モデルを呼ぶテストを書かない**（決定性・課金）。`make agent-eval` は `local_dummy` のまま
+6. 完了条件: `DEBUG=false CI=true make check` all green（既存 404 / 166 ＋新規）＋ `docs/t205-handoff.md` ＋ `再レビュー依頼`。**`.env` を読まない・表示しない**。
+   実モデルでの実行確認は Claude が行う（キー投入は研修者、TODO-016）
+7. その後: TODO-009 / TODO-011 ①（`backend/app/` を触る整理）→ G3 T-301（BE）。並行可は T-401（§5）
 
 ### タスク F: T-103（G1 FE）の指摘修正 — 指示書は `docs/t103-instructions.md`
 

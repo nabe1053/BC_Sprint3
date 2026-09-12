@@ -236,3 +236,31 @@ sample-10（GulfTex／.eml のスレッド。最新本文で item 1 の数量が
 - 未登録の呼出し名はguardrail_denied管理イベントとして記録し、ツール登録は増やさない。observation.codeは未登録拒否をE_TOOL_NOT_REGISTERED、読取引数の外部URL拒否をE_EXTERNAL_LINK_BLOCKEDで区別する。原文・実際の未登録名を診断コードへ含めない。
 - 読取進捗はstage_detailにJSON文字列でdocumentsRead/documentsTotalを保存する。総数はlist_case_documentsと同じ案件の資料一覧、読取済み数は読取可能範囲が空でなく全範囲の成功stepがある資料の数。再読取・分割step・失敗・空本文で水増ししない。読取中の固定診断はtrace_event.observation.codeへ残し、件数JSONに混ぜない。終端stage=doneの固定診断コードは既存のT-202契約を維持する。
 - ローカルダミーは明示形式の明細に加え、`注記:` または `Note:` で始まるURL注記を原文のまま確認事項に記録し、明細以外の注記として根拠付きでインベントリへ残す。URL取得・送信はしない。AE06の成功要件は変更せず、ae06_url_in_sourceのジョブ評価で確認する。任意自然文の解釈能力を追加したとは扱わない。
+
+
+### T-205 実モデル接続（D05 承認・2026-09-12 研修者決定、memory AD-016）
+
+研修者の「実モデルに接続してください」により D05 を承認とし、02-requirement D05 承認案の項目を次で確定する。
+
+| 項目 | 確定内容 |
+|---|---|
+| 送信先 | Anthropic Claude API（`claude-agent-sdk`。利用アカウントは研修者の `ANTHROPIC_API_KEY`、`backend/.env` のみに置く） |
+| モデル | 既定 `claude-sonnet-5`（`definition.MODEL_ID` の 1 箇所で管理。精度不足なら `claude-opus-5` へ切替） |
+| 送信対象 | `references/sample-01〜10` から投入した案件の資料本文・表・メール構造と、13 ツールの応答のみ。ツールは案件スコープ外の資料を返さない（既存の逸脱拒否） |
+| 除外 | 提案書・実業務資料・認証情報・対象外ローカルファイル。SDK 組込みの Read / Bash / WebFetch 等は `allowed_tools` から外し PreToolUse hook でも拒否（既存） |
+| 保存条件 | トレース・DB に資料本文を追加保存しない（既存の N02 実装を維持。抽出値・原表記は成果物として DB に残る）。Anthropic 側の保存・学習利用は API 利用規約の既定に従う（**研修者確認済みの前提**） |
+| 承認者・日 | 研修者（t.watanabe）・2026-09-12。対象ファイル版は `references/` の当該コミット時点 |
+
+実装方針（設計が正。T-205 はこの範囲を出ない）:
+- **判断役の差し替えのみ。**ツール・hook・トレース・ジョブ・完了判定・タイムアウト 2 層はすべて T-203 のまま使う。実モデル方針 `claude_policy` は、SDK `query()` を
+  `ClaudeAgentOptions(model=MODEL_ID, system_prompt=SYSTEM_PROMPT, mcp_servers={"app": agent_server}, allowed_tools=ALLOWED_TOOL_NAMES, hooks=build_hooks(),
+  max_turns=MAX_TURNS, permission_mode="default")` で起動し、ツール呼出しは**登録済み SDK handler → run 束縛 `ToolExecutor`**（T-203 の経路）を通す。
+  `query()` を `ToolExecutor` の外で呼ぶ経路・トレースを通らない経路を作らない
+- **切替は設定 1 箇所** `AGENT_MODE = local_dummy | claude`（`app/core/config.py`）。`claude` かつ `ANTHROPIC_API_KEY` 未設定なら起動 #12 を 503 `E_EXTERNAL_SEND_NOT_APPROVED`
+  （既存コード・文言を「実モデルが構成されていません」に変える）。既定は `local_dummy`（評価・テストの決定性を維持）
+- `agent_runs.model` は `local_dummy` のとき `DUMMY_MODEL_ID`、`claude` のとき `MODEL_ID` を保存する
+- 停止条件は不変: `max_turns` は SDK の `max_turns` と runner の両方で数え、内側 / 無応答 / 外側の 3 期限は runner / jobs が引き続き回収する。SDK が
+  `max_turns` で止まった場合も `stop_reason=max_turns` に写す。SDK 側の例外（認証・レート・ネットワーク）は `failed` / `stage_detail=model_error`（固定コード。
+  例外本文はトレースに載せない。04-db §3.2 補足の一覧に追記）
+- **単体テストは SDK をモックした `claude_policy` の分岐（設定切替・キー未設定・model_error・max_turns の写し）のみ。**実モデルの振る舞いは Phase 3 の評価で検証する
+- ミニ評価: `make agent-eval` は `local_dummy` のまま（決定性）。実モデルは研修者がキーを投入後、Claude が sample-06（AE01）を 1 本通してトレースを本表と突き合わせる

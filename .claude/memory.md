@@ -67,6 +67,11 @@
   （2026-09-12 orchestrator 暫定・AD-013 と同型）。理由: SCR-03 は G3（T-303）まで無い。引き継ぎ警告の件数内訳は #22（G5）まで返らないため
   警告文＋明示確認のみ（件数を捏造しない）/ 影響範囲: T-303 でリンクを追加、T-502 で件数を追加。03-spec SCR-02 の注記⑦に対応。
 
+- [AD-016] **D05 承認: 実モデル（Anthropic Claude API・`claude-agent-sdk`）へ接続する**（2026-09-12 研修者決定「実モデルに接続してください」）。
+  送信先 / モデル `claude-sonnet-5`（`definition.MODEL_ID` 1 箇所）/ 送信対象 `references/sample-01〜10` 由来の案件のみ / 除外 / 保存条件（本文をトレース・DB に追加保存しない）は
+  agent-plan.md「T-205 実モデル接続」に確定。切替は `AGENT_MODE=local_dummy|claude`（既定 local_dummy）。理由: Phase 3 の本評価はダミーでは意味を持たない（TODO-015）/
+  影響範囲: T-205（判断役の差し替えのみ。ツール・hook・トレース・ジョブは不変）。**`ANTHROPIC_API_KEY` は `backend/.env` に未設定**（TODO-016・研修者作業）。
+
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
@@ -135,6 +140,7 @@
 | T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202, C-1 | DONE | 2回目 RV-022: **DONE**（P3 5 は記録のみ・TODO-009。C-1 は未完のまま） | 2026-09-12 |
 | C-2 | 記録のみ P3 の整理 chore（TODO-010/012、backend/app 非接触分） | chore | C-1, T-204 | IMPLEMENTING | Codex 着手指示（CODEX-INSTRUCTIONS §7 タスク K） | 2026-09-12 |
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | DONE | 2回目 RV-028: **DONE**（P3 1 は記録のみ・TODO-012 へ） | 2026-09-12 |
+| T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | PLANNED | Codex は C-2 の後に着手（CODEX-INSTRUCTIONS §7 タスク L） | 2026-09-12 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
 | T-302 | G3 参照 #23-26 / 記録 #29-31,33（API） | web | T-301 | PLANNED | - | 2026-09-11 |
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | PLANNED | - | 2026-09-11 |
@@ -403,8 +409,10 @@
 - [TODO-013] **起動結果不明（POST 応答喪失）からの runId 再接続は API 不足で実現不能**（`docs/t204-handoff.md` §2）。案件に属する実行一覧
   （例 `GET /cases/{caseId}/agent-runs`）が無い。T-204 は「一覧を再読み込みしてください」で止める。API 追加は 05-api-ipo に積んでから。
 - [TODO-014] 数量 TBA の確認事項 `questions.category` が `unknown`（G2 ミニ評価）。04-db.md の語彙と照合し適切な区分があれば `local_policy.py` で割り当てる。
-- [TODO-015] **Phase 3 の本評価（sample-01〜10・AE01〜AE07）は実モデル接続（D05 承認）が前提。**ローカルダミーは 1 行明細形式のみ対応。
+- [TODO-015]（解消: AD-016 で D05 承認・T-205 を起票）**Phase 3 の本評価（sample-01〜10・AE01〜AE07）は実モデル接続（D05 承認）が前提。**ローカルダミーは 1 行明細形式のみ対応。
   D05 の承認（送信先・送信範囲・保存条件）を研修者が判断するまで、Phase 3 は「型の確認」（ミニ評価）に留まる。**研修者判断待ち**。
+- [TODO-016] **`ANTHROPIC_API_KEY` を `backend/.env` に投入する（研修者作業）。**未設定のため T-205 完了後も実モデル実行は 503 になる。
+  投入後に Claude が sample-06（AE01）を 1 本通す（AD-016）。
 - [TODO-001] D02（入力上限）は AD-003 の**仮値**。初版受入（X09 の上限試験）の前に研修者が実値を確定する。
   **確定時は `backend/app/core/config.py` と `frontend/src/shared/i18n/ja.json` の上限注記の両方を直す**（RV-024 P2-2。API が上限を返さないため画面側に複製がある）。
 - [TODO-002] **eml には `document_pages` が無い**ため、04-db.md の完了条件の機械判定
