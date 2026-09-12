@@ -1,142 +1,137 @@
-"""エージェント実行ループ。
+"""Run a local decision stream through guarded tools; always dispatched via jobs.
 
-タイムアウトの責務分担:
-- 内側（このファイル）: INNER_TIMEOUT_S（実行全体）と INACTIVITY_TIMEOUT_S（無応答=ハング検知）。
-  発火したらトレースに stop_reason を記録して整然と終了する。agent-plan.md の「強制停止」に対応。
-- 外側（jobs.py）: OUTER_TIMEOUT_S。内側が機能しなかった場合（SDK サブプロセスの
-  ハング・キャンセル不能など）の最後の砦。発火 = 内側の異常であり、バグとして扱う。
-
-直接呼ばない: 起動は必ず jobs.start_agent_job() 経由（バックグラウンド実行 + 外側タイムアウト）。
-
-ガードレール: PreToolUse hook（app.agent.hooks）を必ず適用する。ツール一覧は
-app.agent.tools.ALLOWED_TOOL_NAMES（agent-plan.md の13点 + 疎通テスト用 ping）に限定する。
+No SDK query or external model is reachable from this worker (D05).
+Loop behavior is evaluated by make agent-eval, not by unit tests.
 """
-
 import asyncio
-from dataclasses import dataclass
-
-from claude_agent_sdk import (
-    AssistantMessage,
-    ClaudeAgentOptions,
-    ResultMessage,
-    TextBlock,
-    ToolResultBlock,
-    ToolUseBlock,
-    UserMessage,
-    query,
-)
+import logging
+from dataclasses import asdict
+from time import monotonic
 
 from app.agent import definition
-from app.agent.hooks import build_hooks
-from app.agent.tools import ALLOWED_TOOL_NAMES, agent_server
-from app.agent.trace import TraceRecorder, digest_args
+from app.agent.local_policy import local_dummy_policy
+from app.agent.tools import ToolExecutor, digest_args
+from app.domain.agent_types import LocalPolicyStop
+from app.domain.run_types import RunResult
+from app.services.draft_validation import validate_snapshot
+
+_pending = set()
 
 
-@dataclass
-class AgentRunResult:
-    run_id: str
-    stop_reason: str  # completed / failed / max_turns / inner_timeout / inactivity_timeout / ...
-    output: str | None = None
-    num_turns: int | None = None
-    cost_usd: float | None = None
+def _consume(task):
+    _pending.discard(task)
+    if not task.cancelled():
+        error = task.exception()
+        if error is not None and not isinstance(
+            error, (StopAsyncIteration, LocalPolicyStop)
+        ):
+            logging.getLogger(__name__).error(
+                "Local agent operation failed (%s)", type(error).__name__
+            )
 
 
-def _build_options() -> ClaudeAgentOptions:
-    return ClaudeAgentOptions(
-        system_prompt=definition.SYSTEM_PROMPT,
-        mcp_servers={"app": agent_server},
-        allowed_tools=ALLOWED_TOOL_NAMES,
-        max_turns=definition.MAX_TURNS,
-        hooks=build_hooks(),
-    )
+class LocalAgentWorker:
+    def __init__(self, gateway, policy_factory=local_dummy_policy):
+        self.gateway = gateway
+        self.policy_factory = policy_factory
 
+    async def prepare_finish(self, context, result):
+        """System cleanup after stopped work; retried by the existing jobs boundary."""
+        if result.stop_reason == "completed":
+            return
+        async with self.gateway.cleanup(context) as repository:
+            if repository is not None:
+                snapshot = await repository.snapshot(context.version_id)
+                validation = validate_snapshot(snapshot)
+                await repository.record_interruption(
+                    snapshot,
+                    [asdict(v) for v in validation.violations],
+                    result.stop_reason,
+                )
 
-async def run_agent(
-    prompt: str, *, scenario: str | None = None, trace: TraceRecorder | None = None
-) -> AgentRunResult:
-    """エージェントを1回実行し、全メッセージをトレースに記録する。
+    async def __call__(self, context):
+        executor = ToolExecutor(context, self.gateway)
+        stream = self.policy_factory(context)
+        deadline = monotonic() + context.limits.inner_timeout_s
+        turns = 0
+        previous_call, repetitions = None, 0
+        previous_validation, validation_repetitions = None, 0
+        reply = None
 
-    trace は jobs.py が run_id を先に確定させるために注入する（省略時は内部で生成）。
-    直接 await しない — 起動は jobs.start_agent_job() 経由（外側タイムアウト込み）。
-    """
-    trace = trace or TraceRecorder(scenario=scenario)
-    trace.record_input(prompt)
-    result = AgentRunResult(run_id=trace.run_id, stop_reason="failed")
+        async def bounded(awaitable):
+            remaining = deadline - monotonic()
+            task = asyncio.create_task(awaitable)
+            _pending.add(task)
+            task.add_done_callback(_consume)
+            try:
+                done, _ = await asyncio.wait(
+                    {task},
+                    timeout=max(0, min(remaining, context.limits.inactivity_timeout_s)),
+                )
+                if not done:
+                    executor.close()
+                    task.cancel()
+                    reason = (
+                        "inner_timeout"
+                        if monotonic() >= deadline
+                        else "inactivity_timeout"
+                    )
+                    raise LocalPolicyStop(reason)
+                return task.result()
+            except asyncio.CancelledError:
+                executor.close()
+                task.cancel()
+                raise
 
-    # 強制停止条件: 同一ツール・同一引数の連続呼び出し（agent-plan.md「強制停止」）。
-    last_calls: list[tuple[str, str]] = []
-
-    try:
-        # 内側タイムアウト: 実行全体の上限
-        async with asyncio.timeout(definition.INNER_TIMEOUT_S):
-            stream = query(prompt=prompt, options=_build_options()).__aiter__()
+        try:
             while True:
-                try:
-                    # ハング検知: メッセージ間の無応答が INACTIVITY_TIMEOUT_S を超えたら停止
-                    message = await asyncio.wait_for(
-                        stream.__anext__(), definition.INACTIVITY_TIMEOUT_S
+                if turns >= context.limits.max_turns:
+                    return RunResult("max_turns", turns)
+                call = await bounded(stream.asend(reply))
+                turns += 1
+                reply = await bounded(executor.call(call.name, call.arguments))
+                if reply.is_error:
+                    return RunResult("failed", turns, "tool_rejected")
+                if call.name == "finalize_draft":
+                    return RunResult("completed", turns)
+                key = (call.name, digest_args(call.arguments))
+                repetitions = repetitions + 1 if key == previous_call else 1
+                previous_call = key
+                if call.name == "validate_draft":
+                    violations = reply.data["violations"]
+                    digest = digest_args(violations)
+                    validation_repetitions = (
+                        validation_repetitions + 1
+                        if violations and digest == previous_validation
+                        else (1 if violations else 0)
                     )
-                except StopAsyncIteration:
-                    break
-                except TimeoutError:
-                    result.stop_reason = "inactivity_timeout"
-                    trace.record_result(
-                        "inactivity_timeout",
-                        detail=f"{definition.INACTIVITY_TIMEOUT_S}s 無応答",
-                    )
-                    return result
-
-                if isinstance(message, AssistantMessage):
-                    for block in message.content:
-                        if isinstance(block, TextBlock):
-                            trace.record_decision(block.text)
-                        elif isinstance(block, ToolUseBlock):
-                            trace.record_tool_use(block.name, block.input)
-
-                            call_key = (block.name, digest_args(block.input))
-                            last_calls.append(call_key)
-                            last_calls[:] = last_calls[
-                                -definition.REPEATED_CALL_LIMIT :
-                            ]
-                            if (
-                                len(last_calls) == definition.REPEATED_CALL_LIMIT
-                                and len(set(last_calls)) == 1
-                            ):
-                                result.stop_reason = "repeated_call"
-                                trace.record_result(
-                                    "repeated_call",
-                                    detail=(
-                                        f"同一ツール・同一引数を{definition.REPEATED_CALL_LIMIT}"
-                                        "回連続で呼び出した"
-                                    ),
-                                )
-                                return result
-                elif isinstance(message, UserMessage):
-                    for block in getattr(message, "content", []) or []:
-                        if isinstance(block, ToolResultBlock):
-                            trace.record_observation(
-                                tool_name="",
-                                content=block.content,
-                                is_error=block.is_error,
-                            )
-                elif isinstance(message, ResultMessage):
-                    completed = not message.is_error
-                    if message.num_turns and message.num_turns >= definition.MAX_TURNS:
-                        result.stop_reason = "max_turns"
-                    else:
-                        result.stop_reason = "completed" if completed else "failed"
-                    result.output = message.result
-                    result.num_turns = message.num_turns
-                    result.cost_usd = message.total_cost_usd
-                    trace.record_result(
-                        result.stop_reason,
-                        num_turns=message.num_turns,
-                        cost_usd=message.total_cost_usd,
-                    )
-    except TimeoutError:
-        # 内側タイムアウト発火（agent-plan.md の強制停止）。記録してから返す。
-        result.stop_reason = "inner_timeout"
-        trace.record_result(
-            "inner_timeout", detail=f"{definition.INNER_TIMEOUT_S}s 超過"
-        )
-    return result
+                    previous_validation = digest
+                    if validation_repetitions >= definition.VALIDATION_REPEAT_LIMIT:
+                        return RunResult("validation_loop", turns)
+                if repetitions >= definition.REPEATED_CALL_LIMIT:
+                    return RunResult("repeated_call", turns)
+        except LocalPolicyStop as exc:
+            if exc.reason in (
+                "inner_timeout",
+                "inactivity_timeout",
+                "no_readable_document",
+            ):
+                return RunResult(exc.reason, turns)
+            return RunResult(
+                "failed",
+                turns,
+                "local_dummy_unsupported"
+                if exc.reason == "local_dummy_unsupported"
+                else "validation_unresolved",
+            )
+        except StopAsyncIteration:
+            return RunResult("failed", turns, "draft_not_finalized")
+        finally:
+            executor.close()
+            # Never wait unboundedly for cancellation-suppressing policy cleanup.
+            closer = asyncio.create_task(stream.aclose())
+            _pending.add(closer)
+            closer.add_done_callback(_consume)
+            done, _ = await asyncio.wait({closer}, timeout=definition.CANCEL_CLEANUP_S)
+            if not done:
+                closer.cancel()

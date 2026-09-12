@@ -2,11 +2,11 @@
 import asyncio
 import logging
 from app.domain.run_types import RunResult
+from app.agent import definition
 
 _tasks: set[asyncio.Task] = set()
 _workers: set[asyncio.Task] = set()
 logger = logging.getLogger(__name__)
-CANCEL_GRACE_S = 0.02
 FINISH_TIMEOUT_S = 5
 
 
@@ -39,7 +39,7 @@ def _worker_done(task):
 async def _cancel_with_grace(task):
     task.cancel()
     # wait_for would wait indefinitely when a worker suppresses cancellation.
-    await asyncio.wait({task}, timeout=CANCEL_GRACE_S)
+    await asyncio.wait({task}, timeout=definition.CANCEL_CLEANUP_S)
 
 
 async def _persist(on_finish, result):

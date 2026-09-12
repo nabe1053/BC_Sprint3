@@ -51,6 +51,11 @@
   影響範囲: 恒久規約は `docs/reviews/CODEX-INSTRUCTIONS.md`。Claude は原則コードを書かない
   （レビュー指摘の修正も Codex に返す）。レビューは引き続き別エージェント（憲法6）。
 
+- [AD-013] **SCR-01 の初版（T-103）は「表示状態・送付可否」を常に「—」＋注記とし、操作は「投入画面へ」（SCR-02）のみ**
+  （2026-09-12 研修者決定）。理由: API #1 は `progressStatus` のみで、版と SCR-03 は G3 まで無い。ラベルと遷移先の
+  不一致を作らない / 影響範囲: G3 で #1 を `versions` から拡張（T-302）し「案件を開く→SCR-03」を追加（T-303）。
+  03-spec SCR-01 と 05-api-ipo #1 に暫定注記を書き戻し済み。TODO-008 は解消。
+
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
@@ -103,11 +108,11 @@
 |----|---------|------|------|--------|---------|---------|
 | T-101 | G1 案件・資料の保存と読取処理（BE） | web | - | DONE | 3回+確認 | 2026-09-12 |
 | T-102 | G1 案件・資料 API #1-10（API） | web | T-101 | DONE | 2回+確認 | 2026-09-12 |
-| T-103 | G1 SCR-01 案件一覧 / SCR-02 資料投入（FE） | web | T-102 | IMPLEMENTING | - | 2026-09-12 |
-| T-201 | G2 成果物の保存＋完了条件の機械判定（BE） | web | T-101 | FIXING | 5回目 RV-017: P2 1件（索引が実 DB に無い） | 2026-09-12 |
+| T-103 | G1 SCR-01 案件一覧 / SCR-02 資料投入（FE） | web | T-102 | FIXING | 1回目 RV-019: P1 5 / P2 8 / P3 5（途中段階。components/pages 未作成） | 2026-09-12 |
+| T-201 | G2 成果物の保存＋完了条件の機械判定（BE） | web | T-101 | DONE | 7回目 RV-023: **DONE**（P3 4 は記録のみ・TODO-010） | 2026-09-12 |
 | T-202 | G2 エージェント書込 API #15-21 / 起動・監視 #12-14（API・jobs 経由） | web | T-201 | DONE | 5回目 RV-018: **DONE 可**（P3 6 は記録のみ） | 2026-09-12 |
 | C-1 | チケット名ファイルの正規配置への移動（振る舞い不変） | chore | T-202 | PLANNED | - | 2026-09-12 |
-| T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202, C-1 | PLANNED | - | 2026-09-12 |
+| T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202, C-1 | DONE | 2回目 RV-022: **DONE**（P3 5 は記録のみ・TODO-009。C-1 は未完のまま） | 2026-09-12 |
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | PLANNED | - | 2026-09-11 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
 | T-302 | G3 参照 #23-26 / 記録 #29-31,33（API） | web | T-301 | PLANNED | - | 2026-09-11 |
@@ -185,6 +190,42 @@
   ⑥`case_service.py` / `document_query_service.py` / `document_intake_service.py` が `app.models` を
   直接 import（T-101/T-102 由来・**別スライスの改修候補**）。
 
+- [RV-019] T-103 1回目（Codex 実装途中 → Claude reviewer 独立・2026-09-12）: **途中段階レビュー**（components / pages 未作成、typecheck 9 エラー、jest 11/13）。
+  P1 5（413 `details.limit` の値が BE 契約 `file_size|document_count|pdf_pages|xlsx_sheets` と違う `fileSizeMb` / `limitExceeded.detail` が内部識別子を表示 /
+  本番 QueryClient `mutations.retry:1` が記録系 POST を再送 / #1 に表示状態・送付可否が無く「—」で回避（TODO-008）/ 「案件を開く」の遷移先が SCR-02（TODO-008））
+  + P2 8（DEBUG console.log 残存 / 失敗2テストは多ルート renderHook が原因で hooks 実装は正 → LN-021 / ユニオン絞り込みを `unwrapSuccess()` に集約（CV-015）/ `ApiError` 偽装 /
+  footnote に「送付承認ではない」が無い / SCR-02 i18n 不足 / `@types/jest` メジャー不一致 / `*.t202.*` が CV-017 抵触）+ P3 5。
+  骨格（層配置・orval wrap・AD-005 反映）は正しく方針転換不要。詳細: `docs/reviews/g1-review-2026-09-12.md`。
+  → **修正指示書: `docs/t103-instructions.md`**（orchestrator が 2026-09-12 に作成。P1〜P3 の具体的な直し方・
+  未完成9件・完了条件を確定。CODEX-INSTRUCTIONS §7 タスク F から導線）。
+
+- [RV-020] T-203 1回目（Codex 実装 → Claude reviewer 独立・2026-09-12。研修者指示で C-1 未完のまま着手）: **DONE 不可**。
+  P1 1（`hooks.py:69` の URL 遮断が全引数を再帰走査し、原文に URL を含む `record_evidence.quote` / `record_question.reason` /
+  `record_source_inventory.excerpt` まで deny → `runner.py:94` で実行全体が `failed`。agent-plan AE06「期待＝成功、確認事項として抽出」と矛盾。
+  ダミー方針では発火せず**ミニ評価 13 ケースでは検出不能**）+ P2 5（`tool_rejected` 経路が設計に無い / 管理イベント `guardrail_denied` が
+  設計書に無い / `stage_detail` が `資料 n/N` を作れず T-204 が困る / 旧 `TraceRecorder` dead code / 同一違反3回ループが既定方針で到達不能）
+  + P3 6。**良い点**: TODO-006（hooks 未接続）解消、D03/D05 経路ゼロ、層配置・CV-015 遵守、ループ単体テスト無し、ミニ評価 normal は IPO 表 1〜10 と
+  対応・停止系 9 語彙一致・トレース漏洩 grep ヒット 0。orchestrator 判断: P1 はコード修正（AE06 は不変）、P2-1/2 は設計書追記、
+  P2-3 は T-203 で修正、P2-4 は削除承認、P2-5 は記録のみ。実測 392 passed / ruff 0。詳細: `docs/reviews/g2-review-2026-09-12-2.md`。
+- [RV-021] T-201 6回目（Codex タスク A → Claude reviewer 独立・2026-09-12）: **DONE 可（条件付き）**。RV-017 残 P2 は実測で閉じた
+  （両 DB `alembic current`=`add_run_step_locator_index`、`check-run-step-index` 両 PASS、`upgrade --sql` で `IF NOT EXISTS` 生成確認、
+  適用済みリビジョン未編集）。P2 1（`check-run-step-index` が `check-be` の外にあり、`create_all` conftest では migration 差分を検出できず
+  自動で守るものがゼロ → ゲートへ追加、Makefile 1行）+ P3 5（downgrade が常に RuntimeError / 同一索引の二重定義 / 接続先直書き 等）。
+  条件の P2 を T-203 修正と同ラウンドで直した時点で DONE。tests/t201 104 passed。
+
+- [RV-022] T-203 2回目（Codex 修正 → 同一 reviewer 独立確認・2026-09-12）: **DONE 可**。P1 0 / P2 0 / P3 5。RV-020 の P1・P2-1〜4・P3-1/2/3/5/6 を
+  行単位で全件クローズ確認（P2-5・P3-4 は指示どおり記録のみ）。URL 検査は read 系5ツールの top-level スカラ引数に限定、保存先へ渡る原文の
+  完全一致まで assert。`StopReason` 9 語彙不変、`tests/t202` の変更は DI モック1行のみ、`trace.py` 削除で参照 0。ミニ評価 14 ケース
+  （新規 `ae06_url_in_source` = completed・原文逐語保存・外部取得ゼロ・トレース漏洩 grep 0）、既存 13 の stopReason は1回目と一致。
+  変異試験 `make agent-mutations`（3変異全検出）を reviewer が再現。実測 404 passed / ruff 0 / format 139 unchanged。
+  新規 P3: read 系ツール名集合が `hooks.py` と `tool_stage()` に分散 / `permissionDecisionReason` がコード文字列 / 進捗更新ごとに完全 `snapshot()`
+  （N06 要確認）/ `test_agent_guardrails` の入力が Pydantic でも弾かれる `document_id` / ダミーの URL 注記対応は行頭形式限定（設計どおり）→ TODO-009。
+- [RV-023] T-201 7回目（Codex 修正 → 同一 reviewer 独立確認・2026-09-12）: **DONE 可**。P1 0 / P2 0 / P3 4。RV-021 P2（`check-be: db migrate
+  check-run-step-index be-lint be-test`、索引検査失敗で pytest に進まないことを `test_regression_gate.py` が実証）と P3-4（接続先を Makefile 変数から注入、
+  パスワードは argv に出ない）をクローズ。P3-1（downgrade）見送りは LN-018 の趣旨からは不要だが実害ゼロで許容。新規 P3: `MAKEFLAGS=-j` 継承時に
+  ゲート順序が崩れる（`.NOTPARALLEL:` 推奨）/ `INDEX_TEST_URL`（パスワード入り）がグローバル export / `export` が `TEST_DB :=` 定義より前 /
+  script を make 外から叩くと KeyError → TODO-010。実測 404 passed。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -237,8 +278,43 @@
   「1箇所に集約」の指摘は T-102 → T-202 で2度出た。`test_single_source_of_truth.py` /
   `test_api_path_separation.py` の形（ソースを機械検査する単体テスト）にすると再発が止まる。
 
+- [LN-021] **TanStack Query の hooks テストで `renderHook` を2回呼ばない**（React ルートが2つになり、
+  別ルートの `result.current` に invalidate 結果が届かず「再取得されない」と誤診する）。list と mutation は
+  1回の `renderHook(() => ({ list, mutate }))` で取るか、`queryClient.getQueryData()` で検証する（T-103 RV-019 P2-2）。
+
+- [LN-022] **ガードレールは「禁止する対象（取得・送信の意図を持つ引数）」と「記録する対象（原文 quote / excerpt / reason）」を分けて設計する。**
+  引数全体の再帰走査で URL を弾くと、原表記を保存する記録系ツールと衝突し別のガードレール（原表記の保存）を壊す（T-203 RV-020 P1）。
+- [LN-023] **評価シナリオで発火しないガードレールは評価で検出できない。**ダミー方針が禁止パターンに到達しないと 13 ケース全 PASS でも設計乖離が残る。
+  ガードレールごとに「発火する入力」を1本ずつミニ評価に持つ（AE06 は追加が必要）。
+- [LN-024] **管理イベント名・`stage_detail` の固定コードを追加したら、同じ変更で agent-plan / 04-db §3.2 の一覧へ追記する。**
+  一覧が閉じている前提の機械検査は評価スクリプト側にしか無く、設計書が先に更新されないと乖離が静かに増える（RV-020 P2-1/2）。
+- [LN-025] **適用済みリビジョンを編集してしまった後の収束は「旧リビジョンを書き戻さず、新リビジョン + `if_not_exists=True`」で行う。**
+  alembic 1.13 / SA 2.0 で `CREATE INDEX IF NOT EXISTS` が出ることは `alembic upgrade <prev>:head --sql`（DB に触らない）で事前確認できる。
+  結果として同一索引の定義が2リビジョンに分かれる（t201_artifacts と add_run_step_locator_index）ことは記録しておく。
+- [LN-026] **`create_all` ベースの conftest は migration 由来のスキーマ差分を原理的に検出できない。**スキーマ契約の回帰検出は実 DB を読む検査に置き、
+  かつ `make check-be` の内側（pytest か Makefile の依存）に入れないと守られない（RV-021 P2）。
+
+- [LN-027] **`octg_test` への pytest 同時実行はデッドロック／大量 fail する。**conftest の `TRUNCATE … CASCADE` と `FOR UPDATE` 行ロックが待ち行列を
+  作り両方止まる（reviewer 2体が独立に遭遇: 21 failed/113s → 直列で 404 passed/22s）。Codex 実装 × Claude レビューの並行運用では全体回帰の
+  実行タイミングを排他するか、レビュー用にテスト DB を分ける。「落ちた」と報告する前に `pg_stat_activity` で他の実行を確認する。
+- [LN-028] **ガードレールの修正には「過剰遮断へ戻す」「検査を外す」の両方向の変異試験を付ける。**片方向だけでは固定できていない。
+  T-203 で `scripts/check_agent_mutations.py`（子プロセス内でメモリ上だけ差し替え、作業ツリーを汚さない）として常設化（`make agent-mutations`）。
+- [LN-029] **LN-018 の適用範囲は「revision ID / down_revision / upgrade の内容」。**未実行の `downgrade()` の訂正は適用済み DB との整合を壊さないので対象外。
+- [LN-030] **設計書への追記は「実装の語彙一覧」（管理イベント名・stage_detail 固定コード・observation.code）と1対1で列挙する。**レビューが grep 照合で済む。
+
 ## 6. 未解決 / BLOCKED / TODO
 
+- [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
+  実装済み `CaseListItem` は `progressStatus` のみ。暫定: T-103 は両列「—」＋注記、G3（T-302）で #1 拡張。
+  ②03-spec SCR-01「案件を開く→SCR-03」は未実装。暫定: 「投入画面へ」のみ表示し `openButton` は G3 で追加。
+  確定したら orchestrator が 03-spec / 05-api-ipo に書き戻す（RV-019 P1-4 / P1-5）。
+- [TODO-009] **T-203 の記録のみ P3（RV-020/022）**: ①read 系ツール名集合を `agent_types.py` に1箇所定義し `hooks.py` と `tool_stage()` が参照
+  ②`permissionDecisionReason` は説明文にしコードは別キー（実モデル接続時に必須）③進捗更新ごとの完全 `snapshot()` を軽量化（S05 実測時に N06 と突き合わせ）
+  ④`test_agent_guardrails` の URL 拒否テストを `search_documents.query` に寄せる ⑤既定ダミーでは同一違反3回の自己修復ループが未稼働
+  （実モデル接続時に方針側で実装）⑥`read_email` の `email:*` 全走査は「返した」と「解釈した」を区別しない。改修スライスとして積む時期は T-204 後。
+- [TODO-010] **T-201 の記録のみ P3（RV-023）**: Makefile に `.NOTPARALLEL:`（`-j` 継承でゲート順序が崩れる）/ `INDEX_TEST_URL` を target-specific export に /
+  `export` 行を `TEST_DB :=` の後ろへ / `check_t201_postgres.py` を make 外から叩いたときの KeyError を案内メッセージに / 同一索引の定義が
+  t201_artifacts と add_run_step_locator_index の2リビジョンにある事実（意図的・LN-025）。C-1 と同時に整理。
 - [TODO-001] D02（入力上限）は AD-003 の**仮値**。初版受入（X09 の上限試験）の前に研修者が実値を確定する。
 - [TODO-002] **eml には `document_pages` が無い**ため、04-db.md の完了条件の機械判定
   （`document_pages` − `document_issues` を `(document_id, locator)` で差し引く）が eml に適用できない。
@@ -247,7 +323,7 @@
 - [TODO-004] **別セッションが T-201 を並行実装している**（`backend/tests/t201/`・`app/services/draft_*`・
   `alembic/versions/t201_*`）。memory §3 のバックログと二重進行になっており、memory の編集者を1つに
   限る取り決めとも衝突する。**どちらが T-201 を持つか研修者が決める必要がある**（2026-09-12 時点で未解決）。
-- [TODO-006] **ガードレールが未接続**。`app/agent/hooks.py` は `tests/unit/test_agent_guardrails.py`
+- [TODO-006]（解消: T-203 で hook を呼出し境界に必須化。RV-020 で確認）**ガードレールが未接続**。`app/agent/hooks.py` は `tests/unit/test_agent_guardrails.py`
   からしか呼ばれておらず、`app/agent/runner.py` / `trace.py` はどこからも import されていない
   （新 `RunTraceStore` と2系統が同居）。現状はループ自体が `local_worker_unavailable` で即 failed
   するため実害はないが、**T-203 で `RunDispatcher` に差し込むまで「hooks で強制」は成立していない**

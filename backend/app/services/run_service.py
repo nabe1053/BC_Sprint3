@@ -3,8 +3,6 @@ from app.domain.draft_errors import DraftError
 from app.domain.run_types import RunResult
 from app.agent import definition
 
-IMPL_VERSION = "t202-local-dispatch-v1"
-
 
 class RunService:
     def __init__(self, repository, *, limits, input_limits, scheduler, external=False):
@@ -54,7 +52,7 @@ class RunService:
             acknowledged_carry_over,
             self.limits.snapshot(),
             self._validate_input,
-            IMPL_VERSION,
+            definition.LOCAL_IMPL_VERSION,
             model=definition.DUMMY_MODEL_ID,
         )
         if run.outcome != "running":

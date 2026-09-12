@@ -96,6 +96,15 @@ def test_domain_error_status_table_is_not_duplicated() -> None:
         )
 
 
+def test_cancel_grace_and_argument_digest_are_not_duplicated() -> None:
+    definitions = []
+    for path, source in _app_modules(exclude=DEFINITION):
+        assert not re.search(r"CANCEL_[A-Z_]+\s*=\s*[0-9]", source), path
+        if re.search(r"def digest_args\(", source):
+            definitions.append(path.relative_to(APP_DIR).as_posix())
+    assert definitions == ["agent/tools.py"]
+
+
 def test_storage_path_validation_goes_through_the_gateway() -> None:
     """`storage_path` は `resolve_readable_path()` の引数としてしか現れない（RV-015 P2-5）。
 

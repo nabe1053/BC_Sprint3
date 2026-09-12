@@ -4,7 +4,8 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from app.core.database import get_db
 from app.core.config import settings
-from app.agent.jobs import local_worker_unavailable, stop_jobs
+from app.agent.jobs import stop_jobs
+from app.agent.runner import LocalAgentWorker
 from app.agent.definition import default_run_limits
 from app.domain.run_types import InputLimits
 from app.repositories.draft_repository import DraftRepository
@@ -12,6 +13,7 @@ from app.repositories.run_repository import RunRepository
 from app.repositories.run_input_files import RunInputFiles
 from app.repositories.run_trace_store import RunTraceStore
 from app.repositories.run_background import RunBackground
+from app.repositories.agent_tool_repository import AgentToolGateway
 from app.services.draft_service import DraftService
 from app.services.run_service import RunService
 from app.services.run_dispatcher import RunDispatcher
@@ -37,7 +39,10 @@ async def get_run_service(session: AsyncSession = Depends(get_db)) -> RunService
         file_size=RunInputFiles(settings.STORAGE_ROOT).size,
         trace=RunTraceStore(),
     )
-    dispatcher = RunDispatcher(background, local_worker_unavailable, limits)
+    worker = LocalAgentWorker(AgentToolGateway(sessions))
+    dispatcher = RunDispatcher(
+        background, worker, limits, before_finish=worker.prepare_finish
+    )
     return RunService(
         make_run_repository(session),
         limits=limits,

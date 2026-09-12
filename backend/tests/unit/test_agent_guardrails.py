@@ -33,11 +33,14 @@ async def test_blocks_unregistered_tool_name() -> None:
 async def test_blocks_external_url_in_args() -> None:
     result = await guard_pre_tool_use(
         {
-            "tool_name": "mcp__app__record_question",
-            "tool_input": {"question": {"reason": "see https://evil.example/x"}},
+            "tool_name": "mcp__app__read_document",
+            "tool_input": {"document_id": "https://evil.example/x"},
         },
         None,
         {"signal": None},
     )
     assert result["hookSpecificOutput"]["permissionDecision"] == "deny"
-    assert "リンク" in result["hookSpecificOutput"]["permissionDecisionReason"]
+    assert (
+        result["hookSpecificOutput"]["permissionDecisionReason"]
+        == "E_EXTERNAL_LINK_BLOCKED"
+    )

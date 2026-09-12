@@ -130,66 +130,78 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-12・再レビュー後に更新）
+## 7. 次にやること（2026-09-12 15:40・T-203 1回目 / T-201 6回目レビュー後に更新）
 
-再レビュー結果（Claude reviewer 2体・独立実行）:
+再レビュー結果（Claude reviewer 2体・独立実行。詳細と orchestrator の判断は
+**`docs/reviews/g2-review-2026-09-12-2.md`** — 着手前に全文を読む）:
 
-- **T-202 → DONE 可**（P1 0 / P2 0 / P3 6）。memory RV-018。もう触らない
-- **T-201 → DONE 不可**（P2 1 / P3 4）。memory RV-017
+- **T-203 → DONE 不可**（P1 1 / P2 5 / P3 6）。memory RV-020
+- **T-201 → DONE 可（条件付き）**（P2 1 / P3 5）。memory RV-021。条件 = 下記タスク B
+- **T-202 → DONE**（RV-018）。触らない
 
-### タスク A: T-201 の残 P2 — 索引が実 DB に存在しない（最優先）
+**今回のラウンドで A → B → C を1サイクルで直し、`make check-be` green を貼って再レビュー依頼する。**
+全体回帰の保留は解除済み（研修者承認・t203-handoff 冒頭）。`DEBUG=false make check-be` を最終差分で必ず実行する。
 
-`ix_agent_run_steps_document_locator` の `create_index` を、**すでに適用済みのリビジョン
-`t201_artifacts` の中**に追記したため `alembic upgrade head` では作成されない。
-実測（orchestrator）: 開発 DB octg_db には索引があり、**テスト DB octg_test には無い** —— DB 間で
-スキーマが分岐している。
+### タスク A: T-203 RV-020 の修正（最優先）
 
-やること:
+1. **P1 — URL ガードレールの過剰遮断（`app/agent/hooks.py:69`）**: コードを直す。agent-plan AE06 は変えない。
+   - URL 検査は「取得・送信の意図を持つ引数」（読取系ツールのスカラ引数）に限定する。
+     記録系ツールの原文フィールド（`quote` / `excerpt` / `reason` / `*_raw`）は検査対象から外す
+   - RED: 原文に `https://…` を含む `record_question` / `record_evidence` / `record_source_inventory` が
+     **成功**する単体テストを書き、現コードで失敗を確認してから直す
+   - ミニ評価にシナリオ `ae06_url_in_source` を追加（原文中に URL 指示がある資料 → `completed`、
+     確認事項に当該記述が残る、外部取得の呼出しがトレースに無い）
+   - 未登録ツール拒否と外部 URL 拒否を区別する固定コード（`E_TOOL_NOT_REGISTERED` /
+     `E_EXTERNAL_LINK_BLOCKED`）を `observation.code` に載せる（P3-2 を同時に閉じる）
+2. **P2-1 / P2-2 — 設計書追記で閉じる（実装変更なし）**: agent-plan.md「T-203 ローカル実行の具体化」節に
+   停止理由の内訳 `tool_rejected` と管理イベント `guardrail_denied` を明記。04-db.md §3.2 補足の一覧に
+   `tool_rejected` / `local_dummy_unsupported` / `validation_unresolved` と `guardrail_denied` を追記。
+   追記した行を handoff に引用する
+3. **P2-3 — `stage_detail` を `資料 n/N` の材料にする**（`agent_tool_repository.py:281-282`）:
+   読取段階は `{"documentsRead": x, "documentsTotal": N}` 相当（`list_case_documents` の件数と
+   `read_*` の進捗から算出）。固定診断コードとの混在をやめる形を handoff で説明。T-204 が直接依存する
+4. **P2-4 — 旧 `app/agent/trace.py`（`TraceRecorder`）を削除**。**削除は本指示で承認済み**。
+   `tools.py` の `digest_args` 二重定義も解消。参照 0 を `grep` で確認して handoff に貼る
+5. **P2-5 は記録のみ**（既定ダミー方針では同一違反3回ループに到達しない）。handoff「残件」に
+   「実モデル接続時に方針側へ自己修復ループを実装」と明記
+6. P3-1（`ping` / `SYSTEM_PROMPT` / `build_hooks` の未使用にコメント）・P3-3（`CANCEL_CLEANUP_S` と
+   `CANCEL_GRACE_S` の二重定数）・P3-5（hook に `HookContext` を渡す）は安いので同時に閉じる。
+   P3-4（`read_email` の `email:*` 全走査）は要確認として記録のみ
 
-1. `alembic/versions/t201_artifacts.py` に後から足した `create_index`（28-33 行付近）を**取り消す**
-2. **新規リビジョン**（`down_revision = "t202_run_metadata"`）を作り、そこで `create_index` する
-3. `make migrate` で両 DB に適用し、**実スキーマで確認した出力を handoff に貼る**:
-   `docker exec octg_postgres psql -U postgres -d octg_test -c '\d agent_run_steps'`
-4. `tests/t201/test_draft_repository.py` の `test_scan_index_exists_in_model_and_migration` は
-   **migration のソース文字列しか見ておらず false green**（`tests/t201/conftest.py` が
-   `create_all` でスキーマを作るため、適用差分を原理的に検出できない）。
-   実スキーマの確認は `check_t201_postgres.py` 側へ移す
+### タスク B: T-201 RV-021 の条件（Makefile 1行）
 
-> **恒久ルール（memory LN-018）**: 適用済みの Alembic リビジョンを後から編集しない。
-> スキーマ変更の「完了」は migration のソース検査ではなく、**実 DB の `\d {table}` で確認する**。
+- `check-be` の依存に `check-run-step-index` を追加する（`Makefile:30` 付近）。理由は RV-021 P2
+  （`create_all` の conftest では migration 差分を検出できず、自動で守るものがゼロ）。
+- できれば `tests/integration/` にテスト DB の `pg_indexes` を読むテストを1本（`be-test` に入る）。
+- P3-1（`add_run_step_locator_index.py` の downgrade を `pass`＋所有者コメントに）・P3-4（接続先の
+  直書きを Makefile の変数から渡す）は同時に閉じてよい。P3-2/3/5 は記録のみ。
+- これを直した時点で **T-201 は DONE**（Claude が memory を更新する）。
 
-### タスク B: T-201 の P3（安いので同時に閉じてよい）
+### タスク C: 再レビュー依頼の書き方
 
-- `tests/t201/test_draft_repository.py:87` 残範囲を件数でなく**集合の完全一致**でアサート
-- `draft_repository.py:300-302` の「`read_email` が `email:` 以外を出した」「`read_document` が
-  `email:` を出した」の**否定側テスト**を1本ずつ
-- `email_parts` の `UNIQUE(document_id, part_role, seq)` 未追加（memory TODO-007）は
-  T-203 着手前に**制約を足すか判定側で重複を弾くか**を handoff で提案する
+- `docs/t203-handoff.md` / `docs/t201-handoff.md` の冒頭に「レビュー対応（RV-020 / RV-021）」表:
+  指摘番号 / 変更ファイル:行 / RED を確認した検査・コマンド・件数 / 変異内容1行（LN-009）
+- 最終差分で `DEBUG=false make check-be` と `DEBUG=false make agent-eval`（14 ケース: 既存 13 + ae06）の
+  実出力を貼る。範囲を切った実行を「検証した」と呼ばない（CV-016）
+- 末尾に「再レビュー依頼」と希望 Status を書いて**止まる**。T-204・C-1・G3 には進まない
 
-### タスク C-1: チケット名ファイルの正規配置への移動（§3 参照）
+### タスク C-1 / D / E（T-203 完了後）
 
-振る舞い不変。`make check-be` green のまま完了させる。
+- C-1（チケット名ファイルの正規配置への移動・§3）は T-203 DONE 後に着手。`dependencies_t202.py` /
+  `routes_t202.py` / `tests/t201` `tests/t202` / `check_t201_postgres.py` / `orval.t202.config.ts` /
+  `tsconfig.t202.json` が対象（CV-017）。振る舞い不変・`make check` green のまま
+- T-204（ポーリング UI）は T-203 DONE ＋ Claude の指示後。T-103 との先後は Claude が決める
 
-### タスク D: T-203 の前に決めること（実装しない。handoff で提案し、Claude の決定を待つ）
+### タスク F: T-103（G1 FE）の指摘修正 — 指示書は `docs/t103-instructions.md`
 
-- **旧 `app/agent/runner.py` / `trace.py` / `hooks.py` と新 `RunTraceStore` のどちらを正にするか**。
-  現状 runner/trace はどこからも import されておらず、`hooks.py` は単体テストからのみ呼ばれる。
-  つまり **ガードレールは未接続**で、「hooks で強制」（agent-development.md §5）は成立していない
-  （memory TODO-006）。T-203 で `RunDispatcher` に差し込む設計を先に出す
-- `stage_detail` の診断コードを上書きしない形（配列 or 別列）にするか（RV-018 P3-①）
-- run ロック中のツール step 採番と `trace.sync()` の呼び出し頻度（RV-018 P3-②③）
+RV-019（P1 5 / P2 8 / P3 5 ＋ 未完成 9）の修正内容・優先順・完了条件を**指示書に確定済み**。
+着手するときはそちらを読む（本節に内容を二重化しない）。前提の決定は AD-013・AD-009・AD-008・AD-005。
 
-### タスク E: T-203 本体（A〜D 完了後）
-
-- 手順書: `.claude/skills/build-loop/agent-slices.md`
-- 設計の正: `docs/requirements/agent-plan.md`。**ここに無いツール・完了条件・ガードレールを実装しない**
-- `docs/t202-handoff.md`「T-203 への接続点」の `RunDispatcher` 契約を守る
-- **エージェントループの単体テストを書かない**（ツール＝決定的関数のみ。ループは評価で検証）
-- **locator は `email:{part_role}:{seq}`**（eml に `body:N` を使わない。memory CV-002 訂正済み。
-  `body:N` を出すと完了条件が永久に満たせない）
-- D05（外部 LLM 送信未承認）を維持。SDK の実送信経路を有効化しない
-
-T-203 が終わるまで G3〜G6 には進まない（memory AD-011）。
+- **WIP=1 を守る**（§2）。T-201 / T-203 のレビュー対応中は着手しない
+- 実施順（AD-011）では G2 を縦に通すのが先。T-103 は **T-204 と同じ FE なので、
+  どちらを先にやるかは Claude が指示する**（勝手に並行しない）
+- 完了条件は `make check-fe` green ＋ design-lint 違反ゼロ ＋ `docs/t103-handoff.md` の
+  レビュー対応表（指摘ごとに 変更ファイル / RED→GREEN の実結果 / 実行コマンドと件数）
 
 ### 別スライス候補（今はやらない・記録のみ）
 

@@ -1,10 +1,11 @@
-"""Validate the T-201 forward migration in PostgreSQL, with no credential files or persistent changes.
+"""Validate the live scan index and synthetic T-201 constraints in PostgreSQL.
 
-Run from backend: .venv/bin/python scripts/check_t201_postgres.py
-Only the existing local octg_postgres container and octg_test database are used.
-Every object and synthetic row lives in a unique schema inside BEGIN ... ROLLBACK.
-No application settings, existing migration files, source documents or table data are read.
+make check-run-step-index checks both existing databases read-only (--index-only).
+Without that flag, also validate synthetic constraints in octg_test, rolled back.
+No credential files, application settings, source documents or live rows are read.
 """
+import argparse
+import os
 from io import StringIO
 from pathlib import Path
 import runpy
@@ -13,6 +14,18 @@ from uuid import uuid4
 
 from alembic.migration import MigrationContext
 from alembic.operations import Operations
+from sqlalchemy.engine import make_url
+
+
+def connection_targets():
+    # Makefile owns local Docker targets; parse the existing TEST_DB URL without
+    # logging its credentials or importing application settings.
+    return (
+        os.environ["INDEX_CONTAINER"],
+        os.environ["INDEX_USER"],
+        os.environ["INDEX_DEV_DATABASE"],
+        make_url(os.environ["INDEX_TEST_URL"]).database,
+    )
 
 
 def expect_failure(statement, condition):
@@ -54,7 +67,70 @@ def item(row_id, version=1, **changes):
     )
 
 
+def check_live_scan_index():
+    """Inspect the migrated public schema, not Base.metadata.create_all()."""
+    sql = """BEGIN READ ONLY;
+DO $check$ BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_index i
+        JOIN pg_class idx ON idx.oid = i.indexrelid
+        JOIN pg_class tbl ON tbl.oid = i.indrelid
+        JOIN pg_namespace ns ON ns.oid = tbl.relnamespace
+        JOIN pg_am am ON am.oid = idx.relam
+        WHERE ns.nspname = 'public' AND tbl.relname = 'agent_run_steps'
+          AND idx.relname = 'ix_agent_run_steps_document_locator'
+          AND i.indisvalid AND i.indisready AND NOT i.indisunique
+          AND i.indpred IS NULL AND i.indexprs IS NULL
+          AND i.indnkeyatts = 2 AND i.indnatts = 2 AND am.amname = 'btree'
+          AND pg_get_indexdef(i.indexrelid, 1, true) = 'document_id'
+          AND pg_get_indexdef(i.indexrelid, 2, true) = 'locator'
+    ) THEN
+        RAISE EXCEPTION 'Missing or invalid ix_agent_run_steps_document_locator';
+    END IF;
+END $check$;
+SELECT current_database() AS database, indexdef FROM pg_indexes
+WHERE schemaname = 'public' AND tablename = 'agent_run_steps'
+  AND indexname = 'ix_agent_run_steps_document_locator';
+ROLLBACK;"""
+    container, user, development, testing = connection_targets()
+    failed = False
+    for database in (development, testing):
+        result = subprocess.run(
+            [
+                "docker",
+                "exec",
+                "-i",
+                container,
+                "psql",
+                "-X",
+                "-w",
+                "-v",
+                "ON_ERROR_STOP=1",
+                "-U",
+                user,
+                "-d",
+                database,
+            ],
+            input=sql,
+            text=True,
+            capture_output=True,
+        )
+        print(f"{database}: {'FAIL' if result.returncode else 'PASS'}")
+        print(result.stderr if result.returncode else result.stdout)
+        failed |= bool(result.returncode)
+    if failed:
+        raise SystemExit(1)
+
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--index-only", action="store_true")
+    args = parser.parse_args()
+    check_live_scan_index()
+    if args.index_only:
+        return
+    container, user, _, testing = connection_targets()
+    quoted_testing = testing.replace("'", "''")
     buffer = StringIO()
     migration = runpy.run_path(
         str(Path(__file__).resolve().parents[1] / "alembic/versions/t201_artifacts.py")
@@ -67,11 +143,12 @@ def main():
     schema = "t201_check_" + uuid4().hex
     parts = [
         "BEGIN;",
-        "DO $check$ BEGIN IF current_database() <> 'octg_test' THEN RAISE EXCEPTION 'Test database required'; END IF; END $check$;",
+        f"DO $check$ BEGIN IF current_database() <> '{quoted_testing}' THEN RAISE EXCEPTION 'Test database required'; END IF; END $check$;",
         f"CREATE SCHEMA {schema};",
         f"SET LOCAL search_path TO {schema};",
         "CREATE TABLE versions (id bigint PRIMARY KEY);",
         "CREATE TABLE documents (id bigint PRIMARY KEY);",
+        "CREATE TABLE agent_run_steps (id bigint PRIMARY KEY, document_id bigint, locator text);",
         "INSERT INTO versions VALUES (1),(2);",
         "INSERT INTO documents VALUES (1);",
         buffer.getvalue(),
@@ -139,16 +216,16 @@ def main():
             "docker",
             "exec",
             "-i",
-            "octg_postgres",
+            container,
             "psql",
             "-X",
             "-w",
             "-v",
             "ON_ERROR_STOP=1",
             "-U",
-            "postgres",
+            user,
             "-d",
-            "octg_test",
+            testing,
         ],
         input="\n".join(parts),
         text=True,

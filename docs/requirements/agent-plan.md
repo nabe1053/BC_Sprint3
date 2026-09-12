@@ -223,3 +223,16 @@ sample-10（GulfTex／.eml のスレッド。最新本文で item 1 の数量が
 - T-203 workerはcancel後に新たなツール呼出し・成果物書込を開始せず、取得済みリソースを解放すること。終了済み実行への書込拒否は引き続きrepositoryで強制する。
 - 進捗GETに回収・JSONL出力の副作用を持たせない。保存失敗が全再試行後も続いた実行は次の実行開始要求またはプロセス起動で回収する。その間、ポーリングは最後に保存された状態を返す。
 - T-203へは自動着手しない。既存runner/hooks/TraceRecorderの統合、ガードレール差込口、runロック中のツールstep採番、decision/observationスキーマはT-203開始前の設計・レビュー課題とする。新ジョブのJSONLはRunTraceStoreを使用し、旧TraceRecorderへ本文を流す経路を接続しない。
+
+### T-203 ローカル実行の具体化（2026-09-12、ユーザー着手指示）
+
+- RunDispatcherへローカルworkerを注入する。外部queryは使用せず、13ツールの実処理をservice/repositoryへ接続する。PreToolUse hookを呼出し境界で必須にし、登録外ツール・読取系ツールのスカラ引数にある外部URL・案件/版/規則の逸脱を拒否する。記録系ツールのquote/excerpt/reason/*_raw等の原文はURLを含めて保存できる。pingは通常登録しない。
+- 同一版→runの順で行ロックを取得する。各呼出しの開始stepを先にcommitし、成功stepと成果物を同じトランザクションでcommitする。複数読取範囲は同じ呼出しをparent_step_idで結ぶ。email:(role,seq)重複は読取失敗とし、成功走査を捏造しない。
+- trace_eventのinputはスコープID、decisionはreading/extracting/self_checking、tool_useは許可名/引数ハッシュ、observationは結果状態/件数の安全なメタデータとする。生の判断文・資料本文・例外メッセージは記録しない。DB確定イベントを既存RunTraceStoreで終了時にJSONLへ反映する。
+- D05のダミー判断は評価用の明示形式に限定する。ローカル本文中の `No.1 | Kind: casing | Qty: 150 MT` のような1行明細を読み、原値・状態・根拠とインベントリを登録して検証・確定する。曖昧な自然文、未対応の表/注記/メール更新解釈は正常完了とせず、ローカルダミー未対応として停止する。S01〜S10の抽出精度評価は実モデル未接続の段階では未達とする。
+- 内側期限・無応答期限・ターン上限・同一呼出し反復・同一違反反復を区別して終端する。キャンセルされたworkerは共有の実行閉鎖状態を確認し、以後のツール開始と成果物commitを行わない。正常完了にはfinalize_draft成功が必要。
+- 正常完了以外はジョブの終了コールバックで未走査範囲を `not_scanned` として記録し、既存の検証結果が無ければ停止時の機械判定を保存する。これはツール追加ではなく `job_interrupted` 管理イベントであり、終了保存の再試行時に重複させない。ローカル実装識別子もdefinition.pyに集約してrunへ保存する。
+- ツール実行が拒否・入力不正等で失敗した場合はstop_reason=failed、stage_detail=tool_rejectedで中断する。tool_rejectedは停止理由の内訳であり、stop_reasonの9語彙を追加しない。local_dummy_unsupportedはダミーの解釈範囲外、validation_unresolvedは方針側で解消できなかった検証違反を示す。
+- 未登録の呼出し名はguardrail_denied管理イベントとして記録し、ツール登録は増やさない。observation.codeは未登録拒否をE_TOOL_NOT_REGISTERED、読取引数の外部URL拒否をE_EXTERNAL_LINK_BLOCKEDで区別する。原文・実際の未登録名を診断コードへ含めない。
+- 読取進捗はstage_detailにJSON文字列でdocumentsRead/documentsTotalを保存する。総数はlist_case_documentsと同じ案件の資料一覧、読取済み数は読取可能範囲が空でなく全範囲の成功stepがある資料の数。再読取・分割step・失敗・空本文で水増ししない。読取中の固定診断はtrace_event.observation.codeへ残し、件数JSONに混ぜない。終端stage=doneの固定診断コードは既存のT-202契約を維持する。
+- ローカルダミーは明示形式の明細に加え、`注記:` または `Note:` で始まるURL注記を原文のまま確認事項に記録し、明細以外の注記として根拠付きでインベントリへ残す。URL取得・送信はしない。AE06の成功要件は変更せず、ae06_url_in_sourceのジョブ評価で確認する。任意自然文の解釈能力を追加したとは扱わない。

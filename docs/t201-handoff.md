@@ -1,5 +1,226 @@
 # T-201 引き継ぎ（2026-09-12）
 
+## 最新：レビュー対応（RV-021、2026-09-12）
+
+CODEX-INSTRUCTIONS §7のタスクBをT-203修正と同サイクルで実施した。**check-beに実索引検査を組み込み、pytestの前に両DBのスキーマを検査する。最終BE全体404件PASS、両DBの索引検査PASS。**
+
+| 指摘番号 | 変更ファイル:行 | REDを確認した検査・コマンド・件数 | 変異内容1行／強度確認 |
+|---|---|---|---|
+| RV-021 P2（DONE条件） | Makefile:35、backend/tests/unit/test_regression_gate.py:6 | `DEBUG=false make agent-test`で **1 failed, 77 passed**。検査を失敗させたのに旧check-beがPYTEST_MUST_NOT_RUNとgreenを出すことを実測。組込み後は失敗時にpytestへ進まない | check-run-step-index依存を外すと同テストが落ちる。実DBの索引を削除せず、一時Makefileの検査レシピだけexit 17に置換 |
+| P3-4 | MakefileのDB_CONTAINER/DB_USER/DEV_DATABASEとINDEX_*変数、backend/scripts/check_t201_postgres.py:20、tests/unit/test_live_index_check_configuration.py:7 | 設定注入テスト追加時 **2 failed, 77 passed**（P2＋P3-4）。旧コードがoctg_db/octg_testへ接続することを検出。修正後、注入したcontainer/user/dev/testへ向く | 接続先を旧直書きへ戻すと渡されたcommandの完全な接続先assertが落ちる。パスワードはpsql引数や出力へ渡さない |
+| P3-1 | 変更なし（任意修正を見送り） | add_run_step_locator_indexは両DBへ適用済み。LN-018とユーザーの「適用済みリビジョンを編集しない」を維持 | downgradeをpassにする任意提案は適用済みrevision編集になるため未実施。今回downgradeは実行していない |
+| P3-2 / P3-3 / P3-5 | 下記残件に記録 | 指示どおり記録のみ | 任意強化は今回のDONE条件に含めない |
+
+実索引検査は既存の読取専用SQLを使用する。MakefileからDockerコンテナ・ユーザー・開発DB名を渡し、テストDB名は既存TEST_DBのURLから解析する。設定ファイルを読まず、接続URLをログへ出さない。ローカルDocker向けのチェッカーであり、任意のリモートDB接続機構を追加したものではない。
+
+pg_indexesを読む検査はMakefileゲートの中で、pytestより先に実行される。fixtureのcreate_allによる修復後だけを調べる検査にはしていない。別のpytest用索引検査を重複追加する代わりに、「索引検査失敗時にpytestを開始しない」実行テストを追加した。
+
+### 最終差分の実出力
+
+全ログ: [g2-regression-2026-09-12-2.log](test-results/g2-regression-2026-09-12-2.log)。T-203の14ケース評価と変異試験は [t203-handoff.md](t203-handoff.md) 冒頭に記録。
+
+```text
+$ DEBUG=false make check-be
+── alembic upgrade head (octg_db / 開発)
+── alembic upgrade head (octg_test / テスト)
+octg_db: PASS
+BEGIN
+DO
+ database | indexdef
+ octg_db | CREATE INDEX ix_agent_run_steps_document_locator ON public.agent_run_steps USING btree (document_id, locator)
+(1 row)
+ROLLBACK
+octg_test: PASS
+BEGIN
+DO
+ database | indexdef
+ octg_test | CREATE INDEX ix_agent_run_steps_document_locator ON public.agent_run_steps USING btree (document_id, locator)
+(1 row)
+ROLLBACK
+1 file reformatted, 130 files left unchanged
+404 passed, 124 warnings in 18.60s
+✅ check-be: backend green
+exit 0
+```
+
+上記の表は列揃え空白のみ縮めた抜粋。適用済みheadからの追加migrationはなく、既存revisionは変更していない。
+
+### 記録のみの残件
+
+- P3-2: t201_artifactsと新リビジョンに同じ索引定義がある。新規DBと既存DBを収束させる履歴としてLN-018を優先し、後から旧revisionを変更しない。
+- P3-3: ASC/DESC・opclassまでの検査は未追加。既存の有効/ready/非UNIQUE/非部分/非式/btree/列順の検査を維持。
+- P3-5: `--index-only`と既定動作の整理は未実施。既定は実索引＋合成制約検査、--index-onlyは実索引のみという従来動作を維持する。
+- memoryは編集しない。G1の未コミット変更を保全し、T-204/C-1/G3へは進まない。
+
+**再レビュー依頼。希望Status: T-201 DONE（RV-021の条件P2を充足。memoryへの反映はClaude担当）。** 再レビュー用の証拠を提出して、ここで停止する。
+
+## 更新：全体回帰の承認後（2026-09-12）
+
+ユーザーの保留解除後、T-203を含むBE全体392件PASS。`DEBUG=false make check-run-step-index`もoctg_db / octg_test両方PASSし、`ix_agent_run_steps_document_locator`のbtree `(document_id, locator)`を再確認した。適用済みリビジョンや索引実装への変更はない。フルゲートはG1の型検査・Jest失敗で不合格。詳細は `docs/t203-handoff.md` 最新節を参照。下記は前タスクA時点の記録であり、その後のT-203着手と全体回帰はユーザーの明示指示による。
+
+## 最新: §7タスクA / RV-017 残P2対応（2026-09-12）
+
+**再レビュー依頼。希望Status: REVIEWING。** 今回はタスクA（実DBの走査索引欠損）だけを修正した。タスクB・C以降、T-202の修正、T-203には着手していない。以下のRV-016節は過去の履歴であり、索引の適用・回帰結果は本節を優先する。
+
+### レビュー対応
+
+| 指摘番号 | 変更内容（ファイル:行） | REDを確認した検査と実行コマンド・件数 |
+|---|---|---|
+| RV-017 残P2 / §7タスクA | `backend/alembic/versions/add_run_step_locator_index.py:14`を新設。`down_revision = "t202_run_metadata"`から`op.create_index(..., if_not_exists=True)`で索引を追加。既存索引がある開発DBでも適用できる | `check_live_scan_index` / `make check-run-step-index`: 適用前はoctg_db PASS・octg_test FAIL（実際の欠損を検出）。適用後は両DBの2検査PASS |
+| 同・false greenの解消 | `backend/scripts/check_t201_postgres.py:57`に実publicスキーマの読取専用検査。`pg_index`で索引名・表・列順・btree・非UNIQUE・非部分・有効/readyを確認。`Makefile:72`に実行入口を追加 | 同じ検査のRED → GREEN。実DBをDROPする変異は行わず、既存の欠損状態をREDとして使用 |
+| 同・既存テストの変更理由 | `backend/tests/t201/test_draft_repository.py:162`を`test_scan_index_exists_in_model`へ改名。実適用を保証しない旧migrationのmock検査を外し、ORMの索引契約だけに限定。実DB検査は上記スクリプトへ移した | `DEBUG=false make check-be`: **356 passed, 124 warnings in 15.78s**。テスト件数の削減・skip/xfail追加なし |
+
+指示書§7には旧リビジョンの追記取消もあるが、今回のユーザー直接指示「適用済みリビジョンは編集せず」を優先し、`t201_artifacts.py`と`t202_run_metadata.py`は変更していない。旧リビジョン内のcreate_indexはそのままなので、新規リビジョンではIF NOT EXISTSを使用する。適用後の実スキーマ検査で、同名索引があるだけではなく期待する定義であることまで確認した。既存索引の削除・再作成やstampは行っていない。
+
+`check_t201_postgres.py`の既存合成スキーマ経路には、旧リビジョンが要求するagent_run_stepsの架空テーブル定義だけを補った。この合成経路は今回実行しておらず、適用完了の根拠にはしていない。
+
+### RED（適用前の実DB）
+
+両DBのalembic_versionは`t202_run_metadata`だった。実行: `make check-run-step-index`（exit 2）。
+
+```text
+octg_db: PASS
+BEGIN
+DO
+ database |                                                   indexdef
+----------+---------------------------------------------------------------------------------------------------------------
+ octg_db  | CREATE INDEX ix_agent_run_steps_document_locator ON public.agent_run_steps USING btree (document_id, locator)
+(1 row)
+
+ROLLBACK
+
+octg_test: FAIL
+ERROR:  Missing or invalid ix_agent_run_steps_document_locator
+CONTEXT:  PL/pgSQL function inline_code_block line 16 at RAISE
+
+make: *** [Makefile:21: check-run-step-index] Error 1
+```
+
+### migrationと品質ゲート
+
+最初の`make migrate`は既存プロセス環境の`DEBUG=release`によるPydantic真偽値エラーでDB適用前に失敗した。`.env`や永続設定を変更せず、コマンド環境だけ`DEBUG=false`として再実行した。以下は認証情報を出力しないラッパー経由で実行した`DEBUG=false make migrate`の出力（exit 0）。
+
+```text
+── alembic upgrade head (octg_db / 開発)
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade t202_run_metadata -> add_run_step_locator_index, Converge existing databases on the document/locator scan index.
+── alembic upgrade head (octg_test / テスト)
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade t202_run_metadata -> add_run_step_locator_index, Converge existing databases on the document/locator scan index.
+```
+
+BEのみの変更に対する規約§1の品質ゲート: `DEBUG=false make check-be`（exit 0）。実出力抜粋（既存のPydantic alias / Starlette非推奨警告の詳細だけ省略）:
+
+```text
+ Container octg_postgres Running
+── alembic upgrade head (octg_db / 開発)
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+── alembic upgrade head (octg_test / テスト)
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+124 files left unchanged
+........................................................................ [ 20%]
+........................................................................ [ 40%]
+........................................................................ [ 60%]
+........................................................................ [ 80%]
+....................................................................     [100%]
+356 passed, 124 warnings in 15.78s
+✅ check-be: backend green
+```
+
+全体BE回帰を実行済み。FEを含む`make check`はBEのみのタスクのため実行していない。`make check-run-step-index`の再実行もoctg_db PASS / octg_test PASS。`git diff --check`はPASS。
+
+### 適用後のpsql実出力
+
+実行: `docker exec octg_postgres psql -X -w -v ON_ERROR_STOP=1 -U postgres -d octg_test -c '\d agent_run_steps' -c 'SELECT version_num FROM alembic_version;'`（exit 0、行末空白のみ省略）。
+
+```text
+                                         Table "public.agent_run_steps"
+     Column     |           Type           | Collation | Nullable |                   Default
+----------------+--------------------------+-----------+----------+---------------------------------------------
+ agent_run_id   | bigint                   |           | not null |
+ parent_step_id | bigint                   |           |          |
+ seq            | integer                  |           | not null |
+ tool_name      | text                     |           | not null |
+ args_digest    | text                     |           | not null |
+ args_summary   | text                     |           |          |
+ locator        | text                     |           |          |
+ document_id    | bigint                   |           |          |
+ result_status  | text                     |           | not null |
+ duration_ms    | integer                  |           |          |
+ id             | bigint                   |           | not null | nextval('agent_run_steps_id_seq'::regclass)
+ created_at     | timestamp with time zone |           | not null | now()
+ trace_event    | jsonb                    |           |          |
+Indexes:
+    "agent_run_steps_pkey" PRIMARY KEY, btree (id)
+    "ix_agent_run_steps_agent_run_id" btree (agent_run_id)
+    "ix_agent_run_steps_document_locator" btree (document_id, locator)
+    "uq_agent_run_steps_run_seq" UNIQUE CONSTRAINT, btree (agent_run_id, seq)
+Check constraints:
+    "ck_agent_run_steps_result_status" CHECK (result_status = ANY (ARRAY['ok'::text, 'error'::text, 'unreadable'::text]))
+Foreign-key constraints:
+    "agent_run_steps_agent_run_id_fkey" FOREIGN KEY (agent_run_id) REFERENCES agent_runs(id)
+    "agent_run_steps_document_id_fkey" FOREIGN KEY (document_id) REFERENCES documents(id)
+    "agent_run_steps_parent_step_id_fkey" FOREIGN KEY (parent_step_id) REFERENCES agent_run_steps(id)
+Referenced by:
+    TABLE "agent_run_steps" CONSTRAINT "agent_run_steps_parent_step_id_fkey" FOREIGN KEY (parent_step_id) REFERENCES agent_run_steps(id)
+
+        version_num
+----------------------------
+ add_run_step_locator_index
+(1 row)
+```
+
+実行: `docker exec octg_postgres psql -X -w -v ON_ERROR_STOP=1 -U postgres -d octg_db -c '\d agent_run_steps' -c 'SELECT version_num FROM alembic_version;'`（exit 0、行末空白のみ省略）。
+
+```text
+                                         Table "public.agent_run_steps"
+     Column     |           Type           | Collation | Nullable |                   Default
+----------------+--------------------------+-----------+----------+---------------------------------------------
+ agent_run_id   | bigint                   |           | not null |
+ parent_step_id | bigint                   |           |          |
+ seq            | integer                  |           | not null |
+ tool_name      | text                     |           | not null |
+ args_digest    | text                     |           | not null |
+ args_summary   | text                     |           |          |
+ locator        | text                     |           |          |
+ document_id    | bigint                   |           |          |
+ result_status  | text                     |           | not null |
+ duration_ms    | integer                  |           |          |
+ id             | bigint                   |           | not null | nextval('agent_run_steps_id_seq'::regclass)
+ created_at     | timestamp with time zone |           | not null | now()
+ trace_event    | jsonb                    |           |          |
+Indexes:
+    "agent_run_steps_pkey" PRIMARY KEY, btree (id)
+    "ix_agent_run_steps_agent_run_id" btree (agent_run_id)
+    "ix_agent_run_steps_document_locator" btree (document_id, locator)
+    "uq_agent_run_steps_run_seq" UNIQUE CONSTRAINT, btree (agent_run_id, seq)
+Check constraints:
+    "ck_agent_run_steps_result_status" CHECK (result_status = ANY (ARRAY['ok'::text, 'error'::text, 'unreadable'::text]))
+Foreign-key constraints:
+    "agent_run_steps_agent_run_id_fkey" FOREIGN KEY (agent_run_id) REFERENCES agent_runs(id)
+    "agent_run_steps_document_id_fkey" FOREIGN KEY (document_id) REFERENCES documents(id)
+    "agent_run_steps_parent_step_id_fkey" FOREIGN KEY (parent_step_id) REFERENCES agent_run_steps(id)
+Referenced by:
+    TABLE "agent_run_steps" CONSTRAINT "agent_run_steps_parent_step_id_fkey" FOREIGN KEY (parent_step_id) REFERENCES agent_run_steps(id)
+
+        version_num
+----------------------------
+ add_run_step_locator_index
+(1 row)
+```
+
+### 保全・停止位置
+
+`.claude/memory.md`と適用済み2リビジョンは作業前後のSHA-256一致を確認。G1の既存未コミット変更・未追跡ファイルは保全し、FEファイルは編集していない。今回の変更は新規リビジョン、実スキーマ検査スクリプト、モデル契約テスト、Makefileの検査入口、本handoffの5ファイルのみ。コミット・レビューの代行・タスクB以降への着手は行わない。
+
+**再レビュー依頼。タスクAの作業をここで停止する。**
+
+
+
 ## 最新: RV-016対応・再レビュー依頼（VS Code引継ぎ後）
 
 **希望Status: REVIEWING（修正済み・再レビュー待ち、全体回帰/実DB検証は保留）。DONEではない。** 下の「現在の状態」「独立レビュー」「検証の再現」は追加レビュー前の履歴であり、最新判定は本節を優先する。今回、独立レビュアーによる確認は未実施。実装者の検証を独立レビューとは扱わず、Claudeメインセッションへ再レビューを依頼する。
@@ -88,3 +309,9 @@ T-202/T-203で1実行1版・同一案件と規則版を保持し、上記メー�
 ## 運用指示（2026-09-12 研修者決定）
 
 **memory.md は読むだけ・編集禁止。**修正結果・学び・Status 希望はこの handoff に書く。詳細と修正対象は `docs/reviews/CODEX-INSTRUCTIONS.md` と `docs/reviews/g2-review-2026-09-12.md`。
+
+## 今回の提出状態（RV-021対応後）
+
+冒頭の最新節を優先する。check-beへの実索引検査組込みと両DBの索引検査PASS、BE全体404件PASSを確認済み。
+
+**再レビュー依頼。希望Status: T-201 DONE（RV-021の条件P2を充足）。** 判定・memory更新はClaude担当とし、ここで停止する。

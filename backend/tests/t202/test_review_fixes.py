@@ -19,7 +19,7 @@ async def test_definition_defaults_reach_reserved_run(session, seeded, monkeypat
 
     # Exercise the composition factory without starting jobs or opening another DB.
     monkeypatch.setattr(
-        "app.api.dependencies_t202.RunDispatcher", lambda *a: lambda r: None
+        "app.api.dependencies_t202.RunDispatcher", lambda *a, **kw: lambda r: None
     )
     monkeypatch.setattr(
         "app.api.dependencies_t202.make_run_repository",

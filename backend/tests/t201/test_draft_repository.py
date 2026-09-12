@@ -159,24 +159,11 @@ async def test_edit_refreshes_finalization_from_database(session):
     assert exc.value.code == "E_VERSION_FINALIZED"
 
 
-def test_scan_index_exists_in_model_and_migration():
-    import importlib.util
-    from pathlib import Path
-    from unittest.mock import Mock
-
+def test_scan_index_exists_in_model():
+    """Model contract only; make check-run-step-index verifies live migrations."""
     assert any(
         tuple(c.name for c in idx.columns) == ("document_id", "locator")
         for idx in AgentRunStep.__table__.indexes
-    )
-    path = Path(__file__).resolve().parents[2] / "alembic/versions/t201_artifacts.py"
-    spec = importlib.util.spec_from_file_location("isolated_t201_migration", path)
-    migration = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(migration)
-    migration.op = Mock()
-    migration.upgrade()
-    assert any(
-        call.args[1:] == ("agent_run_steps", ["document_id", "locator"])
-        for call in migration.op.create_index.call_args_list
     )
 
 
