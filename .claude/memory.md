@@ -446,6 +446,11 @@
   `permission_denials` の実キーは `tool_name` / `tool_use_id` / `tool_input`（TODO-020 ② 解消）。CLI は max_turns 終了後に exit 1 を返し `ProcessError` になる
   （`model_error` に丸められるので `max_turns` の写しが先に効くか要確認）。
 
+- [LN-045] **実モデルの 1 ターンは数十秒〜数分の「メッセージなし」を含む。**生存信号を SDK メッセージ単位にすると、長い生成中に無応答判定が誤発火する
+  （run 4: 4 ページ読取後 63 秒で停止）。`include_partial_messages=True` で StreamEvent を生存信号にする。さらに**期限発火時のキャンセルが SDK の anyio cancel scope
+  から worker へ漏れ、`inactivity_timeout` が `process_interrupted` に化け turns も 0 に上書き**された。停止理由の分類はモックでは壊れず実機で壊れた → 実機の停止系
+  （無応答を意図的に起こす）を評価シナリオに 1 本持つ。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが

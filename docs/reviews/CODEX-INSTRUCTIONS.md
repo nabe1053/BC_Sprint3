@@ -147,12 +147,26 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 01:40・実評価 run 3 失敗 → **L-3 を最優先**、T-301 は一時中断）
+## 7. 次にやること（2026-09-13 02:20・実評価 run 4 → **L-4 を最優先**、T-301 は中断継続）
 
-- **T-301 の作業は安全な区切りで一時中断**し、**タスク L-3 を先に**（実モデル評価をブロックしている。小さい）。L-3 提出後に T-301 を再開してよい
-- 事実: `AGENT_MODE=claude` の実評価（run 3）で、Claude Code CLI 2.1.241 が MCP ツールを**遅延ロード**するため、モデルが `ToolSearch`（ツール定義の取得のみのメタツール）を
-  呼ぶ → hook が `E_TOOL_NOT_REGISTERED` で拒否 → 13 ツールを一度も呼べず `draft_not_finalized`。記録: `docs/evaluations/g2-real-model-ae01-2026-09-13.md`、memory AD-019 / LN-044
-- 完了合図: `docs/t205-handoff.md` 冒頭に `## AD-019 対応（L-3）` ＋ 末尾 `再レビュー依頼`
+- L-3 は reviewer 確認中。**実評価 run 4 でツール呼出しは成功**（`get_rules → list → read_document ×4`）したが、読取後 63 秒で `failed/process_interrupted`・turns=0 で終了。
+  詳細: `docs/evaluations/g2-real-model-ae01-2026-09-13.md` 試行 2、memory LN-045。**タスク L-4 を最優先**（L-3 と同じファイル群）。完了合図: `docs/t205-handoff.md` 冒頭 `## L-4 対応（run 4）` ＋ `再レビュー依頼`
+
+### タスク L-4: 長い生成中の無応答誤判定と、期限発火時の分類崩れ（run 4）
+
+1. **欠陥 A（無応答の生存信号）**: `ClaudeAgentOptions(include_partial_messages=True)` にし、`consume()` で **`StreamEvent` も `PolicyHeartbeat`** として送る
+   （設計「メッセージ間の無応答」をストリームイベント粒度で測る。閾値 60 秒は不変）。agent-plan T-205 節に「生存信号 = SDK メッセージおよび StreamEvent」と追記。
+   テスト: StreamEvent が 20 秒間隔で続く 80 秒でも `inactivity_timeout` にならない
+2. **欠陥 B（分類崩れ）**: runner の `bounded()` が無応答/内側期限で `task.cancel()` したとき、claude_policy の後始末（SDK consume タスクの cancel・`query()` の anyio cancel scope）
+   から **`CancelledError` が worker タスクへ漏れ**、`jobs._execute` の `except CancelledError` → `process_interrupted` になる。修正: policy の `finally` / 後始末を
+   **自タスクへの CancelledError を再送出しない形**（`asyncio.shield` した別タスクで SDK を閉じる、または後始末中の CancelledError を捕捉して `LocalPolicyStop` の伝播を優先）にし、
+   runner が `RunResult("inactivity_timeout", turns)` を返すこと。テスト: 「後始末で CancelledError を上げるモック policy」で runner が `inactivity_timeout` を返し turns を保持
+3. **turns の上書き**: `jobs.py` の `RunResult("failed", detail="process_interrupted"|"worker_failed")` と `RunResult("outer_timeout")` は turns を持たない → `run_repository.finish()` で
+   **`result.turns` が None/未指定なら DB の既存 turns を保持**する（0 で潰さない）。テスト: 6 ターン記録済み run に `outer_timeout` を finish しても turns=6
+4. 実機停止系の評価シナリオ: `scripts/evaluate_local_agent.py` は local_dummy のまま。代わりに **claude モード用の手動確認手順**を handoff に 1 節（無応答を起こすには
+   `INACTIVITY_TIMEOUT_S` を環境変数で一時的に小さくできる口があるか。無ければ追加しない＝設計外。記録のみ）
+5. 完了条件: `AGENT_MODE=local_dummy DEBUG=false CI=true make check` all green（T-301 の衝突テストは L-3 と同じ deselect を明記。CV-023）。SDK は完全モック。commit しない。
+   Claude は提出後に `AGENT_MODE=claude` で run 5 を回す
 
 ### タスク L-3: ToolSearch の許可とハーネスツールの遮断（AD-019）
 

@@ -14,3 +14,16 @@
 | 副次の確認 | `permission_denials` のキーは `tool_name`/`tool_use_id`/`tool_input`（TODO-020 ②解消）。CLI は max_turns 後に exit 1 → `ProcessError`（`model_error` への丸め順を要確認） |
 
 トレース: `backend/traces/3.jsonl`（git 管理外）。
+
+## 試行 2（run_id=4, case_id=5、L-3 適用後）— 失敗（前進あり・2 欠陥を特定）
+
+| 観点 | 結果 |
+|---|---|
+| ツール呼出し | **6 回成功**: `get_rules → list_case_documents → read_document p.1〜p.4`（15:10:36〜37、資料 1/1 読取。AD-019 の修正が効いた） |
+| 終端 | 読取完了から **63 秒後**に `failed / stage_detail=process_interrupted`、`stopReason=failed`、**turns=0**（実際は 6 回呼んでいる） |
+| 欠陥 A（設計・実装） | 生存信号が SDK メッセージ単位。モデルが 4 ページ分の明細（11 行）を **1 ターンで長く生成**する間はメッセージが来ず、60 秒で無応答判定。`include_partial_messages=True` で StreamEvent を生存信号にする必要 |
+| 欠陥 B（実装） | 無応答発火時に `bounded()` が `LocalPolicyStop("inactivity_timeout")` を上げるはずが、SDK 側（anyio cancel scope）のキャンセルが worker タスクへ漏れ、`jobs._execute` の `except CancelledError` → `process_interrupted` に化けた。加えて `RunResult("failed", detail=...)` が turns を持たず、DB の turns を 0 で上書き |
+| 漏洩・ガードレール | トレースに原文なし（grep 0）。`guardrail_denied` 0 件。`stage_detail` は読取中 `{"documentsRead":1,"documentsTotal":1}` で正しく進んだ |
+| 対処 | Codex 短ラウンド L-4（CODEX-INSTRUCTIONS §7）。memory LN-045 |
+
+トレース: `backend/traces/4.jsonl`。
