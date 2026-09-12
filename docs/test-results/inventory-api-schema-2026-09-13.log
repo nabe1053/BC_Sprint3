@@ -1,0 +1,2 @@
+OpenAPI: UI GET only (tag ui); AGENT POST only; operationId=get_inventory_api_v1_ui_versions__versionId__inventory_get
+coverage: RowMatchResponse ref; position/excerpt required non-null string.

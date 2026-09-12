@@ -1,0 +1,228 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+FFFFFFF....................                                              [100%]
+=================================== FAILURES ===================================
+____________ test_inventory_s06_http_contract_and_field_whitelists _____________
+
+inventory_http = (<httpx.AsyncClient object at 0x7864e95af9b0>, namespace(reconcile=<AsyncMock id='132374809452832'>))
+
+    async def test_inventory_s06_http_contract_and_field_whitelists(inventory_http):
+        client, service = inventory_http
+        response = await client.get(PATH)
+        assert response.status_code == 200
+        service.reconcile.assert_awaited_once_with(1)
+        body = response.json()
+        assert set(body) == {"summary", "entries", "items"}
+>       assert body["summary"] == {
+            "sourceEntryCount": 12,
+            "sourceItemCount": 8,
+            "outputRowCount": 11,
+            "splitEntryIds": [6, 7, 8],
+            "excludedEntryIds": [9, 10, 11, 12],
+            "unmappedEntryIds": [],
+            "orphanItemIds": [],
+            "multiMappedItemIds": [],
+            "inconsistentEntryIds": [],
+            "coverage": None,
+        }
+E       AssertionError: assert {'coverage': ...Ids': [], ...} == {'coverage': ...Ids': [], ...}
+E         Omitting 9 identical items, use -vv to show
+E         Differing items:
+E         {'splitEntryIds': [8, 6, 7]} != {'splitEntryIds': [6, 7, 8]}
+E         Full diff:
+E           {
+E            'coverage': None,
+E            'excludedEntryIds': [9, 10, 11, 12],
+E            'inconsistentEntryIds': [],
+E            'multiMappedItemIds': [],
+E            'orphanItemIds': [],
+E            'outputRowCount': 11,
+E            'sourceEntryCount': 12,
+E            'sourceItemCount': 8,
+E         -  'splitEntryIds': [6, 7, 8],
+E         ?                        ---
+E         +  'splitEntryIds': [8, 6, 7],
+E         ?                    +++
+E            'unmappedEntryIds': [],
+E           }
+
+tests/unit/test_inventory_api.py:75: AssertionError
+_____ test_inventory_id_sets_are_sorted_and_deduplicated[split_entry_ids] ______
+
+field = 'split_entry_ids'
+
+    @pytest.mark.parametrize("field", ID_FIELDS)
+    def test_inventory_id_sets_are_sorted_and_deduplicated(field):
+        from app.api.ui.schemas.inventory import InventoryResponse
+    
+        data = result()
+        summary = replace(data.summary, **{field: frozenset({8, 3, 5})})
+        dto = InventoryResponse.model_validate(
+            replace(data, summary=summary), from_attributes=True
+        )
+>       assert getattr(dto.summary, field) == [3, 5, 8]
+E       assert [8, 3, 5] == [3, 5, 8]
+E         At index 0 diff: 8 != 3
+E         Full diff:
+E         - [3, 5, 8]
+E         + [8, 3, 5]
+
+tests/unit/test_inventory_api.py:131: AssertionError
+____ test_inventory_id_sets_are_sorted_and_deduplicated[excluded_entry_ids] ____
+
+field = 'excluded_entry_ids'
+
+    @pytest.mark.parametrize("field", ID_FIELDS)
+    def test_inventory_id_sets_are_sorted_and_deduplicated(field):
+        from app.api.ui.schemas.inventory import InventoryResponse
+    
+        data = result()
+        summary = replace(data.summary, **{field: frozenset({8, 3, 5})})
+        dto = InventoryResponse.model_validate(
+            replace(data, summary=summary), from_attributes=True
+        )
+>       assert getattr(dto.summary, field) == [3, 5, 8]
+E       assert [8, 3, 5] == [3, 5, 8]
+E         At index 0 diff: 8 != 3
+E         Full diff:
+E         - [3, 5, 8]
+E         + [8, 3, 5]
+
+tests/unit/test_inventory_api.py:131: AssertionError
+____ test_inventory_id_sets_are_sorted_and_deduplicated[unmapped_entry_ids] ____
+
+field = 'unmapped_entry_ids'
+
+    @pytest.mark.parametrize("field", ID_FIELDS)
+    def test_inventory_id_sets_are_sorted_and_deduplicated(field):
+        from app.api.ui.schemas.inventory import InventoryResponse
+    
+        data = result()
+        summary = replace(data.summary, **{field: frozenset({8, 3, 5})})
+        dto = InventoryResponse.model_validate(
+            replace(data, summary=summary), from_attributes=True
+        )
+>       assert getattr(dto.summary, field) == [3, 5, 8]
+E       assert [8, 3, 5] == [3, 5, 8]
+E         At index 0 diff: 8 != 3
+E         Full diff:
+E         - [3, 5, 8]
+E         + [8, 3, 5]
+
+tests/unit/test_inventory_api.py:131: AssertionError
+_____ test_inventory_id_sets_are_sorted_and_deduplicated[orphan_item_ids] ______
+
+field = 'orphan_item_ids'
+
+    @pytest.mark.parametrize("field", ID_FIELDS)
+    def test_inventory_id_sets_are_sorted_and_deduplicated(field):
+        from app.api.ui.schemas.inventory import InventoryResponse
+    
+        data = result()
+        summary = replace(data.summary, **{field: frozenset({8, 3, 5})})
+        dto = InventoryResponse.model_validate(
+            replace(data, summary=summary), from_attributes=True
+        )
+>       assert getattr(dto.summary, field) == [3, 5, 8]
+E       assert [8, 3, 5] == [3, 5, 8]
+E         At index 0 diff: 8 != 3
+E         Full diff:
+E         - [3, 5, 8]
+E         + [8, 3, 5]
+
+tests/unit/test_inventory_api.py:131: AssertionError
+__ test_inventory_id_sets_are_sorted_and_deduplicated[multi_mapped_item_ids] ___
+
+field = 'multi_mapped_item_ids'
+
+    @pytest.mark.parametrize("field", ID_FIELDS)
+    def test_inventory_id_sets_are_sorted_and_deduplicated(field):
+        from app.api.ui.schemas.inventory import InventoryResponse
+    
+        data = result()
+        summary = replace(data.summary, **{field: frozenset({8, 3, 5})})
+        dto = InventoryResponse.model_validate(
+            replace(data, summary=summary), from_attributes=True
+        )
+>       assert getattr(dto.summary, field) == [3, 5, 8]
+E       assert [8, 3, 5] == [3, 5, 8]
+E         At index 0 diff: 8 != 3
+E         Full diff:
+E         - [3, 5, 8]
+E         + [8, 3, 5]
+
+tests/unit/test_inventory_api.py:131: AssertionError
+__ test_inventory_id_sets_are_sorted_and_deduplicated[inconsistent_entry_ids] __
+
+field = 'inconsistent_entry_ids'
+
+    @pytest.mark.parametrize("field", ID_FIELDS)
+    def test_inventory_id_sets_are_sorted_and_deduplicated(field):
+        from app.api.ui.schemas.inventory import InventoryResponse
+    
+        data = result()
+        summary = replace(data.summary, **{field: frozenset({8, 3, 5})})
+        dto = InventoryResponse.model_validate(
+            replace(data, summary=summary), from_attributes=True
+        )
+>       assert getattr(dto.summary, field) == [3, 5, 8]
+E       assert [8, 3, 5] == [3, 5, 8]
+E         At index 0 diff: 8 != 3
+E         Full diff:
+E         - [3, 5, 8]
+E         + [8, 3, 5]
+
+tests/unit/test_inventory_api.py:131: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_inventory_api.py::test_inventory_s06_http_contract_and_field_whitelists - AssertionError: assert {'coverage': ...Ids': [], ...} == {'coverage': ...Ids': [], ...}
+  Omitting 9 identical items, use -vv to show
+  Differing items:
+  {'splitEntryIds': [8, 6, 7]} != {'splitEntryIds': [6, 7, 8]}
+  Full diff:
+    {
+     'coverage': None,
+     'excludedEntryIds': [9, 10, 11, 12],
+     'inconsistentEntryIds': [],
+     'multiMappedItemIds': [],
+     'orphanItemIds': [],
+     'outputRowCount': 11,
+     'sourceEntryCount': 12,
+     'sourceItemCount': 8,
+  -  'splitEntryIds': [6, 7, 8],
+  ?                        ---
+  +  'splitEntryIds': [8, 6, 7],
+  ?                    +++
+     'unmappedEntryIds': [],
+    }
+FAILED tests/unit/test_inventory_api.py::test_inventory_id_sets_are_sorted_and_deduplicated[split_entry_ids] - assert [8, 3, 5] == [3, 5, 8]
+  At index 0 diff: 8 != 3
+  Full diff:
+  - [3, 5, 8]
+  + [8, 3, 5]
+FAILED tests/unit/test_inventory_api.py::test_inventory_id_sets_are_sorted_and_deduplicated[excluded_entry_ids] - assert [8, 3, 5] == [3, 5, 8]
+  At index 0 diff: 8 != 3
+  Full diff:
+  - [3, 5, 8]
+  + [8, 3, 5]
+FAILED tests/unit/test_inventory_api.py::test_inventory_id_sets_are_sorted_and_deduplicated[unmapped_entry_ids] - assert [8, 3, 5] == [3, 5, 8]
+  At index 0 diff: 8 != 3
+  Full diff:
+  - [3, 5, 8]
+  + [8, 3, 5]
+FAILED tests/unit/test_inventory_api.py::test_inventory_id_sets_are_sorted_and_deduplicated[orphan_item_ids] - assert [8, 3, 5] == [3, 5, 8]
+  At index 0 diff: 8 != 3
+  Full diff:
+  - [3, 5, 8]
+  + [8, 3, 5]
+FAILED tests/unit/test_inventory_api.py::test_inventory_id_sets_are_sorted_and_deduplicated[multi_mapped_item_ids] - assert [8, 3, 5] == [3, 5, 8]
+  At index 0 diff: 8 != 3
+  Full diff:
+  - [3, 5, 8]
+  + [8, 3, 5]
+FAILED tests/unit/test_inventory_api.py::test_inventory_id_sets_are_sorted_and_deduplicated[inconsistent_entry_ids] - assert [8, 3, 5] == [3, 5, 8]
+  At index 0 diff: 8 != 3
+  Full diff:
+  - [3, 5, 8]
+  + [8, 3, 5]
+7 failed, 20 passed in 5.36s
+make[1]: *** [/tmp/inventory-api-checks.mk:2: inventory-api-unit] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

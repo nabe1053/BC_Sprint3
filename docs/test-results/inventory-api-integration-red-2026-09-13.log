@@ -1,0 +1,39 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+_________ test_inventory_http_isolates_versions_and_reflects_coverage __________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7a81cdb0d700>
+
+    async def test_inventory_http_isolates_versions_and_reflects_coverage(db_session):
+        first = await seed_inventory(db_session)
+        other = await seed_inventory(db_session)
+        pending = await seed_inventory(db_session, finalized=False)
+        app = FastAPI()
+        app.add_exception_handler(ApiError, api_error_handler)
+        app.include_router(router, prefix="/api/v1")
+    
+        async def test_session():
+            yield db_session
+    
+        app.dependency_overrides[get_db] = test_session
+        path = f"/api/v1/ui/versions/{first.seed.version.id}/inventory"
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            response = await client.get(path)
+>           assert response.status_code == 200
+E           assert 404 == 200
+E            +  where 404 = <Response [404 Not Found]>.status_code
+
+tests/integration/test_api_inventory.py:30: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_api_inventory.py::test_inventory_http_isolates_versions_and_reflects_coverage - assert 404 == 200
+ +  where 404 = <Response [404 Not Found]>.status_code
+1 failed, 1 warning in 0.57s
+make: *** [/tmp/inventory-api-checks.mk:4: inventory-api-integration] Error 1

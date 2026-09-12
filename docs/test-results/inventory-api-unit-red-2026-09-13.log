@@ -1,0 +1,311 @@
+EFFFFFFEFFFFFFFFFFFEEEEEEF.                                              [100%]
+==================================== ERRORS ====================================
+___ ERROR at setup of test_inventory_s06_http_contract_and_field_whitelists ____
+
+    @pytest.fixture
+    async def inventory_http():
+>       from app.api.dependencies import get_inventory_service
+E       ImportError: cannot import name 'get_inventory_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_inventory_api.py:35: ImportError
+___ ERROR at setup of test_coverage_is_nested_and_uses_only_record_metadata ____
+
+    @pytest.fixture
+    async def inventory_http():
+>       from app.api.dependencies import get_inventory_service
+E       ImportError: cannot import name 'get_inventory_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_inventory_api.py:35: ImportError
+_ ERROR at setup of test_private_attributes_never_escape_at_any_response_depth _
+
+    @pytest.fixture
+    async def inventory_http():
+>       from app.api.dependencies import get_inventory_service
+E       ImportError: cannot import name 'get_inventory_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_inventory_api.py:35: ImportError
+___ ERROR at setup of test_inventory_not_found_uses_existing_error_contract ____
+
+    @pytest.fixture
+    async def inventory_http():
+>       from app.api.dependencies import get_inventory_service
+E       ImportError: cannot import name 'get_inventory_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_inventory_api.py:35: ImportError
+___ ERROR at setup of test_invalid_version_id_is_rejected_before_service[0] ____
+
+    @pytest.fixture
+    async def inventory_http():
+>       from app.api.dependencies import get_inventory_service
+E       ImportError: cannot import name 'get_inventory_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_inventory_api.py:35: ImportError
+___ ERROR at setup of test_invalid_version_id_is_rejected_before_service[-1] ___
+
+    @pytest.fixture
+    async def inventory_http():
+>       from app.api.dependencies import get_inventory_service
+E       ImportError: cannot import name 'get_inventory_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_inventory_api.py:35: ImportError
+_ ERROR at setup of test_inventory_wrong_namespace_method_is_405_without_service[GET-/api/v1/agent/versions/1/inventory] _
+
+    @pytest.fixture
+    async def inventory_http():
+>       from app.api.dependencies import get_inventory_service
+E       ImportError: cannot import name 'get_inventory_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_inventory_api.py:35: ImportError
+_ ERROR at setup of test_inventory_wrong_namespace_method_is_405_without_service[POST-/api/v1/ui/versions/1/inventory] _
+
+    @pytest.fixture
+    async def inventory_http():
+>       from app.api.dependencies import get_inventory_service
+E       ImportError: cannot import name 'get_inventory_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_inventory_api.py:35: ImportError
+=================================== FAILURES ===================================
+_____ test_inventory_id_sets_are_sorted_and_deduplicated[split_entry_ids] ______
+
+field = 'split_entry_ids'
+
+    @pytest.mark.parametrize("field", ID_FIELDS)
+    def test_inventory_id_sets_are_sorted_and_deduplicated(field):
+>       from app.api.ui.schemas.inventory import InventoryResponse
+E       ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+
+tests/unit/test_inventory_api.py:91: ModuleNotFoundError
+____ test_inventory_id_sets_are_sorted_and_deduplicated[excluded_entry_ids] ____
+
+field = 'excluded_entry_ids'
+
+    @pytest.mark.parametrize("field", ID_FIELDS)
+    def test_inventory_id_sets_are_sorted_and_deduplicated(field):
+>       from app.api.ui.schemas.inventory import InventoryResponse
+E       ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+
+tests/unit/test_inventory_api.py:91: ModuleNotFoundError
+____ test_inventory_id_sets_are_sorted_and_deduplicated[unmapped_entry_ids] ____
+
+field = 'unmapped_entry_ids'
+
+    @pytest.mark.parametrize("field", ID_FIELDS)
+    def test_inventory_id_sets_are_sorted_and_deduplicated(field):
+>       from app.api.ui.schemas.inventory import InventoryResponse
+E       ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+
+tests/unit/test_inventory_api.py:91: ModuleNotFoundError
+_____ test_inventory_id_sets_are_sorted_and_deduplicated[orphan_item_ids] ______
+
+field = 'orphan_item_ids'
+
+    @pytest.mark.parametrize("field", ID_FIELDS)
+    def test_inventory_id_sets_are_sorted_and_deduplicated(field):
+>       from app.api.ui.schemas.inventory import InventoryResponse
+E       ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+
+tests/unit/test_inventory_api.py:91: ModuleNotFoundError
+__ test_inventory_id_sets_are_sorted_and_deduplicated[multi_mapped_item_ids] ___
+
+field = 'multi_mapped_item_ids'
+
+    @pytest.mark.parametrize("field", ID_FIELDS)
+    def test_inventory_id_sets_are_sorted_and_deduplicated(field):
+>       from app.api.ui.schemas.inventory import InventoryResponse
+E       ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+
+tests/unit/test_inventory_api.py:91: ModuleNotFoundError
+__ test_inventory_id_sets_are_sorted_and_deduplicated[inconsistent_entry_ids] __
+
+field = 'inconsistent_entry_ids'
+
+    @pytest.mark.parametrize("field", ID_FIELDS)
+    def test_inventory_id_sets_are_sorted_and_deduplicated(field):
+>       from app.api.ui.schemas.inventory import InventoryResponse
+E       ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+
+tests/unit/test_inventory_api.py:91: ModuleNotFoundError
+_________________ test_inventory_judgement_vocabulary[mapped] __________________
+
+judgement = 'mapped'
+
+    @pytest.mark.parametrize("judgement", ["mapped", "split", "excluded", "missing", "inconsistent"])
+    def test_inventory_judgement_vocabulary(judgement):
+>       from app.api.ui.schemas.inventory import InventoryEntryResponse
+E       ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+
+tests/unit/test_inventory_api.py:115: ModuleNotFoundError
+__________________ test_inventory_judgement_vocabulary[split] __________________
+
+judgement = 'split'
+
+    @pytest.mark.parametrize("judgement", ["mapped", "split", "excluded", "missing", "inconsistent"])
+    def test_inventory_judgement_vocabulary(judgement):
+>       from app.api.ui.schemas.inventory import InventoryEntryResponse
+E       ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+
+tests/unit/test_inventory_api.py:115: ModuleNotFoundError
+________________ test_inventory_judgement_vocabulary[excluded] _________________
+
+judgement = 'excluded'
+
+    @pytest.mark.parametrize("judgement", ["mapped", "split", "excluded", "missing", "inconsistent"])
+    def test_inventory_judgement_vocabulary(judgement):
+>       from app.api.ui.schemas.inventory import InventoryEntryResponse
+E       ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+
+tests/unit/test_inventory_api.py:115: ModuleNotFoundError
+_________________ test_inventory_judgement_vocabulary[missing] _________________
+
+judgement = 'missing'
+
+    @pytest.mark.parametrize("judgement", ["mapped", "split", "excluded", "missing", "inconsistent"])
+    def test_inventory_judgement_vocabulary(judgement):
+>       from app.api.ui.schemas.inventory import InventoryEntryResponse
+E       ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+
+tests/unit/test_inventory_api.py:115: ModuleNotFoundError
+______________ test_inventory_judgement_vocabulary[inconsistent] _______________
+
+judgement = 'inconsistent'
+
+    @pytest.mark.parametrize("judgement", ["mapped", "split", "excluded", "missing", "inconsistent"])
+    def test_inventory_judgement_vocabulary(judgement):
+>       from app.api.ui.schemas.inventory import InventoryEntryResponse
+E       ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+
+tests/unit/test_inventory_api.py:115: ModuleNotFoundError
+________ test_inventory_entry_rejects_invalid_contract_values[change0] _________
+
+change = {'judgement': 'unknown'}
+
+    @pytest.mark.parametrize("change", [
+        {"judgement": "unknown"}, {"status": "missing"}, {"position": None}, {"excerpt": None},
+        {"seq": 0}, {"link_count": -1},
+    ])
+    def test_inventory_entry_rejects_invalid_contract_values(change):
+>       from app.api.ui.schemas.inventory import InventoryEntryResponse
+E       ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+
+tests/unit/test_inventory_api.py:125: ModuleNotFoundError
+________ test_inventory_entry_rejects_invalid_contract_values[change1] _________
+
+change = {'status': 'missing'}
+
+    @pytest.mark.parametrize("change", [
+        {"judgement": "unknown"}, {"status": "missing"}, {"position": None}, {"excerpt": None},
+        {"seq": 0}, {"link_count": -1},
+    ])
+    def test_inventory_entry_rejects_invalid_contract_values(change):
+>       from app.api.ui.schemas.inventory import InventoryEntryResponse
+E       ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+
+tests/unit/test_inventory_api.py:125: ModuleNotFoundError
+________ test_inventory_entry_rejects_invalid_contract_values[change2] _________
+
+change = {'position': None}
+
+    @pytest.mark.parametrize("change", [
+        {"judgement": "unknown"}, {"status": "missing"}, {"position": None}, {"excerpt": None},
+        {"seq": 0}, {"link_count": -1},
+    ])
+    def test_inventory_entry_rejects_invalid_contract_values(change):
+>       from app.api.ui.schemas.inventory import InventoryEntryResponse
+E       ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+
+tests/unit/test_inventory_api.py:125: ModuleNotFoundError
+________ test_inventory_entry_rejects_invalid_contract_values[change3] _________
+
+change = {'excerpt': None}
+
+    @pytest.mark.parametrize("change", [
+        {"judgement": "unknown"}, {"status": "missing"}, {"position": None}, {"excerpt": None},
+        {"seq": 0}, {"link_count": -1},
+    ])
+    def test_inventory_entry_rejects_invalid_contract_values(change):
+>       from app.api.ui.schemas.inventory import InventoryEntryResponse
+E       ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+
+tests/unit/test_inventory_api.py:125: ModuleNotFoundError
+________ test_inventory_entry_rejects_invalid_contract_values[change4] _________
+
+change = {'seq': 0}
+
+    @pytest.mark.parametrize("change", [
+        {"judgement": "unknown"}, {"status": "missing"}, {"position": None}, {"excerpt": None},
+        {"seq": 0}, {"link_count": -1},
+    ])
+    def test_inventory_entry_rejects_invalid_contract_values(change):
+>       from app.api.ui.schemas.inventory import InventoryEntryResponse
+E       ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+
+tests/unit/test_inventory_api.py:125: ModuleNotFoundError
+________ test_inventory_entry_rejects_invalid_contract_values[change5] _________
+
+change = {'link_count': -1}
+
+    @pytest.mark.parametrize("change", [
+        {"judgement": "unknown"}, {"status": "missing"}, {"position": None}, {"excerpt": None},
+        {"seq": 0}, {"link_count": -1},
+    ])
+    def test_inventory_entry_rejects_invalid_contract_values(change):
+>       from app.api.ui.schemas.inventory import InventoryEntryResponse
+E       ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+
+tests/unit/test_inventory_api.py:125: ModuleNotFoundError
+______________ test_all_version_and_record_routes_exist_under_ui _______________
+
+    def test_all_version_and_record_routes_exist_under_ui():
+        from app.main import app
+    
+        paths = {
+            (method, route.path)
+            for route in app.routes
+            for method in getattr(route, "methods", [])
+        }
+        expected = {
+            ("GET", "/cases/{caseId}/versions"),
+            ("GET", "/versions/{versionId}"),
+            ("GET", "/versions/{versionId}/items"),
+            ("GET", "/versions/{versionId}/items/{itemId}/evidence"),
+            ("GET", "/versions/{versionId}/questions"),
+            ("GET", "/versions/{versionId}/inventory"),
+            ("POST", "/versions/{versionId}/edits"),
+            ("POST", "/versions/{versionId}/edits/{editId}/undo"),
+            ("POST", "/versions/{versionId}/confirmations"),
+            ("POST", "/versions/{versionId}/confirmations/{confirmationId}/undo"),
+            ("POST", "/versions/{versionId}/questions/{questionId}/judgements"),
+        }
+>       assert {(method, "/api/v1/ui" + path) for method, path in expected} <= paths
+E       AssertionError: assert {('GET', '/api/v1/ui/cases/{caseId}/versions'), ('GET', '/api/v1/ui/versions/{versionId}'), ('GET', '/api/v1/ui/versio... '/api/v1/ui/versions/{versionId}/items/{itemId}/evidence'), ('GET', '/api/v1/ui/versions/{versionId}/questions'), ...} <= {('GET', '/'), ('GET', '/api/v1/agent/cases/{caseId}/documents'), ('GET', '/api/v1/agent/cases/{caseId}/search'), ('GE..., ('GET', '/api/v1/agent/documents/{documentId}/email'), ('GET', '/api/v1/agent/versions/{versionId}/validation'), ...}
+
+tests/unit/test_api_path_separation_live.py:25: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_inventory_api.py::test_inventory_id_sets_are_sorted_and_deduplicated[split_entry_ids] - ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+FAILED tests/unit/test_inventory_api.py::test_inventory_id_sets_are_sorted_and_deduplicated[excluded_entry_ids] - ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+FAILED tests/unit/test_inventory_api.py::test_inventory_id_sets_are_sorted_and_deduplicated[unmapped_entry_ids] - ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+FAILED tests/unit/test_inventory_api.py::test_inventory_id_sets_are_sorted_and_deduplicated[orphan_item_ids] - ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+FAILED tests/unit/test_inventory_api.py::test_inventory_id_sets_are_sorted_and_deduplicated[multi_mapped_item_ids] - ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+FAILED tests/unit/test_inventory_api.py::test_inventory_id_sets_are_sorted_and_deduplicated[inconsistent_entry_ids] - ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+FAILED tests/unit/test_inventory_api.py::test_inventory_judgement_vocabulary[mapped] - ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+FAILED tests/unit/test_inventory_api.py::test_inventory_judgement_vocabulary[split] - ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+FAILED tests/unit/test_inventory_api.py::test_inventory_judgement_vocabulary[excluded] - ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+FAILED tests/unit/test_inventory_api.py::test_inventory_judgement_vocabulary[missing] - ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+FAILED tests/unit/test_inventory_api.py::test_inventory_judgement_vocabulary[inconsistent] - ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+FAILED tests/unit/test_inventory_api.py::test_inventory_entry_rejects_invalid_contract_values[change0] - ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+FAILED tests/unit/test_inventory_api.py::test_inventory_entry_rejects_invalid_contract_values[change1] - ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+FAILED tests/unit/test_inventory_api.py::test_inventory_entry_rejects_invalid_contract_values[change2] - ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+FAILED tests/unit/test_inventory_api.py::test_inventory_entry_rejects_invalid_contract_values[change3] - ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+FAILED tests/unit/test_inventory_api.py::test_inventory_entry_rejects_invalid_contract_values[change4] - ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+FAILED tests/unit/test_inventory_api.py::test_inventory_entry_rejects_invalid_contract_values[change5] - ModuleNotFoundError: No module named 'app.api.ui.schemas.inventory'
+FAILED tests/unit/test_api_path_separation_live.py::test_all_version_and_record_routes_exist_under_ui - AssertionError: assert {('GET', '/api/v1/ui/cases/{caseId}/versions'), ('GET', '/api/v1/ui/versions/{versionId}'), ('GET', '/api/v1/ui/versio... '/api/v1/ui/versions/{versionId}/items/{itemId}/evidence'), ('GET', '/api/v1/ui/versions/{versionId}/questions'), ...} <= {('GET', '/'), ('GET', '/api/v1/agent/cases/{caseId}/documents'), ('GET', '/api/v1/agent/cases/{caseId}/search'), ('GE..., ('GET', '/api/v1/agent/documents/{documentId}/email'), ('GET', '/api/v1/agent/versions/{versionId}/validation'), ...}
+ERROR tests/unit/test_inventory_api.py::test_inventory_s06_http_contract_and_field_whitelists - ImportError: cannot import name 'get_inventory_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_inventory_api.py::test_coverage_is_nested_and_uses_only_record_metadata - ImportError: cannot import name 'get_inventory_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_inventory_api.py::test_private_attributes_never_escape_at_any_response_depth - ImportError: cannot import name 'get_inventory_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_inventory_api.py::test_inventory_not_found_uses_existing_error_contract - ImportError: cannot import name 'get_inventory_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_inventory_api.py::test_invalid_version_id_is_rejected_before_service[0] - ImportError: cannot import name 'get_inventory_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_inventory_api.py::test_invalid_version_id_is_rejected_before_service[-1] - ImportError: cannot import name 'get_inventory_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_inventory_api.py::test_inventory_wrong_namespace_method_is_405_without_service[GET-/api/v1/agent/versions/1/inventory] - ImportError: cannot import name 'get_inventory_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_inventory_api.py::test_inventory_wrong_namespace_method_is_405_without_service[POST-/api/v1/ui/versions/1/inventory] - ImportError: cannot import name 'get_inventory_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+18 failed, 1 passed, 8 errors in 1.50s
+make: *** [/tmp/inventory-api-checks.mk:2: inventory-api-unit] Error 1

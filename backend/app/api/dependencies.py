@@ -19,6 +19,8 @@ from app.repositories.run_trace_store import RunTraceStore
 from app.repositories.run_background import RunBackground
 from app.repositories.agent_tool_repository import AgentToolGateway
 from app.services.draft_service import DraftService
+from app.services.inventory_service import InventoryService
+from app.repositories.inventory_repository import InventoryRepository
 from app.services.record_service import RecordService
 from app.repositories.record_repository import RecordRepository
 from app.services.run_service import RunService
@@ -31,6 +33,12 @@ async def get_draft_service(session: AsyncSession = Depends(get_db)) -> DraftSer
 
 async def get_record_service(session: AsyncSession = Depends(get_db)) -> RecordService:
     return RecordService(RecordRepository(session))
+
+
+async def get_inventory_service(
+    session: AsyncSession = Depends(get_db)
+) -> InventoryService:
+    return InventoryService(InventoryRepository(session))
 
 
 def make_run_repository(session):

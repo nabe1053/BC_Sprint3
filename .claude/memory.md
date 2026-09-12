@@ -189,6 +189,9 @@
 - [CV-027] **「保存値」と「導出値」を同じフィールドに載せない**（T-401: 保存 `status` と構造から導いた `judgement` を別項目）。推測の混入を防ぎ、不一致を検出可能にし、
   是正を別課題に切り離せる。外部キーで守れない参照整合性は「SQL で絞る＋純粋関数で再検査して inconsistent に落とす」の二重防御にし、混入しないことを集合の交差 0 で固定。
 
+- [CV-028] **同パス異メソッドで名前空間を分ける設計は、`(method, path)` の存在・非存在に加えて「分離相手が在ること」を肯定形で 1 本固定する**（否定だけでは削除と分離を
+  区別できない。T-402）。integration で DI を検証するときは override を `get_db` だけに絞る（Service 直差し替えは配線ミスを隠す）。
+
 ## 3. 実装バックログ（プラン状態＝ループの制御表）
 
 | ID | スライス | 種別 | 依存 | Status | レビュー | 最終更新 |
@@ -207,7 +210,7 @@
 | T-302 | G3 参照 #23-26 / 記録 #29-33・#22 最小・#1 拡張（API） | web | T-301 | DONE | RV-036 DONE ＋ 追補 N-2（#24 `rowMatch`）RV-038 DONE | 2026-09-13 |
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | DONE | 2回目 RV-041: **DONE**（P3 8 は記録のみ・TODO-030）。**G3 完了** | 2026-09-13 |
 | T-401 | G4 照合集計（BE。保存は T-201・記録は T-301 済） | web | T-201 | DONE | 1回目 RV-040: **DONE**（P3 4 は記録のみ・TODO-031） | 2026-09-13 |
-| T-402 | G4 照合 API #27（UI GET）＋#19 同パス整理（API） | web | T-401 | PLANNED | 指示書 `docs/t402-instructions.md`（AD-026）。O-2 の後に Codex 着手 | 2026-09-13 |
+| T-402 | G4 照合 API #27（UI GET）＋#19 同パス整理（API） | web | T-401 | DONE | 1回目 RV-042: **DONE**（P3 4 は記録のみ・TODO-033） | 2026-09-13 |
 | T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | PLANNED | - | 2026-09-11 |
 | T-501 | G5 状態遷移・差し戻し・送付可否の記録（BE） | web | T-301 | PLANNED | - | 2026-09-11 |
 | T-502 | G5 承認・状態 API #22,28,34-37（API） | web | T-501 | PLANNED | - | 2026-09-11 |
@@ -437,6 +440,13 @@
   `formatter: 'prettier'` に修正）。整形差分に機能変更なし（`git diff -w` で確認）。実測 FE 266 passed / prettier green / design-lint 0。P3: prettier のキャレット版 /
   `src/**` glob が生成物を含む（対処は `npm run orval` 再実行、と 1 行残す）→ TODO-030 に追記。
 
+- [RV-042] T-402 1回目（Codex → Claude reviewer 独立・2026-09-13）: **DONE 可**。P1 0 / P2 0 / P3 4。AD-026 11/11。DTO は T-401 実型と 1 対 1（10/13/8/2/4）、
+  ID 配列は validator 1 箇所で昇順・重複除去、`RowMatchResponse` 再利用、Literal は domain import。越境は 405 かつ `reconcile` 未呼出し、`(method,path)` 検査は
+  「AGENT に GET なし・UI に POST なし・AGENT POST #19 在り」の 3 点。integration は `get_db` のみ override して正規 DI を通し、summary を dict 全体の等値比較。
+  `private`/`version_id` を 7 階層に注入する非露出テスト。OpenAPI 34→35、orval model 138→146（消失 0）。実測 625 passed / ruff 0 / tsc 0。
+  P3: `model_validate(from_attributes)` の再帰依存のコメント / `inconsistentEntryIds` は entries の部分集合とは限らない注記（T-403 指示書へ）/ basename 重複（C-3）/
+  handoff に「次スライスへ渡す契約」節を置く運用。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -642,6 +652,8 @@
 - [TODO-028] **実モデルのインベントリ status の使い方をプロンプトで是正**: run 8 は脚注 *1〜*3 を `split`、注記を `unmapped` にした（AE01 期待「除外 4・対応なし 0」と構造集計が
   ずれる）。脚注・注記は `excluded`＋basis（複数行に関わる根拠は excerpt に）へ寄せる指示を `SYSTEM_PROMPT` と `record_source_inventory` の description に（T-205 追補 L-9）。
 - [TODO-029] **`inventory_links` に `version_id`・複合 FK `(version_id, item_id)` が無い**（04-db:670-681）。版外 item への link は書込時検査のみ。複合 FK 追加は 04-db 変更＝設計判断（研修者）。
+- [TODO-033] **T-402 の記録のみ P3（RV-042）**: ①`endpoints/inventory.py:18` の `from_attributes` 再帰依存を 1 行コメント ②handoff に「次スライスへ渡す契約」節を
+  置く運用（CODEX-INSTRUCTIONS §6 に 1 行）。③TODO-027 ① の basename 重複は C-3。
 - [TODO-032] **405（同パス異メソッド）の本文が Starlette 既定 `{"detail": …}` で 05 0.2 の `{code,message,details}` 形でない。**`main.py` に `HTTPException` ハンドラを足すか許容するか（共有ファイル・C-3 で）。
 - [TODO-031] **T-401 の記録のみ P3（RV-040）**: ⑤domain `EntryView.position/excerpt` を DB NOT NULL に合わせ `str` に（AD-026 ④）。 ①不明 entry link のとき `has_source=bool(source_entries)` に揃える ②版外 link が split と inconsistent の両方に入る意図をコメント
   ③`InventoryService.reconcile` とモジュール関数 `reconcile` の同名（`reconcile_inventory` に改名）④T-402 の DTO 注記「`inconsistentEntryIds` は entries の部分集合とは限らない」。C-3 で。

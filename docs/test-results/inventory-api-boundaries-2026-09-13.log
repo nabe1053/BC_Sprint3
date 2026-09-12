@@ -1,0 +1,1 @@
+PASS 74 protected files unchanged (frontend source except generated; app/agent; errors.py; route_contract.py; test_api_path_separation.py).

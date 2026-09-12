@@ -1,0 +1,14 @@
+from pathlib import Path
+import os, shutil, subprocess, tempfile
+root=Path.cwd()
+with tempfile.TemporaryDirectory(prefix='inventory-api-mutation-') as temp:
+    clone=Path(temp)/'backend'
+    shutil.copytree(root/'backend',clone,ignore=shutil.ignore_patterns('.venv','.env*','__pycache__','.pytest_cache','.ruff_cache','storage'))
+    (clone/'.venv').symlink_to(root/'backend/.venv',target_is_directory=True)
+    path=clone/'app/api/ui/schemas/inventory.py'
+    source=path.read_text();assert 'return sorted(set(value))' in source
+    path.write_text(source.replace('return sorted(set(value))','return list(set(value))'))
+    run=subprocess.run(['make','-f','Makefile','-f','/tmp/inventory-api-checks.mk','inventory-api-unit',f'BACKEND={clone}'],env={**os.environ,'AGENT_MODE':'local_dummy','DEBUG':'false','CI':'true'},stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,timeout=100)
+    Path('/tmp/inventory-api-mutation.log').write_text(run.stdout)
+    assert run.returncode!=0 and 'test_inventory_id_sets_are_sorted_and_deduplicated' in run.stdout and all(f'FAILED tests/unit/test_inventory_api.py::test_inventory_id_sets_are_sorted_and_deduplicated[{field}]' in run.stdout for field in ('split_entry_ids', 'excluded_entry_ids', 'unmapped_entry_ids', 'orphan_item_ids', 'multi_mapped_item_ids', 'inconsistent_entry_ids')),run.stdout[-2400:]
+    print('PASS sorted removal detected by all six ID-array assertions')

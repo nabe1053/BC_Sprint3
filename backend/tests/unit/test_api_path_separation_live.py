@@ -15,6 +15,7 @@ def test_all_version_and_record_routes_exist_under_ui():
         ("GET", "/versions/{versionId}/items"),
         ("GET", "/versions/{versionId}/items/{itemId}/evidence"),
         ("GET", "/versions/{versionId}/questions"),
+        ("GET", "/versions/{versionId}/inventory"),
         ("POST", "/versions/{versionId}/edits"),
         ("POST", "/versions/{versionId}/edits/{editId}/undo"),
         ("POST", "/versions/{versionId}/confirmations"),
@@ -22,3 +23,16 @@ def test_all_version_and_record_routes_exist_under_ui():
         ("POST", "/versions/{versionId}/questions/{questionId}/judgements"),
     }
     assert {(method, "/api/v1/ui" + path) for method, path in expected} <= paths
+
+
+def test_inventory_path_is_method_split_between_agent_and_ui():
+    from app.main import app
+
+    paths = {
+        (method, route.path)
+        for route in app.routes
+        for method in getattr(route, "methods", [])
+    }
+    assert ("GET", "/api/v1/agent/versions/{versionId}/inventory") not in paths
+    assert ("POST", "/api/v1/ui/versions/{versionId}/inventory") not in paths
+    assert ("POST", "/api/v1/agent/versions/{versionId}/inventory") in paths
