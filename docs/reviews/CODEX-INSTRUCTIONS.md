@@ -147,13 +147,32 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 05:00・T-205 全 DONE・T-301 進行中）
+## 7. 次にやること（2026-09-13 06:20・**L-7 を最優先**。T-301 はレビュー中）
 
-- **実評価 run 8 = `completed`**（11 行・AE01 期待どおり・631 秒・14 ターン・漏洩 0）。L-6 は reviewer 確認中（Claude）。**Codex は T-301（タスク M）を再開する**
-- T-301 の handoff 冒頭に「T-205 L-3〜L-6 と同一コミット単位（`run_repository._has_records` が `models/records.py` に依存）」と明記する。
-  T-205 のファイル（`app/agent/**`・`claude_policy`・`definition`・`hooks`・`run_types`・`run_repository` の T-205 hunk）は**触らない**
-- L-6 の reviewer 確認は **DONE 可**で完了（memory RV-032）。T-205 は全ラウンド DONE。Claude は T-301 の再レビュー依頼が来るまで pytest を回さない。Codex の `make check` は自由
-- 完了合図: `docs/t301-handoff.md` 末尾 `再レビュー依頼`
+- T-301（タスク M）は Claude reviewer が確認中（結果は §7 で知らせる）。その間に **タスク L-7** を実施する（T-301 のファイルは触らない）
+- 事実: AE03（sample-02）の実評価 run 9 は 6 行の抽出が期待どおり（質量 t 保持・換算なし）だったが、`propose_items` 成功の 34 秒後に `failed/process_interrupted`。
+  run 4/6 と同じ機構で、今回 uvicorn ログに「Local agent operation failed (DraftError)」「Agent background task failed (DraftError)」が出て特定できた。
+  詳細: `docs/evaluations/g2-real-model-ae01-2026-09-13.md` AE03 試行 1、memory LN-050 / LN-051。完了合図: `docs/t205-handoff.md` 冒頭 `## L-7 対応（run 9）` ＋ `再レビュー依頼`
+- **Claude は L-7 提出まで pytest を回さない**（T-301 reviewer は octg_test で pytest を回している。Codex は L-7 の限定テストのみ実行し、`make check` は reviewer 完了後）
+
+### タスク L-7: ツール入口の例外変換と、後始末キャンセルの上書き防止（TODO-021）
+
+1. **`ToolExecutor.invoke`（`tools.py`）**: `begin_step` を含め、入口から出口まで全経路を `ToolReply` に写す。`begin_step` / `locked()` の `require` が上げる `DomainError`
+   （`E_NOT_FOUND` / `E_RUN_NOT_ACTIVE` 等）は `ToolReply({"code": ...}, is_error=True)`。それ以外の予期しない例外は `E_INTERNAL`（固定コード）で is_error。
+   `asyncio.CancelledError` は従来どおり再送出。`step_id` 未取得のとき `fail_step` は呼ばない
+2. **runner `bounded()` / 本体**: `executor.call` が例外で終わった場合（起きない前提だが）`RunResult("failed", turns, "worker_failed")` を返し、worker を例外で落とさない
+3. **runner `finally`**: 後始末中の CancelledError は**進行中の例外・戻り値を絶対に上書きしない**。`sys.exc_info()` で進行中例外があればそれを優先（`uncancel()` して握る）、
+   戻り値が確定していればそれを返す、期限停止（`deadline_stop`）も従来どおり。**外側（jobs）からの本物のキャンセル**は `deadline_stop=False` かつ進行中例外なし・戻り値未確定の
+   場合だけ再送出（このケースは jobs が結果を読まないので分類に影響しない）
+4. **jobs `_execute`**: `worker.result()` が `CancelledError` を上げた（= worker task 自体がキャンセルされた）場合は `process_interrupted` ではなく
+   `RunResult("failed", detail="worker_failed")`。`process_interrupted` は `await asyncio.wait({worker})` 自身が CancelledError を受けたとき（プロセス停止・`stop_jobs`）のみ。
+   04-db §3.2 の `worker_failed` / `process_interrupted` の説明を「worker の例外・キャンセル」「ジョブ境界自身の中断」に書き分ける
+5. **診断ログ**: `_consume` / `_worker_done` の error ログに例外の**固定コード**（`DomainError.code`、無ければ型名）を含める。メッセージ本文・引数・資料本文は出さない
+6. テスト（決定的・SDK モック）: `begin_step` が `DraftError("E_RUN_NOT_ACTIVE")` を上げる gateway で `invoke` が is_error `ToolReply` を返す / 後始末で CancelledError を上げる
+   policy ＋ 進行中に DraftError が出た経路で runner の結果が `failed/worker_failed`・turns 保持（`process_interrupted` にならない）/ jobs で worker task をキャンセルさせたとき
+   `worker_failed`、`_execute` 自身をキャンセルしたとき `process_interrupted` / `_consume` のログに code が出て本文が出ない
+7. 変異: `check_agent_mutations.py` に「`begin_step` を try の外に戻す」「後始末の CancelledError を再送出に戻す」を追加
+8. 完了条件: 限定テスト GREEN を handoff に。`make check` は Claude が §7 で「pytest 可」と書いてから実行して追記。commit しない。Claude は提出後に run 10（AE03 再実行）
 
 ### タスク L-6: 根拠・確認事項の一括登録、MAX_TURNS 80、プロンプト補強、無応答診断（AD-021）
 

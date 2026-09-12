@@ -83,3 +83,18 @@
 | run 4/6 | 読取後 60 秒で `process_interrupted` | 生存信号がメッセージ単位・分類崩れ（未再現） | L-4: StreamEvent 生存信号・後始末隔離・turns 保持。診断メタ（TODO-021） |
 | run 5 | 11 行抽出後 `tool_rejected` | ツールエラー 1 回で即中断 | AD-020: エラーを返して継続・3 連続で中断 |
 | run 7 | `max_turns`（40） | 根拠 1 件ずつ 26 回・代替候補を行に | AD-021: 一括登録・80 ターン・プロンプト補強 |
+
+---
+
+# Phase 3 AE03（sample-02 .xlsx・換算の抑止）— 2026-09-13
+
+## 試行 1（run_id=9, case_id=10）— 抽出は合格・実行は `process_interrupted`（機構を特定）
+
+| 観点 | 結果 |
+|---|---|
+| 抽出（AE03 の期待） | **6 行**。所要量は `qty_raw="118"` `qty_value=118` **`qty_unit=t`**（質量を保持し本数へ換算しない）、外径 `339.7 mm` 原単位、肉厚・材質原表記、小計 380 / 46・合計を明細にしない。**換算値なし → AE03 の主眼は合格** |
+| 終端 | `propose_items` 成功（16:30:26）の 34 秒後に `failed / process_interrupted`（turns 6）。根拠・インベントリ未登録、版未確定 |
+| 機構（run 4/6 と同一・TODO-021 の答え） | uvicorn ログ「Local agent operation failed (DraftError)」「Agent background task failed (DraftError)」。①`ToolExecutor.invoke` の `begin_step`（`locked()` の `require`）が **try の外**にあり、そこで上がった DraftError がツール結果に変換されず runner → worker へ伝播 ②runner `finally` の後始末中に SDK 由来の CancelledError が到達し、`deadline_stop=False` のため `raise` → **進行中の DraftError を CancelledError で上書き** → worker が「キャンセル」で終わる ③jobs `_execute` は `worker.result()` の CancelledError を「自分がキャンセルされた」と誤読し `process_interrupted`。DB に step 8 の begin_step 行が無いことと整合 |
+| 対処 | Codex L-7: `begin_step` を含む全経路をツール結果へ変換 / 後始末の CancelledError が進行中の例外・結果を上書きしない / jobs は worker のキャンセルを `worker_failed` と区別 / 例外の**コード**（固定文字列）をログに出す |
+
+トレース: `backend/traces/9.jsonl`。DB: version 9（items 6 / evidences 0）。

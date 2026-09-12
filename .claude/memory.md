@@ -171,7 +171,7 @@
 | C-2 | 記録のみ P3 の整理 chore（TODO-010/012、backend/app 非接触分） | chore | C-1, T-204 | DONE | 2回目: RV-029 P2-1（`MAKEFLAGS=-j8`）を確認して DONE。残 P3 は TODO-012 ⑦・TODO-017 | 2026-09-12 |
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | DONE | 2回目 RV-028: **DONE**（P3 1 は記録のみ・TODO-012 へ） | 2026-09-12 |
 | T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | DONE | 5回目 RV-032: **DONE**（L-3〜L-6 全て DONE 可・AE01 合格）。コードは T-301 と同一コミットで入れる（`_has_records` 依存） | 2026-09-13 |
-| T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
+| T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | REVIEWING | 1回目（Codex 申告 518 passed・追加 46 件・変異 10/10、確認中） | 2026-09-13 |
 | T-302 | G3 参照 #23-26 / 記録 #29-31,33（API） | web | T-301 | PLANNED | - | 2026-09-11 |
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | PLANNED | - | 2026-09-11 |
 | T-401 | G4 インベントリ・対応関係・照合集計（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
@@ -480,6 +480,12 @@
 - [LN-049] **「換算」と「表記の正規化」は単位が変わるかで線を引く。**同一単位内の厳密・可逆な変換（分数→小数）は原表記を保持する限り D03 の禁止対象ではない。
   単位が変わったらどれだけ正確でも承認が要る。評価スクリプトに「`*_unit` が原表記の単位と異なれば換算」の機械チェックを置く（TODO-023）。
 
+- [LN-050] **`finally` の後始末で CancelledError を再送出すると、進行中の例外・戻り値を上書きする。**runner の後始末（SDK close）由来のキャンセルが DraftError を消し、
+  worker が「キャンセル」で終わり、jobs が `process_interrupted` と誤分類した（run 4/6/9）。規則: 後始末由来のキャンセルは**決して**実行結果にしない。
+  進行中の例外があれば優先し、無ければ明示の停止理由を返す。jobs は「worker task が cancelled」と「自分が cancelled」を区別する。
+- [LN-051] **例外を変換する try の範囲は「DB に触る最初の呼出し」から。**`begin_step` を try の外に置いたため、ロック取得や `require` の失敗がツール結果にならず worker を落とした。
+  ツール実行の入口関数は、入った瞬間から出るまで全経路を `ToolReply` に写す。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
@@ -517,7 +523,8 @@
   T-301 では未実装（G3 で到達不能。t301-instructions §0 ⑤）。
 - [TODO-020] **T-205 の記録のみ P3（RV-031）**: ①拒否記録を PreToolUse deny 時点に寄せて時系列を揃える ②（解消: キーは tool_name/tool_use_id/tool_input）
   ③`cwd` テストを「リポジトリルート配下でない」「実行後に削除済み」の assert に ④`bounded()` の heartbeat 分岐を stream 専用ラッパへ。実評価の観察結果と合わせて次ラウンド。
-- [TODO-021] **run 4/6 の `process_interrupted` 化は未再現**（61 秒で停止。run 7 は 201 秒の間隔でも停止せず）。L-6 で無応答発火時の診断メタデータ（直近の生存信号からの
+- [TODO-021]（機構特定・L-7 で修正中）**run 4/6/9 の `process_interrupted` 化**: `begin_step` の DraftError が try 外で漏れ、runner `finally` の SDK 後始末 CancelledError が
+  進行中例外を上書きし、jobs が worker のキャンセルを自分のキャンセルと誤読（`docs/evaluations/g2-real-model-ae01-2026-09-13.md` AE03 試行 1）。旧記述:（61 秒で停止。run 7 は 201 秒の間隔でも停止せず）。L-6 で無応答発火時の診断メタデータ（直近の生存信号からの
   秒数・受信数）を `job_interrupted` に残し、次の再発で「生存信号が来なかった」か「分類が崩れた」かを切り分ける。診断サーバ: scratchpad `diag_server.py`（jobs._execute をラップ）。
 - [TODO-022] **Phase 3 判定の論点 2 件（研修者確認）**: ①外径 `13-3/8″` → `od_value=13.375 in` の分数→小数正規化は D03（換算禁止）に抵触するか。単位不変なので
   orchestrator は「表記の正規化」と判断。06 の採点式（数量は厳密一致・寸法は？）と突き合わせて確定する ②N06「初回案 10 分」に対し run 8 は 631 秒。思考時間が大半で
