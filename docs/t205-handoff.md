@@ -1,3 +1,74 @@
+## L-8b 対応
+
+2026-09-13。§7 **09:10版**に従い回収判定を共通化。限定unitテストはGREEN。**全体ゲートは§7の更新待ち**（T-302 reviewerがoctg_test使用中のため、今回DBテストは未実行）。commit・memory編集なし。
+
+### レビュー対応
+
+| 指摘番号 | 変更内容（file:line） | REDテスト・実行コマンド・件数 |
+|---|---|---|
+| L-8b / LN-056 | `backend/app/agent/definition.py:56`のRECOVERY_GRACE_S=16に猶予を集約。`backend/app/repositories/run_repository.py:32`の_is_recoverableがrunning・保存期限＋猶予超過を判定し、recover_interrupted/recover_expiredが共用する。各経路の終了理由・turnsの扱いは維持 | `test_both_recovery_paths_wait_for_terminal_grace`（2経路×猶予込み期限の直前/ちょうど/直後、DBなし6件）。初回起動時回収2 FAIL→6 PASS |
+| 定数・述語SSOT | `backend/tests/unit/test_single_source_of_truth.py:143`に定数の定義場所・述語1つ・両経路からの参照・猶予リテラルの重複禁止を追加 | `test_recovery_grace_and_predicate_are_shared`は初回定数未定義でFAIL→PASS。既存SSOT assertは維持 |
+| 既存境界・設計追従 | `tests/integration/test_startup_recovery.py`と`test_runs.py`の期限切れデータを保存期限＋RECOVERY_GRACE_S基準へ変更。`docs/requirements/04-db.md`と`agent-plan.md`に猶予16秒を反映 | 既存assertは削除せず、回収可能時刻の設計変更に合わせたfixture追従。実DB検証は許可後の全体ゲートで行う |
+
+### 検証
+
+- [限定RED](test-results/recovery-grace-red-2026-09-13.log): **3 FAIL / 10 PASS**。
+- [限定GREEN](test-results/recovery-grace-green-2026-09-13.log): **13 PASS**（6境界＋7 SSOT）、ruff成功。
+- [変異](test-results/recovery-grace-mutation-2026-09-13.log): 子プロセス内だけでRECOVERY_GRACE_Sを0へ変更すると**4 FAIL / 2 PASS**。両経路が猶予を失ったことを検出する。共有コードを変更せず、DBアクセスなし。
+
+```sh
+cp docs/test-results/recovery-grace-checks-2026-09-13.mk /tmp/recovery-grace-checks.mk
+cp docs/test-results/recovery-grace-mutation-2026-09-13.txt /tmp/recovery-grace-mutation.py
+AGENT_MODE=local_dummy DEBUG=false CI=true make -f Makefile -f /tmp/recovery-grace-checks.mk recovery-grace-unit
+AGENT_MODE=local_dummy DEBUG=false CI=true make -f Makefile -f /tmp/recovery-grace-checks.mk recovery-grace-mutation
+```
+
+変異は意図した失敗（make exit 2）が正。§7の指示どおり、全体ゲートの実行可能になる更新まで待機する。
+
+---
+
+## L-8 対応（AD-023）
+
+2026-09-13。§7 **08:20版**のL-8を実施。希望Status: REVIEWING。実評価停止中に検証し、SDKはモック・実モデル呼出しなし。commit・memory編集なし。
+
+### レビュー対応
+
+| 指摘番号 | 変更内容（file:line） | REDテスト・実行コマンド・件数 |
+|---|---|---|
+| L-8 1 回収/JSONL対象 | `backend/app/repositories/run_repository.py:373`。保存済みouterTimeoutSを用い、runningかつ開始からの経過秒が外側期限を超えたrunだけfailed/process_interruptedにする。期限内・ちょうどは触らない。finishが対象runをexportするため、全runのtraceを再構築するループを削除 | `test_startup_recovers_only_expired_running_runs_and_their_traces`（期限の1秒前・ちょうど・1秒後、実DB3件）。初回3 FAIL（期限内誤終了2件、期限後の二重export1件）→3 PASS。下記startup-recovery-test |
+| L-8 2 lifespanのDB分離 | `backend/app/api/dependencies.py:78`でapp.dependency_overrides.get(get_db,get_db)を通す。`backend/tests/integration/conftest.py:28`は開発DBのAsyncSessionLocal生成をfailさせる | `test_testclient_lifespan_uses_only_test_database`。初回1 ERROR（開発DB接続前にguard検出）→HTTP GET /api/v1/ui/casesが200/cases=[]。共有client fixture利用テストでもguardが有効 |
+| L-8 3 既存テスト追従 | `backend/tests/integration/test_runs.py:122,355`の回収用runを期限切れに設定。`test_agent_run_lifecycle.py:164`はlifespanへNoneの代わりにFastAPI()を渡す | 対象35 PASS。初回全体ゲートはNoneの旧fixtureで1 FAIL / 566 PASSとなり、fixture追従後に全体再実行。既存assertはすべて維持 |
+| L-8 4 設計 | `docs/requirements/04-db.md:932,941`に回収・JSONL対象の期限条件を追記。`agent-plan.md:232`に別プロセスworkerが生存しうるため期限で判定することとlifespanのoverride利用を記載 | 上記境界/DB分離テストで固定 |
+
+### 既存テスト変更の理由
+
+`test_restart_recovery_marks_orphans_failed`は回収される孤児を期限切れとして作る。`test_startup_rebuilds_committed_trace_after_process_interruption`は、従来の「終了済みrunを一律にJSONL再構築」から、期限切れrunningを回収してseq=[1,2]、終端failedを再構築する期待へ置換した（AD-023による対象限定）。既存assertの削除はない。lifespan順序テストはアプリのoverrideを読む新契約に合わせて引数をFastAPI()に変え、open→recover→close、終了時stopのassertを維持した。SSOT・パス分離テストの弱体化なし。
+
+### RED・GREEN・変異の証跡
+
+- [RED](test-results/startup-recovery-red-2026-09-13.log): 3 FAIL / 31 PASS / 1 ERROR。
+- [対象GREEN](test-results/startup-recovery-green-2026-09-13.log): 35 PASS。
+- [変異](test-results/startup-recovery-mutation-2026-09-13.log): `>`を`>=`にすると境界ちょうどが1 FAIL（2 PASS）。lifespanを直接get_dbへ戻すと開発DB guardで1 ERROR。2変異とも検出。変異は子プロセス内だけで、共有ソースを書き換えない。
+- [初回全体ゲート](test-results/startup-record-regression-first-2026-09-13.log): Noneの旧fixtureで1 FAIL / 566 PASS。修正後の結果は下記。
+
+```sh
+cp docs/test-results/startup-recovery-checks-2026-09-13.mk /tmp/startup-recovery-checks.mk
+cp docs/test-results/startup-recovery-mutation-2026-09-13.txt /tmp/startup-recovery-mutation.py
+AGENT_MODE=local_dummy DEBUG=false CI=true make -f Makefile -f /tmp/startup-recovery-checks.mk startup-recovery-test
+AGENT_MODE=local_dummy DEBUG=false CI=true make -k -f Makefile -f /tmp/startup-recovery-checks.mk startup-recovery-mutation-deadline startup-recovery-mutation-lifespan
+AGENT_MODE=local_dummy DEBUG=false CI=true make check
+```
+
+変異コマンドは意図した失敗のmake exit 2が正。DBテスト前に他pytestの不在を確認した。
+
+### 最終ゲート・再レビュー依頼
+
+[除外なしmake check出力](test-results/startup-record-regression-2026-09-13.log): **BE567 PASS / FE166 PASS（15 suites）**。ruff、OpenAPI、orval、tsc、eslintを含めall green。Makeのmigration・索引検証は開発/テスト両DBでPASS、新規migrationは不要。T-302の許可済みfixture追従と合わせた全体ゲートである。
+
+L-8の再レビュー依頼。AE02の実評価はClaude側で実施する。§7の更新まで編集を止めて待機する。
+
+---
+
 ## L-7 対応（run 9）
 
 2026-09-13。§7 **06:20版**で着手し、**07:05版のpytest可**を確認して全体ゲートを実行。**BE535件 / FE166件、除外なしでPASS**。希望 Status: REVIEWING。T-301のファイル/hunkは変更していない。SDKは完全モック、実モデル呼出し・commitなし。

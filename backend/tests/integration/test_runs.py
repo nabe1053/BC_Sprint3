@@ -1,5 +1,5 @@
 from tests.fixtures.run_support import repo, service
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock
 import asyncio
 import pytest
@@ -7,7 +7,7 @@ from sqlalchemy import select, func
 from app.models import RuleSet, Version, AgentRun
 from app.domain.draft_errors import DraftError
 from app.domain.run_types import InputLimits, RunResult
-from app.agent.definition import default_run_limits
+from app.agent.definition import RECOVERY_GRACE_S, default_run_limits
 from app.repositories.run_repository import RunRepository
 from app.services.run_service import RunService
 from app.agent.jobs import start_agent_job
@@ -123,6 +123,10 @@ async def test_restart_recovery_marks_orphans_failed(session, seeded):
     case, _, _ = seeded
     r = repo(session)
     run = await service(r).start(case.id)
+    run.started_at = datetime.now(UTC) - timedelta(
+        seconds=run.limits["outerTimeoutS"] + RECOVERY_GRACE_S + 1
+    )
+    await session.commit()
     await r.recover_interrupted()
     view = await r.progress(run.id)
     assert view["outcome"] == "failed" and view["stage_detail"] == "process_interrupted"
@@ -283,8 +287,6 @@ async def test_terminal_run_rejects_late_worker_writes(session, seeded):
 
 
 async def test_overdue_run_recovers_on_next_start_without_restart(session, seeded):
-    from datetime import timedelta
-
     case, _, _ = seeded
     r = repo(session)
     run = await service(r).start(case.id)
@@ -360,7 +362,10 @@ async def test_startup_rebuilds_committed_trace_after_process_interruption(
     repository = repo(session)
     run = await service(repository).start(case.id)
     run_id = run.id
-    await repository.finish(run_id, RunResult("failed"))
+    run.started_at = datetime.now(UTC) - timedelta(
+        seconds=run.limits["outerTimeoutS"] + RECOVERY_GRACE_S + 1
+    )
+    await session.commit()
     repository.trace = RunTraceStore(tmp_path)
     await repository.recover_interrupted()
     events = [

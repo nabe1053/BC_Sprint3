@@ -1,0 +1,30 @@
+import inspect
+import sys
+import textwrap
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd()))
+import pytest
+from app.repositories.run_repository import RunRepository
+import app.repositories.run_repository as repository
+from app.api import dependencies
+from app.main import app
+
+mode = sys.argv[1]
+if mode == "deadline":
+    source = textwrap.dedent(inspect.getsource(RunRepository.recover_interrupted))
+    assert "total_seconds() > limit" in source
+    source = source.replace("total_seconds() > limit", "total_seconds() >= limit")
+    scope = dict(vars(repository))
+    exec(compile(source, "<deadline-mutation>", "exec"), scope)
+    RunRepository.recover_interrupted = scope["recover_interrupted"]
+    selection = "test_startup_recovers_only_expired_running_runs_and_their_traces"
+else:
+    source = inspect.getsource(dependencies.run_lifespan)
+    assert "app.dependency_overrides.get(get_db, get_db)" in source
+    source = source.replace("app.dependency_overrides.get(get_db, get_db)", "get_db")
+    scope = dict(vars(dependencies))
+    exec(compile(source, "<lifespan-mutation>", "exec"), scope)
+    app.router.lifespan_context = scope["run_lifespan"]
+    selection = "test_testclient_lifespan_uses_only_test_database"
+sys.exit(pytest.main(["tests/integration/test_startup_recovery.py", "-q", "-k", selection]))

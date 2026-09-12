@@ -17,6 +17,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.cases import Case
+from app.models.versions import Version
 from app.services.exceptions import DuplicateCaseCodeError
 
 _UNIQUE_VIOLATION_SQLSTATE = "23505"
@@ -71,3 +72,16 @@ class CaseRepository:
         stmt = select(Case).order_by(Case.id)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
+
+    async def latest_versions(self, case_ids):
+        if not case_ids:
+            return {}
+        rows = (
+            await self.session.execute(
+                select(Version)
+                .where(Version.case_id.in_(case_ids), Version.finalized_at.is_not(None))
+                .distinct(Version.case_id)
+                .order_by(Version.case_id, Version.version_no.desc())
+            )
+        ).scalars()
+        return {row.case_id: row for row in rows}

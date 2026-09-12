@@ -147,13 +147,13 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 08:20・L-8 と T-302 の仕上げ）
+## 7. 次にやること（2026-09-13 09:10・L-8 DONE 可 → **L-8b（定数 1 つ）**。T-302 はレビュー中）
 
-- L-7 は **DONE**（RV-034・commit `f5565c4`）。T-205 の全ラウンド完了
-- **真因確定**: run 4/6/9/10/12 の `process_interrupted` は、統合テストの `TestClient(app)` が lifespan の `recover_interrupted()` を**開発 DB**に対して実行し、実行中の run を
-  全て終了させていたため（`run_lifespan` が `get_db()` を直接呼び override が効かない）。詳細: `docs/evaluations/g2-real-model-ae01-2026-09-13.md` 末尾、memory AD-023 / LN-055。
-  **T-302 の作業中でも、L-8 は小さいので先に入れる**（`backend/app/api/dependencies.py` / `run_repository.py` / `tests/integration/conftest.py`）。完了合図: `docs/t205-handoff.md` 冒頭に見出し **`## L-8 対応（AD-023）`**
-- **重要な運用**: L-8 が入るまで、Codex は **`make check` / 統合テストを Claude の実評価と同時に走らせない**。§7 に「実評価中」と書いてある間は限定 unit テストのみ。今は **実評価は止めている**ので `make check` 可
+- L-8 は reviewer **DONE 可**（memory RV-035。P2 1 / P3 2）。T-302 は reviewer 確認中（pytest 使用中。**Codex は L-8b の限定テストのみ実行、`make check` は §7 更新後**）
+- **タスク L-8b**（小さい・先にやる）: `run_repository.recover_interrupted()` の回収しきい値を `recover_expired()` と同じ **`> limit + 16`**（jobs の終端保存猶予 `FINISH_TIMEOUT_S*3`
+  相当の既存定数）に統一し、**「回収してよいか」の述語を 1 つ（例 `_is_recoverable(run, now)`）に集約**して両経路から呼ぶ（LN-056）。境界テストのパラメータも `limit+16` 基準に。
+  猶予定数は `definition.py` か `run_repository.py` の 1 箇所（SSOT テストの対象に）。完了合図: `docs/t205-handoff.md` 冒頭見出し **`## L-8b 対応`**
+- 次のタスク O（T-303 FE）は指示書準備中。§7 更新を待つ
 
 ### タスク L-8: 起動時回収の安全化とテスト lifespan の DB 分離（AD-023）
 

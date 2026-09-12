@@ -151,6 +151,9 @@ class RecordService:
     async def list_item_evidence(self, version_id, item_id):
         return await self.repository.list_item_evidence(version_id, item_id)
 
+    async def list_versions(self, case_id):
+        return await self.repository.list_versions(case_id)
+
     async def summary(self, version_id):
         data = await self.repository.summary(version_id)
         items = [apply_edits(item, edits) for item, edits in data["items"]]
@@ -158,6 +161,13 @@ class RecordService:
             edit for item in items for edit in item.history if edit.undone_at is None
         ]
         result = {
+            "version_id": data["version"].id,
+            "case_id": data["version"].case_id,
+            "version_no": data["version"].version_no,
+            "current_state": data["version"].current_state,
+            "is_complete": data["version"].is_complete,
+            "finalized_at": data["version"].finalized_at,
+            "case_header": data["case_header"],
             "item_ids": {item.values["id"] for item in items},
             "matched_item_ids": {
                 row.item_id for row in data["confirmations"] if row.kind == "row_match"

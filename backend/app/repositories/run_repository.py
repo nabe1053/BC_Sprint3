@@ -5,6 +5,7 @@ import logging
 from datetime import UTC, datetime
 from decimal import Decimal
 from sqlalchemy import select, func
+from app.agent.definition import RECOVERY_GRACE_S
 from app.domain.draft_errors import DraftError
 from app.domain.run_types import RunResult
 from app.models import (
@@ -26,6 +27,16 @@ from app.repositories.draft_repository import DraftRepository
 
 def utc(value):
     return value.replace(tzinfo=UTC) if value.tzinfo is None else value.astimezone(UTC)
+
+
+def _is_recoverable(run, now):
+    limit = run.limits.get("outerTimeoutS")
+    return (
+        run.outcome == "running"
+        and isinstance(limit, (int, float))
+        and not isinstance(limit, bool)
+        and (now - utc(run.started_at)).total_seconds() > limit + RECOVERY_GRACE_S
+    )
 
 
 class RunRepository(DraftRepository):
@@ -371,26 +382,22 @@ class RunRepository(DraftRepository):
         )
 
     async def recover_interrupted(self):
-        ids = list(
+        runs = list(
             (
                 await self.session.execute(
-                    select(AgentRun.id).where(AgentRun.outcome == "running")
+                    select(AgentRun)
+                    .where(AgentRun.outcome == "running")
+                    .execution_options(populate_existing=True)
                 )
             ).scalars()
         )
-        for run_id in ids:
-            await self.finish(run_id, RunResult("failed", detail="process_interrupted"))
-        trace_ids = list(
-            (
-                await self.session.execute(
-                    select(AgentRunStep.agent_run_id)
-                    .where(AgentRunStep.trace_event.is_not(None))
-                    .distinct()
+        now = datetime.now(UTC)
+        for run in runs:
+            if _is_recoverable(run, now):
+                # finish exports only this recovered run after committing its end.
+                await self.finish(
+                    run.id, RunResult("failed", detail="process_interrupted")
                 )
-            ).scalars()
-        )
-        for run_id in trace_ids:
-            await self._export_or_fail(run_id)
 
     async def recover_expired(self, *, run_id=None, case_id=None):
         query = select(AgentRun).where(AgentRun.outcome == "running")
@@ -405,13 +412,9 @@ class RunRepository(DraftRepository):
                 )
             ).scalars()
         )
+        now = datetime.now(UTC)
         for run in runs:
-            limit = run.limits.get("outerTimeoutS")
-            if (
-                isinstance(limit, (int, float))
-                and (datetime.now(UTC) - utc(run.started_at)).total_seconds()
-                > limit + 16
-            ):
+            if _is_recoverable(run, now):
                 await self.finish(
                     run.id,
                     RunResult(

@@ -1,0 +1,169 @@
+.....FFFFFFF                                                             [100%]
+=================================== FAILURES ===================================
+________ test_case_progress_uses_latest_finalized_version[None-intake] _________
+
+state = None, expected = 'intake'
+
+    @pytest.mark.parametrize('state,expected',[(None,'intake'),('draft','draft_review'),('staff_checked','staff_checked'),('review_checked','review_checked')])
+    async def test_case_progress_uses_latest_finalized_version(state,expected):
+        from types import SimpleNamespace as N
+    
+        case=N(id=3)
+        repository=N(list=AsyncMock(return_value=[case]),latest_versions=AsyncMock(return_value={} if state is None else {3:N(id=7,current_state=state)}))
+        result=await CaseService(repository).list_cases()
+>       assert result==[(case,expected,None if state is None else 7)]
+E       AssertionError: assert [(namespace(id=3), 'intake')] == [(namespace(i...ntake', None)]
+E         At index 0 diff: (namespace(id=3), 'intake') != (namespace(id=3), 'intake', None)
+E         Full diff:
+E         - [(namespace(id=3), 'intake', None)]
+E         ?                            ------
+E         + [(namespace(id=3), 'intake')]
+
+tests/unit/test_case_service.py:94: AssertionError
+_____ test_case_progress_uses_latest_finalized_version[draft-draft_review] _____
+
+state = 'draft', expected = 'draft_review'
+
+    @pytest.mark.parametrize('state,expected',[(None,'intake'),('draft','draft_review'),('staff_checked','staff_checked'),('review_checked','review_checked')])
+    async def test_case_progress_uses_latest_finalized_version(state,expected):
+        from types import SimpleNamespace as N
+    
+        case=N(id=3)
+        repository=N(list=AsyncMock(return_value=[case]),latest_versions=AsyncMock(return_value={} if state is None else {3:N(id=7,current_state=state)}))
+        result=await CaseService(repository).list_cases()
+>       assert result==[(case,expected,None if state is None else 7)]
+E       AssertionError: assert [(namespace(id=3), 'intake')] == [(namespace(i...t_review', 7)]
+E         At index 0 diff: (namespace(id=3), 'intake') != (namespace(id=3), 'draft_review', 7)
+E         Full diff:
+E         - [(namespace(id=3), 'draft_review', 7)]
+E         + [(namespace(id=3), 'intake')]
+
+tests/unit/test_case_service.py:94: AssertionError
+_ test_case_progress_uses_latest_finalized_version[staff_checked-staff_checked] _
+
+state = 'staff_checked', expected = 'staff_checked'
+
+    @pytest.mark.parametrize('state,expected',[(None,'intake'),('draft','draft_review'),('staff_checked','staff_checked'),('review_checked','review_checked')])
+    async def test_case_progress_uses_latest_finalized_version(state,expected):
+        from types import SimpleNamespace as N
+    
+        case=N(id=3)
+        repository=N(list=AsyncMock(return_value=[case]),latest_versions=AsyncMock(return_value={} if state is None else {3:N(id=7,current_state=state)}))
+        result=await CaseService(repository).list_cases()
+>       assert result==[(case,expected,None if state is None else 7)]
+E       AssertionError: assert [(namespace(id=3), 'intake')] == [(namespace(i..._checked', 7)]
+E         At index 0 diff: (namespace(id=3), 'intake') != (namespace(id=3), 'staff_checked', 7)
+E         Full diff:
+E         - [(namespace(id=3), 'staff_checked', 7)]
+E         ?                     ^  -------  - ---
+E         + [(namespace(id=3), 'intake')]
+E         ?                     ^^
+
+tests/unit/test_case_service.py:94: AssertionError
+_ test_case_progress_uses_latest_finalized_version[review_checked-review_checked] _
+
+state = 'review_checked', expected = 'review_checked'
+
+    @pytest.mark.parametrize('state,expected',[(None,'intake'),('draft','draft_review'),('staff_checked','staff_checked'),('review_checked','review_checked')])
+    async def test_case_progress_uses_latest_finalized_version(state,expected):
+        from types import SimpleNamespace as N
+    
+        case=N(id=3)
+        repository=N(list=AsyncMock(return_value=[case]),latest_versions=AsyncMock(return_value={} if state is None else {3:N(id=7,current_state=state)}))
+        result=await CaseService(repository).list_cases()
+>       assert result==[(case,expected,None if state is None else 7)]
+E       AssertionError: assert [(namespace(id=3), 'intake')] == [(namespace(i..._checked', 7)]
+E         At index 0 diff: (namespace(id=3), 'intake') != (namespace(id=3), 'review_checked', 7)
+E         Full diff:
+E         - [(namespace(id=3), 'review_checked', 7)]
+E         ?                     --- ^^^^^^^  - ---
+E         + [(namespace(id=3), 'intake')]
+E         ?                      ^^^
+
+tests/unit/test_case_service.py:94: AssertionError
+______________ test_all_version_and_record_routes_exist_under_ui _______________
+
+    def test_all_version_and_record_routes_exist_under_ui():
+        from app.main import app
+        paths={(method,route.path) for route in app.routes for method in getattr(route,'methods',[])}
+        expected={
+            ('GET','/cases/{caseId}/versions'),
+            ('GET','/versions/{versionId}'),
+            ('GET','/versions/{versionId}/items'),
+            ('GET','/versions/{versionId}/items/{itemId}/evidence'),
+            ('GET','/versions/{versionId}/questions'),
+            ('POST','/versions/{versionId}/edits'),
+            ('POST','/versions/{versionId}/edits/{editId}/undo'),
+            ('POST','/versions/{versionId}/confirmations'),
+            ('POST','/versions/{versionId}/confirmations/{confirmationId}/undo'),
+            ('POST','/versions/{versionId}/questions/{questionId}/judgements'),
+        }
+>       assert {(method,'/api/v1/ui'+path) for method,path in expected} <= paths
+E       AssertionError: assert {('GET', '/api/v1/ui/cases/{caseId}/versions'), ('GET', '/api/v1/ui/versions/{versionId}'), ('GET', '/api/v1/ui/versio..., ('GET', '/api/v1/ui/versions/{versionId}/questions'), ('POST', '/api/v1/ui/versions/{versionId}/confirmations'), ...} <= {('GET', '/'), ('GET', '/api/v1/agent/cases/{caseId}/documents'), ('GET', '/api/v1/agent/cases/{caseId}/search'), ('GE..., ('GET', '/api/v1/agent/documents/{documentId}/email'), ('GET', '/api/v1/agent/versions/{versionId}/validation'), ...}
+
+tests/unit/test_api_path_separation_live.py:18: AssertionError
+___________ test_edit_read_undo_preserves_source_history_and_summary ___________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7cf119908e60>
+
+    async def test_edit_read_undo_preserves_source_history_and_summary(db_session):
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/integration/test_api_records.py:14: ImportError
+_________ test_latest_case_version_and_version_list_ignore_unfinalized _________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7cf11912ebd0>
+
+    async def test_latest_case_version_and_version_list_ignore_unfinalized(db_session):
+        from app.models import Version
+        from app.repositories.case_repository import CaseRepository
+        from app.services.case_service import CaseService
+    
+        seed=await seed_record_version(db_session)
+        second=Version(case_id=seed.case.id,rule_set_id=seed.rule.id,version_no=2,current_state='staff_checked',finalized_at=datetime.now(UTC),is_complete=True)
+        pending=Version(case_id=seed.case.id,rule_set_id=seed.rule.id,version_no=3,current_state='draft',finalized_at=None,is_complete=False)
+        db_session.add_all([second,pending])
+        await db_session.commit()
+        cases=await CaseService(CaseRepository(db_session)).list_cases()
+>       assert [(case.id,status,latest_id) for case,status,latest_id in cases]==[(seed.case.id,'staff_checked',second.id)]
+E       ValueError: not enough values to unpack (expected 3, got 2)
+
+tests/integration/test_api_records.py:63: ValueError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  <repo>/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_case_service.py::test_case_progress_uses_latest_finalized_version[None-intake] - AssertionError: assert [(namespace(id=3), 'intake')] == [(namespace(i...ntake', None)]
+  At index 0 diff: (namespace(id=3), 'intake') != (namespace(id=3), 'intake', None)
+  Full diff:
+  - [(namespace(id=3), 'intake', None)]
+  ?                            ------
+  + [(namespace(id=3), 'intake')]
+FAILED tests/unit/test_case_service.py::test_case_progress_uses_latest_finalized_version[draft-draft_review] - AssertionError: assert [(namespace(id=3), 'intake')] == [(namespace(i...t_review', 7)]
+  At index 0 diff: (namespace(id=3), 'intake') != (namespace(id=3), 'draft_review', 7)
+  Full diff:
+  - [(namespace(id=3), 'draft_review', 7)]
+  + [(namespace(id=3), 'intake')]
+FAILED tests/unit/test_case_service.py::test_case_progress_uses_latest_finalized_version[staff_checked-staff_checked] - AssertionError: assert [(namespace(id=3), 'intake')] == [(namespace(i..._checked', 7)]
+  At index 0 diff: (namespace(id=3), 'intake') != (namespace(id=3), 'staff_checked', 7)
+  Full diff:
+  - [(namespace(id=3), 'staff_checked', 7)]
+  ?                     ^  -------  - ---
+  + [(namespace(id=3), 'intake')]
+  ?                     ^^
+FAILED tests/unit/test_case_service.py::test_case_progress_uses_latest_finalized_version[review_checked-review_checked] - AssertionError: assert [(namespace(id=3), 'intake')] == [(namespace(i..._checked', 7)]
+  At index 0 diff: (namespace(id=3), 'intake') != (namespace(id=3), 'review_checked', 7)
+  Full diff:
+  - [(namespace(id=3), 'review_checked', 7)]
+  ?                     --- ^^^^^^^  - ---
+  + [(namespace(id=3), 'intake')]
+  ?                      ^^^
+FAILED tests/unit/test_api_path_separation_live.py::test_all_version_and_record_routes_exist_under_ui - AssertionError: assert {('GET', '/api/v1/ui/cases/{caseId}/versions'), ('GET', '/api/v1/ui/versions/{versionId}'), ('GET', '/api/v1/ui/versio..., ('GET', '/api/v1/ui/versions/{versionId}/questions'), ('POST', '/api/v1/ui/versions/{versionId}/confirmations'), ...} <= {('GET', '/'), ('GET', '/api/v1/agent/cases/{caseId}/documents'), ('GET', '/api/v1/agent/cases/{caseId}/search'), ('GE..., ('GET', '/api/v1/agent/documents/{documentId}/email'), ('GET', '/api/v1/agent/versions/{versionId}/validation'), ...}
+FAILED tests/integration/test_api_records.py::test_edit_read_undo_preserves_source_history_and_summary - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+FAILED tests/integration/test_api_records.py::test_latest_case_version_and_version_list_ignore_unfinalized - ValueError: not enough values to unpack (expected 3, got 2)
+7 failed, 5 passed, 1 warning in 0.56s
+make: *** [/tmp/record-api-checks.mk:4: record-api-read] Error 1

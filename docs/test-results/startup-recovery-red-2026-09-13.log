@@ -1,0 +1,239 @@
+FFFE...............................                                      [100%]
+==================================== ERRORS ====================================
+______ ERROR at setup of test_testclient_lifespan_uses_only_test_database ______
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x72099702c500>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x72099710a030>
+
+    @pytest.fixture
+    def client(db_session, monkeypatch) -> Iterator[TestClient]:
+        """実 DB（db_session）を使う TestClient。"""
+    
+        async def _override_get_db() -> AsyncGenerator:
+            yield db_session
+    
+        def reject_development_session():
+            raise AssertionError("Integration TestClient must not open the development DB")
+    
+        monkeypatch.setattr(database, "AsyncSessionLocal", reject_development_session)
+    
+        app.dependency_overrides[get_db] = _override_get_db
+        try:
+>           with TestClient(app) as test_client:
+
+tests/integration/conftest.py:41: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/starlette/testclient.py:739: in __enter__
+    portal.call(self.wait_startup)
+.venv/lib/python3.12/site-packages/anyio/from_thread.py:340: in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py:456: in result
+    return self.__get_result()
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py:401: in __get_result
+    raise self._exception
+.venv/lib/python3.12/site-packages/anyio/from_thread.py:265: in _call_func
+    retval = await retval_or_awaitable
+.venv/lib/python3.12/site-packages/starlette/testclient.py:774: in wait_startup
+    await receive()
+.venv/lib/python3.12/site-packages/starlette/testclient.py:765: in receive
+    self.task.result()
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py:449: in result
+    return self.__get_result()
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/concurrent/futures/_base.py:401: in __get_result
+    raise self._exception
+.venv/lib/python3.12/site-packages/anyio/from_thread.py:265: in _call_func
+    retval = await retval_or_awaitable
+.venv/lib/python3.12/site-packages/starlette/testclient.py:755: in lifespan
+    await self.app(scope, self.stream_receive.receive, self.stream_send.send)
+.venv/lib/python3.12/site-packages/fastapi/applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/applications.py:113: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/middleware/errors.py:152: in __call__
+    await self.app(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/middleware/cors.py:77: in __call__
+    await self.app(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py:48: in __call__
+    await self.app(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/routing.py:715: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/routing.py:724: in app
+    await self.lifespan(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/routing.py:693: in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/contextlib.py:210: in __aenter__
+    return await anext(self.gen)
+.venv/lib/python3.12/site-packages/fastapi/routing.py:133: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/contextlib.py:210: in __aenter__
+    return await anext(self.gen)
+.venv/lib/python3.12/site-packages/fastapi/routing.py:133: in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/contextlib.py:210: in __aenter__
+    return await anext(self.gen)
+app/api/dependencies.py:81: in run_lifespan
+    async for session in sessions:
+app/core/database.py:31: in get_db
+    async with AsyncSessionLocal() as session:
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def reject_development_session():
+>       raise AssertionError("Integration TestClient must not open the development DB")
+E       AssertionError: Integration TestClient must not open the development DB
+
+tests/integration/conftest.py:35: AssertionError
+=================================== FAILURES ===================================
+_ test_startup_recovers_only_expired_running_runs_and_their_traces[-1-running] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7209978e07a0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7209972d76b0>
+elapsed_offset = -1, expected = 'running'
+
+    @pytest.mark.parametrize('elapsed_offset,expected', [(-1,'running'), (0,'running'), (1,'failed')])
+    async def test_startup_recovers_only_expired_running_runs_and_their_traces(db_session,monkeypatch,elapsed_offset,expected):
+        seed=await seed_record_version(db_session)
+        doc=Document(case_id=seed.case.id,file_name='synthetic.txt',storage_path='unused',kind='text',read_status='success',received_at=datetime.now(UTC))
+        db_session.add(doc)
+        await db_session.flush()
+        db_session.add(DocumentPage(document_id=doc.id,seq=1,locator='body:1',text='synthetic'))
+        await db_session.commit()
+        trace=Mock()
+        repository=RunRepository(db_session,file_size=lambda doc:1,trace=trace)
+        limits=default_run_limits()
+        service=RunService(repository,limits=limits,input_limits=InputLimits(),scheduler=lambda run:None)
+        run=await service.start(seed.case.id,seed.rule.rule_version)
+        now=datetime.now(UTC)
+        run.started_at=now-timedelta(seconds=limits.outer_timeout_s+elapsed_offset)
+        await db_session.commit()
+        trace.reset_mock()
+    
+        class Clock(datetime):
+            @classmethod
+            def now(cls,tz=None):
+                return now
+    
+        monkeypatch.setattr(run_repository,'datetime',Clock)
+        await repository.recover_interrupted()
+        await db_session.refresh(run)
+>       assert run.outcome==expected
+E       AssertionError: assert 'failed' == 'running'
+E         - running
+E         + failed
+
+tests/integration/test_startup_recovery.py:42: AssertionError
+_ test_startup_recovers_only_expired_running_runs_and_their_traces[0-running] __
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x720997065280>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7209972d73e0>
+elapsed_offset = 0, expected = 'running'
+
+    @pytest.mark.parametrize('elapsed_offset,expected', [(-1,'running'), (0,'running'), (1,'failed')])
+    async def test_startup_recovers_only_expired_running_runs_and_their_traces(db_session,monkeypatch,elapsed_offset,expected):
+        seed=await seed_record_version(db_session)
+        doc=Document(case_id=seed.case.id,file_name='synthetic.txt',storage_path='unused',kind='text',read_status='success',received_at=datetime.now(UTC))
+        db_session.add(doc)
+        await db_session.flush()
+        db_session.add(DocumentPage(document_id=doc.id,seq=1,locator='body:1',text='synthetic'))
+        await db_session.commit()
+        trace=Mock()
+        repository=RunRepository(db_session,file_size=lambda doc:1,trace=trace)
+        limits=default_run_limits()
+        service=RunService(repository,limits=limits,input_limits=InputLimits(),scheduler=lambda run:None)
+        run=await service.start(seed.case.id,seed.rule.rule_version)
+        now=datetime.now(UTC)
+        run.started_at=now-timedelta(seconds=limits.outer_timeout_s+elapsed_offset)
+        await db_session.commit()
+        trace.reset_mock()
+    
+        class Clock(datetime):
+            @classmethod
+            def now(cls,tz=None):
+                return now
+    
+        monkeypatch.setattr(run_repository,'datetime',Clock)
+        await repository.recover_interrupted()
+        await db_session.refresh(run)
+>       assert run.outcome==expected
+E       AssertionError: assert 'failed' == 'running'
+E         - running
+E         + failed
+
+tests/integration/test_startup_recovery.py:42: AssertionError
+__ test_startup_recovers_only_expired_running_runs_and_their_traces[1-failed] __
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7209972d6f60>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x72099710ae70>
+elapsed_offset = 1, expected = 'failed'
+
+    @pytest.mark.parametrize('elapsed_offset,expected', [(-1,'running'), (0,'running'), (1,'failed')])
+    async def test_startup_recovers_only_expired_running_runs_and_their_traces(db_session,monkeypatch,elapsed_offset,expected):
+        seed=await seed_record_version(db_session)
+        doc=Document(case_id=seed.case.id,file_name='synthetic.txt',storage_path='unused',kind='text',read_status='success',received_at=datetime.now(UTC))
+        db_session.add(doc)
+        await db_session.flush()
+        db_session.add(DocumentPage(document_id=doc.id,seq=1,locator='body:1',text='synthetic'))
+        await db_session.commit()
+        trace=Mock()
+        repository=RunRepository(db_session,file_size=lambda doc:1,trace=trace)
+        limits=default_run_limits()
+        service=RunService(repository,limits=limits,input_limits=InputLimits(),scheduler=lambda run:None)
+        run=await service.start(seed.case.id,seed.rule.rule_version)
+        now=datetime.now(UTC)
+        run.started_at=now-timedelta(seconds=limits.outer_timeout_s+elapsed_offset)
+        await db_session.commit()
+        trace.reset_mock()
+    
+        class Clock(datetime):
+            @classmethod
+            def now(cls,tz=None):
+                return now
+    
+        monkeypatch.setattr(run_repository,'datetime',Clock)
+        await repository.recover_interrupted()
+        await db_session.refresh(run)
+        assert run.outcome==expected
+        if expected=='running':
+            assert run.ended_at is None
+            trace.sync.assert_not_called()
+        else:
+            assert run.stage_detail=='process_interrupted' and run.stop_reason=='failed'
+>           trace.sync.assert_called_once()
+
+tests/integration/test_startup_recovery.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <Mock name='mock.sync' id='125385514726752'>
+
+    def assert_called_once(self):
+        """assert that the mock was called only once.
+        """
+        if not self.call_count == 1:
+            msg = ("Expected '%s' to have been called once. Called %s times.%s"
+                   % (self._mock_name or 'mock',
+                      self.call_count,
+                      self._calls_repr()))
+>           raise AssertionError(msg)
+E           AssertionError: Expected 'sync' to have been called once. Called 2 times.
+E           Calls: [call(1, [{'at': '2026-09-12T16:58:27.909307+00:00', 'seq': 1, 'tool': 'job_start', 'type': 'meta', 'model': 'mock-fixed-v2', 'runId': 1, 'caseId': 1, 'limits': {'maxTurns': 80, 'innerTimeoutS': 900, 'outerTimeoutS': 960, 'inactivityTimeoutS': 60}, 'result': 'ok', 'outcome': 'running', 'ruleSetId': 1, 'versionId': 2, 'stopReason': None, 'implVersion': 'local-agent-tools-v1', 'inputDocuments': [{'documentId': 1, 'contentHash': None}]}, {'at': '2026-09-12T16:58:27.915544+00:00', 'seq': 2, 'tool': 'job_finish', 'type': 'result', 'model': 'mock-fixed-v2', 'runId': 1, 'caseId': 1, 'limits': {'maxTurns': 80, 'innerTimeoutS': 900, 'outerTimeoutS': 960, 'inactivityTimeoutS': 60}, 'result': 'error', 'outcome': 'failed', 'ruleSetId': 1, 'versionId': 2, 'stopReason': 'failed', 'implVersion': 'local-agent-tools-v1', 'inputDocuments': None}]),
+E            call(1, [{'at': '2026-09-12T16:58:27.909307+00:00', 'seq': 1, 'tool': 'job_start', 'type': 'meta', 'model': 'mock-fixed-v2', 'runId': 1, 'caseId': 1, 'limits': {'maxTurns': 80, 'innerTimeoutS': 900, 'outerTimeoutS': 960, 'inactivityTimeoutS': 60}, 'result': 'ok', 'outcome': 'running', 'ruleSetId': 1, 'versionId': 2, 'stopReason': None, 'implVersion': 'local-agent-tools-v1', 'inputDocuments': [{'documentId': 1, 'contentHash': None}]}, {'at': '2026-09-12T16:58:27.915544+00:00', 'seq': 2, 'tool': 'job_finish', 'type': 'result', 'model': 'mock-fixed-v2', 'runId': 1, 'caseId': 1, 'limits': {'maxTurns': 80, 'innerTimeoutS': 900, 'outerTimeoutS': 960, 'inactivityTimeoutS': 60}, 'result': 'error', 'outcome': 'failed', 'ruleSetId': 1, 'versionId': 2, 'stopReason': 'failed', 'implVersion': 'local-agent-tools-v1', 'inputDocuments': None}])].
+
+../../../.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12/unittest/mock.py:928: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_startup_recovery.py::test_startup_recovers_only_expired_running_runs_and_their_traces[-1-running] - AssertionError: assert 'failed' == 'running'
+  - running
+  + failed
+FAILED tests/integration/test_startup_recovery.py::test_startup_recovers_only_expired_running_runs_and_their_traces[0-running] - AssertionError: assert 'failed' == 'running'
+  - running
+  + failed
+FAILED tests/integration/test_startup_recovery.py::test_startup_recovers_only_expired_running_runs_and_their_traces[1-failed] - AssertionError: Expected 'sync' to have been called once. Called 2 times.
+Calls: [call(1, [{'at': '2026-09-12T16:58:27.909307+00:00', 'seq': 1, 'tool': 'job_start', 'type': 'meta', 'model': 'mock-fixed-v2', 'runId': 1, 'caseId': 1, 'limits': {'maxTurns': 80, 'innerTimeoutS': 900, 'outerTimeoutS': 960, 'inactivityTimeoutS': 60}, 'result': 'ok', 'outcome': 'running', 'ruleSetId': 1, 'versionId': 2, 'stopReason': None, 'implVersion': 'local-agent-tools-v1', 'inputDocuments': [{'documentId': 1, 'contentHash': None}]}, {'at': '2026-09-12T16:58:27.915544+00:00', 'seq': 2, 'tool': 'job_finish', 'type': 'result', 'model': 'mock-fixed-v2', 'runId': 1, 'caseId': 1, 'limits': {'maxTurns': 80, 'innerTimeoutS': 900, 'outerTimeoutS': 960, 'inactivityTimeoutS': 60}, 'result': 'error', 'outcome': 'failed', 'ruleSetId': 1, 'versionId': 2, 'stopReason': 'failed', 'implVersion': 'local-agent-tools-v1', 'inputDocuments': None}]),
+ call(1, [{'at': '2026-09-12T16:58:27.909307+00:00', 'seq': 1, 'tool': 'job_start', 'type': 'meta', 'model': 'mock-fixed-v2', 'runId': 1, 'caseId': 1, 'limits': {'maxTurns': 80, 'innerTimeoutS': 900, 'outerTimeoutS': 960, 'inactivityTimeoutS': 60}, 'result': 'ok', 'outcome': 'running', 'ruleSetId': 1, 'versionId': 2, 'stopReason': None, 'implVersion': 'local-agent-tools-v1', 'inputDocuments': [{'documentId': 1, 'contentHash': None}]}, {'at': '2026-09-12T16:58:27.915544+00:00', 'seq': 2, 'tool': 'job_finish', 'type': 'result', 'model': 'mock-fixed-v2', 'runId': 1, 'caseId': 1, 'limits': {'maxTurns': 80, 'innerTimeoutS': 900, 'outerTimeoutS': 960, 'inactivityTimeoutS': 60}, 'result': 'error', 'outcome': 'failed', 'ruleSetId': 1, 'versionId': 2, 'stopReason': 'failed', 'implVersion': 'local-agent-tools-v1', 'inputDocuments': None}])].
+ERROR tests/integration/test_startup_recovery.py::test_testclient_lifespan_uses_only_test_database - AssertionError: Integration TestClient must not open the development DB
+3 failed, 31 passed, 1 warning, 1 error in 2.16s
+make: *** [/tmp/startup-recovery-checks.mk:2: startup-recovery-test] Error 1

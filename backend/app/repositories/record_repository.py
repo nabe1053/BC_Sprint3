@@ -5,6 +5,8 @@ from sqlalchemy import select
 
 from app.domain.draft_errors import DraftError
 from app.models import (
+    Case,
+    CaseHeader,
     Confirmation,
     Evidence,
     Item,
@@ -201,6 +203,12 @@ class RecordRepository:
         )
 
     async def summary(self, version_id):
+        version = await self.version(version_id)
+        header = (
+            await self.session.execute(
+                select(CaseHeader).where(CaseHeader.version_id == version_id)
+            )
+        ).scalar_one_or_none()
         items = await self.list_items_with_edits(version_id)
         questions = await self.list_questions_with_latest(version_id)
         confirmations = list(
@@ -213,4 +221,24 @@ class RecordRepository:
                 )
             ).scalars()
         )
-        return {"items": items, "questions": questions, "confirmations": confirmations}
+        return {
+            "items": items,
+            "questions": questions,
+            "confirmations": confirmations,
+            "version": version,
+            "case_header": header,
+        }
+
+    async def list_versions(self, case_id):
+        require(await self.session.get(Case, case_id) is not None)
+        return list(
+            (
+                await self.session.execute(
+                    select(Version)
+                    .where(
+                        Version.case_id == case_id, Version.finalized_at.is_not(None)
+                    )
+                    .order_by(Version.version_no.desc(), Version.id.desc())
+                )
+            ).scalars()
+        )

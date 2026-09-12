@@ -82,3 +82,26 @@ async def test_create_case_propagates_duplicate_from_repository_on_race() -> Non
     assert exc_info.value.code == "E_DUPLICATE_CASE_CODE"
     # 中-8: details のキーは camelCase（05-api-ipo.md 0.4）。
     assert exc_info.value.details.get("caseCode") == "CASE-001"
+
+
+@pytest.mark.parametrize(
+    "state,expected",
+    [
+        (None, "intake"),
+        ("draft", "draft_review"),
+        ("staff_checked", "staff_checked"),
+        ("review_checked", "review_checked"),
+    ],
+)
+async def test_case_progress_uses_latest_finalized_version(state, expected):
+    from types import SimpleNamespace as N
+
+    case = N(id=3)
+    repository = N(
+        list=AsyncMock(return_value=[case]),
+        latest_versions=AsyncMock(
+            return_value={} if state is None else {3: N(id=7, current_state=state)}
+        ),
+    )
+    result = await CaseService(repository).list_cases()
+    assert result == [(case, expected, None if state is None else 7)]

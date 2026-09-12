@@ -1,0 +1,7 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path.cwd()))
+import pytest
+from app.repositories import run_repository
+run_repository.RECOVERY_GRACE_S = 0
+sys.exit(pytest.main(["tests/unit/test_run_recovery.py", "-q"]))

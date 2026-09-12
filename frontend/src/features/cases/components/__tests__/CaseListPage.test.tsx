@@ -40,6 +40,7 @@ const sampleCase = {
   title: "OCTG 引合",
   createdAt: "2026-09-01T00:00:00+09:00",
   progressStatus: "draft_review" as const,
+  latestVersionId: 1,
 };
 
 function setUseCases(overrides: Partial<ReturnType<typeof useCases>>) {

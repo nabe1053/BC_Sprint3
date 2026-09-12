@@ -25,11 +25,16 @@ from tests.fixtures.sqlite_support import configure_sqlite_metadata
 
 
 @pytest.fixture
-def client(db_session) -> Iterator[TestClient]:
+def client(db_session, monkeypatch) -> Iterator[TestClient]:
     """実 DB（db_session）を使う TestClient。"""
 
     async def _override_get_db() -> AsyncGenerator:
         yield db_session
+
+    def reject_development_session():
+        raise AssertionError("Integration TestClient must not open the development DB")
+
+    monkeypatch.setattr(database, "AsyncSessionLocal", reject_development_session)
 
     app.dependency_overrides[get_db] = _override_get_db
     try:

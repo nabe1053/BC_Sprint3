@@ -45,6 +45,7 @@ class CaseListItem(CamelModel):
     title: str | None
     created_at: datetime
     progress_status: ProgressStatus
+    latest_version_id: int | None
 
 
 class CaseListResponse(CamelModel):

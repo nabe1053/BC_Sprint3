@@ -1,0 +1,194 @@
+EEEEEEEEEEEEEEEEEEEEE                                                    [100%]
+==================================== ERRORS ====================================
+______ ERROR at setup of test_edit_201_quantity_pair_and_server_timestamp ______
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+_ ERROR at setup of test_current_items_preserve_raw_history_and_decimal_strings _
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+___ ERROR at setup of test_questions_keep_judged_unresolved_and_null_latest ____
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+_ ERROR at setup of test_other_record_routes_and_blank_judgement_note[edits/10/undo-payload0-editId-200] _
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+_ ERROR at setup of test_other_record_routes_and_blank_judgement_note[confirmations-payload1-confirmationId-201] _
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+_ ERROR at setup of test_other_record_routes_and_blank_judgement_note[confirmations/12/undo-payload2-confirmationId-200] _
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+_ ERROR at setup of test_other_record_routes_and_blank_judgement_note[questions/30/judgements-payload3-judgementId-201] _
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+_ ERROR at setup of test_input_business_and_structural_error_contracts[change0-400-E_REASON_REQUIRED] _
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+_ ERROR at setup of test_input_business_and_structural_error_contracts[change1-400-E_RECORDER_REQUIRED] _
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+_ ERROR at setup of test_input_business_and_structural_error_contracts[change2-400-E_STATE_VALUE_CONFLICT] _
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+_ ERROR at setup of test_input_business_and_structural_error_contracts[change3-400-E_QTY_UNIT_REQUIRED] _
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+_ ERROR at setup of test_input_business_and_structural_error_contracts[change4-422-E_FIELD_NOT_EDITABLE] _
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+_ ERROR at setup of test_input_business_and_structural_error_contracts[change5-400-E_REQUEST_INVALID] _
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+_ ERROR at setup of test_input_business_and_structural_error_contracts[change6-422-E_REQUEST_INVALID] _
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+___________ ERROR at setup of test_row_confirmation_requires_target ____________
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+_ ERROR at setup of test_service_error_status_and_camel_details[E_NOT_FOUND-404] _
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+_ ERROR at setup of test_service_error_status_and_camel_details[E_ALREADY_UNDONE-409] _
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+_ ERROR at setup of test_service_error_status_and_camel_details[E_ALREADY_CONFIRMED-409] _
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+_ ERROR at setup of test_service_error_status_and_camel_details[E_TARGET_INVALID-400] _
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+___ ERROR at setup of test_version_summary_list_evidence_and_case_navigation ___
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+______ ERROR at setup of test_agent_namespace_cannot_write_human_records _______
+
+    @pytest.fixture
+    async def record_http():
+>       from app.api.dependencies import get_record_service
+E       ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+
+tests/unit/test_record_api.py:23: ImportError
+=========================== short test summary info ============================
+ERROR tests/unit/test_record_api.py::test_edit_201_quantity_pair_and_server_timestamp - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_current_items_preserve_raw_history_and_decimal_strings - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_questions_keep_judged_unresolved_and_null_latest - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_other_record_routes_and_blank_judgement_note[edits/10/undo-payload0-editId-200] - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_other_record_routes_and_blank_judgement_note[confirmations-payload1-confirmationId-201] - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_other_record_routes_and_blank_judgement_note[confirmations/12/undo-payload2-confirmationId-200] - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_other_record_routes_and_blank_judgement_note[questions/30/judgements-payload3-judgementId-201] - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_input_business_and_structural_error_contracts[change0-400-E_REASON_REQUIRED] - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_input_business_and_structural_error_contracts[change1-400-E_RECORDER_REQUIRED] - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_input_business_and_structural_error_contracts[change2-400-E_STATE_VALUE_CONFLICT] - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_input_business_and_structural_error_contracts[change3-400-E_QTY_UNIT_REQUIRED] - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_input_business_and_structural_error_contracts[change4-422-E_FIELD_NOT_EDITABLE] - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_input_business_and_structural_error_contracts[change5-400-E_REQUEST_INVALID] - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_input_business_and_structural_error_contracts[change6-422-E_REQUEST_INVALID] - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_row_confirmation_requires_target - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_service_error_status_and_camel_details[E_NOT_FOUND-404] - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_service_error_status_and_camel_details[E_ALREADY_UNDONE-409] - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_service_error_status_and_camel_details[E_ALREADY_CONFIRMED-409] - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_service_error_status_and_camel_details[E_TARGET_INVALID-400] - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_version_summary_list_evidence_and_case_navigation - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+ERROR tests/unit/test_record_api.py::test_agent_namespace_cannot_write_human_records - ImportError: cannot import name 'get_record_service' from 'app.api.dependencies' (<repo>/backend/app/api/dependencies.py)
+21 errors in 0.89s
+make: *** [/tmp/record-api-checks.mk:2: record-api-unit] Error 1

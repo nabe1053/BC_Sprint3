@@ -36,6 +36,7 @@ const sampleCase = {
   title: "OCTG 引合",
   createdAt: "2026-09-01T00:00:00+09:00",
   progressStatus: "intake" as const,
+  latestVersionId: null,
 };
 
 beforeEach(() => {

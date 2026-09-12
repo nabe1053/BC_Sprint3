@@ -19,12 +19,18 @@ from app.repositories.run_trace_store import RunTraceStore
 from app.repositories.run_background import RunBackground
 from app.repositories.agent_tool_repository import AgentToolGateway
 from app.services.draft_service import DraftService
+from app.services.record_service import RecordService
+from app.repositories.record_repository import RecordRepository
 from app.services.run_service import RunService
 from app.services.run_dispatcher import RunDispatcher
 
 
 async def get_draft_service(session: AsyncSession = Depends(get_db)) -> DraftService:
     return DraftService(DraftRepository(session))
+
+
+async def get_record_service(session: AsyncSession = Depends(get_db)) -> RecordService:
+    return RecordService(RecordRepository(session))
 
 
 def make_run_repository(session):
@@ -70,8 +76,9 @@ async def get_run_service(session: AsyncSession = Depends(get_db)) -> RunService
 
 @asynccontextmanager
 async def run_lifespan(app):
-    # Local PoC runs one server process. No worker is alive before startup.
-    async with aclosing(get_db()) as sessions:
+    # Another process may still be working; recovery checks saved deadlines.
+    session_provider = app.dependency_overrides.get(get_db, get_db)
+    async with aclosing(session_provider()) as sessions:
         async for session in sessions:
             await make_run_repository(session).recover_interrupted()
             break

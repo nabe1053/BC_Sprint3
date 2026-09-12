@@ -138,3 +138,36 @@ def test_storage_path_validation_goes_through_the_gateway() -> None:
             f"{path.relative_to(APP_DIR.parent)} が storage_path を "
             "`resolve_readable_path()` を通さずに扱っている（CV-015）"
         )
+
+
+def test_recovery_grace_and_predicate_are_shared() -> None:
+    import ast
+    from app.agent import definition
+
+    assert definition.RECOVERY_GRACE_S == 16
+    for path, source in _app_modules(exclude=DEFINITION):
+        assert not re.search(r"RECOVERY_GRACE_S\s*=", source), path
+    path = APP_DIR / "repositories" / "run_repository.py"
+    tree = ast.parse(path.read_text())
+    predicates = [
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, ast.FunctionDef) and node.name == "_is_recoverable"
+    ]
+    assert len(predicates) == 1
+    for name in ("recover_interrupted", "recover_expired"):
+        method = next(
+            node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.AsyncFunctionDef) and node.name == name
+        )
+        assert any(
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Name)
+            and node.func.id == "_is_recoverable"
+            for node in ast.walk(method)
+        )
+        assert not any(
+            isinstance(node, ast.Constant) and node.value == 16
+            for node in ast.walk(method)
+        )

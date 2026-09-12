@@ -161,7 +161,7 @@ async def test_lifespan_recovers_before_accepting_jobs_and_stops_on_exit(monkeyp
     monkeypatch.setattr(deps, "get_db", db)
     monkeypatch.setattr(deps, "make_run_repository", lambda s: Repository())
     monkeypatch.setattr(deps, "stop_jobs", stop)
-    async with deps.run_lifespan(None):
+    async with deps.run_lifespan(FastAPI()):
         assert calls == ["open", "recover", "close"]
     assert calls[-1] == "stop"
 

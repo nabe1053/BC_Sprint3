@@ -1,0 +1,7 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path.cwd() / 'backend'))
+import pytest
+from app.api.errors import DOMAIN_ERROR_STATUS_BY_CODE
+DOMAIN_ERROR_STATUS_BY_CODE.pop('E_ALREADY_UNDONE')
+raise SystemExit(pytest.main(['backend/tests/unit/test_record_api.py', '-k', 'service_error_status', '-q', '--tb=short']))

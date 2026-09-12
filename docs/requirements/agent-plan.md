@@ -229,6 +229,7 @@ sample-10（GulfTex／.eml のスレッド。最新本文で item 1 の数量が
 - jobsの外側期限でcancelした後は20msだけ後始末を待つ（非協調workerの停止待ちで上限を失わない）。完了保存は1回5秒を上限として最大3回、間隔は0.1秒・0.2秒。完了保存自体がcancelを抑止してもasyncio.waitで待機を打ち切り、総猶予16秒以内を保つ。例外診断は型名のみを記録する。
 - T-203 workerはcancel後に新たなツール呼出し・成果物書込を開始せず、取得済みリソースを解放すること。終了済み実行への書込拒否は引き続きrepositoryで強制する。
 - 進捗GETに回収・JSONL出力の副作用を持たせない。保存失敗が全再試行後も続いた実行は次の実行開始要求またはプロセス起動で回収する。その間、ポーリングは最後に保存された状態を返す。
+- 起動時にも別プロセス（テスト含む）のworkerが生きている可能性があるため、保存された外側期限で回収対象を判定する（AD-023 / LN-055）。runningかつstarted_at + limits.outerTimeoutS + 終端保存猶予16秒 < nowのみをfailed/process_interruptedにし、そのrunだけJSONLを再構築する。猶予込み期限内・ちょうどのrunは変更しない。回収の述語は両経路で共通化し、猶予はdefinition.RECOVERY_GRACE_Sに集約する（L-8b / LN-056）。lifespanもget_dbのdependency overrideを通し、統合テストの起動が開発DBに触れないようにする。
 - T-203へは自動着手しない。既存runner/hooks/TraceRecorderの統合、ガードレール差込口、runロック中のツールstep採番、decision/observationスキーマはT-203開始前の設計・レビュー課題とする。新ジョブのJSONLはRunTraceStoreを使用し、旧TraceRecorderへ本文を流す経路を接続しない。
 
 ### T-203 ローカル実行の具体化（2026-09-12、ユーザー着手指示）

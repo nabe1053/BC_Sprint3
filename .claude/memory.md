@@ -185,7 +185,7 @@
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | DONE | 2回目 RV-028: **DONE**（P3 1 は記録のみ・TODO-012 へ） | 2026-09-12 |
 | T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | REVIEWING | 7回目（L-8: 起動時回収の期限限定・lifespan DB 分離、確認中）。L-3〜L-7 は commit 済み | 2026-09-13 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | DONE | 1回目 RV-033: **DONE**（P3 5 は記録のみ・TODO-025） | 2026-09-13 |
-| T-302 | G3 参照 #23-26 / 記録 #29-33・#22 最小・#1 拡張（API） | web | T-301 | REVIEWING | 1回目（Codex 申告 BE 567・FE 166・10 パス・model 85→137、確認中） | 2026-09-13 |
+| T-302 | G3 参照 #23-26 / 記録 #29-33・#22 最小・#1 拡張（API） | web | T-301 | DONE | 1回目 RV-036: **DONE**（AD-022 13/13・P3 5 は記録のみ・TODO-027） | 2026-09-13 |
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | PLANNED | - | 2026-09-11 |
 | T-401 | G4 インベントリ・対応関係・照合集計（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
 | T-402 | G4 照合 API #19,27（API） | web | T-401 | PLANNED | - | 2026-09-11 |
@@ -385,6 +385,12 @@
   食い違い、外側期限発火〜16 秒の窓で別プロセス起動が `process_interrupted` を先に確定し得る → L-8b で統一（述語 1 つに集約）。P3: `trace_write_failed` の JSONL 自動復旧経路が
   消えた（手動手順か再構築スクリプトを Env フェーズで）/ `limits` 不正の running run はどの回収にも掛からない（ログ 1 行）。
 
+- [RV-036] T-302 1回目（Codex → Claude reviewer 独立・2026-09-13）: **DONE 可**。P1 0 / P2 0 / P3 5。AD-022 の 13 決定を 13/13 反映（実 HTTP で 422/400 の線引き・undo 200・
+  `{confirmationId}`・数値 JSON 文字列・`note` 正規化・422 も code 付きを確認）。`route_errors` の表参照化の影響が「入力コード 12 種 × 非 400 エントリ 17 種の交差 =
+  `{E_FIELD_NOT_EDITABLE: 422}` のみ」であることを reviewer が独立に再計算。OpenAPI に 10 パス、`/agent/*` に記録 API 0、model 85→137 消失 0、FE は fixture 2 行のみ。
+  実測 567 passed（1 回目の 4 ERROR は並行 TRUNCATE、排他後に解消・LN-027）/ FE 166。P3: `test_api_path_separation_live.py` の basename が unit/integration で重複（orchestrator の
+  命名揺れ）/ 交差集合を固定する検査が無い / `VersionCounts(**data)` が余分キーを黙って捨てる / `record_response` の属性名一致前提 / items 列追加時の #24 漏れ検知。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -533,6 +539,9 @@
 - [LN-056] **同じ判断を 2 箇所で書くとしきい値は必ずズレる。**`recover_expired`（`limit+16`）と `recover_interrupted`（`limit`）は「回収してよいか」という同一判断。
   述語 1 つ（`is_recoverable(run, now)`）に集約する。能力を削る変更は「その能力が何を救っていたか」を確認する（全 run JSONL 再構築は書込障害からの唯一の自動復旧だった）。
 
+- [LN-057] **共有ハンドラ（route class・例外変換）を変更するスライスは「影響が及ぶ集合 × 挙動が変わる集合」の交差を計算して handoff に書く**（T-302: 交差 1 件）。
+  応答 DTO のホワイトリストは、存在しないダミー列名を禁止集合に混ぜて assert すると「絞っていること」自体を検査できる。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
@@ -576,6 +585,9 @@
 - [TODO-022] **Phase 3 判定の論点 2 件（研修者確認）**: ①外径 `13-3/8″` → `od_value=13.375 in` の分数→小数正規化は D03（換算禁止）に抵触するか。単位不変なので
   orchestrator は「表記の正規化」と判断。06 の採点式（数量は厳密一致・寸法は？）と突き合わせて確定する ②N06「初回案 10 分」に対し run 8 は 631 秒。思考時間が大半で
   ターン数は 14。許容か、モデル/プロンプトで詰めるか（D06 仮値の見直し材料）。
+- [TODO-027] **T-302 の記録のみ P3（RV-036）**: ①`tests/unit/test_api_path_separation_live.py` → `test_ui_route_presence.py` に改名（integration 側と basename 重複）
+  ②`test_single_source_of_truth.py` に「`field_error_codes` 全コード × 表の非 400 エントリの交差 == {E_FIELD_NOT_EDITABLE}」の検査 ③`VersionCounts` は明示コピー
+  ④`record_response` の属性名一致前提を docstring に ⑤`Item.__table__.columns` と `ItemCurrentResponse` の差分 = 意図的除外リストの検査。C-3 で。
 - [TODO-026] **L-8 の記録のみ P3（RV-035）**: ①`trace_write_failed` の JSONL を DB の trace_event から再構築する手動手順 or `scripts/rebuild_trace.py`（Env フェーズの素材）
   ②`limits.outerTimeoutS` 不正の running run はどの回収にも掛からない → ログ 1 行（run_id）。
 - [TODO-023] **T-205 L-5/L-6 の記録のみ P3（RV-032）**: ①`check_agent_mutations.py` に L-5 の 4 変異（エラー継続を 1 回停止に戻す / 成功時リセット除去 / 項目別情報の除去 /

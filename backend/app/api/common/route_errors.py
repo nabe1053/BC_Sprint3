@@ -1,7 +1,7 @@
 """Translate T-202 domain/input failures without echoing request values."""
 from fastapi.exceptions import RequestValidationError
 from fastapi.routing import APIRoute
-from app.api.errors import ApiError, domain_error_handler
+from app.api.errors import ApiError, domain_error_handler, DOMAIN_ERROR_STATUS_BY_CODE
 from app.api.schemas_error import ErrorResponse
 from app.domain.errors import DomainError
 
@@ -26,7 +26,7 @@ def invalid_request(exc, request):
         )
     )
     return ApiError(
-        422 if structural else 400,
+        422 if structural else DOMAIN_ERROR_STATUS_BY_CODE.get(code, 400),
         code,
         "リクエストの形式または必須項目を確認してください",
         {

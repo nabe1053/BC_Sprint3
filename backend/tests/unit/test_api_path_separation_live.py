@@ -1,0 +1,24 @@
+"""Required human-record routes must exist under UI only."""
+
+
+def test_all_version_and_record_routes_exist_under_ui():
+    from app.main import app
+
+    paths = {
+        (method, route.path)
+        for route in app.routes
+        for method in getattr(route, "methods", [])
+    }
+    expected = {
+        ("GET", "/cases/{caseId}/versions"),
+        ("GET", "/versions/{versionId}"),
+        ("GET", "/versions/{versionId}/items"),
+        ("GET", "/versions/{versionId}/items/{itemId}/evidence"),
+        ("GET", "/versions/{versionId}/questions"),
+        ("POST", "/versions/{versionId}/edits"),
+        ("POST", "/versions/{versionId}/edits/{editId}/undo"),
+        ("POST", "/versions/{versionId}/confirmations"),
+        ("POST", "/versions/{versionId}/confirmations/{confirmationId}/undo"),
+        ("POST", "/versions/{versionId}/questions/{questionId}/judgements"),
+    }
+    assert {(method, "/api/v1/ui" + path) for method, path in expected} <= paths

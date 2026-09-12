@@ -12,10 +12,10 @@ from typing import Protocol
 from app.models.cases import Case
 from app.services.exceptions import DuplicateCaseCodeError, NotFoundError
 
-# T-102 時点の進捗ステータス（05-api-ipo.md 0.4・5章）。版（versions）を作る手段が
-# まだ無いため、①資料投入（'intake'）のみを返す。②③④の導出は versions の
-# Repository ができる T-201 以降で追加する（orchestrator 指示・memory.md T-102 行）。
-_PROGRESS_STATUS_INTAKE = "intake"
+
+class LatestVersion(Protocol):
+    id: int
+    current_state: str
 
 
 class CaseRepositoryProtocol(Protocol):
@@ -26,6 +26,9 @@ class CaseRepositoryProtocol(Protocol):
         ...
 
     async def list(self) -> list[Case]:
+        ...
+
+    async def latest_versions(self, case_ids: list[int]) -> dict[int, LatestVersion]:
         ...
 
     async def create(self, case: Case) -> Case:
@@ -72,13 +75,22 @@ class CaseService:
         case = Case(case_code=case_code, customer_name=customer_name, title=title)
         return await self.case_repository.create(case)
 
-    async def list_cases(self) -> list[tuple[Case, str]]:
-        """案件一覧を進捗ステータス付きで返す（05-api-ipo.md #1）。
-
-        T-102 時点では版が無いため、全件 'intake' を返す（②③④は T-201 以降）。
-        """
+    async def list_cases(self) -> list[tuple[Case, str, int | None]]:
+        """案件一覧と確定済み最新版への到達情報を返す（AD-022）。"""
         cases = await self.case_repository.list()
-        return [(case, _PROGRESS_STATUS_INTAKE) for case in cases]
+        latest = await self.case_repository.latest_versions([case.id for case in cases])
+        result = []
+        for case in cases:
+            version = latest.get(case.id)
+            status = "intake"
+            if version is not None:
+                status = (
+                    version.current_state
+                    if version.current_state in ("staff_checked", "review_checked")
+                    else "draft_review"
+                )
+            result.append((case, status, version.id if version is not None else None))
+        return result
 
     async def get_case(self, case_id: int) -> Case:
         """案件詳細を取得する（05-api-ipo.md #3）。存在しなければ E_NOT_FOUND。"""

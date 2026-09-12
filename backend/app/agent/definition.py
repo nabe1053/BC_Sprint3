@@ -53,6 +53,7 @@ assert INACTIVITY_TIMEOUT_S < INNER_TIMEOUT_S < OUTER_TIMEOUT_S, (
 REPEATED_CALL_LIMIT = 3
 VALIDATION_REPEAT_LIMIT = 3
 CANCEL_CLEANUP_S = 0.02
+RECOVERY_GRACE_S = 16  # 終端保存の3回再試行と後始末を待ってから回収する。
 
 # 実行モデル識別子。agent_runs.model に記録する。
 DUMMY_MODEL_ID = "mock-fixed-v2"

@@ -1,0 +1,20 @@
+--- a/frontend/src/features/cases/__tests__/hooks.test.tsx
++++ b/frontend/src/features/cases/__tests__/hooks.test.tsx
+@@ -36,6 +36,7 @@
+   title: "OCTG 引合",
+   createdAt: "2026-09-01T00:00:00+09:00",
+   progressStatus: "intake" as const,
++  latestVersionId: null,
+ };
+ 
+ beforeEach(() => {
+--- a/frontend/src/features/cases/components/__tests__/CaseListPage.test.tsx
++++ b/frontend/src/features/cases/components/__tests__/CaseListPage.test.tsx
+@@ -40,6 +40,7 @@
+   title: "OCTG 引合",
+   createdAt: "2026-09-01T00:00:00+09:00",
+   progressStatus: "draft_review" as const,
++  latestVersionId: 1,
+ };
+ 
+ function setUseCases(overrides: Partial<ReturnType<typeof useCases>>) {
