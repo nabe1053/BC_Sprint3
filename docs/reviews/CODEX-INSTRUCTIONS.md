@@ -147,12 +147,28 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 07:05・T-301 DONE・commit 済み・L-7 → T-302）
+## 7. 次にやること（2026-09-13 08:10・**L-8 を最優先**・T-302 は継続可）
 
-- **T-301 → DONE**（memory RV-033・P3 5 は記録のみ）。T-205 L-3〜L-6 と合わせて **commit 済み `97496e9`**。`make check` はいつでも実行可
-- **いまはタスク L-7**（下記）。提出後、**タスク N（T-302）へ着手してよい**（§7 更新を待たない）。指示書: **`docs/t302-instructions.md`**（AD-022 の決定 13 件を含む）。
-  完了合図: `docs/t302-handoff.md` 末尾 `再レビュー依頼`
-- **pytest / `make check`**: 自由に実行可（Claude は T-302 の再レビュー依頼が来るまで pytest を回さない）
+- L-7 は **DONE**（RV-034・commit `f5565c4`）。T-205 の全ラウンド完了
+- **真因確定**: run 4/6/9/10/12 の `process_interrupted` は、統合テストの `TestClient(app)` が lifespan の `recover_interrupted()` を**開発 DB**に対して実行し、実行中の run を
+  全て終了させていたため（`run_lifespan` が `get_db()` を直接呼び override が効かない）。詳細: `docs/evaluations/g2-real-model-ae01-2026-09-13.md` 末尾、memory AD-023 / LN-055。
+  **T-302 の作業中でも、L-8 は小さいので先に入れる**（`backend/app/api/dependencies.py` / `run_repository.py` / `tests/integration/conftest.py`）。完了合図: `docs/t205-handoff.md` 冒頭 `## L-8 対応（AD-023）` ＋ `再レビュー依頼`
+- **重要な運用**: L-8 が入るまで、Codex は **`make check` / 統合テストを Claude の実評価と同時に走らせない**。§7 に「実評価中」と書いてある間は限定 unit テストのみ。今は **実評価は止めている**ので `make check` 可
+
+### タスク L-8: 起動時回収の安全化とテスト lifespan の DB 分離（AD-023）
+
+1. `RunRepository.recover_interrupted()`: 対象を **`outcome='running'` かつ `started_at + limits.outer_timeout_s < now()`** に限定（期限切れ＝生きているはずがない run）。
+   終了は `RunResult("failed", detail="process_interrupted")` のまま（プロセス死の回収という意味は不変）。新しい run は触らない。JSONL 再構築（`_export_or_fail`）の対象も同様
+2. `run_lifespan`: `get_db` を直接呼ばず、**`app.dependency_overrides.get(get_db, get_db)`** を通す（テストの override が lifespan にも効く）。
+   `tests/integration/conftest.py` の `client` fixture が lifespan を起動しても **開発 DB に一切触れない**ことをテストで固定（`app.core.database.AsyncSessionLocal` を monkeypatch して
+   呼ばれたら fail、または `settings.DATABASE_URL` の engine に `connect` 監視）
+3. テスト: ①期限内の running run は起動時回収で終了しない（実 DB integration）②期限切れは `process_interrupted` になる ③lifespan がテスト DB のみを使う ④既存の
+   `recover_interrupted` テストの期待更新は「期限内は残す」に合わせる（削除でなく置換、理由を handoff に）
+4. 設計書: 04-db §3.2 補足の `process_interrupted` 説明に「起動時回収は外側期限を過ぎた run のみ」を追記。agent-plan T-202 補足の「起動前に worker は生きていない」を
+   「別プロセス（テスト含む）が生きている可能性があるため期限で判定」に改める（LN-055）
+5. 完了条件: `AGENT_MODE=local_dummy DEBUG=false CI=true make check` all green。commit しない。Claude は提出後に AE02 を再実行
+
+### タスク N: T-302（`docs/t302-instructions.md`）— L-8 の後に継続
 
 ### タスク L-7: ツール入口の例外変換と、後始末キャンセルの上書き防止（TODO-021）
 

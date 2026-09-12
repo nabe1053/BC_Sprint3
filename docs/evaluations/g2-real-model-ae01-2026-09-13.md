@@ -116,3 +116,16 @@ read 後 38 秒で `failed / process_interrupted`、turns 3。L-7 後のこの�
 | 漏洩 | トレースに原文なし（grep 0） |
 
 **判定: AE03 合格**（換算値を 1 つも出力していない・06 TEST-06 の不合格条件に該当なし）。トレース: `backend/traces/11.jsonl`。
+
+---
+
+# `process_interrupted` の真因（TODO-021 解決・2026-09-13）
+
+| 事実 | 内容 |
+|---|---|
+| 発生 | run 4 / 6 / 9 / 10 / 12 が `process_interrupted`。いずれも worker は正常に動いていた（run 12 は開始 0.4 秒で終了） |
+| 診断 | task factory で `cancel()` の呼び元を記録する診断サーバでは **cancel() 呼出し 0**、`jobs._execute` は正常終了（`cancelling=0`）。`_execute` が `process_interrupted` を作れないことを微小再現で確認（worker の CancelledError は全て `worker_failed`） |
+| 真因 | `process_interrupted` を書く唯一の他経路 `RunRepository.recover_interrupted()` が **`run_lifespan`（アプリ起動時）**で `outcome='running'` の全 run を終了させる。統合テストの `TestClient(app)` は lifespan を起動し、`run_lifespan` は `get_db()` を**直接**呼ぶため依存注入の override（テスト DB）が効かず、**開発 DB octg_db** の実行中 run を殺す。失敗 5 件の終了時刻は Codex / reviewer の pytest 実行時刻と一致（LN-017 が予告していた副作用） |
+| 対処（AD-023） | ①起動時回収は「`started_at + outer_timeout_s` を過ぎた run」だけを対象にする（生きている別プロセスの run を殺さない）②`run_lifespan` はテストの `get_db` override を尊重し、テストが開発 DB に触れないことをテストで固定 ③評価は当面「pytest と同時に回さない」運用（LN-027 と同じ排他） |
+
+これで run 5 / 7 / 8 / 11 が成功し 4 / 6 / 9 / 10 / 12 が失敗した「間欠性」は、同時刻の pytest の有無で完全に説明できる。エージェント本体の欠陥ではない。

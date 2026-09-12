@@ -100,6 +100,11 @@
   **#22 最小版**（`GET /cases/{caseId}/versions`）を T-302 に含める / 訂正 n は `editCount`・`editedItemCount` の両方 / undo は 200 / #32 は `{confirmationId}` /
   数値は JSON 文字列 / 422 も code 付き（TODO-005 解消）。05-api-ipo 0.2・0.4・#32・3.6 に書き戻し済み。
 
+- [AD-023] **起動時の run 回収は期限切れ（`started_at + outer_timeout_s` 経過）の run だけを対象にし、`run_lifespan` はテストの `get_db` override を尊重する**
+  （2026-09-13 orchestrator 決定）。理由: `recover_interrupted()` が起動時に `running` 全件を `process_interrupted` にし、統合テストの `TestClient` lifespan が開発 DB に対して
+  それを実行するため、pytest のたびに実評価中の run が殺されていた（run 4/6/9/10/12。TODO-021 の真因）/ 影響範囲: `run_lifespan`・`recover_interrupted`・
+  `tests/integration/conftest.py`。L-8。実評価と pytest の同時実行は当面排他（LN-027）。
+
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
@@ -515,6 +520,10 @@
   すべてを上書きする。後始末（cleanup）は結果を決める権利を持たない（`result_ready`・`sys.exc_info()` で確定済みを判定し、外から来たキャンセルだけ通す）。
   実評価で見つけた不具合は、修正と同時に「直したバグの逆」を変異ケースにする（`boundary_begin_outside_try`）。
 
+- [LN-055] **アプリ起動時の「回収」処理は、別プロセスが生きている可能性を前提に書く。**「起動前に worker は生きていない」という単一プロセスの仮定は、テストの
+  `TestClient(app)` が同じ DB に対して起動した瞬間に崩れる。回収は期限（外側タイムアウト）で判定し、lifespan の DB アクセスもテストの override を通す。
+  「間欠的な失敗」は、まず**同時刻に何が動いていたか**（pytest・別サーバ）を疑う（LN-027 の一般化）。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
@@ -552,7 +561,7 @@
   T-301 では未実装（G3 で到達不能。t301-instructions §0 ⑤）。
 - [TODO-020] **T-205 の記録のみ P3（RV-031）**: ①拒否記録を PreToolUse deny 時点に寄せて時系列を揃える ②（解消: キーは tool_name/tool_use_id/tool_input）
   ③`cwd` テストを「リポジトリルート配下でない」「実行後に削除済み」の assert に ④`bounded()` の heartbeat 分岐を stream 専用ラッパへ。実評価の観察結果と合わせて次ラウンド。
-- [TODO-021]（機構特定・L-7 で修正中）**run 4/6/9 の `process_interrupted` 化**: `begin_step` の DraftError が try 外で漏れ、runner `finally` の SDK 後始末 CancelledError が
+- [TODO-021]（**真因確定・AD-023 / L-8**: 統合テストの lifespan `recover_interrupted` が開発 DB の実行中 run を殺していた。L-7 の分類崩れも別途修正済み）**run 4/6/9 の `process_interrupted` 化**: `begin_step` の DraftError が try 外で漏れ、runner `finally` の SDK 後始末 CancelledError が
   進行中例外を上書きし、jobs が worker のキャンセルを自分のキャンセルと誤読（`docs/evaluations/g2-real-model-ae01-2026-09-13.md` AE03 試行 1）。旧記述:（61 秒で停止。run 7 は 201 秒の間隔でも停止せず）。L-6 で無応答発火時の診断メタデータ（直近の生存信号からの
   秒数・受信数）を `job_interrupted` に残し、次の再発で「生存信号が来なかった」か「分類が崩れた」かを切り分ける。診断サーバ: scratchpad `diag_server.py`（jobs._execute をラップ）。
 - [TODO-022] **Phase 3 判定の論点 2 件（研修者確認）**: ①外径 `13-3/8″` → `od_value=13.375 in` の分数→小数正規化は D03（換算禁止）に抵触するか。単位不変なので
