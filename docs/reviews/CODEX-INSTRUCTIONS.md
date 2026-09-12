@@ -1,41 +1,112 @@
-# Codex セッション作業規約（2026-09-12 改訂・研修者決定）
+# Codex セッション作業規約（2026-09-14 改訂・研修者決定＝Codex 単独運用へ移行）
 
-**実装は主に Codex が担当する。**Claude メインセッション（orchestrator 役）は、スライスの指示・
-レビュー起動・memory 転記・品質ゲートの実行を担当し、原則としてコードを書かない。
+**2026-09-14 より Claude メインセッションは退く（トークン枯渇）。以後は Codex だけで回す。**
+Claude が持っていた 4 つの権限（memory 編集・レビュー起動・品質ゲート・commit）は、
+下記 §0 のとおり **Codex のフェーズ（実装／レビュー／転記）** に移譲する。
 この文書が Codex 側の恒久ルール。着手前に必ず読むこと。
+
+> 移行前の記述（「Claude が〜する」）は §0 と §0c を正として読み替える。
+> 判断に迷ったら設計書（`docs/requirements/`）→ `.claude/memory.md` → 本ファイルの順に正。
 
 ---
 
 ## 0. 役割分担（これを崩さない）
 
-| 担当 | やること | やらないこと |
-|------|---------|-------------|
-| **Codex（実装）** | RED テスト → 実装 → REFACTOR、レビュー指摘の修正、handoff の更新 | `.claude/memory.md` の編集、レビュー、スライスの取捨選択、commit |
-| **Claude（orchestrator）** | スライス指示、reviewer 起動、memory 転記、`make check`、commit | 実装（指摘修正の代行を含む） |
+**役割は「人」ではなく「セッション（フェーズ）」に付く。**1 スライスを 3 つのセッションで回す。
 
-- 自分が書いたコードを自分でレビューしない（CLAUDE.md 憲法6）。レビューは必ず別エージェント。
-- **`.claude/memory.md` は読むだけ。編集しない。**進捗・決定・学び・希望 Status は
-  `docs/t{ID}-handoff.md` に書き、Claude が memory へ転記する。
+| フェーズ | セッション | やること | やらないこと |
+|---|---|---|---|
+| **A 実装** | 実装セッション | 指示書 §0 の決定に従い RED → 実装 → REFACTOR、handoff の更新 | `.claude/memory.md` の編集、自分の差分のレビュー、commit、指示書の決定の変更 |
+| **B レビュー** | **新しい Codex セッション（フレッシュ文脈）** | §0d の手順で独立レビュー、指摘を handoff に書く | 実装（1 行も直さない）、memory の編集、commit |
+| **C 転記・確定** | 転記セッション（A を再開してよい） | 指摘の修正 → 再レビュー（B をもう一度）→ memory 転記 → `make check` → commit → §7 更新 | 未レビューのまま commit |
+
+- **自分が書いたコードを自分でレビューしない（CLAUDE.md 憲法6）。**単独運用での「別エージェント」とは
+  **実装の会話を引き継がない新しいセッション**を指す。同じセッションの続きで自分の差分を見て
+  「レビューした」ことにしない。理由: 実装時の前提をそのまま正しいと見なす誤りが検出できない。
+- **`.claude/memory.md` を編集できるのはフェーズ C のセッションだけ。**A・B は読むだけ。
+  進捗・決定・学び・希望 Status はまず `docs/t{ID}-handoff.md` に書き、C でまとめて 1 回転記する。
   理由: 同時追記で RV/LN の ID 衝突と Status 上書きが実際に起きた（memory §6 TODO-004）。
+- **並行セッションを走らせない（WIP=1・§2）。**転記中に別スライスの実装を始めない。
 
 ---
 
-## 0b. 常駐ループ（2026-09-12 研修者決定・memory AD-014 案 B）
+## 0b. 単独運用の周回（2026-09-14 改定・旧「常駐ループ」を置換）
 
-Codex はこのループで動く。研修者の中継を待たない。
+Codex はこの 1 周を単位に動く。研修者の中継を待つのは **§0e の「研修者に上げること」だけ**。
 
 ```
-1. 本ファイル §7「次にやること」を読む（見出しの更新時刻を控える）
-2. §7 の最優先タスクを1つ実施する（WIP=1。§7 に無いことはしない）
-3. `make check`（BE のみなら check-be / FE のみなら check-fe）green と handoff の
-   「レビュー対応」表・「再レビュー依頼」を書いて止まる（commit はしない）
-4. §7 の見出しの更新時刻が変わるまで待つ（例: 60 秒ごとに `head -n 140 docs/reviews/CODEX-INSTRUCTIONS.md | grep '^## 7'`）。
-   変わったら 1 へ戻る。§7 に「停止」と書かれていたら終了する
+1. .claude/memory.md（§3 バックログ・§6 未解決）と §7「次にやること」を読む
+2. §7 の最優先スライスを 1 つ選ぶ（WIP=1）。指示書 docs/t{ID}-instructions.md があればそれが正。
+   無ければ §0c の手順で自分で指示書を書く（決定表つき）
+3. 【A 実装】RED → 実装 → REFACTOR。handoff に「レビュー対応」表（§6）を書く
+4. make check（BE のみなら check-be / FE のみなら check-fe）green を handoff に実出力で貼る
+5. 【B レビュー】新しいセッションを開き §0d のプロンプトでレビュー。指摘を handoff に追記
+6. 指摘を修正 → B をもう一度（指摘ゼロになるまで。3 回超過は BLOCKED として memory §6 へ）
+7. 【C 転記】memory 転記（§1 決定 / §4 指摘 RV / §5 学び LN / §3 Status=DONE）→ make check →
+   commit（§6b の手順・pathspec 限定）→ §7 を次スライスに書き換える
+8. 1 へ戻る。§0e に当たったら §7 に「研修者確認待ち: <論点>」と書いて別スライスへ移る
 ```
 
-Claude（orchestrator）は handoff を監視し、レビュー結果を §7 に書いて更新時刻を変える。
-§7 の更新前に次のタスクを推測して着手しない。研修者確認が要る判断（設計・破壊的操作・D05）は
-§7 に「研修者確認待ち」と書かれるので、その間は待つ。
+- **§7 は自分のキューになった。**Claude の更新を待たない。1 周ごとに自分で書き換える。
+- 1 周が長くなりすぎるときはスライスを割る（半日で回らない粒度にしない）。
+
+## 0c. 指示書が無いスライスの進め方（T-602 / T-603 以降）
+
+指示書（`docs/t{ID}-instructions.md`）は **実装の前に必ず書く**。いきなりコードを書かない。
+既存の `docs/t501-instructions.md` / `t502` / `t601` / `t503` が雛形。構成は固定:
+
+```
+対象スライス・依存・設計の正（file:line で列挙）
+§0 決定表（未決を 1 行 1 件。決めたものは「確定」、決められないものは「研修者確認待ち」）
+§1 範囲と範囲外    §2 DTO / API / シート等の契約    §3 エラー・語彙
+§4 実装順序と RED→GREEN（テストファイル名まで）    §5 完了条件（make check・handoff 見出し）
+§6 設計書との齟齬（書き戻しが要る箇所）
+```
+
+- **決定表を埋めずに実装に入らない。**「実装しながら決める」と設計書と乖離し、後で全部やり直しになる
+  （memory LN-012・T-302 の教訓）。
+- 設計書（01〜06・agent-plan.md）に無いものを足さない。足す必要が出たら**先に設計書を直す**
+  （`.claude/rules/agent-development.md` §1）。設計書の改定は §0e の研修者判断。
+- 決定を確定したら `.claude/memory.md` §1 に **AD-0xx** として 1 件記録し、指示書 §0 から参照する
+  （既存の AD-028〜AD-031 と同じ書式）。採番は既存の最大値 +1。
+
+## 0d. レビュー・プロトコル（憲法6 を単独運用で満たす）
+
+**新しい Codex セッション**を開き、次をそのまま渡す。実装セッションの会話を引き継がない。
+
+```
+T-xxx を独立レビューしてください。あなたは実装者ではありません。コードを 1 行も書き換えないでください。
+入力: docs/txxx-instructions.md（§0 の決定は所与。蒸し返さない）、docs/txxx-handoff.md（実装者の主張）、
+      設計の正（指示書が挙げている docs/requirements/... の該当箇所）、
+      .claude/rules/clean-architecture.md の reviewer チェックリスト、
+      UI を含むなら .claude/rules/design-guidelines.md の reviewer チェックリスト、
+      .claude/memory.md（読むだけ。§2 の CV は既に守られている前提で検査する）
+対象: git status --short と git diff の範囲だけ
+観点: ①指示書 §0 の決定が全件反映されているか（1 件ずつ file:line で確認）
+      ②クリーンアーキの依存方向（内側が外側を import していないか）
+      ③TDD: RED の記載が妥当か／既存テストの削除・弱化が無いか／assert が実応答を見ているか
+      ④handoff の数値（テスト件数・ゲート結果）が自分の手元で再現するか（make check を 1 回実行する）
+      ⑤秘密・個人情報がトレース/ログ/応答に漏れていないか
+出力: P1（DONE 不可）/ P2（要修正）/ P3（記録のみ）を file:line つきで。最後に DONE 可否を 1 行。
+      先頭に memory §4 へ貼る 3 行要約を「RV 候補」として付ける。
+```
+
+- レビューセッションは**実装しない**。指摘だけ返し、修正は実装セッション側で行う。
+- 「handoff にそう書いてあるから正しい」としない。**数値は自分で再現する**（§6 の最低要件）。
+- 指摘ゼロで初めて DONE。3 回直しても残るなら BLOCKED（memory §6 に BLK として記録）。
+
+## 0e. 研修者に上げること（Codex が単独で決めてはいけないこと）
+
+次に当たったら §7 に「研修者確認待ち: <論点>」と書き、**そのスライスを止めて別スライスへ移る**。
+
+1. **設計判断**: 設計書（01〜06・agent-plan.md）の要件・データモデル・API 契約を変える判断
+2. **破壊的操作**: `rm -rf`、DB の drop/truncate、migration の巻き戻し、git の履歴書き換え
+3. **外部送信（D05）**: 実 LLM への送信範囲を広げること（現在の承認は `references/sample-01`〜`10` のみ。
+   `references/proposal.pptx`・実業務資料・認証情報は送らない）
+4. **スコープ変更**: バックログにないスライスの追加、既存スライスの範囲拡大
+5. **BLOCKED 化**: レビュー 3 回超過、または依存が解けないとき
+6. **秘密情報**: `backend/.env` の中身を読む・表示する・コミットすることは**常に禁止**
+   （存在確認は行数の grep まで）。鍵が要る作業は研修者に依頼する
 
 ## 1. 品質ゲートは `make check`（2026-09-12 新設）
 
@@ -147,17 +218,61 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 T-403 DONE・**T-501 → T-502 → T-601 → T-503**）
+## 6b. commit の手順（2026-09-14 移譲・Claude から Codex へ）
 
-- T-403 は **DONE**（RV-044・G4 完了）。R-2 の対応ありがとうございました
-- **いまはタスク S（T-501、`docs/t501-instructions.md`・AD-028 の 18 決定。BE のみ・endpoint 無し）**。完了見出し `## 再レビュー依頼（T-501）`（`docs/t501-handoff.md`）。
-  `make check-be` 自由（Claude は pytest を回さない）。`frontend/` は触らない。T-403 の指摘対応と重なるときは、pytest と jest を同時に走らせない（LN-027）
-- **T-501 への追補（AD-029 ⑤。指示書 §4「#22 材料」に加える）**: `RecordRepository.list_versions_with_records(case_id)` は版ごとに **最新 `to_state='review_checked'` イベントの
-  `recorded_at`（`latest_review_checked_at`、無ければ None）** も返す（T-502 が「差し戻し中」を導出するのに最新イベント 1 件では足りないため）。クエリ数固定のまま。テストに 1 本（review 後に
-  差し戻し → 訂正で最新イベントが staff_checked でも `latest_review_checked_at` は保持）
-- T-502 の後: **タスク U（T-601、`docs/t601-instructions.md`・AD-030 の 21 決定。BE のみ）**。完了見出し `## 再レビュー依頼（T-601）`。その後 **タスク V（T-503、`docs/t503-instructions.md`・AD-031。FE）**。完了見出し `## 再レビュー依頼（T-503）`。いずれも指示書は commit 済みで着手可
-- T-501 の後: **タスク T（T-502、`docs/t502-instructions.md`・AD-029 の 18 決定。API 層のみ）**。完了見出し `## 再レビュー依頼（T-502）`（`docs/t502-handoff.md`）。T-501 の
-  再レビュー待ちの間に着手してよい（T-501 の指摘対応が出たら優先）
+**フェーズ C でのみ commit する。**レビューが DONE 可、`make check` green、memory 転記済みが前提。
+
+```sh
+git status --short                      # 1. 自スライス以外の差分が無いか目で見る
+git add -- <自スライスのパスだけ>        # 2. pathspec 限定。git add -A / git add . は使わない
+git diff --cached --stat                # 3. 意図しないファイル（他スライス・生成物）が無いか確認
+git commit -m "..."                     # 4. 下記の書式
+git log --oneline -1
+```
+
+- **`git add -A` を使わない。**別セッションの作業中ファイルを巻き込んだ事故がある（memory LN-038・CV-023）。
+- メッセージ: 1 行目 `feat|fix|docs|chore: <スライスID> <日本語の要約>`、本文に ①主な変更 ②`make check` の結果
+  ③memory への転記内容（AD/RV/LN/Status）。末尾の Co-Authored-By 行は**付けない**（実装者は Codex）。
+- **commit しないもの**: `backend/.env`、`backend/traces/`、`backend/openapi.json`、`frontend/src/shared/api/generated/`、
+  `backend/storage/`、`.agents/`・`.codex/`（いずれも .gitignore 済み。漏れていたら §0e 5 で研修者へ）。
+- ブランチは `main` のまま（本プロジェクトは PR を使わない）。push は研修者が行う。
+
+---
+
+## 7. 次にやること（2026-09-14・**Claude 退場後の最初のキュー**。以後は Codex が自分で書き換える）
+
+> ここから下（### タスク 〜）は履歴。**この節の箇条書きだけが現在のキュー。**
+
+- **いま: T-501 の【B レビュー】**（`docs/t501-handoff.md` は実装完了・BE 694 passed の主張まで届いている）。
+  **レビューは未実施**。§0d のプロンプトで新しいセッションを開き、`docs/t501-instructions.md`（AD-028 の 18 決定＋
+  §7 追補 `latest_review_checked_at`）と突き合わせる。特に見る点: ②検査順と `details` の camelCase、
+  ⑤ review 版の差し戻しが `E_STATE_ORDER`、⑦ `bounce_id` は NULL→値の 1 回だけ、⑨ 訂正のみ降格（undo/confirm/judge では積まない）、
+  ⑫ `current_state` 代入が 2 箇所だけ、⑬ carryOver 4 値、⑮ 未解決述語の一元化、2 セッションの block 観測（CV-024）が本物か。
+  DONE 可なら【C 転記】→ commit（§6b）→ この節を T-502 に書き換える
+- 次: **T-502**（`docs/t502-instructions.md`・AD-029 の 18 決定。API 層のみ）→ **T-601**（`docs/t601-instructions.md`・AD-030 の 21 決定。BE）
+  → **T-503**（`docs/t503-instructions.md`・AD-031 の 25 決定。FE）。**指示書は 4 本とも commit 済みで、そのまま着手できる**
+- その後: **T-602（G6 出力 API #38/#39/#40）と T-603（G6 出力ボタン・版の履歴 FE ＋ #22 生成所要）は指示書が無い。**
+  §0c の手順で自分で書いてから実装する。T-602 の論点: #38 のバイナリ応答（AD-030 ㉑ で
+  200 ＋ `Content-Disposition` ＋ `X-Export-Id` に確定済み）、orval のバイナリ扱い、`route_contract.py` への
+  `exports`/`evidence` 登録要否、`E_VERSION_NOT_FINALIZED` 409 の `errors.py` 追加。
+  T-603 の論点: POST のレスポンスを blob で保存する導線、版の履歴パネル（#39 の `integrity` 表示）、
+  `VersionListItem.elapsedSec` の API 追補（AD-029 ⑭ で T-603 と決定済み）
+- その後: **C-3（記録のみ P3 のまとめ処理）**。memory §6 の TODO-009/017/020/023/026/027/030/031/033/035/036 を 1 スライスで
+- 最後: **Phase 3 の残り AE04〜AE07**（`docs/requirements/06-scenario-test.md`）。実 LLM を使うので着手前に §0e 3 で研修者確認
+
+### 研修者確認待ち（Codex は決めない。回答が来るまで該当スライスを止める）
+
+`.claude/memory.md` §6 の次の TODO が未回答。**G5/G6 の実装自体はこれらの回答なしで進められる**（暫定案で実装済み）。
+
+| TODO | 論点 | 暫定 |
+|---|---|---|
+| TODO-022 | `13-3/8″` → `13.375 in` の分数→小数化は D03（換算禁止）に抵触するか | 抵触しない扱いで AE01 を PASS 判定 |
+| TODO-034 | 評価確認済みの版で「訂正の取消」をしたとき状態を担当者確認済みへ戻すか | 戻さない（訂正のみ降格） |
+| TODO-038 | `exports` に実施者名（`exported_by`）を持つか | 持たない |
+| TODO-039 | SCR-06 の「変更採用（P.S./Rev.）」タグを API に足すか | 出さない |
+| TODO-018 | 要求納期・納地を人が訂正できるようにするか | 編集不可（AD-018） |
+| TODO-025① | `range_class` と `length_value` が `length_state` を共有する件 | 状態ラベルは列につき 1 つ（CV-025） |
+| TODO-029 | `inventory_links` に複合 FK `(version_id, item_id)` を足すか | 書込時検査のみ |
 
 ### タスク L-8c: 依存の逆流を解消（RV-037 P2）
 - `RECOVERY_GRACE_S` を `app/domain/run_types.py` へ移し、`app/agent/definition.py` はそこから import して再公開（`from app.domain.run_types import RECOVERY_GRACE_S`）。

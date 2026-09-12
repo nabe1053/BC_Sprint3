@@ -10,6 +10,9 @@
   orchestrator 役 = 研修者と対話しているメインセッション（CLAUDE.md 決定事項5）。
 - サブエージェント（test-designer / implementer / reviewer）は **読むだけ**。指摘・学びは戻り値で返し、orchestrator 役が追記する。
 - これにより複数エージェント同時書込による破壊を防ぐ。
+- **2026-09-14 改定（memory AD-032・Codex 単独運用）**: orchestrator 役 = Codex の**転記フェーズ（フェーズ C）の
+  セッション**。実装セッション・レビューセッションは読むだけで、`docs/t{ID}-handoff.md` に書いて C で転記する。
+  転記は **1 スライス 1 回まとめて**行い、転記中は他スライスを走らせない（`docs/reviews/CODEX-INSTRUCTIONS.md` §0）。
 
 ## 書式（セクション固定・追記型）
 

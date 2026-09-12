@@ -12,6 +12,9 @@ Sprint 3 のテーマは **AIエージェント構築**。Web アプリ（Next.j
    **更新できるのは実装を指揮するメインセッション（以下 orchestrator 役）だけ**。
    サブエージェント（test-designer / implementer / reviewer）は**読むだけ**で、
    指摘・学びは戻り値で返し orchestrator 役が追記する（規約: `.claude/rules/memory-protocol.md`）。
+   **2026-09-14 改定（memory AD-032・Codex 単独運用）**: orchestrator 役は Codex の
+   **転記フェーズ（フェーズ C）のセッション**が兼ねる。実装フェーズ・レビューフェーズのセッションは
+   読むだけで、handoff 経由で転記する（`docs/reviews/CODEX-INSTRUCTIONS.md` §0）。
 2. **実装はスライス単位の手動ループで回す**（`/build-loop` は使わない。下記「実装フロー」）。
    1スライス = 1ユーザー機能を Presentation → Business Logic → Data Access まで縦に貫く単位。
    スライスの粒度・依存順・Status は memory §3 バックログで管理する。
@@ -28,10 +31,14 @@ Sprint 3 のテーマは **AIエージェント構築**。Web アプリ（Next.j
    **必ず reviewer サブエージェントを Task 起動する**（手動ループでも省略しない。自分で書いた
    コードを自分でレビューしたことにしない）。指摘は implementer（または orchestrator 役）が修正し、
    指摘ゼロになるまで次スライスに進まない（修正 3 回を超えたら BLOCKED 記録）。
+   **2026-09-14 改定（AD-032）**: Codex 単独運用での「別エージェント」とは
+   **実装の会話を引き継がない新しい Codex セッション**を指す。同一セッションの続きで自分の差分を見て
+   レビュー済みとしない。手順とプロンプト雛形は `docs/reviews/CODEX-INSTRUCTIONS.md` §0d。
 7. **必ず終端する**: 詰んだスライスは `BLOCKED` として memory §6 に記録し、依存のない他スライスへ進む。
    **2026-09-12 改定（memory AD-014）**: スライスの区切りでの研修者確認は省き、orchestrator が
    レビュー → 修正指示 → DONE → `make check` → commit → 次スライスまで自律で回す。研修者に確認するのは
-   設計判断・破壊的操作・外部 LLM 送信（D05）・スコープ変更・BLOCKED 化のみ。
+   設計判断・破壊的操作・外部 LLM 送信（D05）・スコープ変更・BLOCKED 化のみ
+   （**2026-09-14 追加（AD-032）**: 秘密情報の取り扱いも同列。一覧は CODEX-INSTRUCTIONS §0e）。
 8. **中断復帰**: memory §3 の Status から再開できる。
 
 ## 実装フロー（手動・スライス単位）
@@ -186,9 +193,14 @@ Phase 5: 開発環境の設定     /r2b-env-sprint3（評価の自動化など�
 - `.claude/skills/build-loop/agent-slices.md` は**エージェントスライスの手順書として引き続き参照する**
   （スキル本体 SKILL.md は使わない）
 
-### 6. 実装は Codex に寄せ、検証は `make check` に一本化する（2026-09-12）
+### 6. 実装は Codex に寄せ、検証は `make check` に一本化する（2026-09-12 → 2026-09-14 単独運用へ）
 
-- **実装担当は主に Codex セッション**。Claude メインセッションは orchestrator に徹する
+- **2026-09-14（memory AD-032）: Claude メインセッションは退き、Codex 単独で回す。**
+  memory 編集・レビュー・品質ゲート・commit のすべてを Codex が担う。役割はセッション（フェーズ A 実装／
+  B レビュー／C 転記・commit）に付き、B は必ず**フレッシュ文脈の新セッション**で行う。
+  周回・指示書の書き方・レビュー雛形・commit 手順・研修者へ上げる判断は
+  `docs/reviews/CODEX-INSTRUCTIONS.md` §0〜§0e・§6b が正
+- （〜2026-09-13 の体制・履歴）**実装担当は主に Codex セッション**。Claude メインセッションは orchestrator に徹する
   （スライス指示・reviewer 起動・memory 転記・品質ゲート・commit）。恒久規約は
   `docs/reviews/CODEX-INSTRUCTIONS.md`（memory AD-012）
 - Codex は **memory.md を読むだけ**。進捗・学び・希望 Status は `docs/t{ID}-handoff.md` に書き、

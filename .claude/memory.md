@@ -145,6 +145,11 @@
   索引は MUI Drawer 2 モード・API 追加なし / 「変更採用」タグは出さない（TODO-039）/ review_checked 版では①両ボタン無効化 / 記録者名は確認者・判断者の 2 欄 / 要約「差し戻しコメント」=
   `unlinkedComments.length` / `useRecordMutation` に `resource:"approvals"`・`caseId?` を足し `versionsKey` も invalidate / 日時は応答値のまま（書式統一は C-3）/ SCR-01「差し戻しあり」は出さない（TODO-040）/
   SCR-04 の差し戻しコメント表示は後続（TODO-041）。理由: G5 の経路（draft→staff→review／差し戻し）を 1 スライスで閉じる。
+- [AD-032] **2026-09-14 Codex 単独運用へ移行**（研修者決定。Claude のトークン枯渇）。Claude メインセッション（orchestrator）が持っていた 4 権限を Codex のフェーズへ移譲:
+  **memory 編集＝転記フェーズ C のセッションのみ** / **レビュー＝実装の会話を引き継がない新しい Codex セッション**（憲法6 の「別エージェント」の解釈。同一セッションの続きで自分の差分を
+  レビュー済みとしない）/ **品質ゲート `make check` と commit＝フェーズ C**（pathspec 限定・`git add -A` 禁止・LN-038/CV-023）/ **§7 は Codex 自身のキュー**（更新待ちをしない）。
+  指示書が無いスライス（T-602・T-603 以降）は §0c の構成で**実装前に決定表つきで書く**。研修者に上げるのは設計判断・破壊的操作・D05・スコープ変更・BLOCKED 化・秘密情報の 6 つ（§0e）。
+  影響範囲: CLAUDE.md 憲法1/6/7・決定事項6、`.claude/rules/memory-protocol.md`、`docs/reviews/CODEX-INSTRUCTIONS.md` §0〜§0e・§6b・§7。
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
@@ -240,7 +245,7 @@
 | T-401 | G4 照合集計（BE。保存は T-201・記録は T-301 済） | web | T-201 | DONE | 1回目 RV-040: **DONE**（P3 4 は記録のみ・TODO-031） | 2026-09-13 |
 | T-402 | G4 照合 API #27（UI GET）＋#19 同パス整理（API） | web | T-401 | DONE | 1回目 RV-042: **DONE**（P3 4 は記録のみ・TODO-033） | 2026-09-13 |
 | T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | DONE | 2回目 RV-044: **DONE**（P3 5 は記録のみ・TODO-035）。**G4 完了** | 2026-09-13 |
-| T-501 | G5 状態遷移・差し戻し・送付可否の記録（BE） | web | T-301 | IMPLEMENTING | 指示書 `docs/t501-instructions.md`（AD-028）。Codex 着手可（§7） | 2026-09-13 |
+| T-501 | G5 状態遷移・差し戻し・送付可否の記録（BE） | web | T-301 | REVIEWING | 実装完了・handoff 受領（BE 694 passed の主張）。**レビュー未実施**（AD-032 で Codex のフレッシュセッションが実施） | 2026-09-14 |
 | T-502 | G5 承認・状態 API #1,#22,28,34-37（API） | web | T-501 | PLANNED | 指示書 `docs/t502-instructions.md`（AD-029）。T-501 DONE 後に §7 で投入 | 2026-09-13 |
 | T-503 | G5 SCR-06 引合書承認＋SCR-03/01 の G5 追加（FE） | web | T-502 | PLANNED | 指示書 `docs/t503-instructions.md`（AD-031）。T-502 DONE 後に §7 で投入 | 2026-09-13 |
 | T-601 | G6 .xlsx 5シート生成（BE） | web | T-501 | PLANNED | 指示書 `docs/t601-instructions.md`（AD-030）。T-502 の後に §7 で投入 | 2026-09-13 |
@@ -681,6 +686,8 @@
 - [TODO-035] **T-403 の記録のみ P3（RV-043）**: ①`versions.inventory.{notice,requiredNote,undoNote}` の文体を敬体に ②`InventoryScopePanel` 同名資料の `aria-label` に識別子・`key` を documentId に
   ③「照合する範囲」を #4 資料一覧で補完するか（要素 0 の資料）④`testing/fixtures.ts:77` のインライン `import()` 型 ⑤`inventory-components.test.tsx:302` を `it(`＋日本語名に（RV-044）。①②④⑤は C-3（FE 分）、③は G5 以降の判断材料。
 - [TODO-037] **05 #22「生成所要」の API 露出が未実装**（AD-029 ⑭。DB 上は `agent_runs.version_id` UNIQUE FK で結線済み・T-601 は案件情報シートに `elapsed_sec` を書く）。#22/#23 への露出は G6 T-603 で。
+- [TODO-042] **T-602 / T-603 の指示書が未作成**（AD-032 で Codex が §0c の手順で書く）。T-602 の論点: #38 のバイナリ応答（AD-030 ㉑ 確定済み）・orval のバイナリ扱い・`route_contract.py` への
+  `exports`/`evidence` 登録要否・`E_VERSION_NOT_FINALIZED` の `errors.py` 追加。T-603 の論点: blob 保存の導線・版の履歴パネル（#39 `integrity`）・`VersionListItem.elapsedSec`（AD-029 ⑭）。
 - [TODO-041] **SCR-04（根拠詳細）の「上司の差し戻しコメント」表示が未実装**（03-spec SCR-04・AD-031 ③）。`EvidenceDrawer` に #28 由来の `bounceComments` prop を渡す小改修。G5 完了後の改修スライス。
 - [TODO-040] **SCR-01 の「差し戻しあり」補足**（03-spec SCR-01）は #1 に `bounced` が無く未実装（AD-031 ㉔）。#1 拡張は G6 か C-3 で。
 - [TODO-039] **SCR-06 索引の「変更採用（P.S./Rev.）」タグ**は #24/#26 に判別項目が無く初版では出さない（AD-031 ⑯）。`evidences.change_reason` を行単位に集約して #24 に `hasAdoptedChange` を足すか、
