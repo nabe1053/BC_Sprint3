@@ -151,7 +151,7 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 - L-8c・N-2 は reviewer **DONE 可**（RV-038）→ commit 済み。T-205（実モデル接続）は全ラウンド DONE、T-302 も追補込みで DONE
 - **いまはタスク O（T-303、`docs/t303-instructions.md`）**。完了見出し `## 再レビュー依頼（T-303）`。`make check-fe` / design-lint は自由。Claude は pytest を回さない
-- T-303 の後: T-401（G4 インベントリ照合 BE。指示書準備中）→ T-402 → T-403。G5 は G3 の後
+- **T-303 の後: タスク P（T-401、`docs/t401-instructions.md`・AD-025）**。§7 更新を待たず着手してよい（BE のみ・新規ファイルのみ・migration なし）。完了見出し `## 再レビュー依頼（T-401）`（t401-handoff）。→ T-402 → T-403。G5 は G3 の後
 
 ### タスク L-8c: 依存の逆流を解消（RV-037 P2）
 - `RECOVERY_GRACE_S` を `app/domain/run_types.py` へ移し、`app/agent/definition.py` はそこから import して再公開（`from app.domain.run_types import RECOVERY_GRACE_S`）。

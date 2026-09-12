@@ -110,7 +110,7 @@
 | 24 | `/versions/{versionId}/items` | GET | 明細（**未取消の訂正を適用した現在値**と訂正履歴） **応答の各行に `rowMatch: {confirmationId, recordedBy, recordedAt} | null`（未取消の一致確認。2026-09-13 追記・AD-024。SCR-03 の照合チェック表示と #32 の取消に必要）** | 不要 | UI |
 | 25 | `/versions/{versionId}/items/{itemId}/evidence` | GET | 行の根拠・原表記・出典・原文抜粋（SCR-04） | 不要 | UI |
 | 26 | `/versions/{versionId}/questions` | GET | 確認事項＋最新判断（対応状況・解決状態） | 不要 | UI |
-| 27 | `/versions/{versionId}/inventory` | GET | 網羅性照合の両表と集計（SCR-05） | 不要 | UI |
+| 27 | `/versions/{versionId}/inventory` | GET | 網羅性照合の両表と集計（SCR-05）。**応答形（2026-09-13・AD-025）**: `summary`（`sourceEntryCount` 総要素 / `sourceItemCount` 原明細=status≠excluded / `outputRowCount` / `splitEntryIds` 1 entry に link≥2 / `excludedEntryIds` / `unmappedEntryIds` unmapped∧link0 / `orphanItemIds` link なし item / `multiMappedItemIds` / `inconsistentEntryIds` status と構造の不一致 / `coverage: {confirmationId, recordedBy, recordedAt}\|null`）、`entries[]`（位置・原項番・抜粋・status 保存値・basis・`linkedItems`・構造判定 `judgement`。`seq` 順）、`items[]`（行ID・原項番・グループ・`sourceEntries`・`hasSource`）。判定定義は 04-db:681 が正。unmapped>0 は何も拒否しない（対応なし 0 件は保証ではない） | 不要 | UI |
 | 28 | `/versions/{versionId}/records` | GET | 人の記録の一覧（訂正・確認・判断・状態・差し戻し・送付可否） | 不要 | UI |
 | 40 | `/versions/{versionId}/evidence` | GET | **版の全根拠を一括取得**（.xlsx 根拠シート用。行の根拠と案件レベルの根拠の両方） | 不要 | UI |
 

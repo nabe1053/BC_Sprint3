@@ -109,6 +109,10 @@
   「案件を開く」は `latestVersionId` 非 null のみ・表示状態は `progressStatus` 由来のラベル / T-204 のリンクは success∧versionId / 版履歴は #22 最小を含める /
   根拠要約列は原項番に置換 / 判断は行ごとの「記録」ボタン / 数値は丸めない / 担当者名はメモリのみ。05 #24 書き戻し済み。
 
+- [AD-025] **T-401 の未決 10 件を確定**（2026-09-13 orchestrator。`docs/t401-instructions.md` §0）: 集計は 04-db:681 の構造定義で出し status との不一致は `inconsistent` /
+  unmapped>0 は何も拒否しない / 原明細数 = status≠excluded / migration なし・版外 link は inconsistent / #27 に `coverage` / 並びは BE `(seq,id)`・強調は UI / 多重対応を含める /
+  T-401 は照合集計のみ（保存は T-201・記録は T-301 済。tickets 訂正）。05 #27 に応答形を書き戻し済み。
+
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
@@ -191,7 +195,7 @@
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | DONE | 1回目 RV-033: **DONE**（P3 5 は記録のみ・TODO-025） | 2026-09-13 |
 | T-302 | G3 参照 #23-26 / 記録 #29-33・#22 最小・#1 拡張（API） | web | T-301 | DONE | RV-036 DONE ＋ 追補 N-2（#24 `rowMatch`）RV-038 DONE | 2026-09-13 |
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | IMPLEMENTING | Codex 着手（指示書 `docs/t303-instructions.md`・AD-024） | 2026-09-13 |
-| T-401 | G4 インベントリ・対応関係・照合集計（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
+| T-401 | G4 照合集計（BE。保存は T-201・記録は T-301 済） | web | T-201 | PLANNED | 指示書 `docs/t401-instructions.md`（AD-025）。T-303 の後 | 2026-09-13 |
 | T-402 | G4 照合 API #19,27（API） | web | T-401 | PLANNED | - | 2026-09-11 |
 | T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | PLANNED | - | 2026-09-11 |
 | T-501 | G5 状態遷移・差し戻し・送付可否の記録（BE） | web | T-301 | PLANNED | - | 2026-09-11 |
@@ -597,6 +601,9 @@
 - [TODO-022] **Phase 3 判定の論点 2 件（研修者確認）**: ①外径 `13-3/8″` → `od_value=13.375 in` の分数→小数正規化は D03（換算禁止）に抵触するか。単位不変なので
   orchestrator は「表記の正規化」と判断。06 の採点式（数量は厳密一致・寸法は？）と突き合わせて確定する ②N06「初回案 10 分」に対し run 8 は 631 秒。思考時間が大半で
   ターン数は 14。許容か、モデル/プロンプトで詰めるか（D06 仮値の見直し材料）。
+- [TODO-028] **実モデルのインベントリ status の使い方をプロンプトで是正**: run 8 は脚注 *1〜*3 を `split`、注記を `unmapped` にした（AE01 期待「除外 4・対応なし 0」と構造集計が
+  ずれる）。脚注・注記は `excluded`＋basis（複数行に関わる根拠は excerpt に）へ寄せる指示を `SYSTEM_PROMPT` と `record_source_inventory` の description に（T-205 追補 L-9）。
+- [TODO-029] **`inventory_links` に `version_id`・複合 FK `(version_id, item_id)` が無い**（04-db:670-681）。版外 item への link は書込時検査のみ。複合 FK 追加は 04-db 変更＝設計判断（研修者）。
 - [TODO-027] **T-302 の記録のみ P3（RV-036）**: ①`tests/unit/test_api_path_separation_live.py` → `test_ui_route_presence.py` に改名（integration 側と basename 重複）
   ②`test_single_source_of_truth.py` に「`field_error_codes` 全コード × 表の非 400 エントリの交差 == {E_FIELD_NOT_EDITABLE}」の検査 ③`VersionCounts` は明示コピー
   ④`record_response` の属性名一致前提を docstring に ⑤`Item.__table__.columns` と `ItemCurrentResponse` の差分 = 意図的除外リストの検査 ⑥`definition.py` の再公開 import にコメント ⑦`record_repository` の関数内 import をトップへ
