@@ -147,13 +147,13 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-13 03:50・実評価 run 7 → **L-6 を最優先**、T-301 は中断継続）
+## 7. 次にやること（2026-09-13 04:40・**run 8 で AE01 合格**・T-301 を再開）
 
-- L-4 / L-5 は reviewer **DONE 可**（P2: `run_repository._has_records` の ORM 化が T-301 の `models/records.py` に依存 → **T-205 L-3〜L-5 と T-301 は同一コミット単位**とする。
-  Codex は T-301 再開時に handoff 冒頭へその旨を書く）
-- **run 7 の結果**（`docs/evaluations/g2-real-model-ae01-2026-09-13.md` 試行 5）: 生存信号は機能（201 秒の思考でも停止せず）、AD-020 の自己修復も機能。
-  しかし根拠 26 件・確認事項 6 件を **1 件ずつ登録して 40 ターンを使い切り** `max_turns`。加えて SM95TT の代替候補を別行にして 14 行（run 5 は 11 行で正）。
-  → **AD-021**（agent-plan「T-205 L-6 補足」・停止条件 80 ターンに改定済み）。完了合図: `docs/t205-handoff.md` 冒頭 `## L-6 対応（run 7）` ＋ `再レビュー依頼`
+- **実評価 run 8 = `completed`**（11 行・AE01 期待どおり・631 秒・14 ターン・漏洩 0）。L-6 は reviewer 確認中（Claude）。**Codex は T-301（タスク M）を再開する**
+- T-301 の handoff 冒頭に「T-205 L-3〜L-6 と同一コミット単位（`run_repository._has_records` が `models/records.py` に依存）」と明記する。
+  T-205 のファイル（`app/agent/**`・`claude_policy`・`definition`・`hooks`・`run_types`・`run_repository` の T-205 hunk）は**触らない**
+- Claude は当面 pytest を回さない（reviewer の L-6 確認が終わるまで。終わったら §7 で知らせる）。Codex の `make check` は自由
+- 完了合図: `docs/t301-handoff.md` 末尾 `再レビュー依頼`
 
 ### タスク L-6: 根拠・確認事項の一括登録、MAX_TURNS 80、プロンプト補強、無応答診断（AD-021）
 

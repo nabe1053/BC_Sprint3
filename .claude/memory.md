@@ -170,7 +170,7 @@
 | T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202, C-1 | DONE | 2回目 RV-022: **DONE**（P3 5 は記録のみ・TODO-009。C-1 は未完のまま） | 2026-09-12 |
 | C-2 | 記録のみ P3 の整理 chore（TODO-010/012、backend/app 非接触分） | chore | C-1, T-204 | DONE | 2回目: RV-029 P2-1（`MAKEFLAGS=-j8`）を確認して DONE。残 P3 は TODO-012 ⑦・TODO-017 | 2026-09-12 |
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | DONE | 2回目 RV-028: **DONE**（P3 1 は記録のみ・TODO-012 へ） | 2026-09-12 |
-| T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | FIXING | 実評価 run 3 で ToolSearch 拒否により失敗（AD-019）→ L-3。RV-031 の DONE は撤回せず改修として扱う | 2026-09-13 |
+| T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | REVIEWING | 5回目（L-6 確認中）。**実評価 run 8 = AE01 合格**（11 行・631 秒・14 ターン）。L-3〜L-6 は T-301 と同一コミット単位 | 2026-09-13 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
 | T-302 | G3 参照 #23-26 / 記録 #29-31,33（API） | web | T-301 | PLANNED | - | 2026-09-11 |
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | PLANNED | - | 2026-09-11 |
@@ -188,6 +188,9 @@
 > G3（T-301〜303）・G4（T-401〜403）は並行可 → G5 → G6。
 > 並行してよいのは依存が独立でファイルが重ならない組（T-301 / T-401）のみ。規則は
 > `docs/reviews/CODEX-INSTRUCTIONS.md` §5。
+
+> **実モデル評価 AE01 合格・2026-09-13（run 8）**: `AGENT_MODE=claude` / `claude-sonnet-5` で sample-06 が `completed`・11 行（択一 2 組・分割 1 組・TBA・原表記保持・代替は確認事項）・
+> 631 秒・14 ターン・漏洩 0。6 回の試行で L-3〜L-6 の欠陥 4 件を潰した。記録: `docs/evaluations/g2-real-model-ae01-2026-09-13.md`。
 
 > **G2 ミニ評価（⑤）合格・2026-09-12**: UI API 経由で実ジョブを通し、正常系 `completed`（明細 3・確認事項 2・違反 0・トレース漏洩 0・換算なし）と
 > 対応範囲外 `failed/local_dummy_unsupported`（捏造なし）を確認。記録: `docs/evaluations/g2-mini-eval-2026-09-12.md`。Phase 3 本評価は D05 承認後。
@@ -461,6 +464,10 @@
   から worker へ漏れ、`inactivity_timeout` が `process_interrupted` に化け turns も 0 に上書き**された。停止理由の分類はモックでは壊れず実機で壊れた → 実機の停止系
   （無応答を意図的に起こす）を評価シナリオに 1 本持つ。
 
+- [LN-046] **実モデルの初回評価は「型の欠陥」を 1 本ずつ剥がす反復になる。**run 3〜8 で ①ランタイムのメタツール拒否 ②生存信号の粒度 ③ツールエラー即中断
+  ④ターン予算と 1 件ずつの登録、が順に露出した。いずれも SDK 完全モックの単体テストでは検出不能。**実モデルの評価ループ（起動 → トレース → 1 欠陥 → 短ラウンド → 再実行）を
+  Codex 常駐ループと組み合わせると 1 欠陥あたり約 30 分**で回る。評価スクリプト（scratchpad `real-eval-ae01.sh`）は Phase 5 の skill 化候補。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
@@ -500,6 +507,9 @@
   ③`cwd` テストを「リポジトリルート配下でない」「実行後に削除済み」の assert に ④`bounded()` の heartbeat 分岐を stream 専用ラッパへ。実評価の観察結果と合わせて次ラウンド。
 - [TODO-021] **run 4/6 の `process_interrupted` 化は未再現**（61 秒で停止。run 7 は 201 秒の間隔でも停止せず）。L-6 で無応答発火時の診断メタデータ（直近の生存信号からの
   秒数・受信数）を `job_interrupted` に残し、次の再発で「生存信号が来なかった」か「分類が崩れた」かを切り分ける。診断サーバ: scratchpad `diag_server.py`（jobs._execute をラップ）。
+- [TODO-022] **Phase 3 判定の論点 2 件（研修者確認）**: ①外径 `13-3/8″` → `od_value=13.375 in` の分数→小数正規化は D03（換算禁止）に抵触するか。単位不変なので
+  orchestrator は「表記の正規化」と判断。06 の採点式（数量は厳密一致・寸法は？）と突き合わせて確定する ②N06「初回案 10 分」に対し run 8 は 631 秒。思考時間が大半で
+  ターン数は 14。許容か、モデル/プロンプトで詰めるか（D06 仮値の見直し材料）。
 - [TODO-001] D02（入力上限）は AD-003 の**仮値**。初版受入（X09 の上限試験）の前に研修者が実値を確定する。
   **確定時は `backend/app/core/config.py` と `frontend/src/shared/i18n/ja.json` の上限注記の両方を直す**（RV-024 P2-2。API が上限を返さないため画面側に複製がある）。
 - [TODO-002] **eml には `document_pages` が無い**ため、04-db.md の完了条件の機械判定

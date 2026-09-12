@@ -59,3 +59,27 @@
 | 対処 | AD-021: `record_evidence` / `record_question` を**配列で一括登録**可能に（ツール一覧は 13 本のまま・入力が配列になる）、`MAX_TURNS` 40→80（D06 仮値更新）、システムプロンプトに「代替候補は行にせず確認事項へ」「根拠・確認事項は一括で登録」を明記。Codex L-6 |
 
 トレース: `backend/traces/6.jsonl` / `7.jsonl`。DB: version 7（items 14 / evidences 26 / questions 6 / inventory 28）。
+
+## 試行 6（run_id=8, case_id=9、L-6 適用後）— **合格（AE01）**
+
+| 観点 | 結果 |
+|---|---|
+| 終端 | `outcome=success` / `stopReason=completed` / `versionId=8` / `isComplete=true`、`versions.finalized_at` あり。**631 秒・14 ターン** |
+| ツール列（13 本の範囲内・IPO 表 1〜10 と同順） | `get_rules → list → read ×4 → propose_items(E_REQUEST_INVALID → 再送 ok 11) → record_case_header → record_evidence(E_EVIDENCE_DUPLICATE → 再送 ok 101) → record_question(6) → record_source_inventory(24) → validate_draft(違反 26) → record_evidence(26) → validate_draft(違反 0) → finalize_draft`。自己修復 2 回・違反の一括修正 1 回（AD-020 / AD-021 が効いた） |
+| **AE01 の期待** | **11 行**。No.4 は `G-ITEM4-ALT` で VAM TOP / VAM 21 の 2 行（各 260 本・合算なし）、No.5 も同様（各 380 本）、No.6 `qty_state=tba`、No.7 は 5FT×6 / 10FT×6（`G-ITEM7-SPLIT`）、SM95TT は置換せず原表記、**代替提案可は明細行にせず確認事項 3 件**（顧客に代替可否を確認）。単位「本」「個」は原値 |
+| インベントリ | 明細 8 → 11 行（mapped 5 / split 3）、注記・提出要領・架空文書注記は excluded / unmapped、脚注 *1〜*3 は split（複数行に関わる根拠）。合計 24 要素 |
+| 確認事項 | 6 件: 代替可否 ×3（*1）、接続の最終採用 ×2（*2）、希望納期の基準（出荷 / 到着）×1。捏造・補完なし |
+| D03（換算しない） | 数量・単位は原値。質量・本数の換算なし。**気づき**: 外径 `13-3/8″` → `od_value=13.375, od_unit=in`（分数→小数の表記正規化。単位は不変）。換算ではないと判断するが、06 の採点との関係で要確認（TODO-022） |
+| N02 / ガードレール | トレースに原文なし（grep 0）。`guardrail_denied` 0。`agent_runs.model=claude-sonnet-5`。一時 cwd の残骸 0 |
+| N06（初回案 10 分） | **631 秒 = 10 分 31 秒**で僅かに超過。思考時間（read 後 170 秒、propose 前 59 秒 等）が大半。ターン数は 14 なので `MAX_TURNS=80` は十分。D06 仮値見直しの材料（TODO-022） |
+
+**判定: AE01 合格**（完了条件①〜⑧の判定方法どおり `validate_draft` 違反 0 → `finalize_draft`）。トレース: `backend/traces/8.jsonl`。
+
+## 6 回の試行で潰した欠陥（T-205 L-3〜L-6）
+
+| # | 症状 | 原因 | 対処 |
+|---|---|---|---|
+| run 3 | ツール呼出し 0・拒否 7 | CLI の MCP 遅延ロード（`ToolSearch`）を hook が拒否 | AD-019: メタツール許可・ハーネスツール遮断 |
+| run 4/6 | 読取後 60 秒で `process_interrupted` | 生存信号がメッセージ単位・分類崩れ（未再現） | L-4: StreamEvent 生存信号・後始末隔離・turns 保持。診断メタ（TODO-021） |
+| run 5 | 11 行抽出後 `tool_rejected` | ツールエラー 1 回で即中断 | AD-020: エラーを返して継続・3 連続で中断 |
+| run 7 | `max_turns`（40） | 根拠 1 件ずつ 26 回・代替候補を行に | AD-021: 一括登録・80 ターン・プロンプト補強 |
