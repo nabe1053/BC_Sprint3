@@ -178,6 +178,10 @@
 - [CV-024] **並行制御（FOR UPDATE / 部分 UNIQUE / advisory lock）を主張するテストは、実 PostgreSQL の 2 セッションで「ブロックされたこと」を `pg_blocking_pids` 等で観測し、
   かつ「解放後の値」まで assert する**（LN-014 の具体化。T-301 の版ロックテストが型。no-lock 変異を検出できる）。
 
+- [CV-025] **値と単位が同じ `*_state` を共有する列（外径・肉厚・単重・長さ・数量）は、状態ラベルを列につき 1 つだけ出す**（AD-024 ⑥の一般化。T-303 RV-039 P2-1）。
+- [CV-026] **FE の整形（prettier）は品質ゲートに含める**: `make fe-lint` に `prettier --check "src/**/*.{ts,tsx}"` を足す。実装者は完了前に `prettier --write`。
+  eslint だけでは 1 行詰めの未整形が通る（T-204・T-303 で 2 回 → 昇格）。
+
 ## 3. 実装バックログ（プラン状態＝ループの制御表）
 
 | ID | スライス | 種別 | 依存 | Status | レビュー | 最終更新 |
@@ -194,8 +198,8 @@
 | T-205 | G2 実モデル接続（`claude_policy`・AGENT_MODE 切替・D05） | agent | T-203, C-2 | DONE | 9回目 RV-038: L-8c **DONE**。L-3〜L-8c 全 DONE・AE01/02/03 合格。残 P3 は TODO-020/023/026 | 2026-09-13 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | DONE | 1回目 RV-033: **DONE**（P3 5 は記録のみ・TODO-025） | 2026-09-13 |
 | T-302 | G3 参照 #23-26 / 記録 #29-33・#22 最小・#1 拡張（API） | web | T-301 | DONE | RV-036 DONE ＋ 追補 N-2（#24 `rowMatch`）RV-038 DONE | 2026-09-13 |
-| T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | IMPLEMENTING | Codex 着手（指示書 `docs/t303-instructions.md`・AD-024） | 2026-09-13 |
-| T-401 | G4 照合集計（BE。保存は T-201・記録は T-301 済） | web | T-201 | PLANNED | 指示書 `docs/t401-instructions.md`（AD-025）。T-303 の後 | 2026-09-13 |
+| T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | FIXING | 1回目 RV-039: **DONE 可** P2 2（状態ラベル二重・prettier 未適用）を短ラウンド O-2 で | 2026-09-13 |
+| T-401 | G4 照合集計（BE。保存は T-201・記録は T-301 済） | web | T-201 | IMPLEMENTING | Codex 着手（指示書 `docs/t401-instructions.md`・AD-025） | 2026-09-13 |
 | T-402 | G4 照合 API #19,27（API） | web | T-401 | PLANNED | - | 2026-09-11 |
 | T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | PLANNED | - | 2026-09-11 |
 | T-501 | G5 状態遷移・差し戻し・送付可否の記録（BE） | web | T-301 | PLANNED | - | 2026-09-11 |
@@ -407,6 +411,13 @@
   migration 不変、応答 3 項目のみ（ダミー属性混入で検査）、coverage 確認では null のまま、orval model 137→138（消失 0）。実測 579 passed / tsc 0。P3: 再公開 import の
   コメント / 関数内 import をトップへ / 部分 UNIQUE 前提のコメント → TODO-027 へ追記。
 
+- [RV-039] T-303 1回目（Codex → T-204 担当 reviewer 独立・2026-09-13）: **DONE 可**。P1 0 / P2 2 / P3 6。AD-024 の 15 決定を 15/15 反映（`rowMatch` で照合 ON/OFF・
+  ページに contained 0・`latestVersionId` リンク・T-204 リンク・版履歴最小・レンジ/定尺長併記・丸めない・原項番列・documents index 経由・記録ボタン・担当者名メモリ・
+  数量旧値別セル・既存テスト 3 箇所は置換）。BE の `consistent()` と FE の `buildEditRequest` が同条件・同 code で二重管理なし。HTML/URL/巨大 10 進をテストデータに仕込み
+  否定 assert。実測 FE 261 passed / design-lint 0。P2: ①外径・単重セルで値と単位に同じ `*State` を渡し「記載なし 記載なし」の二重表示 ②prettier 未適用 6 ファイル
+  （`make check-fe` は eslint のみで検出しない・T-204 でも 1 件 → 2 回目）。P3: groupCode と candidateLabel の連結 / 原表記 blockquote に項目名なし / i18next 予約 `count` /
+  判断 3 列の colSpan / ドロワー開時 contained≤1 の assert なし / キーワード検索が内部識別子にヒット。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -558,6 +569,9 @@
 - [LN-057] **共有ハンドラ（route class・例外変換）を変更するスライスは「影響が及ぶ集合 × 挙動が変わる集合」の交差を計算して handoff に書く**（T-302: 交差 1 件）。
   応答 DTO のホワイトリストは、存在しないダミー列名を禁止集合に混ぜて assert すると「絞っていること」自体を検査できる。
 
+- [LN-058] **FE の共有 fixture を `__tests__/` に置くと jest が suite として収集して「テスト 0 件」で落ちる。**`features/*/testing/` か `shared/testing/` に置く（CV-021 の FE 版）。
+  i18next の `count` は複数形の予約キーなので件数の補間名に使わない。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
@@ -604,6 +618,8 @@
 - [TODO-028] **実モデルのインベントリ status の使い方をプロンプトで是正**: run 8 は脚注 *1〜*3 を `split`、注記を `unmapped` にした（AE01 期待「除外 4・対応なし 0」と構造集計が
   ずれる）。脚注・注記は `excluded`＋basis（複数行に関わる根拠は excerpt に）へ寄せる指示を `SYSTEM_PROMPT` と `record_source_inventory` の description に（T-205 追補 L-9）。
 - [TODO-029] **`inventory_links` に `version_id`・複合 FK `(version_id, item_id)` が無い**（04-db:670-681）。版外 item への link は書込時検査のみ。複合 FK 追加は 04-db 変更＝設計判断（研修者）。
+- [TODO-030] **T-303 の記録のみ P3（RV-039）**: ①`groupCode`+`candidateLabel` の区切り ②原表記 blockquote に項目名 ③i18next `count` → 非予約名 ④判断 3 列の見出しとセルの対応
+  ⑤ドロワー開時 contained≤1 の assert ⑥キーワード検索の対象を表示値に限定・日時の書式（G5 で決める）。C-3（FE 分）で。
 - [TODO-027] **T-302 の記録のみ P3（RV-036）**: ①`tests/unit/test_api_path_separation_live.py` → `test_ui_route_presence.py` に改名（integration 側と basename 重複）
   ②`test_single_source_of_truth.py` に「`field_error_codes` 全コード × 表の非 400 エントリの交差 == {E_FIELD_NOT_EDITABLE}」の検査 ③`VersionCounts` は明示コピー
   ④`record_response` の属性名一致前提を docstring に ⑤`Item.__table__.columns` と `ItemCurrentResponse` の差分 = 意図的除外リストの検査 ⑥`definition.py` の再公開 import にコメント ⑦`record_repository` の関数内 import をトップへ
