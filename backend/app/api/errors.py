@@ -13,7 +13,7 @@ from typing import Any
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
-from app.services.exceptions import DomainError
+from app.domain.errors import DomainError
 
 
 class ApiError(Exception):
@@ -43,6 +43,14 @@ async def api_error_handler(_: Request, exc: ApiError) -> JSONResponse:
 # DomainError.code → HTTP status（05-api-ipo.md 6章）。
 # ここに無い code は開発時の取りこぼしなので 400（Bad Request）に丸める。
 DOMAIN_ERROR_STATUS_BY_CODE: dict[str, int] = {
+    "E_RUN_NOT_ACTIVE": 409,
+    "E_VERSION_FINALIZED": 409,
+    "E_EVIDENCE_DUPLICATE": 409,
+    "E_VALIDATION_FAILED": 409,
+    "E_NO_ITEMS": 409,
+    "E_RUN_IN_PROGRESS": 409,
+    "E_JOB_START_FAILED": 503,
+    "E_EXTERNAL_SEND_NOT_APPROVED": 503,
     "E_DUPLICATE_CASE_CODE": 409,
     "E_LIMIT_EXCEEDED": 413,
     "E_UNSUPPORTED_FORMAT": 415,

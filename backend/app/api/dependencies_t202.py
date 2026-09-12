@@ -1,0 +1,64 @@
+"""Composition root. Runtime settings are never needed for isolated schema export."""
+from contextlib import aclosing, asynccontextmanager
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from app.core.database import get_db
+from app.core.config import settings
+from app.agent.jobs import local_worker_unavailable, stop_jobs
+from app.agent.definition import default_run_limits
+from app.domain.run_types import InputLimits
+from app.repositories.draft_repository import DraftRepository
+from app.repositories.run_repository import RunRepository
+from app.repositories.run_input_files import RunInputFiles
+from app.repositories.run_trace_store import RunTraceStore
+from app.repositories.run_background import RunBackground
+from app.services.draft_service import DraftService
+from app.services.run_service import RunService
+from app.services.run_dispatcher import RunDispatcher
+
+
+async def get_draft_service(session: AsyncSession = Depends(get_db)) -> DraftService:
+    return DraftService(DraftRepository(session))
+
+
+def make_run_repository(session):
+    return RunRepository(
+        session,
+        file_size=RunInputFiles(settings.STORAGE_ROOT).size,
+        trace=RunTraceStore(),
+    )
+
+
+async def get_run_service(session: AsyncSession = Depends(get_db)) -> RunService:
+    sessions = async_sessionmaker(session.bind, expire_on_commit=False)
+    limits = default_run_limits()
+    background = RunBackground(
+        sessions,
+        file_size=RunInputFiles(settings.STORAGE_ROOT).size,
+        trace=RunTraceStore(),
+    )
+    dispatcher = RunDispatcher(background, local_worker_unavailable, limits)
+    return RunService(
+        make_run_repository(session),
+        limits=limits,
+        input_limits=InputLimits(
+            max_documents=settings.MAX_DOCUMENTS_PER_CASE,
+            max_file_bytes=settings.MAX_FILE_SIZE_MB * 1024 * 1024,
+            max_pdf_pages=settings.MAX_PDF_PAGES,
+            max_xlsx_sheets=settings.MAX_XLSX_SHEETS,
+        ),
+        scheduler=dispatcher,
+    )
+
+
+@asynccontextmanager
+async def run_lifespan(app):
+    # Local PoC runs one server process. No worker is alive before startup.
+    async with aclosing(get_db()) as sessions:
+        async for session in sessions:
+            await make_run_repository(session).recover_interrupted()
+            break
+    try:
+        yield
+    finally:
+        await stop_jobs()

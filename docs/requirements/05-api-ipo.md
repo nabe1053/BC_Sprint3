@@ -261,7 +261,7 @@
 | パラメータ | 必須 | 意味 |
 |-----------|------|------|
 | `caseId` | Yes | 対象案件。**他案件の資料は読ませない**（N01） |
-| `ruleVersion` | No | 使用する規則版。**省略時は ④`rule_sets.is_current = true` の版**（最大 id や `rule_version` の文字列順で決めない）。採用した版は `agent_runs.rule_set_id` と `versions.rule_set_id` に同値で残す |
+| `ruleVersion` | No | 使用する規則版。**省略または `current` 指定時は ④`rule_sets.is_current = true` の版**（最大 id や `rule_version` の文字列順で決めない）。採用した版は `agent_runs.rule_set_id` と `versions.rule_set_id` に同値で残す |
 | `acknowledgedCarryOver` | 条件付き | 既存版に記録がある場合に必須。**引き継がれない旨を利用者が確認したことを示す**（X12） |
 
 #### レスポンス（成功 202）
@@ -599,6 +599,9 @@
 | `E_NO_READABLE_DOCUMENT` | 読取成功の資料が0。**明細0件の作成案を作らない** | N03, AE05 |
 | `E_CARRY_OVER_NOT_ACKNOWLEDGED` | 記録がある版の再実行で確認が無い | FUNC-10, X12 |
 | `E_RUN_IN_PROGRESS` | 実行中の二重起動 | N03 |
+| `E_REQUEST_INVALID` | 個別コードに該当しない入力不正（400）。camelCase規約・path/query形式違反は422。値を応答へ含めない | 0.2, 0.4 |
+| `E_JOB_START_FAILED` | 予約直後のトレース保存またはジョブ投入失敗（503）。予約した実行はfailedとして保持 | 3.1, N03 |
+| `E_RUN_NOT_ACTIVE` | 終了済み実行に紐づく版への遅延書込を拒否（409） | 3.3, N03 |
 | `E_EXTERNAL_SEND_NOT_APPROVED` | 外部LLM送信が未承認 | **D05** |
 | `E_QTY_UNIT_REQUIRED` | 数値の数量に単位が無い | ②5章, X11 |
 | `E_UNIT_REQUIRED` | 外径・肉厚・単重・定尺長に値があるのに単位が無い | R04, ④items の CHECK |
@@ -685,3 +688,18 @@
 
 → `/r2b:design-implementation-check` で実装設計フェーズ（agent-plan Part 2・04-db・05-api-ipo）のレビューを行う
 → `02-requirement.md` の各機能に「対応API」欄を追記する
+
+### T-202 入出力の補足
+
+- #16 は `{rows: [...]}`、#19 は `{entries: [...]}` を受理し、バッチは全件一括保存。失敗時は全件を保存しない。#17/#18 は1件ずつ受理する。
+- `E_REQUEST_INVALID` (400): 不正な型・未定義フィールドなど、個別業務コードに該当しない入力不正。入力値そのものはエラーに含めない。camelCase規約違反・パス/クエリ形式違反は422。
+
+- `E_JOB_START_FAILED` (503): 実行予約後のジョブ投入失敗。予約した実行はfailedに記録する。
+- #14 は `{steps: [...]}`、各stepはstepId/seq/toolName/argsDigest/argsSummary/locator/documentId/resultStatus/durationMs/parentStepId。job_start/job_finishも記録し、資料全文は返さない。
+
+- `E_RUN_NOT_ACTIVE` (409): 終了済み実行に紐づく版への遅延書込。停止後の処理が成果物を変更することを防ぐ。
+- 進捗GET（#13）とstep取得（#14）は読取専用とし、DB書込・排他ロック・JSONL再構築を行わない。再実行要求時には、保存済みouterTimeoutS+完了保存猶予16秒を過ぎた実行をouter_timeoutとして回収する。一時的なDB障害で実行中が残り続けることを防ぐ。通常起動は単一サーバープロセスとし、プロセス起動時には残存runningをfailedとして回収する。
+
+- #12の容量再確認では、原本が欠損・参照不能なら容量だけ再検査を省略する（投入時の上限検査は維持）。抽出済みdocument_pages/email_partsがあれば再利用できる。資料数・ページ数・読取可能性の検査は省略しない。
+- #14の `job_start` / `job_finish` / `job_trace_failure` はジョブ管理イベントであり、AGENTのツール登録を増やさない。`job_trace_failure` は本文を含まないディスク障害記録。例外の生メッセージ・スタック・資料本文はAPI/JSONLへ出さない。
+- #16の `rejected` は全件一括保存のため常に空配列。#20のcountsはitems/questions/inventoryの非負整数3項目。

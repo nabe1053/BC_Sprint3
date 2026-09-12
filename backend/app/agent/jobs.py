@@ -1,77 +1,98 @@
-"""エージェント実行のジョブ管理（Sprint 3 の実行の型）。
-
-- 起動: start_agent_job() → run_id を即返し、実行はバックグラウンドタスクで進む
-- 監視: get_job(run_id) でステータス、read_progress(run_id) で進捗
-- 進捗の実体はトレース（traces/{run_id}.jsonl）そのもの — 別の進捗管理を作らない
-- ジョブ一覧はプロセス内保持（教材の割り切り）。再起動で消える。
-  永続化が要件なら 04-db.md の `agent_runs` / `agent_run_steps` へ書く（build-loop で実装）
-"""
-
+"""Local job boundary: immediate dispatch, bounded work and durable terminal callback."""
 import asyncio
-import json
-from dataclasses import dataclass
-from datetime import datetime, timezone
+import logging
+from app.domain.run_types import RunResult
 
-from app.agent import definition
-from app.agent.runner import AgentRunResult, run_agent
-from app.agent.trace import TRACES_DIR, TraceRecorder
-
-
-@dataclass
-class AgentJob:
-    run_id: str
-    status: str  # running / completed / failed / max_turns / *_timeout / repeated_call
-    started_at: str
-    result: AgentRunResult | None = None
+_tasks: set[asyncio.Task] = set()
+_workers: set[asyncio.Task] = set()
+logger = logging.getLogger(__name__)
+CANCEL_GRACE_S = 0.02
+FINISH_TIMEOUT_S = 5
 
 
-_jobs: dict[str, AgentJob] = {}
-
-
-def start_agent_job(prompt: str, *, scenario: str | None = None) -> str:
-    """エージェントをバックグラウンドで起動し、run_id を即返す。"""
-    trace = TraceRecorder(
-        scenario=scenario
-    )  # 先に作る → run_id が確定 & 外側発火も記録可能
-    job = AgentJob(
-        run_id=trace.run_id,
-        status="running",
-        started_at=datetime.now(timezone.utc).isoformat(),
+def start_agent_job(run_id: int, *, work, on_finish, outer_timeout_s: float):
+    task = asyncio.create_task(
+        _execute(work, on_finish, outer_timeout_s), name=f"agent-run-{run_id}"
     )
-    _jobs[trace.run_id] = job
-    asyncio.create_task(_execute(job, prompt, trace))
-    return trace.run_id
+    _tasks.add(task)
+    task.add_done_callback(_done)
+    return task
 
 
-async def _execute(job: AgentJob, prompt: str, trace: TraceRecorder) -> None:
+def _done(task):
+    _tasks.discard(task)
+    if not task.cancelled() and task.exception() is not None:
+        logger.error(
+            "Agent terminal persistence failed (%s); next start/startup recovery is required",
+            type(task.exception()).__name__,
+        )
+
+
+def _worker_done(task):
+    _workers.discard(task)
+    if not task.cancelled():
+        exc = task.exception()
+        if exc is not None:
+            logger.error("Agent background task failed (%s)", type(exc).__name__)
+
+
+async def _cancel_with_grace(task):
+    task.cancel()
+    # wait_for would wait indefinitely when a worker suppresses cancellation.
+    await asyncio.wait({task}, timeout=CANCEL_GRACE_S)
+
+
+async def _persist(on_finish, result):
+    task = asyncio.create_task(on_finish(result))
+    _workers.add(task)
+    task.add_done_callback(_worker_done)
+    done, _ = await asyncio.wait({task}, timeout=FINISH_TIMEOUT_S)
+    if not done:
+        await _cancel_with_grace(task)
+        raise TimeoutError("Terminal callback exceeded its deadline")
+    task.result()
+
+
+async def _execute(work, on_finish, timeout):
+    worker = asyncio.create_task(work())
+    _workers.add(worker)
+    worker.add_done_callback(_worker_done)
     try:
-        # 外側タイムアウト: 内側（runner）が機能しなかったときの最後の砦
-        result = await asyncio.wait_for(
-            run_agent(prompt, trace=trace), definition.OUTER_TIMEOUT_S
-        )
-        job.result = result
-        job.status = result.stop_reason
-    except TimeoutError:
-        # 外側発火 = 内側の異常（ハング）。トレースに記録し、バグとして調査する
-        trace.record_result(
-            "outer_timeout",
-            detail=f"{definition.OUTER_TIMEOUT_S}s 超過（内側が機能せず）",
-        )
-        job.status = "outer_timeout"
-    except Exception as e:  # 予期しない例外もジョブとトレースに残す
-        trace.record_result("failed", detail=repr(e))
-        job.status = "failed"
+        done, _ = await asyncio.wait({worker}, timeout=timeout)
+        if not done:
+            await _cancel_with_grace(worker)
+            result = RunResult("outer_timeout")
+        else:
+            result = worker.result()
+    except asyncio.CancelledError:
+        await _cancel_with_grace(worker)
+        result = RunResult("failed", detail="process_interrupted")
+    except Exception:
+        result = RunResult("failed", detail="worker_failed")
+    # A transient DB error must not permanently strand a run.
+    for attempt in range(3):
+        try:
+            await _persist(on_finish, result)
+            return
+        except Exception as exc:
+            logger.error(
+                "Agent terminal persistence attempt failed (%s)", type(exc).__name__
+            )
+            if attempt == 2:
+                raise RuntimeError("Terminal state could not be persisted") from None
+            await asyncio.sleep(0.1 * 2**attempt)
 
 
-def get_job(run_id: str) -> AgentJob | None:
-    return _jobs.get(run_id)
+async def stop_jobs():
+    tasks = list(_tasks)
+    for task in tasks:
+        task.cancel()
+    if tasks:
+        await asyncio.wait(tasks, timeout=16)
+    for worker in list(_workers):
+        worker.cancel()
 
 
-def read_progress(run_id: str, limit: int = 20) -> list[dict]:
-    """進捗 = トレースの末尾。ポーリング応答にそのまま載せる
-    （agent-plan.md「ユーザーから見た体験（実行中の見え方）」の実装手段）。"""
-    path = TRACES_DIR / f"{run_id}.jsonl"
-    if not path.exists():
-        return []
-    lines = path.read_text(encoding="utf-8").splitlines()
-    return [json.loads(line) for line in lines[-limit:]]
+async def local_worker_unavailable(context):
+    """T-203 supplies generation; no unfinished draft is fabricated as success."""
+    return RunResult("failed", detail="agent_implementation_pending")

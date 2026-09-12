@@ -198,6 +198,8 @@ sample-10（GulfTex／.eml のスレッド。最新本文で item 1 の数量が
 
 ---
 
+> **T-201補足（2026-09-12）**: 完了条件①の読取成功範囲には `email_parts` を含む。`read_email` の完全応答はトレースの `locator=email:*`、部分応答は `email:<part_role>:<seq>` で表す。未走査判定と完了条件②の TBA・両端根拠は `04-db.md` §3.3「T-201 補足」に従う。新しいツールは追加しない。
+
 ## 3. 未確定事項（本書の範囲）
 
 | ID | 内容 | 影響 | 扱い |
@@ -213,3 +215,11 @@ sample-10（GulfTex／.eml のスレッド。最新本文で item 1 の数量が
 - `/r2b:design-db` で ツール一覧最終列のテーブル（`case` / `document` / `document_page` / `email_part` / `document_issue` / `rule_set` / `version` / `case_header` / `item` / `evidence` / `question` / `source_inventory` / `agent_run` / `agent_run_step`）を設計する
 - `/r2b:design-api-ipo` で ツールに対応する API と IPO を設計する
 - `06-scenario-test.md` 4.1節に AE01〜AE07 をエージェント評価シナリオとして反映済み。完了条件・失敗・強制停止の変更時は 06 側も更新する
+
+### T-202 ジョブ境界の補足（RV-015、2026-09-12）
+
+- 停止閾値の既定値はdefinition.pyのdefault_run_limitsで組み立て、DTO・dispatcherへ注入する。ダミーモデル識別子もdefinition.pyからservice経由でrepositoryへ渡す。
+- jobsの外側期限でcancelした後は20msだけ後始末を待つ（非協調workerの停止待ちで上限を失わない）。完了保存は1回5秒を上限として最大3回、間隔は0.1秒・0.2秒。完了保存自体がcancelを抑止してもasyncio.waitで待機を打ち切り、総猶予16秒以内を保つ。例外診断は型名のみを記録する。
+- T-203 workerはcancel後に新たなツール呼出し・成果物書込を開始せず、取得済みリソースを解放すること。終了済み実行への書込拒否は引き続きrepositoryで強制する。
+- 進捗GETに回収・JSONL出力の副作用を持たせない。保存失敗が全再試行後も続いた実行は次の実行開始要求またはプロセス起動で回収する。その間、ポーリングは最後に保存された状態を返す。
+- T-203へは自動着手しない。既存runner/hooks/TraceRecorderの統合、ガードレール差込口、runロック中のツールstep採番、decision/observationスキーマはT-203開始前の設計・レビュー課題とする。新ジョブのJSONLはRunTraceStoreを使用し、旧TraceRecorderへ本文を流す経路を接続しない。

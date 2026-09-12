@@ -6,17 +6,7 @@ Service/Repository はこのファイルの例外だけを送出し、`app.api.*
 （clean-architecture.md: 内側は外側を知らない）。
 """
 
-from typing import Any
-
-
-class DomainError(Exception):
-    """業務エラーの基底クラス。`code` は 05-api-ipo.md 6章のエラーコード。"""
-
-    code: str = "E_DOMAIN_ERROR"
-
-    def __init__(self, message: str, details: dict[str, Any] | None = None) -> None:
-        self.details = details or {}
-        super().__init__(message)
+from app.domain.errors import DomainError
 
 
 class DuplicateCaseCodeError(DomainError):

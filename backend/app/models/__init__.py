@@ -23,3 +23,23 @@ __all__ = [
     "AgentRunStep",
     "Version",
 ]
+
+from app.models.drafts import (
+    CaseHeader,
+    Item,
+    ItemEnd,
+    Evidence,
+    Question,
+    InventoryEntry,
+    InventoryLink,
+)
+
+__all__ += [
+    "CaseHeader",
+    "Item",
+    "ItemEnd",
+    "Evidence",
+    "Question",
+    "InventoryEntry",
+    "InventoryLink",
+]

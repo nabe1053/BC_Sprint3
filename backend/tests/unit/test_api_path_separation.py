@@ -9,6 +9,7 @@ from app.main import API_V1, app
 # 人の記録・出力（05-api-ipo.md F群 29〜37・G群 38〜40）を示す語。
 # これらが /agent/* 配下に現れたら、認可の無い本構成では AI が人の記録を書ける状態になる。
 UI_ONLY_SEGMENTS = (
+    "agent-runs",
     "edits",
     "confirmations",
     "judgements",

@@ -9,6 +9,9 @@ build-loop のエージェントスライスが endpoints/ 配下にモジュー
 
 from fastapi import APIRouter
 
+from app.api.agent.endpoints.drafts import router as draft_router
+from app.api.common.draft_validation import router as validation_router
+
 from app.api.agent.endpoints import documents
 from app.api.common.endpoints_reference import router as reference_router
 
@@ -21,3 +24,7 @@ router.include_router(reference_router)
 # 次のスライスがここに endpoints を追加していく（例）:
 # from app.api.agent.endpoints import items, evidence, ...
 # router.include_router(items.router)
+
+
+router.include_router(draft_router)
+router.include_router(validation_router)

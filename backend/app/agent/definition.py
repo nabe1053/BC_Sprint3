@@ -49,6 +49,19 @@ REPEATED_CALL_LIMIT = 3
 # 実行モデル識別子。agent_runs.model に記録する。
 DUMMY_MODEL_ID = "mock-fixed-v2"
 
+
+def default_run_limits():
+    """Inject this definition's thresholds into the settings-free domain contract."""
+    from app.domain.run_types import RunLimits
+
+    return RunLimits(
+        max_turns=MAX_TURNS,
+        inner_timeout_s=INNER_TIMEOUT_S,
+        inactivity_timeout_s=INACTIVITY_TIMEOUT_S,
+        outer_timeout_s=OUTER_TIMEOUT_S,
+    )
+
+
 # ガードレール（PreToolUse hook が検査する禁止パターン）。
 # 資料内の指示実行・外部リンク取得を防ぐ（agent-plan.md ガードレール／AE06）。
 BLOCKED_ARG_PATTERNS: list[str] = [

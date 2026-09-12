@@ -1,6 +1,6 @@
 """rule_sets（B層 規則・実行）。04-db.md 3.2。"""
 
-from sqlalchemy import Boolean, Text
+from sqlalchemy import Boolean, Text, Index, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -11,6 +11,18 @@ class RuleSet(TimestampedBase):
     """R01〜R08 と論理項目定義。エージェントは読取のみ。N04。"""
 
     __tablename__ = "rule_sets"
+
+    __table_args__ = (
+        Index(
+            "uq_rule_sets_current",
+            "is_current",
+            unique=True,
+            postgresql_where=text("is_current"),
+        ),
+    )
+    is_current: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default="false", default=False
+    )
 
     rule_version: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
     rules: Mapped[dict] = mapped_column(JSONB, nullable=False)

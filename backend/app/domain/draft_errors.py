@@ -1,8 +1,8 @@
 """Errors shared by the draft repository and business service."""
+from app.domain.errors import DomainError
 
 
-class DraftError(Exception):
+class DraftError(DomainError):
     def __init__(self, code, message, details=None):
         self.code = code
-        self.details = details or {}
-        super().__init__(message)
+        super().__init__(message, details)

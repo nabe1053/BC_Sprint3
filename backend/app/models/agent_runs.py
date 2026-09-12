@@ -1,9 +1,12 @@
 """agent_runs / agent_run_steps（B層 規則・実行）。04-db.md 3.2。"""
 
 from datetime import datetime
+from decimal import Decimal
 
 from sqlalchemy import (
     BigInteger,
+    Index,
+    text,
     CheckConstraint,
     DateTime,
     ForeignKey,
@@ -23,6 +26,16 @@ class AgentRun(TimestampedBase):
 
     __tablename__ = "agent_runs"
     __table_args__ = (
+        Index(
+            "uq_agent_runs_running_case",
+            "case_id",
+            unique=True,
+            postgresql_where=text("outcome = 'running'"),
+        ),
+        CheckConstraint(
+            "stop_reason IS NULL OR stop_reason IN ('completed','failed','max_turns','inner_timeout','inactivity_timeout','outer_timeout','repeated_call','no_readable_document','validation_loop')",
+            name="ck_agent_runs_stop_reason",
+        ),
         CheckConstraint(
             "stage IN ('reading','extracting','self_checking','done')",
             name="ck_agent_runs_stage",
@@ -45,11 +58,15 @@ class AgentRun(TimestampedBase):
     )
     # D05 未承認のため初版はダミー応答の識別子（例 mock-fixed-v2）。
     model: Mapped[str] = mapped_column(Text, nullable=False)
+    impl_version: Mapped[str] = mapped_column(
+        Text, nullable=False, default="legacy-unrecorded"
+    )
+    limits: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
     started_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False
     )
     ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    elapsed_sec: Mapped[float | None] = mapped_column(Numeric)
+    elapsed_sec: Mapped[Decimal | None] = mapped_column(Numeric)
     turns: Mapped[int] = mapped_column(Integer, nullable=False, server_default="0")
     stage: Mapped[str | None] = mapped_column(Text)
     stage_detail: Mapped[str | None] = mapped_column(Text)
@@ -63,6 +80,7 @@ class AgentRunStep(TimestampedBase):
 
     __tablename__ = "agent_run_steps"
     __table_args__ = (
+        Index("ix_agent_run_steps_document_locator", "document_id", "locator"),
         CheckConstraint(
             "result_status IN ('ok','error','unreadable')",
             name="ck_agent_run_steps_result_status",
@@ -87,3 +105,6 @@ class AgentRunStep(TimestampedBase):
     )
     result_status: Mapped[str] = mapped_column(Text, nullable=False)
     duration_ms: Mapped[int | None] = mapped_column(Integer)
+
+    # Durable outbox event; JSONL is rebuilt only after this row commits.
+    trace_event: Mapped[dict | None] = mapped_column(JSONB)
