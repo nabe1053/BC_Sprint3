@@ -6,14 +6,14 @@ from fastapi import FastAPI
 from app.api.agent.endpoints.drafts import router as drafts
 from app.api.common.draft_validation import router as validation
 from app.api.errors import ApiError, api_error_handler
-from app.api.dependencies_t202 import get_draft_service
+from app.api.dependencies import get_draft_service
 from app.models import AgentRunStep
 from app.domain.run_types import RunResult
 from app.services.draft_service import DraftService
 from app.repositories.run_background import RunBackground
 from app.agent.jobs import start_agent_job
-from test_runs import repo, service
-from test_write_api import item, header
+from tests.integration.test_runs import repo, service
+from tests.unit.test_draft_write_api import item, header
 
 
 async def test_real_api_job_finalize_and_trace_round_trip(session, seeded, tmp_path):
@@ -140,7 +140,7 @@ async def test_background_gateway_acquires_and_closes_own_session(monkeypatch):
 
 
 async def test_lifespan_recovers_before_accepting_jobs_and_stops_on_exit(monkeypatch):
-    from app.api import dependencies_t202 as deps
+    from app.api import dependencies as deps
 
     calls = []
 

@@ -7,8 +7,8 @@ from pydantic import ValidationError
 
 from app.domain.draft_errors import DraftError
 from app.services.draft_service import DraftService
-from test_draft_inputs import item_data
-from test_draft_validation import snapshot
+from tests.unit.test_draft_inputs import item_data
+from tests.unit.test_draft_validation import snapshot
 
 
 def repository():

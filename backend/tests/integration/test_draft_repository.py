@@ -17,7 +17,7 @@ from app.models.rule_sets import RuleSet
 from app.models.agent_runs import AgentRun, AgentRunStep
 from app.models.drafts import CaseHeader, Item, ItemEnd, Evidence, InventoryLink
 from app.repositories.draft_repository import DraftRepository
-from test_draft_inputs import item_data, header_data
+from tests.unit.test_draft_inputs import item_data, header_data
 
 
 async def setup_case(session, code="TEST-201"):

@@ -84,7 +84,7 @@ make check      # スライス完了時のフルゲート
 | 両名前空間で共有する DTO / ハンドラ | `app/api/common/` |
 | 横断の DI・lifespan | `app/api/dependencies.py` |
 
-### 着手タスク C-1（優先度: T-203 の前）
+### 着手タスク C-1（**完了・2026-09-12 RV-026。以下は履歴**）
 
 以下をリネーム＋import 追従する。**振る舞いを変えない**（純粋な移動。`make check` が green のままであること）。
 
@@ -147,29 +147,34 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-12 18:05・T-103 2回目レビュー後・常駐ループ開始）
+## 7. 次にやること（2026-09-12 20:45・T-103 DONE 後・次は C-1）
 
-- **T-201 / T-202 / T-203 → DONE**（commit `7eeddea`）。触らない
-- **T-103 → DONE 可（条件付き）**（memory RV-024。P1 0 / P2 2 / P3 6。RV-019 は全件クローズ）。
-  **下記タスク G の短ラウンドを直して再レビュー依頼 → DONE**。修正はいずれも小さい。WIP=1 のまま
-
-### タスク G: T-103 RV-024 の短ラウンド（DONE 条件）
-
-1. **P2-1（必須）** `features/documents/components/IntakePage.tsx:184-192`: `error.code === "E_LIMIT_EXCEEDED"` なら `details.limit` が
-   未知でも `limitExceeded.title` ＋「今回の投入記録は残っていません」系の hint を出す（AD-005: 413 は記録が残らない）。現状は汎用文言
-   「一覧を再読み込みして記録を確認」に落ちて誤誘導。RED: 未知 `limit`（例 `"unknown_kind"`）のテスト1本を先に書く
-2. **P2-2** コード修正不要。`ja.json` の上限実数値は TODO-001 に併記済み（Claude 対応済み）
-3. **P3（安いので同時に）**: P3-1 死にキー `cases.newCaseDialog.caseCodeRequired` 削除 / P3-2 `common.notAvailable` と `cases.notAvailable` を
-   1つに / P3-3 `cases.list.versionNote` の「G3 以降」を利用者向け文言（「案の作成後に表示します」等）に / P3-5 `documents/__tests__/api.test.ts:55`
-   の `expect(ApiError).toBeDefined()` を `rejects.toBeInstanceOf(ApiError)` に
-4. **P3-4 / P3-6 は記録のみ**（`E_UNEXPECTED_RESPONSE` の扱いは Claude が 05 §6 に「クライアント合成コード」を書くか判断 / file input の
-   見た目は T-204 の SCR-02 改修と同時に）
-5. 完了条件: `DEBUG=false CI=true make check-fe` green ＋ design-lint 0 ＋ `docs/t103-handoff.md` 冒頭に RV-024 対応表 ＋「再レビュー依頼」
-
-### T-103 の後
-- C-1（チケット名ファイルの正規配置移動。対象: `dependencies_t202.py` / `routes_t202.py` / `tests/t201` `tests/t202` / `check_t201_postgres.py` /
-  `orval.t202.config.ts` / `tsconfig.t202.json`。振る舞い不変・`make check` green）→ T-204（事前整理 `docs/t204-handoff.md`。着手は Claude の指示待ち）
+- **T-101 / T-102 / T-103 / T-201 / T-202 / T-203 → DONE**（最新 commit `989afd8`）。G1 と G2 の BE/API/AGENT/FE(G1) が閉じた。触らない
+- **いま進めるのは C-1**（下記タスク H）。完了後は T-204 の指示を §7 に書く（着手は §7 更新待ち）
 - G3 以降には進まない（AD-011）
+
+### タスク H: C-1 チケット名ファイルの正規配置への移動（振る舞い不変）
+
+§3 の表と移動リストが正。**純粋な移動＋import 追従**で、コードの振る舞い・テストの assert を変えない。
+
+1. 移動（§3 のリスト）:
+   - `app/api/routes_t202.py` → `app/api/common/route_errors.py`
+   - `app/api/dependencies_t202.py` → `app/api/dependencies.py`
+   - `app/api/schemas_drafts.py` → `app/api/common/schemas/drafts.py`
+   - `app/api/schemas_runs.py` → `app/api/ui/schemas/agent_runs.py`
+   - `tests/t201/` `tests/t202/` → `tests/unit/` / `tests/integration/` に層で配分（実 DB を使うもの → integration）。
+     `tests/t201/conftest.py` `tests/t202/conftest.py` の fixture は移動先の conftest に統合し、`--confcutdir` 前提を残さない
+   - `scripts/check_t201_postgres.py` → `scripts/check_scan_index.py`（Makefile の参照も追従）
+   - 削除（**本指示で承認済み**）: `frontend/orval.t202.config.ts` / `frontend/tsconfig.t202.json` / `backend/scripts/export_openapi_isolated.py`
+2. `test_single_source_of_truth.py` / `test_api_path_separation.py` / `test_regression_gate.py` が移動後のパスを検査対象に含めているか確認
+   （rglob なら自動。固定パスがあれば追従）
+3. **テスト件数が移動前後で一致すること**（BE 404 / FE 78）を handoff に書く。減っていたら理由を書き、隠さない
+4. 完了条件: `DEBUG=false CI=true make check` all green ＋ `docs/c1-handoff.md`（移動前後の対応表・件数・`git status` の rename 検出）＋「再レビュー依頼」。
+   `git mv` を使い履歴を残す。commit はしない
+5. 迷ったら **動かさずに handoff に「要判断」と書いて止まる**（例: t201/t202 の fixture が unit/integration 両方から使われる場合の置き場）
+
+### C-1 の後（着手は §7 更新待ち）
+- T-204 実行進捗のポーリング UI（事前整理 `docs/t204-handoff.md`。TODO-011 ②の file input 改修も同時）
 
 ### タスク F: T-103（G1 FE）の指摘修正 — 指示書は `docs/t103-instructions.md`
 

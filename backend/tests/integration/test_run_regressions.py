@@ -9,20 +9,20 @@ from app.domain.draft_errors import DraftError
 from app.domain.run_types import RunResult
 from app.repositories.run_repository import RunRepository
 from app.services.exceptions import DomainError
-from test_runs import service
+from tests.integration.test_runs import service
 
 
 async def test_definition_defaults_reach_reserved_run(session, seeded, monkeypatch):
     monkeypatch.setattr(definition, "MAX_TURNS", 7)
     monkeypatch.setattr(definition, "DUMMY_MODEL_ID", "synthetic-model")
-    from app.api.dependencies_t202 import get_run_service
+    from app.api.dependencies import get_run_service
 
     # Exercise the composition factory without starting jobs or opening another DB.
     monkeypatch.setattr(
-        "app.api.dependencies_t202.RunDispatcher", lambda *a, **kw: lambda r: None
+        "app.api.dependencies.RunDispatcher", lambda *a, **kw: lambda r: None
     )
     monkeypatch.setattr(
-        "app.api.dependencies_t202.make_run_repository",
+        "app.api.dependencies.make_run_repository",
         lambda s: RunRepository(s, file_size=lambda d: 1),
     )
     session.bind = None
@@ -120,7 +120,7 @@ async def test_cancel_cleanup_gets_bounded_grace_before_terminal_callback():
 def test_validation_code_comes_from_type_not_message_or_field():
     from fastapi.exceptions import RequestValidationError
     from types import SimpleNamespace
-    from app.api.routes_t202 import invalid_request
+    from app.api.common.route_errors import invalid_request
 
     exc = RequestValidationError(
         [
@@ -139,8 +139,8 @@ def test_validation_code_comes_from_type_not_message_or_field():
 
 def test_schema_errors_carry_business_codes():
     from pydantic import ValidationError
-    from app.api.schemas_drafts import ItemRequest
-    from test_write_api import item
+    from app.api.common.schemas.drafts import ItemRequest
+    from tests.unit.test_draft_write_api import item
 
     data = item()
     data.pop("odState")
@@ -176,8 +176,8 @@ async def test_current_rule_alias_selects_marked_current(session, seeded):
 
 def test_nested_end_business_error_keeps_typed_code():
     from pydantic import ValidationError
-    from app.api.schemas_drafts import ItemRequest
-    from test_write_api import item
+    from app.api.common.schemas.drafts import ItemRequest
+    from tests.unit.test_draft_write_api import item
 
     with pytest.raises(ValidationError) as exc:
         ItemRequest.model_validate(

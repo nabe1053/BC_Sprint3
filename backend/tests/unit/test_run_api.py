@@ -5,7 +5,7 @@ import httpx
 import pytest
 from fastapi import FastAPI
 from app.api.ui.endpoints.agent_runs import router
-from app.api.dependencies_t202 import get_run_service
+from app.api.dependencies import get_run_service
 from app.api.errors import ApiError, api_error_handler
 from app.domain.draft_errors import DraftError
 

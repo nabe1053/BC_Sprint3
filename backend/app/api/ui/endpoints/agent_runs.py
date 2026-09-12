@@ -1,9 +1,9 @@
 """UI-only run start/polling (#12–14)."""
 from typing import Annotated
 from fastapi import APIRouter, Depends, Path
-from app.api.dependencies_t202 import get_run_service
-from app.api.routes_t202 import DraftRoute, ERROR_RESPONSES
-from app.api.schemas_runs import (
+from app.api.dependencies import get_run_service
+from app.api.common.route_errors import DraftRoute, ERROR_RESPONSES
+from app.api.ui.schemas.agent_runs import (
     AgentRunRequest,
     AgentRunAccepted,
     AgentRunResponse,

@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Literal
 from pydantic import Field, StrictBool
 from app.api.schemas_base import CamelModel
-from app.api.schemas_drafts import StrictRequest
+from app.api.common.schemas.drafts import StrictRequest
 from app.domain.run_types import StopReason
 
 

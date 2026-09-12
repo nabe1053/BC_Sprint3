@@ -1,4 +1,6 @@
-"""Check RV-016 regression sensitivity; mutate functions in memory, never files/DB.
+"""Check RV-016 regression sensitivity; mutate functions in memory, never source files.
+
+Tests use normal pytest collection and its standard database fixtures.
 
 Run from backend: .venv/bin/python -B scripts/check_g2_mutations_isolated.py MODE
 MODE: scanned / excused / explicit / refresh. Expected pytest failure means detected.
@@ -19,7 +21,7 @@ class Mutation:
         self.mode = mode
 
     def pytest_collection_modifyitems(self, items):
-        # Collection has already loaded only tests/t201/conftest.py's dummy DB.
+        # Normal pytest collection loads the shared integration fixtures.
         from app.repositories.draft_repository import DraftRepository
         from app.services import draft_validation
 
@@ -58,8 +60,8 @@ if __name__ == "__main__":
         [
             "-p",
             "no:cacheprovider",
-            "--confcutdir=tests/t201",
-            "tests/t201",
+            "tests/integration/test_draft_repository.py",
+            "tests/unit/test_draft_validation.py",
             "-k",
             names[mode],
             "-q",

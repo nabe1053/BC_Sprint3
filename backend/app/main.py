@@ -12,7 +12,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.agent.router import router as agent_router
-from app.api.dependencies_t202 import run_lifespan
+from app.api.dependencies import run_lifespan
 from app.api.errors import ApiError, api_error_handler, domain_error_handler
 from app.api.ui.router import router as ui_router
 from app.core.config import settings

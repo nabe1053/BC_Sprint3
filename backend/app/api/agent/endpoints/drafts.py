@@ -1,9 +1,9 @@
 """Agent-only artifact writes (#15–19, #21)."""
 from fastapi import APIRouter, Depends, Path
 from typing import Annotated
-from app.api.dependencies_t202 import get_draft_service
-from app.api.routes_t202 import DraftRoute, ERROR_RESPONSES
-from app.api.schemas_drafts import (
+from app.api.dependencies import get_draft_service
+from app.api.common.route_errors import DraftRoute, ERROR_RESPONSES
+from app.api.common.schemas.drafts import (
     HeaderRequest,
     HeaderCreated,
     ItemsRequest,

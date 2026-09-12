@@ -8,7 +8,7 @@ from fastapi import FastAPI
 
 from app.api.agent.endpoints.drafts import router as write_router
 from app.api.common.draft_validation import router as validation_router
-from app.api.dependencies_t202 import get_draft_service
+from app.api.dependencies import get_draft_service
 from app.api.errors import ApiError, api_error_handler
 from app.domain.draft_errors import DraftError
 from app.services.draft_validation import ValidationResult, Violation

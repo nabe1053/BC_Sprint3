@@ -1,0 +1,57 @@
+$ git status --short
+ M .claude/memory.md
+ M Makefile
+ M backend/app/api/agent/endpoints/drafts.py
+ M backend/app/api/common/draft_validation.py
+R  backend/app/api/routes_t202.py -> backend/app/api/common/route_errors.py
+R  backend/app/api/schemas_drafts.py -> backend/app/api/common/schemas/drafts.py
+R  backend/app/api/dependencies_t202.py -> backend/app/api/dependencies.py
+ M backend/app/api/ui/endpoints/agent_runs.py
+RM backend/app/api/schemas_runs.py -> backend/app/api/ui/schemas/agent_runs.py
+ M backend/app/main.py
+ M backend/scripts/check_g2_mutations_isolated.py
+R  backend/scripts/check_t201_postgres.py -> backend/scripts/check_scan_index.py
+ M backend/scripts/evaluate_local_agent.py
+D  backend/scripts/export_openapi_isolated.py
+ M backend/tests/integration/conftest.py
+RM backend/tests/t202/test_integration.py -> backend/tests/integration/test_agent_run_lifecycle.py
+ M backend/tests/integration/test_agent_tool_repository.py
+RM backend/tests/t201/test_draft_repository.py -> backend/tests/integration/test_draft_repository.py
+RM backend/tests/t202/test_review_fixes.py -> backend/tests/integration/test_run_regressions.py
+RM backend/tests/t202/test_runs.py -> backend/tests/integration/test_runs.py
+D  backend/tests/t201/conftest.py
+D  backend/tests/t202/conftest.py
+R  backend/tests/t201/test_draft_inputs.py -> backend/tests/unit/test_draft_inputs.py
+RM backend/tests/t201/test_draft_service.py -> backend/tests/unit/test_draft_service.py
+R  backend/tests/t201/test_draft_validation.py -> backend/tests/unit/test_draft_validation.py
+RM backend/tests/t202/test_write_api.py -> backend/tests/unit/test_draft_write_api.py
+ M backend/tests/unit/test_live_index_check_configuration.py
+RM backend/tests/t202/test_run_api.py -> backend/tests/unit/test_run_api.py
+ M docs/reviews/CODEX-INSTRUCTIONS.md
+D  frontend/orval.t202.config.ts
+D  frontend/tsconfig.t202.json
+ M frontend/tsconfig.tsbuildinfo
+?? backend/app/api/common/schemas/__init__.py
+?? docs/test-results/layout-after-regression-2026-09-12.log
+?? docs/test-results/layout-before-regression-2026-09-12.log
+
+$ git diff HEAD --summary -M
+ rename backend/app/api/{routes_t202.py => common/route_errors.py} (100%)
+ rename backend/app/api/{schemas_drafts.py => common/schemas/drafts.py} (100%)
+ rename backend/app/api/{dependencies_t202.py => dependencies.py} (100%)
+ rename backend/app/api/{schemas_runs.py => ui/schemas/agent_runs.py} (96%)
+ rename backend/scripts/{check_t201_postgres.py => check_scan_index.py} (100%)
+ delete mode 100644 backend/scripts/export_openapi_isolated.py
+ rename backend/tests/{t202/test_integration.py => integration/test_agent_run_lifecycle.py} (96%)
+ rename backend/tests/{t201 => integration}/test_draft_repository.py (99%)
+ rename backend/tests/{t202/test_review_fixes.py => integration/test_run_regressions.py} (94%)
+ rename backend/tests/{t202 => integration}/test_runs.py (99%)
+ delete mode 100644 backend/tests/t201/conftest.py
+ delete mode 100644 backend/tests/t202/conftest.py
+ rename backend/tests/{t201 => unit}/test_draft_inputs.py (100%)
+ rename backend/tests/{t201 => unit}/test_draft_service.py (96%)
+ rename backend/tests/{t201 => unit}/test_draft_validation.py (100%)
+ rename backend/tests/{t202/test_write_api.py => unit/test_draft_write_api.py} (99%)
+ rename backend/tests/{t202 => unit}/test_run_api.py (98%)
+ delete mode 100644 frontend/orval.t202.config.ts
+ delete mode 100644 frontend/tsconfig.t202.json

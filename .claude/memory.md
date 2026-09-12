@@ -114,6 +114,10 @@
 - [CV-019] **API 由来の内部識別子（`details.limit` 等）を画面にそのまま出さない。**i18n のラベル＋単位に写し、識別子が出ないことを否定 assert で固定する
   （T-103 RV-019 P1-2 とその変異テストが型）。未知値のときも API の `code` で分岐し、記録の有無（AD-005）と矛盾する案内を出さない（RV-024 P2-1）。
 
+- [CV-020] **テスト用の隔離（`sys.modules` スタブ・`--confcutdir`・専用 tsconfig・隔離 exporter）は一時しのぎ。スライス完了時に必ず正規 conftest / 設定へ
+  統合し、隔離を残したまま DONE にしない**（残すと後続がゲートの外側で緑になる。CV-016 の実装面。C-1 RV-026）。
+- [CV-021] **テストモジュール同士を import しない。**共有ビルダ・fixture は `tests/fixtures/` に置く。integration → unit のテスト間依存はテストの層を壊す（RV-026 P3-4）。
+
 ## 3. 実装バックログ（プラン状態＝ループの制御表）
 
 | ID | スライス | 種別 | 依存 | Status | レビュー | 最終更新 |
@@ -123,7 +127,7 @@
 | T-103 | G1 SCR-01 案件一覧 / SCR-02 資料投入（FE） | web | T-102 | DONE | 3回目 RV-025: **DONE**（新規指摘なし。P3-4/6 は記録のみ・TODO-011） | 2026-09-12 |
 | T-201 | G2 成果物の保存＋完了条件の機械判定（BE） | web | T-101 | DONE | 7回目 RV-023: **DONE**（P3 4 は記録のみ・TODO-010） | 2026-09-12 |
 | T-202 | G2 エージェント書込 API #15-21 / 起動・監視 #12-14（API・jobs 経由） | web | T-201 | DONE | 5回目 RV-018: **DONE 可**（P3 6 は記録のみ） | 2026-09-12 |
-| C-1 | チケット名ファイルの正規配置への移動（振る舞い不変） | chore | T-202 | PLANNED | - | 2026-09-12 |
+| C-1 | チケット名ファイルの正規配置への移動（振る舞い不変） | chore | T-202 | DONE | 1回目 RV-026: **DONE**（P3 8 は記録のみ・TODO-012） | 2026-09-12 |
 | T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202, C-1 | DONE | 2回目 RV-022: **DONE**（P3 5 は記録のみ・TODO-009。C-1 は未完のまま） | 2026-09-12 |
 | T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | PLANNED | - | 2026-09-11 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
@@ -253,6 +257,13 @@
   details 解釈と分離、未知 `limit` でも見出し＋「記録は残っていない」hint、`unknown_kind` 非露出のテスト追加）と P3-1/2/3/5 をクローズ。
   既存テスト変更は文言更新1件・検査強化1件のみ、総件数 77→78 の純増。実測 typecheck 0 / lint 0 errors / jest 78 passed / design-lint 0。
 
+- [RV-026] C-1 1回目（Codex → Claude reviewer 独立・2026-09-12）: **DONE 可**。P1 0 / P2 0 / P3 8。14 ファイルを `git mv`、import 行を除く旧新 diff 0
+  （`test_review_fixes` の monkeypatch 文字列 2 行のみ）、テスト関数 291 / assert 611 が完全一致、旧 conftest の隔離ハック 3 種（`sys.modules` スタブ・
+  動的 import・`sys.path` 挿入）を統合で除去、旧パス参照 0、`check_g2_mutations_isolated.py` 4 モード DETECTED を reviewer が再現。
+  実測 BE 404 passed / FE 78 passed / lint warning 0（`orval.t202` 削除で解消）。P3: `check_t202_postgres.py` / `test_api_path_separation_t102.py` の
+  チケット ID 残存 / SQLite `@compiles` がプロセス全体へ登録 / conftest 内 `TestConnection` 命名 / integration→unit のテスト間 import /
+  `test_actual_application_path_separation_under_isolated_settings` の名前乖離と二重実行 / seeded の `case_code="T202"` / 空 dir 残骸 / §3 の C-1 指示残存 → TODO-012。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -332,6 +343,9 @@
 - [LN-031] **MUI v5 の `palette` に渡す色は JS 色演算の対象になる。**`oklch()` / `color-mix()` をそのまま渡すと起動時例外。CSS で使うトークン値と
   MUI の JS に渡す値の変換境界を 1 関数（`shared/theme/mui-color.ts`）に閉じ、同値性をテストで固定する（T-103）。
 
+- [LN-032] **「振る舞い不変」の chore は 3 点で機械的に証明する**: import 行を除いた旧新 diff・テスト関数名の集合・assert 総数。reviewer が同じ 3 点を
+  再現すれば P1 の有無が 1 ラウンドで確定する（C-1）。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
@@ -348,6 +362,11 @@
 - [TODO-011] **T-103 の記録のみ P3（RV-024）**: ①`shared/api/unwrap.ts` の `E_UNEXPECTED_RESPONSE` は 05-api-ipo §6 のコード一覧外（クライアント合成コード）。
   05 §6 に「クライアント合成コード」節を設けるか接頭辞で区別する（orchestrator 判断）②SCR-02 のファイル選択が素の `<input type="file">` で
   ブラウザ既定の英語 UI が出る → T-204 の SCR-02 改修と同時に `Button component="label"` 化。
+- [TODO-012] **C-1 の記録のみ P3（RV-026）**: ①`scripts/check_t202_postgres.py` → `check_run_metadata.py`、`tests/integration/test_api_path_separation_t102.py` →
+  `..._live.py`（CV-017 残存）②SQLite `@compiles` と共有 metadata 書換を `tests/fixtures/sqlite_support.py` へ切り出しコメント明示 ③conftest の
+  `TestConnection` / `test_connection` を `SyncConnectionAdapter` / `_connection` に ④integration→unit のテスト間 import を `tests/fixtures/` のビルダへ（CV-021）
+  ⑤`test_actual_application_path_separation_under_isolated_settings` の改名と `runpy` 二重実行の解消 ⑥seeded の `case_code="T202"` → `"SEED-CASE"`
+  ⑦`tests/t201` `tests/t202` の空 dir（`__pycache__` のみ・git 管理外）のローカル削除。次の整理 chore（C-2）で。
 - [TODO-001] D02（入力上限）は AD-003 の**仮値**。初版受入（X09 の上限試験）の前に研修者が実値を確定する。
   **確定時は `backend/app/core/config.py` と `frontend/src/shared/i18n/ja.json` の上限注記の両方を直す**（RV-024 P2-2。API が上限を返さないため画面側に複製がある）。
 - [TODO-002] **eml には `document_pages` が無い**ため、04-db.md の完了条件の機械判定

@@ -19,7 +19,7 @@ def test_live_checker_uses_supplied_targets(monkeypatch):
         return SimpleNamespace(returncode=0, stdout="synthetic", stderr="")
 
     monkeypatch.setattr("subprocess.run", run)
-    script = Path(__file__).resolve().parents[2] / "scripts/check_t201_postgres.py"
+    script = Path(__file__).resolve().parents[2] / "scripts/check_scan_index.py"
     runpy.run_path(str(script))["check_live_scan_index"]()
     assert [c[c.index("-d") + 1] for c in calls] == ["synthetic-dev", "synthetic-test"]
     assert all(

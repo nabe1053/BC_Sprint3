@@ -2,9 +2,9 @@
 from dataclasses import asdict
 from typing import Annotated
 from fastapi import APIRouter, Depends, Path
-from app.api.dependencies_t202 import get_draft_service
-from app.api.routes_t202 import DraftRoute, ERROR_RESPONSES
-from app.api.schemas_drafts import ValidationResponse
+from app.api.dependencies import get_draft_service
+from app.api.common.route_errors import DraftRoute, ERROR_RESPONSES
+from app.api.common.schemas.drafts import ValidationResponse
 from app.services.draft_service import DraftService
 
 router = APIRouter(route_class=DraftRoute, responses=ERROR_RESPONSES)

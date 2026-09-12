@@ -77,7 +77,7 @@ fe-test: ## jest
 	@cd $(FRONTEND) && npm run test
 
 check-run-step-index: ## 両 DB の実スキーマで走査索引を読取専用検証
-	@cd $(BACKEND) && uv run python -B scripts/check_t201_postgres.py --index-only
+	@cd $(BACKEND) && uv run python -B scripts/check_scan_index.py --index-only
 
 .PHONY: agent-test agent-eval agent-eval-lint agent-mutations
 agent-test: ## エージェントの決定的ツール境界をTDD確認
@@ -87,11 +87,11 @@ agent-test: ## エージェントの決定的ツール境界をTDD確認
 	  tests/unit/test_single_source_of_truth.py tests/unit/test_api_path_separation.py \
 	  tests/unit/test_regression_gate.py \
 	  tests/unit/test_live_index_check_configuration.py \
-	  tests/t202/test_review_fixes.py -q --tb=short --disable-warnings
+	  tests/integration/test_run_regressions.py -q --tb=short --disable-warnings
 
 agent-eval-lint: ## ミニ評価スクリプトの整形・静的検査
-	@cd $(BACKEND) && uv run ruff format scripts/evaluate_local_agent.py scripts/check_agent_mutations.py scripts/check_t201_postgres.py
-	@cd $(BACKEND) && uv run ruff check scripts/evaluate_local_agent.py scripts/check_agent_mutations.py scripts/check_t201_postgres.py
+	@cd $(BACKEND) && uv run ruff format scripts/evaluate_local_agent.py scripts/check_agent_mutations.py scripts/check_scan_index.py
+	@cd $(BACKEND) && uv run ruff check scripts/evaluate_local_agent.py scripts/check_agent_mutations.py scripts/check_scan_index.py
 
 agent-mutations: agent-eval-lint ## ガードレールの変異強度確認（ソース変更なし）
 	@cd $(BACKEND) && uv run python -B scripts/check_agent_mutations.py

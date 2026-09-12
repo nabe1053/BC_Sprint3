@@ -21,7 +21,7 @@ from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.agent.definition import default_run_limits
 from app.agent.runner import LocalAgentWorker
-from app.api.dependencies_t202 import get_run_service
+from app.api.dependencies import get_run_service
 from app.api.errors import ApiError, api_error_handler
 from app.api.ui.endpoints.agent_runs import router
 from app.core.config import settings

@@ -282,7 +282,7 @@ async def test_job_cancel_records_terminal_result():
 
 async def test_terminal_run_rejects_late_worker_writes(session, seeded):
     from app.domain.draft_types import HeaderInput
-    from test_write_api import header
+    from tests.unit.test_draft_write_api import header
 
     case, _, _ = seeded
     r = repo(session)

@@ -280,7 +280,7 @@ async def test_reading_progress_is_exposed_by_http(db_session, tool_run):
     import httpx
     from fastapi import FastAPI
     from types import SimpleNamespace
-    from app.api.dependencies_t202 import get_run_service
+    from app.api.dependencies import get_run_service
     from app.api.ui.endpoints.agent_runs import router
 
     context, doc, gateway = tool_run
