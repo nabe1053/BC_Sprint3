@@ -1,0 +1,5 @@
+KILLED poll-terminal: Test Suites: 1 failed, 13 passed, 14 total / Tests:       3 failed, 149 passed, 152 total / Time:        10.65 s
+KILLED poll-error: Test Suites: 1 failed, 13 passed, 14 total / Tests:       2 failed, 150 passed, 152 total / Time:        12.579 s
+KILLED post-retry: Test Suites: 1 failed, 13 passed, 14 total / Tests:       1 failed, 151 passed, 152 total / Time:        10.211 s
+KILLED success-outcome: Test Suites: 1 failed, 13 passed, 14 total / Tests:       1 failed, 151 passed, 152 total / Time:        13.03 s
+KILLED carry-over: Test Suites: 1 failed, 13 passed, 14 total / Tests:       1 failed, 151 passed, 152 total / Time:        10.653 s

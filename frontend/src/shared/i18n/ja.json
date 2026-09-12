@@ -151,5 +151,105 @@
       "text": "TXT",
       "unsupported": "未対応形式"
     }
+  },
+  "agentRuns": {
+    "title": "案の作成",
+    "start": "案を作成",
+    "pending": "準備中…",
+    "loading": "実行状況を取得中…",
+    "readingCount": "資料 {{read}}/{{total}} を読取中",
+    "elapsed": "経過 {{seconds}} 秒・{{turns}} ターン",
+    "stage": {
+      "reading": "資料を読取中",
+      "extracting": "明細を抽出中",
+      "self_checking": "自己点検中",
+      "pending": "処理を準備中",
+      "done": "結果を確定中"
+    },
+    "blocked": {
+      "loading": "資料の読取結果を取得するまで起動できません。",
+      "documentsError": "資料の読取結果を確認できません。受付一覧を再読み込みしてください。",
+      "noReadable": "読取可能な資料がありません。資料を投入してください。",
+      "limitExceeded": "入力上限を超えているため起動できません。上限内の資料を選び直してください。",
+      "uploading": "資料の投入・読取が終わるまで起動できません。"
+    },
+    "stopReason": {
+      "completed": "案を作成しました",
+      "failed": "案の作成に失敗しました",
+      "max_turns": "処理回数の上限で停止しました",
+      "inner_timeout": "処理時間の上限で停止しました",
+      "inactivity_timeout": "応答がないため停止しました",
+      "outer_timeout": "ジョブの制限時間で停止しました",
+      "repeated_call": "同じ処理の繰り返しを検知して停止しました",
+      "no_readable_document": "読取可能な資料がないため停止しました",
+      "validation_loop": "点検を解消できず停止しました",
+      "unknown": "完了結果を確認できませんでした"
+    },
+    "partial": "一部完了：確認が必要な箇所が残っています",
+    "version": "版番号：{{versionId}}",
+    "resultNote": "Item List の確認画面は次の段階で追加されます",
+    "stoppedHint": "資料と処理記録を確認してください。自動では再実行しません。",
+    "notFound": "実行が見つかりません。進捗の取得を停止しました。",
+    "communicationInterrupted": "通信中断：実行状況を確認できません。",
+    "connectionHint": "実行結果は未確認です。状態を確認し直してから、必要なら再度起動してください。自動では再起動しません。",
+    "startError": {
+      "carryOver": "既存の確認・修正記録は新版へは引き継がれません。内容を確認してから案を作成してください。",
+      "unknown": "起動結果を確認できません。状態を確認し直してから、必要なら再度起動してください",
+      "noReadable": "読取可能な資料がありません。資料を追加・修正してから再操作してください。",
+      "limitExceeded": "入力上限を超えています。上限内の資料を選び直してください。",
+      "inProgress": "別の実行が進行中です。時間をおいて状態を確認し直してください。",
+      "externalSend": "外部送信が承認されていません。管理者に確認してください。",
+      "invalid": "起動条件を確認できません。案件一覧から選び直してください。",
+      "notFound": "案件またはルールが見つかりません。案件一覧から選び直してください。"
+    },
+    "acknowledge": "新版へ引き継がれないことを確認しました",
+    "diagnostic": {
+      "worker_failed": "処理中にエラーが発生しました",
+      "process_interrupted": "処理が中断されました",
+      "job_start_failed": "処理を開始できませんでした",
+      "draft_not_finalized": "案を確定できませんでした",
+      "agent_implementation_pending": "処理機能の準備が完了していません",
+      "terminal_recovery": "停止後の状態を復旧しました",
+      "trace_write_failed": "処理記録を保存できませんでした",
+      "tool_rejected": "許可されていない処理を停止しました",
+      "local_dummy_unsupported": "ローカル処理で扱えない操作がありました",
+      "validation_unresolved": "点検で見つかった問題が残っています"
+    },
+    "steps": {
+      "show": "処理記録を表示",
+      "hide": "処理記録を閉じる",
+      "title": "処理記録",
+      "note": "処理記録は補助情報です。途中のエラーだけでは実行全体の失敗を示しません。読取資料数とは異なります。",
+      "error": "処理記録を取得できませんでした。再読み込みしてください。",
+      "reload": "処理記録を再読み込み",
+      "empty": "処理記録はまだありません。後で再読み込みしてください。",
+      "entry": "{{tool}}：{{status}}",
+      "status": {
+        "ok": "正常",
+        "error": "エラー",
+        "unreadable": "読取不能"
+      },
+      "document": "資料番号：{{id}}",
+      "duration": "処理時間：{{ms}} ms"
+    },
+    "limit": {
+      "detail": "{{label}}：{{actual}}{{unit}}（上限 {{limit}}{{unit}}）",
+      "document": "対象資料番号：{{id}}",
+      "label": {
+        "documents": "資料件数",
+        "fileBytes": "ファイルサイズ",
+        "pdfPages": "PDF のページ数",
+        "xlsxSheets": "xlsx のシート数"
+      },
+      "unit": {
+        "documents": "件",
+        "fileBytes": "バイト",
+        "pdfPages": "ページ",
+        "xlsxSheets": "シート"
+      }
+    },
+    "versionNote": "実ファイルを抽出する処理ではありません。再実行は別の生成版になります。未生成の案件ではまだ版がありません",
+    "carryOverResult": "前版の修正・確認記録は引き継がれていません（既存版は保全されています）",
+    "resetState": "状態を確認し直す"
   }
 }

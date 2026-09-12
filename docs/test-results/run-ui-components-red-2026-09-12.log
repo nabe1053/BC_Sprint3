@@ -1,0 +1,40 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/shared/api/__tests__/unwrap.test.ts
+FAIL src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '../AgentRunPanel' from 'src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx'
+
+      14 | function setRun(data: AgentRunResponse = running, error: Error | null = null) { progress.mockImplementation(id => id === null ? { data: undefined, isError: false } : { data, isError: !!error, error, isLoading: false }); }
+      15 | beforeEach(() => {
+    > 16 |   jest.resetAllMocks(); start.mockResolvedValue(accepted);
+         |                        ^
+      17 |   (useStartAgentRun as jest.Mock).mockReturnValue({ mutateAsync: start, isPending: false });
+      18 |   setRun(); steps.mockReturnValue({ data: [], isError: false, isLoading: false, refetch: jest.fn() });
+      19 | });
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.<anonymous> (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:16:24)
+
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/features/agent-runs/__tests__/api.test.ts
+PASS src/features/agent-runs/__tests__/hooks.test.tsx
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/app/__tests__/providers.test.tsx
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx
+PASS src/features/documents/__tests__/hooks.test.tsx
+PASS src/app/__tests__/screen-theme.test.tsx
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx
+
+Test Suites: 1 failed, 13 passed, 14 total
+Tests:       98 passed, 98 total
+Snapshots:   0 total
+Time:        3.498 s
+Ran all test suites.
+make: *** [Makefile:77: fe-test] Error 1

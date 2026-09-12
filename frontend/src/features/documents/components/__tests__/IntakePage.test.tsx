@@ -286,9 +286,7 @@ it("仮上限・実API・二重投入・例示の注記と見出しを表示す�
   ).toHaveTextContent("D02");
   expect(screen.getByTestId("case-metadata")).toBeInTheDocument();
   expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
-  expect(
-    screen.queryByRole("button", { name: /案を作成/ }),
-  ).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /案を作成/ })).toBeDisabled();
   await userEvent.click(screen.getByText(i18n.t("documents.examples.title")));
   expect(screen.getByText(i18n.t("documents.examples.note"))).toHaveTextContent(
     "選択ファイルの判定結果ではありません",
@@ -316,4 +314,54 @@ it("投入中は入力を無効化し、完了後は同じファイルを再投�
   expect(mutateAsync).toHaveBeenCalledTimes(2);
   resolve({ documentId: 2, readStatus: "success" });
   await waitFor(() => expect(input).toBeEnabled());
+});
+
+// T-204: 案の作成を同じ画面に統合。G1の読取結果区分は維持する。
+it.each([
+  "success",
+  "partial",
+  "unreadable",
+  "encrypted",
+  "unsupported",
+] as const)("%sの資料による起動可否", (readStatus) => {
+  setUseDocuments({
+    data: [{ documentId: 1, fileName: "input.txt", kind: "text", readStatus }],
+  });
+  setUseIntakeDocument();
+  const { container } = renderWithProviders(<IntakePage caseId={CASE_ID} />);
+  const button = screen.getByRole("button", { name: "案を作成" });
+  if (readStatus === "success" || readStatus === "partial")
+    expect(button).toBeEnabled();
+  else expect(button).toBeDisabled();
+  expect(container.querySelectorAll(".MuiButton-contained")).toHaveLength(1);
+  expect(screen.getByLabelText("ファイルを選択").closest("label")).toHaveClass(
+    "MuiButton-root",
+  );
+});
+it("読取可能資料があっても投入中・上限超過では起動できない", async () => {
+  setUseDocuments({
+    data: [
+      {
+        documentId: 1,
+        fileName: "input.txt",
+        kind: "text",
+        readStatus: "success",
+      },
+    ],
+  });
+  let reject!: (error: Error) => void;
+  setUseIntakeDocument({
+    mutateAsync: () =>
+      new Promise((_, r) => {
+        reject = r;
+      }),
+  });
+  renderWithProviders(<IntakePage caseId={CASE_ID} />);
+  await userEvent.upload(screen.getByLabelText("ファイルを選択"), makeFile());
+  expect(screen.getByRole("button", { name: "案を作成" })).toBeDisabled();
+  reject(new ApiError(413, { code: "E_LIMIT_EXCEEDED" }));
+  await waitFor(() =>
+    expect(screen.getByLabelText("ファイルを選択")).toBeEnabled(),
+  );
+  expect(screen.getByRole("button", { name: "案を作成" })).toBeDisabled();
 });

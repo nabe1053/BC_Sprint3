@@ -1,0 +1,23 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/features/agent-runs/__tests__/api.test.ts
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/features/agent-runs/__tests__/hooks.test.tsx
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/features/documents/__tests__/hooks.test.tsx
+PASS src/app/__tests__/providers.test.tsx
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx
+PASS src/app/__tests__/screen-theme.test.tsx
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx
+
+Test Suites: 13 passed, 13 total
+Tests:       98 passed, 98 total
+Snapshots:   0 total
+Time:        3.706 s
+Ran all test suites.

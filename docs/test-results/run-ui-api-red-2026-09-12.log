@@ -1,0 +1,38 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+FAIL src/features/agent-runs/__tests__/api.test.ts
+  ● Test suite failed to run
+
+    Cannot find module '../api' from 'src/features/agent-runs/__tests__/api.test.ts'
+
+      3 |
+      4 | const originalFetch = global.fetch;
+    > 5 | const request = jest.fn();
+        |              ^
+      6 | beforeEach(() => { request.mockReset(); global.fetch = request; });
+      7 | afterAll(() => { global.fetch = originalFetch; });
+      8 | function respond(status: number, data: unknown) {
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.<anonymous> (src/features/agent-runs/__tests__/api.test.ts:5:14)
+
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/features/documents/__tests__/hooks.test.tsx
+PASS src/app/__tests__/providers.test.tsx
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx
+PASS src/app/__tests__/screen-theme.test.tsx
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx
+
+Test Suites: 1 failed, 11 passed, 12 total
+Tests:       78 passed, 78 total
+Snapshots:   0 total
+Time:        3.524 s
+Ran all test suites.
+make: *** [Makefile:77: fe-test] Error 1

@@ -1,0 +1,39 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/features/documents/__tests__/api.test.ts
+FAIL src/features/agent-runs/__tests__/hooks.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '../hooks' from 'src/features/agent-runs/__tests__/hooks.test.tsx'
+
+      12 | const run = (outcome: AgentRunResponse["outcome"] = "running", runId = 3) => ({ runId, outcome, stage: "reading", stageDetail: null, turns: 0, elapsedSec: 1, stopReason: outcome === "success" ? "completed" : null, versionId: outcome === "success" ? 9 : null, isComplete: outcome === "success", limits: { maxTurns: null, innerTimeoutS: null, inactivityTimeoutS: null, outerTimeoutS: null } });
+      13 | beforeEach(() => { jest.resetAllMocks(); jest.useFakeTimers(); });
+    > 14 | afterEach(() => { jest.useRealTimers(); });
+         |                ^
+      15 | async function advance(ms: number) { await act(async () => { await jest.advanceTimersByTimeAsync(ms); }); }
+      16 | it("runIdなしでは取得せず、実行中は2秒ごとに取得する", async () => {
+      17 |   get.mockResolvedValue(run());
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.<anonymous> (src/features/agent-runs/__tests__/hooks.test.tsx:14:16)
+
+PASS src/features/agent-runs/__tests__/api.test.ts
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx
+PASS src/features/documents/__tests__/hooks.test.tsx
+PASS src/app/__tests__/providers.test.tsx
+PASS src/app/__tests__/screen-theme.test.tsx
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx
+
+Test Suites: 1 failed, 12 passed, 13 total
+Tests:       88 passed, 88 total
+Snapshots:   0 total
+Time:        3.584 s
+Ran all test suites.
+make: *** [Makefile:77: fe-test] Error 1

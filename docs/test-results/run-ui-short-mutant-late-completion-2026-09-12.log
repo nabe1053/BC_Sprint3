@@ -1,0 +1,45 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/features/cases/__tests__/hooks.test.tsx
+FAIL src/features/agent-runs/__tests__/hooks.test.tsx
+  ● 案件切替で進行中POSTの共有を解除し、旧要求の完了は新要求の保持を消さない
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 2
+    Received number of calls: 3
+
+      206 |   });
+      207 |   await advance(0);
+    > 208 |   expect(start).toHaveBeenCalledTimes(2);
+          |                 ^
+      209 |   await act(async () => {
+      210 |     resolvers[1]({ runId: 4 });
+      211 |     await Promise.all([second, third]);
+
+      at Object.toHaveBeenCalledTimes (src/features/agent-runs/__tests__/hooks.test.tsx:208:17)
+
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/features/cases/__tests__/api.test.ts (5.084 s)
+PASS src/features/agent-runs/__tests__/api.test.ts
+PASS src/app/__tests__/providers.test.tsx (6.251 s)
+PASS src/features/documents/__tests__/hooks.test.tsx (6.392 s)
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx (9.018 s)
+PASS src/app/__tests__/screen-theme.test.tsx (9.42 s)
+PASS src/features/agent-runs/components/__tests__/IntakeRecovery.test.tsx (11.542 s)
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx (13.081 s)
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx (11.484 s)
+PASS src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx (14.567 s)
+
+Test Suites: 1 failed, 14 passed, 15 total
+Tests:       1 failed, 165 passed, 166 total
+Snapshots:   0 total
+Time:        18.951 s
+Ran all test suites.
+make[1]: *** [Makefile:77: fe-test] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

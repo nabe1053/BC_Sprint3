@@ -1,0 +1,828 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/features/agent-runs/__tests__/api.test.ts
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/features/agent-runs/__tests__/hooks.test.tsx
+PASS src/features/documents/__tests__/hooks.test.tsx
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx
+PASS src/app/__tests__/screen-theme.test.tsx
+PASS src/app/__tests__/providers.test.tsx
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx (5.116 s)
+FAIL src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx (6.685 s)
+  ● 起動結果不明は状態を確認し直すまで再POST不可
+
+    expect(element).toHaveTextContent()
+
+    Expected element to have text content:
+      起動結果を確認できません。状態を確認し直してから、必要なら再度起動してください
+    Received:
+      起動結果を確認できません。一覧を再読み込みしてください
+
+      230 |   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
+      231 |   await launch();
+    > 232 |   expect(screen.getByRole("alert")).toHaveTextContent(
+          |                                     ^
+      233 |     "起動結果を確認できません。状態を確認し直してから、必要なら再度起動してください",
+      234 |   );
+      235 |   expect(screen.getByRole("button", { name: "案を作成" })).toBeDisabled();
+
+      at toHaveTextContent (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:232:37)
+
+  ● 起動結果不明は状態を確認し直すまで再POST不可
+
+    expect(element).toHaveTextContent()
+
+    Expected element to have text content:
+      起動結果を確認できません。状態を確認し直してから、必要なら再度起動してください
+    Received:
+      起動結果を確認できません。一覧を再読み込みしてください
+
+      230 |   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
+      231 |   await launch();
+    > 232 |   expect(screen.getByRole("alert")).toHaveTextContent(
+          |                                     ^
+      233 |     "起動結果を確認できません。状態を確認し直してから、必要なら再度起動してください",
+      234 |   );
+      235 |   expect(screen.getByRole("button", { name: "案を作成" })).toBeDisabled();
+
+      at toHaveTextContent (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:232:37)
+
+  ● 起動結果不明は状態を確認し直すまで再POST不可
+
+    expect(element).toHaveTextContent()
+
+    Expected element to have text content:
+      起動結果を確認できません。状態を確認し直してから、必要なら再度起動してください
+    Received:
+      起動結果を確認できません。一覧を再読み込みしてください
+
+      230 |   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
+      231 |   await launch();
+    > 232 |   expect(screen.getByRole("alert")).toHaveTextContent(
+          |                                     ^
+      233 |     "起動結果を確認できません。状態を確認し直してから、必要なら再度起動してください",
+      234 |   );
+      235 |   expect(screen.getByRole("button", { name: "案を作成" })).toBeDisabled();
+
+      at toHaveTextContent (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:232:37)
+
+  ● 版の注記は起動ボタン近傍に常時表示される
+
+    TestingLibraryElementError: Unable to find an element with the text: 実ファイルを抽出する処理ではありません。再実行は別の生成版になります。未生成の案件ではまだ版がありません. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<section[39m
+      [33maria-label[39m=[32m"案の作成"[39m
+      [33mclass[39m=[32m"MuiBox-root css-115ci5l"[39m
+    [36m>[39m
+      [36m<h2[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+      [36m>[39m
+        [0m案の作成[0m
+      [36m</h2>[39m
+      [36m<button[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"[39m
+        [33mtabindex[39m=[32m"0"[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m>[39m
+        [0m案を作成[0m
+        [36m<span[39m
+          [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+        [36m/>[39m
+      [36m</button>[39m
+    [36m</section>[39m
+
+      363 |   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
+      364 |   const note = "実ファイルを抽出する処理ではありません。再実行は別の生成版になります。未生成の案件ではまだ版がありません";
+    > 365 |   expect(within(screen.getByRole("region", { name: "案の作成" })).getByText(note)).toBeInTheDocument();
+          |                                                               ^
+      366 |   await launch(); expect(screen.getByText(note)).toBeInTheDocument();
+      367 | });
+      368 | it("実API相当のelapsedSec小数は切り捨てた秒で表示する", async () => {
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByText (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:365:63)
+
+  ● 実API相当のelapsedSec小数は切り捨てた秒で表示する
+
+    TestingLibraryElementError: Unable to find an element with the text: 経過 12 秒・2 ターン. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<section[39m
+          [33maria-label[39m=[32m"案の作成"[39m
+          [33mclass[39m=[32m"MuiBox-root css-115ci5l"[39m
+        [36m>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+          [36m>[39m
+            [0m案の作成[0m
+          [36m</h2>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtabindex[39m=[32m"-1"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0m準備中…[0m
+          [36m</button>[39m
+          [36m<div[39m
+            [33maria-live[39m=[32m"polite"[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [33mrole[39m=[32m"status"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m資料 1/3 を読取中[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m経過 12.3456789 秒・2 ターン[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-expanded[39m=[32m"false"[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mtabindex[39m=[32m"0"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m処理記録を表示[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      369 |   setRun({ ...running, elapsedSec: 12.3456789 });
+      370 |   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />); await launch();
+    > 371 |   expect(screen.getByText("経過 12 秒・2 ターン")).toBeInTheDocument(); expect(screen.queryByText(/12\.3456789/)).not.toBeInTheDocument();
+          |                 ^
+      372 | });
+      373 | it("done段階のrunningは結果を確定中であり完了ではない", async () => {
+      374 |   setRun({ ...running, stage: "done" }); renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />); await launch();
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByText (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:371:17)
+
+  ● done段階のrunningは結果を確定中であり完了ではない
+
+    TestingLibraryElementError: Unable to find an element with the text: 結果を確定中. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<section[39m
+          [33maria-label[39m=[32m"案の作成"[39m
+          [33mclass[39m=[32m"MuiBox-root css-115ci5l"[39m
+        [36m>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+          [36m>[39m
+            [0m案の作成[0m
+          [36m</h2>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtabindex[39m=[32m"-1"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0m準備中…[0m
+          [36m</button>[39m
+          [36m<div[39m
+            [33maria-live[39m=[32m"polite"[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [33mrole[39m=[32m"status"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m処理を準備中[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m経過 12 秒・2 ターン[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-expanded[39m=[32m"false"[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mtabindex[39m=[32m"0"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m処理記録を表示[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      373 | it("done段階のrunningは結果を確定中であり完了ではない", async () => {
+      374 |   setRun({ ...running, stage: "done" }); renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />); await launch();
+    > 375 |   expect(screen.getByText("結果を確定中")).toBeInTheDocument(); expect(screen.queryByText("案を作成しました")).not.toBeInTheDocument();
+          |                 ^
+      376 | });
+      377 | it.each(["worker_failed", "trace_write_failed"])("成功時には診断%sを併記しない", async stageDetail => {
+      378 |   setRun({ ...running, outcome: "success", stage: "done", stopReason: "completed", versionId: 99, isComplete: true, stageDetail });
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByText (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:375:17)
+
+  ● 成功時には診断worker_failedを併記しない
+
+    expect(element).not.toBeInTheDocument()
+
+    expected document not to contain element, found <p class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">処理中にエラーが発生しました</p> instead
+
+      379 |   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />); await launch();
+      380 |   expect(screen.getByText("案を作成しました")).toBeInTheDocument();
+    > 381 |   expect(screen.queryByText("処理中にエラーが発生しました")).not.toBeInTheDocument(); expect(screen.queryByText("処理記録を保存できませんでした")).not.toBeInTheDocument();
+          |                                                    ^
+      382 | });
+      383 | it.each([true, false])("明示確認したrunの成功（isComplete=%s）で引き継ぎ結果を通知する", async isComplete => {
+      384 |   const complete = { ...running, outcome: "success" as const, stage: "done" as const, stopReason: "completed" as const, versionId: 99, isComplete };
+
+      at toBeInTheDocument (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:381:52)
+
+  ● 成功時には診断trace_write_failedを併記しない
+
+    expect(element).not.toBeInTheDocument()
+
+    expected document not to contain element, found <p class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">処理記録を保存できませんでした</p> instead
+
+      379 |   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />); await launch();
+      380 |   expect(screen.getByText("案を作成しました")).toBeInTheDocument();
+    > 381 |   expect(screen.queryByText("処理中にエラーが発生しました")).not.toBeInTheDocument(); expect(screen.queryByText("処理記録を保存できませんでした")).not.toBeInTheDocument();
+          |                                                                                                                           ^
+      382 | });
+      383 | it.each([true, false])("明示確認したrunの成功（isComplete=%s）で引き継ぎ結果を通知する", async isComplete => {
+      384 |   const complete = { ...running, outcome: "success" as const, stage: "done" as const, stopReason: "completed" as const, versionId: 99, isComplete };
+
+      at toBeInTheDocument (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:381:123)
+
+  ● 明示確認したrunの成功（isComplete=true）で引き継ぎ結果を通知する
+
+    TestingLibraryElementError: Unable to find an element with the text: 前版の修正・確認記録は引き継がれていません（既存版は保全されています）. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<section[39m
+          [33maria-label[39m=[32m"案の作成"[39m
+          [33mclass[39m=[32m"MuiBox-root css-115ci5l"[39m
+        [36m>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+          [36m>[39m
+            [0m案の作成[0m
+          [36m</h2>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"[39m
+            [33mtabindex[39m=[32m"0"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0m案を作成[0m
+            [36m<span[39m
+              [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+            [36m/>[39m
+          [36m</button>[39m
+          [36m<div[39m
+            [33maria-live[39m=[32m"polite"[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [33mrole[39m=[32m"status"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-16eu31u-MuiTypography-root"[39m
+            [36m>[39m
+              [0m案を作成しました[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m版番号：99[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+            [36m>[39m
+              [0mItem List の確認画面は次の段階で追加されます[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m経過 12 秒・2 ターン[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-expanded[39m=[32m"false"[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mtabindex[39m=[32m"0"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m処理記録を表示[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      388 |   expect(screen.queryByText(note)).not.toBeInTheDocument(); await user.click(screen.getByRole("checkbox"));
+      389 |   await user.click(screen.getByRole("button", { name: "案を作成" }));
+    > 390 |   expect(start).toHaveBeenLastCalledWith({ acknowledgedCarryOver: true }); expect(screen.getByText(note)).toBeInTheDocument();
+          |                                                                                          ^
+      391 |   expect(screen.getByText(note)).not.toHaveTextContent(/\d+件/);
+      392 |   // 次の、確認を伴わないrunへ通知を持ち越さない。
+      393 |   await user.click(screen.getByRole("button", { name: "案を作成" }));
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at getByText (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:390:90)
+
+  ● 明示確認したrunの成功（isComplete=false）で引き継ぎ結果を通知する
+
+    TestingLibraryElementError: Unable to find an element with the text: 前版の修正・確認記録は引き継がれていません（既存版は保全されています）. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<section[39m
+          [33maria-label[39m=[32m"案の作成"[39m
+          [33mclass[39m=[32m"MuiBox-root css-115ci5l"[39m
+        [36m>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+          [36m>[39m
+            [0m案の作成[0m
+          [36m</h2>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"[39m
+            [33mtabindex[39m=[32m"0"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0m案を作成[0m
+            [36m<span[39m
+              [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+            [36m/>[39m
+          [36m</button>[39m
+          [36m<div[39m
+            [33maria-live[39m=[32m"polite"[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [33mrole[39m=[32m"status"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-16eu31u-MuiTypography-root"[39m
+            [36m>[39m
+              [0m案を作成しました[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-42d2pn-MuiTypography-root"[39m
+            [36m>[39m
+              [0m一部完了：確認が必要な箇所が残っています[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m版番号：99[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+            [36m>[39m
+              [0mItem List の確認画面は次の段階で追加されます[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m経過 12 秒・2 ターン[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-expanded[39m=[32m"false"[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mtabindex[39m=[32m"0"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m処理記録を表示[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      388 |   expect(screen.queryByText(note)).not.toBeInTheDocument(); await user.click(screen.getByRole("checkbox"));
+      389 |   await user.click(screen.getByRole("button", { name: "案を作成" }));
+    > 390 |   expect(start).toHaveBeenLastCalledWith({ acknowledgedCarryOver: true }); expect(screen.getByText(note)).toBeInTheDocument();
+          |                                                                                          ^
+      391 |   expect(screen.getByText(note)).not.toHaveTextContent(/\d+件/);
+      392 |   // 次の、確認を伴わないrunへ通知を持ち越さない。
+      393 |   await user.click(screen.getByRole("button", { name: "案を作成" }));
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at getByText (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:390:90)
+
+  ● 状態を確認し直す操作はPOSTせずbusyを解除、明示再起動の409を表示できる
+
+    TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "状態を確認し直す"
+
+    Here are the accessible roles:
+
+      region:
+
+      Name "案の作成":
+      [36m<section[39m
+        [33maria-label[39m=[32m"案の作成"[39m
+        [33mclass[39m=[32m"MuiBox-root css-115ci5l"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      heading:
+
+      Name "案の作成":
+      [36m<h2[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      button:
+
+      Name "案を作成":
+      [36m<button[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"[39m
+        [33mdisabled[39m=[32m""[39m
+        [33mtabindex[39m=[32m"-1"[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      alert:
+
+      Name "":
+      [36m<div[39m
+        [33mclass[39m=[32m"MuiBox-root css-0"[39m
+        [33mrole[39m=[32m"alert"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      paragraph:
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<section[39m
+          [33maria-label[39m=[32m"案の作成"[39m
+          [33mclass[39m=[32m"MuiBox-root css-115ci5l"[39m
+        [36m>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+          [36m>[39m
+            [0m案の作成[0m
+          [36m</h2>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtabindex[39m=[32m"-1"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0m案を作成[0m
+          [36m</button>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [33mrole[39m=[32m"alert"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m起動結果を確認できません。一覧を再読み込みしてください[0m
+            [36m</p>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      407 |   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} onBusyChange={onBusyChange} />); const user = await launch();
+      408 |   expect(onBusyChange).toHaveBeenLastCalledWith(true);
+    > 409 |   await user.click(screen.getByRole("button", { name: "状態を確認し直す" }));
+          |                           ^
+      410 |   expect(onBusyChange).toHaveBeenLastCalledWith(false); expect(start).toHaveBeenCalledTimes(1);
+      411 |   expect(screen.queryByRole("alert")).not.toBeInTheDocument(); expect(screen.getByRole("button", { name: "案を作成" })).toBeEnabled();
+      412 |   await user.click(screen.getByRole("button", { name: "案を作成" })); expect(start).toHaveBeenCalledTimes(2);
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByRole (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:409:27)
+
+  ● GET404でも状態を確認し直すとエラーrunを解除し、再POSTしない
+
+    TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "状態を確認し直す"
+
+    Here are the accessible roles:
+
+      region:
+
+      Name "案の作成":
+      [36m<section[39m
+        [33maria-label[39m=[32m"案の作成"[39m
+        [33mclass[39m=[32m"MuiBox-root css-115ci5l"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      heading:
+
+      Name "案の作成":
+      [36m<h2[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      button:
+
+      Name "案を作成":
+      [36m<button[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"[39m
+        [33mdisabled[39m=[32m""[39m
+        [33mtabindex[39m=[32m"-1"[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m/>[39m
+
+      Name "処理記録を表示":
+      [36m<button[39m
+        [33maria-expanded[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+        [33mtabindex[39m=[32m"0"[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      alert:
+
+      Name "":
+      [36m<div[39m
+        [33mclass[39m=[32m"MuiBox-root css-0"[39m
+        [33mrole[39m=[32m"alert"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      paragraph:
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<section[39m
+          [33maria-label[39m=[32m"案の作成"[39m
+          [33mclass[39m=[32m"MuiBox-root css-115ci5l"[39m
+        [36m>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+          [36m>[39m
+            [0m案の作成[0m
+          [36m</h2>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtabindex[39m=[32m"-1"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0m案を作成[0m
+          [36m</button>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [33mrole[39m=[32m"alert"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m実行が見つかりません。進捗の取得を停止しました。[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m実行結果は未確認です。一覧を再読み込みしてください。自動では再起動しません。[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-expanded[39m=[32m"false"[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mtabindex[39m=[32m"0"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m処理記録を表示[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      417 |   setRun(running, new ApiError(status, { code: "E_NOT_FOUND" }));
+      418 |   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />); const user = await launch();
+    > 419 |   await user.click(screen.getByRole("button", { name: "状態を確認し直す" }));
+          |                           ^
+      420 |   expect(progress).toHaveBeenLastCalledWith(null); expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+      421 |   expect(screen.getByRole("button", { name: "案を作成" })).toBeEnabled(); expect(start).toHaveBeenCalledTimes(1);
+      422 | });
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at getByRole (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:419:27)
+
+  ● GET500でも状態を確認し直すとエラーrunを解除し、再POSTしない
+
+    TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "状態を確認し直す"
+
+    Here are the accessible roles:
+
+      region:
+
+      Name "案の作成":
+      [36m<section[39m
+        [33maria-label[39m=[32m"案の作成"[39m
+        [33mclass[39m=[32m"MuiBox-root css-115ci5l"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      heading:
+
+      Name "案の作成":
+      [36m<h2[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      button:
+
+      Name "案を作成":
+      [36m<button[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"[39m
+        [33mdisabled[39m=[32m""[39m
+        [33mtabindex[39m=[32m"-1"[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m/>[39m
+
+      Name "処理記録を表示":
+      [36m<button[39m
+        [33maria-expanded[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+        [33mtabindex[39m=[32m"0"[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      alert:
+
+      Name "":
+      [36m<div[39m
+        [33mclass[39m=[32m"MuiBox-root css-0"[39m
+        [33mrole[39m=[32m"alert"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      paragraph:
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<section[39m
+          [33maria-label[39m=[32m"案の作成"[39m
+          [33mclass[39m=[32m"MuiBox-root css-115ci5l"[39m
+        [36m>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+          [36m>[39m
+            [0m案の作成[0m
+          [36m</h2>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtabindex[39m=[32m"-1"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0m案を作成[0m
+          [36m</button>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [33mrole[39m=[32m"alert"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m通信中断：実行状況を確認できません。[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m実行結果は未確認です。一覧を再読み込みしてください。自動では再起動しません。[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-expanded[39m=[32m"false"[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mtabindex[39m=[32m"0"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m処理記録を表示[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      417 |   setRun(running, new ApiError(status, { code: "E_NOT_FOUND" }));
+      418 |   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />); const user = await launch();
+    > 419 |   await user.click(screen.getByRole("button", { name: "状態を確認し直す" }));
+          |                           ^
+      420 |   expect(progress).toHaveBeenLastCalledWith(null); expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+      421 |   expect(screen.getByRole("button", { name: "案を作成" })).toBeEnabled(); expect(start).toHaveBeenCalledTimes(1);
+      422 | });
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at getByRole (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:419:27)
+
+Test Suites: 1 failed, 13 passed, 14 total
+Tests:       13 failed, 151 passed, 164 total
+Snapshots:   0 total
+Time:        7.747 s
+Ran all test suites.
+make: *** [Makefile:77: fe-test] Error 1

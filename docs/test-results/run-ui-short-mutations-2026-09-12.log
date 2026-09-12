@@ -1,0 +1,9 @@
+KILLED version-note: Test Suites: 1 failed, 14 passed, 15 total / Tests:       1 failed, 165 passed, 166 total / Time:        13.273 s
+KILLED carry-result: Test Suites: 2 failed, 13 passed, 15 total / Tests:       3 failed, 163 passed, 166 total / Time:        16.633 s
+KILLED elapsed: Test Suites: 2 failed, 13 passed, 15 total / Tests:       2 failed, 164 passed, 166 total / Time:        26.371 s
+KILLED reset-error: Test Suites: 2 failed, 13 passed, 15 total / Tests:       2 failed, 164 passed, 166 total / Time:        17.655 s
+KILLED case-clear: Test Suites: 1 failed, 14 passed, 15 total / Tests:       1 failed, 165 passed, 166 total / Time:        22.295 s
+KILLED late-completion: Test Suites: 1 failed, 14 passed, 15 total / Tests:       1 failed, 165 passed, 166 total / Time:        18.951 s
+KILLED reason-label: Test Suites: 1 failed, 14 passed, 15 total / Tests:       2 failed, 164 passed, 166 total / Time:        19.467 s
+KILLED done-stage: Test Suites: 1 failed, 14 passed, 15 total / Tests:       1 failed, 165 passed, 166 total / Time:        11.02 s
+KILLED success-diagnostic: Test Suites: 2 failed, 13 passed, 15 total / Tests:       3 failed, 163 passed, 166 total / Time:        14.66 s

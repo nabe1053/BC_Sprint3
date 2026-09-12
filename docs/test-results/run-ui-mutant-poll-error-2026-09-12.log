@@ -1,0 +1,61 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/features/agent-runs/__tests__/api.test.ts
+PASS src/features/documents/__tests__/hooks.test.tsx
+FAIL src/features/agent-runs/__tests__/hooks.test.tsx
+  ● GET404はポーリングを止め、最後の進捗と通信エラーを維持
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 2
+    Received number of calls: 7
+
+      86 |     await waitFor(() => expect(result.current.isError).toBe(true));
+      87 |     await advance(10000);
+    > 88 |     expect(get).toHaveBeenCalledTimes(2);
+         |                 ^
+      89 |     expect(result.current.isError).toBe(true);
+      90 |     expect(result.current.data?.runId).toBe(3);
+      91 |     expect(start).not.toHaveBeenCalled();
+
+      at toHaveBeenCalledTimes (src/features/agent-runs/__tests__/hooks.test.tsx:88:17)
+
+  ● GET500はポーリングを止め、最後の進捗と通信エラーを維持
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 2
+    Received number of calls: 7
+
+      86 |     await waitFor(() => expect(result.current.isError).toBe(true));
+      87 |     await advance(10000);
+    > 88 |     expect(get).toHaveBeenCalledTimes(2);
+         |                 ^
+      89 |     expect(result.current.isError).toBe(true);
+      90 |     expect(result.current.data?.runId).toBe(3);
+      91 |     expect(start).not.toHaveBeenCalled();
+
+      at toHaveBeenCalledTimes (src/features/agent-runs/__tests__/hooks.test.tsx:88:17)
+
+PASS src/app/__tests__/providers.test.tsx
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx
+PASS src/app/__tests__/screen-theme.test.tsx (5.272 s)
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx (7.382 s)
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx (9.391 s)
+PASS src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx (10.256 s)
+
+Test Suites: 1 failed, 13 passed, 14 total
+Tests:       2 failed, 150 passed, 152 total
+Snapshots:   0 total
+Time:        12.579 s
+Ran all test suites.
+make[1]: *** [Makefile:77: fe-test] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

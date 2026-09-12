@@ -147,34 +147,35 @@ handoff の「レビュー対応」表に、指摘ごとに次の3列を書く�
 
 ---
 
-## 7. 次にやること（2026-09-12 20:45・T-103 DONE 後・次は C-1）
+## 7. 次にやること（2026-09-12 22:40・T-204 1回目レビュー後・短ラウンド）
 
-- **T-101 / T-102 / T-103 / T-201 / T-202 / T-203 → DONE**（最新 commit `989afd8`）。G1 と G2 の BE/API/AGENT/FE(G1) が閉じた。触らない
-- **いま進めるのは C-1**（下記タスク H）。完了後は T-204 の指示を §7 に書く（着手は §7 更新待ち）
-- G3 以降には進まない（AD-011）
+- **T-204 → DONE 不可**（memory RV-027。P1 0 / P2 4 / P3 5）。骨格（実行の型・完了判定・decoder・層配置・design）は全て OK。方針転換なし
+- **いま進めるのはタスク J（T-204 の短ラウンド）**。修正はいずれも小さい。WIP=1 のまま
+- **完了合図の固定文字列**: handoff 冒頭の見出しを `## RV-027 対応（タスク J）` とし、末尾に `再レビュー依頼` と書く。Claude はこの2語を監視する
 
-### タスク H: C-1 チケット名ファイルの正規配置への移動（振る舞い不変）
+### タスク J: T-204 RV-027 の修正（orchestrator 判断つき）
 
-§3 の表と移動リストが正。**純粋な移動＋import 追従**で、コードの振る舞い・テストの assert を変えない。
+1. **P2-1 版の注記（必須）**: `agentRuns.versionNote` を追加し `AgentRunPanel` の起動ボタン近傍に常時表示。文言は 03-spec:124
+   「実ファイルを抽出する処理ではありません。再実行は別の生成版になります。未生成の案件ではまだ版がありません」（件数は出さない）
+2. **P2-2 作成後の引き継ぎ通知（必須）**: `acknowledgedCarryOver: true` で起動した run が成功したら、完了表示に
+   「前版の修正・確認記録は引き継がれていません（既存版は保全されています）」を併記（03-spec:155 X12。件数なし）。RED を先に
+3. **P2-3 elapsedSec の丸め（必須）**: `RunProgress` で `Math.floor(run.elapsedSec)` してから `t()` へ。実 API 相当の小数値（例 `12.3456789`）を渡すテスト 1 本
+4. **P2-4 起動結果不明の行き止まり（必須・判断済み）**: 資料投入を止める保守的判断は**維持**する。そのうえで、パネルに
+   「状態を確認し直す」ボタン（**再 POST しない**。パネルの `uncertain`/エラー状態をリセットして起動可能状態へ戻すだけ）を置き、文言を
+   「起動結果を確認できません。状態を確認し直してから、必要なら再度起動してください」に変える。「一覧を再読み込み」は受付一覧と誤読されるので使わない。
+   リセット後に再起動した場合、サーバーが `E_RUN_IN_PROGRESS`（409）を返せば既存の 409 表示に落ちる（二重実行は BE が防ぐ）
+5. **P3-1**: 進行中 Promise の保持を `useMemo` → `useRef`（`caseId` 変化時に `useEffect` でクリア）。ESLint 警告は依存配列で正しく解消する
+6. **P3-2**: 停止理由 9・段階 3 の語彙配列を `model.ts` のモジュール定数へ集約し `stopReasonLabelKey()` / `stageLabelKey()` を export
+7. **P3-3**: `stage === "done"` は既知値。`agentRuns.stage.done`「結果を確定中」を追加し pending 扱いにしない
+8. **P3-4**: 成功時に診断コードを**併記しない**（完了表示は versionId＋注記のみ）とテストで固定
+9. **P3-5**: `docs/test-results/run-ui-checks.mk` / `run-ui-mutations.py` / `run-ui-browser.cjs` は `/tmp` 参照で再実行不能なので**削除**（本指示で承認）。
+   ログと画像は残す
+10. 完了条件: `DEBUG=false CI=true make check` all green ＋ design-lint 0 ＋ `docs/t204-handoff.md` 冒頭に `## RV-027 対応（タスク J）` の対応表
+    （指摘ごとに変更ファイル:行 / RED→GREEN 実結果 / 変異 1 行）＋ `再レビュー依頼`。BE 変更なし。commit しない
 
-1. 移動（§3 のリスト）:
-   - `app/api/routes_t202.py` → `app/api/common/route_errors.py`
-   - `app/api/dependencies_t202.py` → `app/api/dependencies.py`
-   - `app/api/schemas_drafts.py` → `app/api/common/schemas/drafts.py`
-   - `app/api/schemas_runs.py` → `app/api/ui/schemas/agent_runs.py`
-   - `tests/t201/` `tests/t202/` → `tests/unit/` / `tests/integration/` に層で配分（実 DB を使うもの → integration）。
-     `tests/t201/conftest.py` `tests/t202/conftest.py` の fixture は移動先の conftest に統合し、`--confcutdir` 前提を残さない
-   - `scripts/check_t201_postgres.py` → `scripts/check_scan_index.py`（Makefile の参照も追従）
-   - 削除（**本指示で承認済み**）: `frontend/orval.t202.config.ts` / `frontend/tsconfig.t202.json` / `backend/scripts/export_openapi_isolated.py`
-2. `test_single_source_of_truth.py` / `test_api_path_separation.py` / `test_regression_gate.py` が移動後のパスを検査対象に含めているか確認
-   （rglob なら自動。固定パスがあれば追従）
-3. **テスト件数が移動前後で一致すること**（BE 404 / FE 78）を handoff に書く。減っていたら理由を書き、隠さない
-4. 完了条件: `DEBUG=false CI=true make check` all green ＋ `docs/c1-handoff.md`（移動前後の対応表・件数・`git status` の rename 検出）＋「再レビュー依頼」。
-   `git mv` を使い履歴を残す。commit はしない
-5. 迷ったら **動かさずに handoff に「要判断」と書いて止まる**（例: t201/t202 の fixture が unit/integration 両方から使われる場合の置き場）
-
-### C-1 の後（着手は §7 更新待ち）
-- T-204 実行進捗のポーリング UI（事前整理 `docs/t204-handoff.md`。TODO-011 ②の file input 改修も同時）
+### T-204 の後（着手は §7 更新待ち）
+- Claude が G2 ミニ評価（実ジョブ 1 本を UI から起動しトレースを agent-plan.md と突き合わせ）→ Phase 3 入口。Codex は待機
+- その後 G3（T-301 BE）。並行可は T-401 のみ（§5）
 
 ### タスク F: T-103（G1 FE）の指摘修正 — 指示書は `docs/t103-instructions.md`
 

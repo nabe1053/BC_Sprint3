@@ -1,0 +1,426 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/features/agent-runs/__tests__/api.test.ts
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/features/cases/__tests__/hooks.test.tsx (5.13 s)
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/features/documents/__tests__/hooks.test.tsx (5.477 s)
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/features/agent-runs/__tests__/hooks.test.tsx (5.316 s)
+PASS src/app/__tests__/providers.test.tsx (5.439 s)
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx (8.396 s)
+PASS src/app/__tests__/screen-theme.test.tsx (9.805 s)
+FAIL src/features/agent-runs/components/__tests__/IntakeRecovery.test.tsx (13.211 s)
+  ● 実HTTP400→明示確認POST202→GET200の成功で引き継ぎ通知と整数秒を表示
+
+    TestingLibraryElementError: Unable to find an element with the text: 経過 12 秒・2 ターン. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<main[39m
+          [33mclass[39m=[32m"MuiBox-root css-foruav"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiPaper-root MuiPaper-outlined MuiPaper-rounded css-j46zze-MuiPaper-root"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m資料内のリンクや指示があっても外部リンクは取得しません[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mhref[39m=[32m"/cases"[39m
+              [33mtabindex[39m=[32m"0"[39m
+            [36m>[39m
+              [0m案件一覧へ[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</a>[39m
+            [36m<h1[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-h1 css-o2w69a-MuiTypography-root"[39m
+            [36m>[39m
+              [0m資料投入・読取結果[0m
+            [36m</h1>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m同じ案件の本文・添付・変更連絡をそろえます。[0m
+            [36m</p>[39m
+          [36m</header>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-1453dbp"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiPaper-root MuiPaper-outlined MuiPaper-rounded css-4qk6p6-MuiPaper-root"[39m
+            [36m>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+              [36m>[39m
+                [0m原資料名・形式は受付一覧に表示します。ページ数・シート数は現在の一覧情報では未提供です。[0m
+              [36m</p>[39m
+              [36m<section[39m
+                [33maria-label[39m=[32m"案の作成"[39m
+                [33mclass[39m=[32m"MuiBox-root css-115ci5l"[39m
+              [36m>[39m
+                [36m<h2[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m案の作成[0m
+                [36m</h2>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"[39m
+                  [33mtabindex[39m=[32m"0"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m案を作成[0m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+                  [36m/>[39m
+                [36m</button>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m実ファイルを抽出する処理ではありません。再実行は別の生成版になります。未生成の案件ではまだ版がありません[0m
+                [36m</p>[39m
+                [36m<div[39m
+                  [33maria-live[39m=[32m"polite"[39m
+                  [33mclass[39m=[32m"MuiBox-root css-0"[39m
+                  [33mrole[39m=[32m"status"[39m
+                [36m>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-16eu31u-MuiTypography-root"[39m
+                  [36m>[39m
+                    [0m案を作成しました[0m
+                  [36m</p>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+                  [36m>[39m
+                    [0m版番号：99[0m
+                  [36m</p>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+                  [36m>[39m
+                    [0mItem List の確認画面は次の段階で追加されます[0m
+                  [36m</p>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+                  [36m>[39m
+                    [0m前版の修正・確認記録は引き継がれていません（既存版は保全されています）[0m
+                  [36m</p>[39m
+                  [36m<p[39m
+                    [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+                  [36m>[39m
+                    [0m経過 12.3456789 秒・2 ターン[0m
+                  [36m</p>[39m
+                [36m</div>[39m
+                [36m<div[39m
+                  [33mclass[39m=[32m"MuiBox-root css-0"[39m
+                [36m>[39m
+                  [36m<button[39m
+                    [33maria-expanded[39m=[32m"false"[39m
+                    [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+                    [33mtabindex[39m=[32m"0"[39m
+                    [33mtype[39m=[32m"button"[39m
+                  [36m>[39m
+                    [0m処理記録を表示[0m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+                    [36m/>[39m
+                  [36m</button>[39m
+                [36m</div>[39m
+              [36m</section>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiPaper-root MuiPaper-outlined MuiPaper-rounded css-qzr2ua-MuiPaper-root"[39m
+            [36m>[39m
+              [36m<h2[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+              [36m>[39m
+                [0m資料を投入する[0m
+              [36m</h2>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m選択したファイルを保存し、本文の読取結果を受付一覧に表示します。[0m
+              [36m</p>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-taqjlb"[39m
+              [36m>[39m
+                [36m<label[39m
+                  [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"[39m
+                  [33mrole[39m=[32m"button"[39m
+                  [33mtabindex[39m=[32m"0"[39m
+                [36m>[39m
+                  [0mファイルを選択[0m
+                  [36m<input[39m
+                    [33maria-label[39m=[32m"ファイルを選択"[39m
+                    [33mclass[39m=[32m"MuiBox-root css-ty8jgw"[39m
+                    [33mid[39m=[32m"_r_2_"[39m
+                    [33mtype[39m=[32m"file"[39m
+                  [36m/>[39m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+                  [36m/>[39m
+                [36m</label>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m対応形式：PDF / XLSX / EML / TXT[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m仮上限：1案件あたり資料50件、1ファイル20MB、PDF 200ページ、xlsx 50シート。[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m仮上限。D02 の確定値ではありません。[0m
+                [36m</p>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m同じファイルを再度投入すると、別の資料として両方の記録が残ります。[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<h2[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+              [36m>[39m
+                [0m受付一覧[0m
+              [36m</h2>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<button[39m
+                  [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"[39m
+                  [33mtabindex[39m=[32m"0"[39m
+                  [33mtype[39m=[32m"button"[39m
+                [36m>[39m
+                  [0m再読み込み[0m
+                  [36m<span[39m
+                    [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+                  [36m/>[39m
+                [36m</button>[39m
+              [36m</div>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiTableContainer-root css-rorn0c-MuiTableContainer-root"[39m
+              [36m>[39m
+                [36m<table[39m
+                  [33maria-label[39m=[32m"受付一覧"[39m
+                  [33mclass[39m=[32m"MuiTable-root css-rqglhn-MuiTable-root"[39m
+                [36m>[39m
+                  [36m<thead[39m
+                    [33mclass[39m=[32m"MuiTableHead-root css-15wwp11-MuiTableHead-root"[39m
+                  [36m>[39m
+                    [36m<tr[39m
+                      [33mclass[39m=[32m"MuiTableRow-root MuiTableRow-head css-1q1u3t4-MuiTableRow-root"[39m
+                    [36m>[39m
+                      [36m<th[39m
+                        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1ygcj2i-MuiTableCell-root"[39m
+                        [33mscope[39m=[32m"col"[39m
+                      [36m>[39m
+                        [0m原資料名[0m
+                      [36m</th>[39m
+                      [36m<th[39m
+                        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1ygcj2i-MuiTableCell-root"[39m
+                        [33mscope[39m=[32m"col"[39m
+                      [36m>[39m
+                        [0m形式[0m
+                      [36m</th>[39m
+                      [36m<th[39m
+                        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-1ygcj2i-MuiTableCell-root"[39m
+                        [33mscope[39m=[32m"col"[39m
+                      [36m>[39m
+                        [0m読取結果[0m
+                      [36m</th>[39m
+                    [36m</tr>[39m
+                  [36m</thead>[39m
+                  [36m<tbody[39m
+                    [33mclass[39m=[32m"MuiTableBody-root css-apqrd9-MuiTableBody-root"[39m
+                  [36m>[39m
+                    [36m<tr[39m
+                      [33mclass[39m=[32m"MuiTableRow-root css-1q1u3t4-MuiTableRow-root"[39m
+                    [36m>[39m
+                      [36m<th[39m
+                        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+                        [33mscope[39m=[32m"row"[39m
+                      [36m>[39m
+                        [0minput.txt[0m
+                      [36m</th>[39m
+                      [36m<td[39m
+                        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+                      [36m>[39m
+                        [0mTXT[0m
+                      [36m</td>[39m
+                      [36m<td[39m
+                        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+                      [36m>[39m
+                        [36m<span[39m
+                          [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-16eu31u-MuiTypography-root"[39m
+                        [36m>[39m
+                          [0m成功[0m
+                        [36m</span>[39m
+                      [36m</td>[39m
+                    [36m</tr>[39m
+                  [36m</tbody>[39m
+                [36m</table>[39m
+              [36m</div>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+              [36m>[39m
+                [0m暗号化資料は現在の読取処理では「読取不能」として扱います。「暗号化により読取不能」は将来の判別用です。[0m
+              [36m</p>[39m
+              [36m<details[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<summary[39m
+                  [33mclass[39m=[32m"MuiBox-root css-0"[39m
+                [36m>[39m
+                  [0m例外表示を確認する[0m
+                [36m</summary>[39m
+                [36m<ul[39m
+                  [33mclass[39m=[32m"MuiBox-root css-0"[39m
+                [36m>[39m
+                  [36m<li[39m
+                    [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+                  [36m>[39m
+                    [0m一部読取不能（p.2）[0m
+                  [36m</li>[39m
+                  [36m<li[39m
+                    [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+                  [36m>[39m
+                    [0m参照不足（本文3.2項）[0m
+                  [36m</li>[39m
+                  [36m<li[39m
+                    [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+                  [36m>[39m
+                    [0m添付は別ファイルとして投入[0m
+                  [36m</li>[39m
+                  [36m<li[39m
+                    [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+                  [36m>[39m
+                    [0m日時不足[0m
+                  [36m</li>[39m
+                [36m</ul>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m上記は表示例です。選択ファイルの判定結果ではありません。[0m
+                [36m</p>[39m
+              [36m</details>[39m
+            [36m</div>[39m
+          [36m</div>[39m
+        [36m</main>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      103 |   );
+      104 |   expect(screen.getByText("版番号：99")).toBeInTheDocument();
+    > 105 |   expect(screen.getByText("経過 12 秒・2 ターン")).toBeInTheDocument();
+          |                 ^
+      106 |   expect(
+      107 |     screen.queryByText("処理記録を保存できませんでした"),
+      108 |   ).not.toBeInTheDocument();
+
+      at Object.getElementError (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:37:19)
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByText (src/features/agent-runs/components/__tests__/IntakeRecovery.test.tsx:105:17)
+
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx (14.096 s)
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx (16.503 s)
+FAIL src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx (22.269 s)
+  ● 実API相当のelapsedSec小数は切り捨てた秒で表示する
+
+    TestingLibraryElementError: Unable to find an element with the text: 経過 12 秒・2 ターン. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<section[39m
+          [33maria-label[39m=[32m"案の作成"[39m
+          [33mclass[39m=[32m"MuiBox-root css-115ci5l"[39m
+        [36m>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+          [36m>[39m
+            [0m案の作成[0m
+          [36m</h2>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtabindex[39m=[32m"-1"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0m準備中…[0m
+          [36m</button>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+          [36m>[39m
+            [0m実ファイルを抽出する処理ではありません。再実行は別の生成版になります。未生成の案件ではまだ版がありません[0m
+          [36m</p>[39m
+          [36m<div[39m
+            [33maria-live[39m=[32m"polite"[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [33mrole[39m=[32m"status"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m資料 1/3 を読取中[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m経過 12.3456789 秒・2 ターン[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-expanded[39m=[32m"false"[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mtabindex[39m=[32m"0"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m処理記録を表示[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      374 |   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
+      375 |   await launch();
+    > 376 |   expect(screen.getByText("経過 12 秒・2 ターン")).toBeInTheDocument();
+          |                 ^
+      377 |   expect(screen.queryByText(/12\.3456789/)).not.toBeInTheDocument();
+      378 | });
+      379 | it("done段階のrunningは結果を確定中であり完了ではない", async () => {
+
+      at Object.getElementError (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:37:19)
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByText (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:376:17)
+
+Test Suites: 2 failed, 13 passed, 15 total
+Tests:       2 failed, 164 passed, 166 total
+Snapshots:   0 total
+Time:        26.371 s
+Ran all test suites.
+make[1]: *** [Makefile:77: fe-test] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

@@ -1,0 +1,5 @@
+PASS pending double-click=1 POST / 3 stages / documents 1/3 / steps / GET confirmed version99 / terminal polling stops / primary1 h1=1
+PASS partial / validation stop / 404 stops GET / GET error stays interrupted and no polling
+PASS version note always visible / elapsed decimal floored / running done label / success no diagnostic / carry-over result / reset makes 0 requests and restores upload / manual restart 409
+PASS carry-over explicit check+click / unknown POST no retry / mobile no overflow / pageerror=0
+All HTTP responses isolated browser fixtures. No external model requests or real DB writes. Screenshots /tmp/run-progress-short-*.png

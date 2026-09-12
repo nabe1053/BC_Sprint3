@@ -15,7 +15,9 @@ import {
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { visuallyHidden } from "@mui/utils";
 import { CaseMetadata } from "@/features/cases";
+import { AgentRunPanel } from "@/features/agent-runs";
 import { ApiError } from "@/shared/api/mutator";
 import { tokens } from "@/shared/theme/tokens";
 import { useDocuments, useIntakeDocument } from "../hooks";
@@ -65,6 +67,7 @@ export function IntakePage({ caseId }: { caseId: number }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<unknown>(null);
   const [saved, setSaved] = useState(false);
+  const [agentBusy, setAgentBusy] = useState(false);
   const busy = submitting || intake.isPending;
   const limitExceeded =
     error instanceof ApiError && error.code === "E_LIMIT_EXCEEDED";
@@ -74,7 +77,7 @@ export function IntakePage({ caseId }: { caseId: number }) {
   async function upload(event: ChangeEvent<HTMLInputElement>) {
     const input = event.currentTarget;
     const file = input.files?.[0];
-    if (!file || lock.current || intake.isPending) return;
+    if (!file || lock.current || intake.isPending || agentBusy) return;
     lock.current = true;
     setSubmitting(true);
     setError(null);
@@ -118,27 +121,56 @@ export function IntakePage({ caseId }: { caseId: number }) {
         <Paper variant="outlined" sx={{ padding: gap, alignSelf: "start" }}>
           <CaseMetadata caseId={caseId} />
           <Typography variant="body2">{t("documents.sourceNote")}</Typography>
+          <AgentRunPanel
+            key={caseId}
+            caseId={caseId}
+            onBusyChange={setAgentBusy}
+            inputRevision={JSON.stringify(
+              list.data?.map(({ documentId, readStatus }) => [
+                documentId,
+                readStatus,
+              ]) ?? [],
+            )}
+            blockedReason={
+              busy
+                ? "uploading"
+                : list.isLoading
+                  ? "loading"
+                  : list.isError
+                    ? "documentsError"
+                    : limitExceeded
+                      ? "limitExceeded"
+                      : !list.data?.some(
+                            (document) =>
+                              document.readStatus === "success" ||
+                              document.readStatus === "partial",
+                          )
+                        ? "noReadable"
+                        : null
+            }
+          />
         </Paper>
         <Paper variant="outlined" sx={{ padding: gap, display: "grid", gap }}>
           <Typography variant="h2">{t("documents.intakeTitle")}</Typography>
           <Typography>{t("documents.intakeDescription")}</Typography>
           <Box sx={{ display: "grid", gap: `${tokens.spacing.s2}px` }}>
-            <Typography component="label" htmlFor={fileId}>
+            <Button
+              component="label"
+              variant="outlined"
+              disabled={busy || agentBusy || list.error?.status === 404}
+            >
               {t("documents.selectFile")}
-            </Typography>
-            {/* 未対応形式もサーバで記録する契約なので、acceptによるブラウザ側の除外をしない。 */}
-            <Box
-              component="input"
-              id={fileId}
-              type="file"
-              disabled={busy || list.error?.status === 404}
-              onChange={upload}
-              sx={{
-                width: "100%",
-                fontFamily: tokens.typography.body,
-                fontSize: tokens.typography.size.fs4,
-              }}
-            />
+              {/* 未対応形式もサーバで記録する契約なので、acceptによるブラウザ側の除外をしない。 */}
+              <Box
+                component="input"
+                id={fileId}
+                type="file"
+                aria-label={t("documents.selectFile")}
+                disabled={busy || agentBusy || list.error?.status === 404}
+                onChange={upload}
+                sx={visuallyHidden}
+              />
+            </Button>
             <Typography variant="body2">{t("documents.formats")}</Typography>
             <Typography variant="body2">
               {t("documents.limits.values")}

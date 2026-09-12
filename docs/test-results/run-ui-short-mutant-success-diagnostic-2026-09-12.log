@@ -1,0 +1,75 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/features/agent-runs/__tests__/hooks.test.tsx
+PASS src/features/agent-runs/__tests__/api.test.ts
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/features/documents/__tests__/hooks.test.tsx
+PASS src/app/__tests__/providers.test.tsx
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx
+PASS src/app/__tests__/screen-theme.test.tsx
+FAIL src/features/agent-runs/components/__tests__/IntakeRecovery.test.tsx (6.447 s)
+  ● 実HTTP400→明示確認POST202→GET200の成功で引き継ぎ通知と整数秒を表示
+
+    expect(element).not.toBeInTheDocument()
+
+    expected document not to contain element, found <p class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">処理記録を保存できませんでした</p> instead
+
+      106 |   expect(
+      107 |     screen.queryByText("処理記録を保存できませんでした"),
+    > 108 |   ).not.toBeInTheDocument();
+          |         ^
+      109 |   expect(request).toHaveBeenCalledTimes(3);
+      110 |   expect(JSON.parse(request.mock.calls[1][1].body)).toEqual({
+      111 |     acknowledgedCarryOver: true,
+
+      at Object.toBeInTheDocument (src/features/agent-runs/components/__tests__/IntakeRecovery.test.tsx:108:9)
+
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx (7.037 s)
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx (8.435 s)
+FAIL src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx (12.426 s)
+  ● 成功時には診断worker_failedを併記しない
+
+    expect(element).not.toBeInTheDocument()
+
+    expected document not to contain element, found <p class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">処理中にエラーが発生しました</p> instead
+
+      401 |     expect(
+      402 |       screen.queryByText("処理中にエラーが発生しました"),
+    > 403 |     ).not.toBeInTheDocument();
+          |           ^
+      404 |     expect(
+      405 |       screen.queryByText("処理記録を保存できませんでした"),
+      406 |     ).not.toBeInTheDocument();
+
+      at toBeInTheDocument (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:403:11)
+
+  ● 成功時には診断trace_write_failedを併記しない
+
+    expect(element).not.toBeInTheDocument()
+
+    expected document not to contain element, found <p class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">処理記録を保存できませんでした</p> instead
+
+      404 |     expect(
+      405 |       screen.queryByText("処理記録を保存できませんでした"),
+    > 406 |     ).not.toBeInTheDocument();
+          |           ^
+      407 |   },
+      408 | );
+      409 | it.each([true, false])(
+
+      at toBeInTheDocument (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:406:11)
+
+Test Suites: 2 failed, 13 passed, 15 total
+Tests:       3 failed, 163 passed, 166 total
+Snapshots:   0 total
+Time:        14.66 s
+Ran all test suites.
+make[1]: *** [Makefile:77: fe-test] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

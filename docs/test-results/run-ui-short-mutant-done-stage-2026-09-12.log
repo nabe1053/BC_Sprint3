@@ -1,0 +1,102 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/features/agent-runs/__tests__/api.test.ts
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/features/documents/__tests__/hooks.test.tsx
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/features/agent-runs/__tests__/hooks.test.tsx
+PASS src/app/__tests__/providers.test.tsx
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx
+PASS src/app/__tests__/screen-theme.test.tsx (5.332 s)
+PASS src/features/agent-runs/components/__tests__/IntakeRecovery.test.tsx (6.009 s)
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx (6.45 s)
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx (6.599 s)
+FAIL src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx (8.262 s)
+  ● done段階のrunningは結果を確定中であり完了ではない
+
+    TestingLibraryElementError: Unable to find an element with the text: 結果を確定中. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<section[39m
+          [33maria-label[39m=[32m"案の作成"[39m
+          [33mclass[39m=[32m"MuiBox-root css-115ci5l"[39m
+        [36m>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+          [36m>[39m
+            [0m案の作成[0m
+          [36m</h2>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtabindex[39m=[32m"-1"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0m準備中…[0m
+          [36m</button>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+          [36m>[39m
+            [0m実ファイルを抽出する処理ではありません。再実行は別の生成版になります。未生成の案件ではまだ版がありません[0m
+          [36m</p>[39m
+          [36m<div[39m
+            [33maria-live[39m=[32m"polite"[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [33mrole[39m=[32m"status"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m処理を準備中[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m経過 12 秒・2 ターン[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-expanded[39m=[32m"false"[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mtabindex[39m=[32m"0"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m処理記録を表示[0m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      381 |   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
+      382 |   await launch();
+    > 383 |   expect(screen.getByText("結果を確定中")).toBeInTheDocument();
+          |                 ^
+      384 |   expect(screen.queryByText("案を作成しました")).not.toBeInTheDocument();
+      385 | });
+      386 | it.each(["worker_failed", "trace_write_failed"])(
+
+      at Object.getElementError (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:37:19)
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByText (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:383:17)
+
+Test Suites: 1 failed, 14 passed, 15 total
+Tests:       1 failed, 165 passed, 166 total
+Snapshots:   0 total
+Time:        11.02 s
+Ran all test suites.
+make[1]: *** [Makefile:77: fe-test] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

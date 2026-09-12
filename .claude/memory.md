@@ -63,6 +63,10 @@
   §7 の更新時刻が変わるまで待って再読、を繰り返す（指示文は同 §0）。Claude は handoff を監視して §7 を更新する。
   理由: 毎スライスで研修者の判断を仰ぐと実装が進まない / 影響範囲: CLAUDE.md 憲法7 を改定。
 
+- [AD-015] **T-204 の完了表示は「案を作成しました」＋ versionId ＋「確認画面は次の段階で追加」の注記で止め、SCR-03 へのリンクを作らない**
+  （2026-09-12 orchestrator 暫定・AD-013 と同型）。理由: SCR-03 は G3（T-303）まで無い。引き継ぎ警告の件数内訳は #22（G5）まで返らないため
+  警告文＋明示確認のみ（件数を捏造しない）/ 影響範囲: T-303 でリンクを追加、T-502 で件数を追加。03-spec SCR-02 の注記⑦に対応。
+
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
@@ -129,7 +133,7 @@
 | T-202 | G2 エージェント書込 API #15-21 / 起動・監視 #12-14（API・jobs 経由） | web | T-201 | DONE | 5回目 RV-018: **DONE 可**（P3 6 は記録のみ） | 2026-09-12 |
 | C-1 | チケット名ファイルの正規配置への移動（振る舞い不変） | chore | T-202 | DONE | 1回目 RV-026: **DONE**（P3 8 は記録のみ・TODO-012） | 2026-09-12 |
 | T-203 | G2 AGENT-01 本体（tools / ガードレール / runner） | agent | T-202, C-1 | DONE | 2回目 RV-022: **DONE**（P3 5 は記録のみ・TODO-009。C-1 は未完のまま） | 2026-09-12 |
-| T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | PLANNED | - | 2026-09-11 |
+| T-204 | G2 実行進捗のポーリング UI（FE） | agent | T-203 | DONE | 2回目 RV-028: **DONE**（P3 1 は記録のみ・TODO-012 へ） | 2026-09-12 |
 | T-301 | G3 明細の現在値算出・人の記録（BE） | web | T-201 | PLANNED | - | 2026-09-11 |
 | T-302 | G3 参照 #23-26 / 記録 #29-31,33（API） | web | T-301 | PLANNED | - | 2026-09-11 |
 | T-303 | G3 SCR-03 Item List 確認 / SCR-04 根拠詳細（FE） | web | T-302 | PLANNED | - | 2026-09-11 |
@@ -264,6 +268,19 @@
   チケット ID 残存 / SQLite `@compiles` がプロセス全体へ登録 / conftest 内 `TestConnection` 命名 / integration→unit のテスト間 import /
   `test_actual_application_path_separation_under_isolated_settings` の名前乖離と二重実行 / seeded の `case_code="T202"` / 空 dir 残骸 / §3 の C-1 指示残存 → TODO-012。
 
+- [RV-027] T-204 1回目（Codex 実装 → Claude reviewer 独立・2026-09-12）: **DONE 不可**。P1 0 / P2 4 / P3 5。実行の型（202 → 2 秒ポーリング・終端/404/エラー停止・
+  focus/reconnect で再開しない・二重 POST 防止）、完了判定 4 条件、413 decoder の #5 との分離、AD-015 / TODO-013 / AE05b、層配置、design（contained 1・h1 1）は全て OK。
+  P2: ①03-spec SCR-02 注記⑦の「版の注記」未実装（§7 の実装範囲から落ちた）②作成後の「前版の記録は引き継がれていません」通知（X12）が無い
+  ③`elapsedSec` を BE の Decimal のまま表示（小数が並ぶ）④起動結果不明で資料投入まで恒久無効化され画面内に復帰手段が無い。
+  P3: 進行中 Promise を `useMemo` で保持 / 停止理由・段階の語彙が 2 ファイルに分散 / `stage=done` を未知扱い / 成功時の診断併記が未固定 /
+  `docs/test-results/run-ui-checks.mk` が `/tmp` 参照の再実行不能な採取物。実測 typecheck 0 / lint 0 / jest 152 passed / design-lint 0 / BE 無変更。
+
+- [RV-028] T-204 2回目（Codex 短ラウンド → 同一 reviewer 独立確認・2026-09-12）: **DONE 可**。P1 0 / P2 0 / P3 1。RV-027 の P2-1〜4・P3-1〜5 を行単位で全件クローズ
+  （版の注記常時表示 / 明示確認した runId に紐付けた作成後通知で失敗 run・次 run へ漏れない / `Math.floor` ＋実 HTTP 境界テスト / `resetState` はネットワーク非依存で
+  リセット後の再起動は 409 に落ちる / `useRef` の同一性確認 / 語彙集約と `done` の既知化 / 成功時の診断抑止）。既存 assert 削除なし、152→166 純増。
+  実測 typecheck 0 / lint 0 / jest 166 passed / design-lint 0 / BE 無変更。P3-6: `agent-runs/components/__tests__/IntakeRecovery.test.tsx` が documents の
+  IntakePage を描画し内部パスを mock（本番の依存方向は正）→ C-2 で置き場を整理（TODO-012 ⑧）。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -346,6 +363,17 @@
 - [LN-032] **「振る舞い不変」の chore は 3 点で機械的に証明する**: import 行を除いた旧新 diff・テスト関数名の集合・assert 総数。reviewer が同じ 3 点を
   再現すれば P1 の有無が 1 ラウンドで確定する（C-1）。
 
+- [LN-033] **完了合図の監視は表記に依存させない。**Codex の「希望Status: T-204 REVIEWING」を期待したが実際は「希望StatusはREVIEW」で、
+  監視が 1 時間以上検知できなかった。合図は指示書側で固定文字列（例: レビュー番号 `RV-0xx 対応`）を指定し、監視はそれだけを見る。
+- [LN-034] **03-spec の Build 実装対応注記で後続スライスへ送った UI 要素は、そのスライスの指示書に 1 行ずつ転記する。**注記⑦の 3 項目のうち
+  「版の注記」だけが §7 タスク I から落ち、そのまま未実装になった（RV-027 P2-1）。
+- [LN-035] **BE が Decimal で返す秒・所要時間は FE が表示前に丸める。**テストが整数固定値しか通さないと露見しない（RV-027 P2-3）。
+- [LN-036] **busy を親フォーム全体へ伝播させるときは、解除経路が画面内に必ずあることを確認する**（RV-027 P2-4 の行き止まり）。
+  可変状態（進行中 Promise・ロック）は `useMemo` でなく `useRef` に持つ（P3-1）。
+
+- [LN-037] **「行き止まり状態」を作る UI は、解除操作をネットワーク非依存のローカルリセットとして置き、リセット後の再操作がサーバー判定（409 等）に
+  落ちることまでテストで固定する**（T-204 `resetState`）。派生表示（作成後通知）は「直前の操作」でなく**対象 run の id に紐付けて**保持する。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
@@ -366,7 +394,10 @@
   `..._live.py`（CV-017 残存）②SQLite `@compiles` と共有 metadata 書換を `tests/fixtures/sqlite_support.py` へ切り出しコメント明示 ③conftest の
   `TestConnection` / `test_connection` を `SyncConnectionAdapter` / `_connection` に ④integration→unit のテスト間 import を `tests/fixtures/` のビルダへ（CV-021）
   ⑤`test_actual_application_path_separation_under_isolated_settings` の改名と `runpy` 二重実行の解消 ⑥seeded の `case_code="T202"` → `"SEED-CASE"`
-  ⑦`tests/t201` `tests/t202` の空 dir（`__pycache__` のみ・git 管理外）のローカル削除。次の整理 chore（C-2）で。
+  ⑦`tests/t201` `tests/t202` の空 dir（`__pycache__` のみ・git 管理外）のローカル削除 ⑧`features/agent-runs/components/__tests__/IntakeRecovery.test.tsx` を
+  `features/documents/` 側か FE 統合テスト置き場へ（RV-028 P3-6）。次の整理 chore（C-2）で。
+- [TODO-013] **起動結果不明（POST 応答喪失）からの runId 再接続は API 不足で実現不能**（`docs/t204-handoff.md` §2）。案件に属する実行一覧
+  （例 `GET /cases/{caseId}/agent-runs`）が無い。T-204 は「一覧を再読み込みしてください」で止める。API 追加は 05-api-ipo に積んでから。
 - [TODO-001] D02（入力上限）は AD-003 の**仮値**。初版受入（X09 の上限試験）の前に研修者が実値を確定する。
   **確定時は `backend/app/core/config.py` と `frontend/src/shared/i18n/ja.json` の上限注記の両方を直す**（RV-024 P2-2。API が上限を返さないため画面側に複製がある）。
 - [TODO-002] **eml には `document_pages` が無い**ため、04-db.md の完了条件の機械判定

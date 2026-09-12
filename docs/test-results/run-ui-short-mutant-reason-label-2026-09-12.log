@@ -1,0 +1,202 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/features/agent-runs/__tests__/api.test.ts
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/features/documents/__tests__/hooks.test.tsx (5.62 s)
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/features/agent-runs/__tests__/hooks.test.tsx (5.974 s)
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx (7.656 s)
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/app/__tests__/providers.test.tsx (5.983 s)
+PASS src/app/__tests__/screen-theme.test.tsx (8.299 s)
+PASS src/features/agent-runs/components/__tests__/IntakeRecovery.test.tsx (10.474 s)
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx (11.113 s)
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx (12.708 s)
+FAIL src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx (14.238 s)
+  ● 停止理由 failedを独立した文字ラベルで表示
+
+    TestingLibraryElementError: Unable to find an element with the text: 案の作成に失敗しました. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<section[39m
+          [33maria-label[39m=[32m"案の作成"[39m
+          [33mclass[39m=[32m"MuiBox-root css-115ci5l"[39m
+        [36m>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+          [36m>[39m
+            [0m案の作成[0m
+          [36m</h2>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"[39m
+            [33mtabindex[39m=[32m"0"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0m案を作成[0m
+            [36m<span[39m
+              [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+            [36m/>[39m
+          [36m</button>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+          [36m>[39m
+            [0m実ファイルを抽出する処理ではありません。再実行は別の生成版になります。未生成の案件ではまだ版がありません[0m
+          [36m</p>[39m
+          [36m<div[39m
+            [33maria-live[39m=[32m"polite"[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [33mrole[39m=[32m"status"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-8x395g-MuiTypography-root"[39m
+            [36m>[39m
+              [0m完了結果を確認できませんでした[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m資料と処理記録を確認してください。自動では再実行しません。[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m経過 12 秒・2 ターン[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m処理中にエラーが発生しました[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-expanded[39m=[32m"false"[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mtabindex[39m=[32m"0"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m処理記録を表示[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      172 |     renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
+      173 |     await launch();
+    > 174 |     expect(screen.getByText(label)).toBeInTheDocument();
+          |                   ^
+      175 |     expect(
+      176 |       screen.getByText("処理中にエラーが発生しました"),
+      177 |     ).toBeInTheDocument();
+
+      at Object.getElementError (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:37:19)
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at getByText (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:174:19)
+
+  ● 引き継ぎ確認済みでも失敗runには作成後通知を表示しない
+
+    TestingLibraryElementError: Unable to find an element with the text: 案の作成に失敗しました. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<body>[39m
+      [36m<div>[39m
+        [36m<section[39m
+          [33maria-label[39m=[32m"案の作成"[39m
+          [33mclass[39m=[32m"MuiBox-root css-115ci5l"[39m
+        [36m>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+          [36m>[39m
+            [0m案の作成[0m
+          [36m</h2>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-contained MuiButton-containedPrimary MuiButton-sizeMedium MuiButton-containedSizeMedium MuiButton-colorPrimary css-sghohy-MuiButtonBase-root-MuiButton-root"[39m
+            [33mtabindex[39m=[32m"0"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0m案を作成[0m
+            [36m<span[39m
+              [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+            [36m/>[39m
+          [36m</button>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+          [36m>[39m
+            [0m実ファイルを抽出する処理ではありません。再実行は別の生成版になります。未生成の案件ではまだ版がありません[0m
+          [36m</p>[39m
+          [36m<div[39m
+            [33maria-live[39m=[32m"polite"[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [33mrole[39m=[32m"status"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-8x395g-MuiTypography-root"[39m
+            [36m>[39m
+              [0m完了結果を確認できませんでした[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m資料と処理記録を確認してください。自動では再実行しません。[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m経過 12 秒・2 ターン[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33maria-expanded[39m=[32m"false"[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mtabindex[39m=[32m"0"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m処理記録を表示[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</section>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      452 |   await user.click(screen.getByRole("checkbox"));
+      453 |   await user.click(screen.getByRole("button", { name: "案を作成" }));
+    > 454 |   expect(screen.getByText("案の作成に失敗しました")).toBeInTheDocument();
+          |                 ^
+      455 |   expect(
+      456 |     screen.queryByText(
+      457 |       "前版の修正・確認記録は引き継がれていません（既存版は保全されています）",
+
+      at Object.getElementError (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:37:19)
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByText (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:454:17)
+
+Test Suites: 1 failed, 14 passed, 15 total
+Tests:       2 failed, 164 passed, 166 total
+Snapshots:   0 total
+Time:        19.467 s
+Ran all test suites.
+make[1]: *** [Makefile:77: fe-test] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

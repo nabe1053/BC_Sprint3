@@ -1,0 +1,42 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/features/agent-runs/__tests__/api.test.ts
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/features/agent-runs/__tests__/hooks.test.tsx
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/features/documents/__tests__/hooks.test.tsx
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx
+PASS src/app/__tests__/providers.test.tsx
+PASS src/app/__tests__/screen-theme.test.tsx
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx (5.989 s)
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx (6.506 s)
+FAIL src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx (10.585 s)
+  ● 不整合な終端{ outcome: 'failed', stopReason: 'completed', versionId: 99 }を成功表示しない
+
+    expect(element).not.toBeInTheDocument()
+
+    expected document not to contain element, found <p class="MuiTypography-root MuiTypography-body1 css-16eu31u-MuiTypography-root">案を作成しました</p> instead
+
+      188 |   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
+      189 |   await launch();
+    > 190 |   expect(screen.queryByText("案を作成しました")).not.toBeInTheDocument();
+          |                                              ^
+      191 |   expect(screen.queryByText(/版番号/)).not.toBeInTheDocument();
+      192 | });
+      193 | it.each([404, 500])("GET %sのエラーは古いrunningより優先", async (status) => {
+
+      at toBeInTheDocument (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:190:46)
+
+Test Suites: 1 failed, 13 passed, 14 total
+Tests:       1 failed, 151 passed, 152 total
+Snapshots:   0 total
+Time:        13.03 s
+Ran all test suites.
+make[1]: *** [Makefile:77: fe-test] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

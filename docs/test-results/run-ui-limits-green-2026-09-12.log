@@ -1,0 +1,38 @@
+
+> training-sprint3-frontend@0.1.0 typecheck
+> tsc --noEmit
+
+
+> training-sprint3-frontend@0.1.0 lint
+> eslint .
+
+
+/home/takahiro/Documents/BC_Sprint3/frontend/src/features/agent-runs/hooks.ts
+  16:5  warning  React Hook useMemo has an unnecessary dependency: 'caseId'. Either exclude it or remove the dependency array  react-hooks/exhaustive-deps
+
+✖ 1 problem (0 errors, 1 warning)
+
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/features/agent-runs/__tests__/api.test.ts
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/features/agent-runs/__tests__/hooks.test.tsx
+PASS src/app/__tests__/providers.test.tsx
+PASS src/features/documents/__tests__/hooks.test.tsx
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx
+PASS src/app/__tests__/screen-theme.test.tsx
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx
+PASS src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx
+
+Test Suites: 14 passed, 14 total
+Tests:       152 passed, 152 total
+Snapshots:   0 total
+Time:        4.586 s
+Ran all test suites.

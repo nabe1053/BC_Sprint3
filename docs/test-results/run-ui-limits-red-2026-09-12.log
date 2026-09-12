@@ -1,0 +1,100 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/features/agent-runs/__tests__/api.test.ts
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/features/agent-runs/__tests__/hooks.test.tsx
+PASS src/app/__tests__/providers.test.tsx
+PASS src/features/documents/__tests__/hooks.test.tsx
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx
+PASS src/app/__tests__/screen-theme.test.tsx
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx
+FAIL src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx
+  ● 起動413 documentsは投入APIと別契約の単位で表示
+
+    expect(element).toHaveTextContent()
+
+    Expected element to have text content:
+      資料件数：51件（上限 50件）
+    Received:
+      入力上限を超えています。上限内の資料を選び直してください。
+
+      120 |   start.mockRejectedValue(new ApiError(413, { code: "E_LIMIT_EXCEEDED", details: { kind, actual, limit, documentId: 7 } }));
+      121 |   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />); await launch();
+    > 122 |   expect(screen.getByRole("alert")).toHaveTextContent(`${label}：${actual}${unit}（上限 ${limit}${unit}）`);
+          |                                     ^
+      123 |   expect(screen.getByRole("alert")).toHaveTextContent("対象資料番号：7");
+      124 | });
+      125 | it("起動413の未知detailsは安全な上限案内を保持", async () => {
+
+      at toHaveTextContent (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:122:37)
+
+  ● 起動413 fileBytesは投入APIと別契約の単位で表示
+
+    expect(element).toHaveTextContent()
+
+    Expected element to have text content:
+      ファイルサイズ：20971521バイト（上限 20971520バイト）
+    Received:
+      入力上限を超えています。上限内の資料を選び直してください。
+
+      120 |   start.mockRejectedValue(new ApiError(413, { code: "E_LIMIT_EXCEEDED", details: { kind, actual, limit, documentId: 7 } }));
+      121 |   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />); await launch();
+    > 122 |   expect(screen.getByRole("alert")).toHaveTextContent(`${label}：${actual}${unit}（上限 ${limit}${unit}）`);
+          |                                     ^
+      123 |   expect(screen.getByRole("alert")).toHaveTextContent("対象資料番号：7");
+      124 | });
+      125 | it("起動413の未知detailsは安全な上限案内を保持", async () => {
+
+      at toHaveTextContent (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:122:37)
+
+  ● 起動413 pdfPagesは投入APIと別契約の単位で表示
+
+    expect(element).toHaveTextContent()
+
+    Expected element to have text content:
+      PDF のページ数：201ページ（上限 200ページ）
+    Received:
+      入力上限を超えています。上限内の資料を選び直してください。
+
+      120 |   start.mockRejectedValue(new ApiError(413, { code: "E_LIMIT_EXCEEDED", details: { kind, actual, limit, documentId: 7 } }));
+      121 |   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />); await launch();
+    > 122 |   expect(screen.getByRole("alert")).toHaveTextContent(`${label}：${actual}${unit}（上限 ${limit}${unit}）`);
+          |                                     ^
+      123 |   expect(screen.getByRole("alert")).toHaveTextContent("対象資料番号：7");
+      124 | });
+      125 | it("起動413の未知detailsは安全な上限案内を保持", async () => {
+
+      at toHaveTextContent (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:122:37)
+
+  ● 起動413 xlsxSheetsは投入APIと別契約の単位で表示
+
+    expect(element).toHaveTextContent()
+
+    Expected element to have text content:
+      xlsx のシート数：51シート（上限 50シート）
+    Received:
+      入力上限を超えています。上限内の資料を選び直してください。
+
+      120 |   start.mockRejectedValue(new ApiError(413, { code: "E_LIMIT_EXCEEDED", details: { kind, actual, limit, documentId: 7 } }));
+      121 |   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />); await launch();
+    > 122 |   expect(screen.getByRole("alert")).toHaveTextContent(`${label}：${actual}${unit}（上限 ${limit}${unit}）`);
+          |                                     ^
+      123 |   expect(screen.getByRole("alert")).toHaveTextContent("対象資料番号：7");
+      124 | });
+      125 | it("起動413の未知detailsは安全な上限案内を保持", async () => {
+
+      at toHaveTextContent (src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx:122:37)
+
+Test Suites: 1 failed, 13 passed, 14 total
+Tests:       4 failed, 148 passed, 152 total
+Snapshots:   0 total
+Time:        4.68 s
+Ran all test suites.
+make: *** [Makefile:77: fe-test] Error 1

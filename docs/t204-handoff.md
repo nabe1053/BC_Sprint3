@@ -1,4 +1,159 @@
-# T-204 引き継ぎ：画面状態・API契約・テスト観点
+## RV-027 対応（タスク J）
+
+§7「2026-09-12 22:40」の短ラウンドを完了。**最終 `DEBUG=false CI=true make check` は BE 404件 / FE 15スイート・166件 PASS、ESLint警告0、design-lint違反0。** 新規テスト14件。変異9種を全て検出。commitなし。独立再レビューを依頼し、§7見出しの更新まで待機する。
+
+### レビュー対応
+
+下表の feature 相対パスは `frontend/src/features/agent-runs/` 基準。文言は `frontend/src/shared/i18n/ja.json`。作業中の RED は `CI=true make fe-test`、GREEN は `CI=true make fe-type fe-lint fe-test` で確認し、提出根拠は後掲の全体ゲート。
+
+| 指摘番号 | 変更内容（ファイル:行） | REDを確認したテスト名・実結果 / 変異 |
+|---|---|---|
+| P2-1 | `components/AgentRunPanel.tsx:128`、`ja.json:251`。指定の版の注記を起動ボタン近傍に常時表示 | 「版の注記は起動ボタン近傍に常時表示される」がRED→GREEN。注記を削除する変異で1 FAIL / 165 PASS |
+| P2-2 | `components/AgentRunPanel.tsx:32`・`:186`、`components/RunProgress.tsx:49`、`ja.json:252`。明示確認したrunIdを保持し、そのrunの成功時だけ既存版保全・引き継ぎなしを通知。次runとリセット時に解除 | 「明示確認したrunの成功（isComplete=true/false）で引き継ぎ結果を通知する」と実HTTP400→202→200テストがRED→GREEN。確認runIdを記憶しない変異で3 FAIL / 163 PASS。失敗runには通知しないこと、次runへ持ち越さないことも確認 |
+| P2-3 | `components/RunProgress.tsx:66`。`Math.floor(run.elapsedSec)` を翻訳引数へ渡す | 「実API相当のelapsedSec小数は切り捨てた秒で表示する」＋実HTTPの `12.3456789` がRED→GREEN。floorを外す変異で2 FAIL / 164 PASS |
+| P2-4 | `components/AgentRunPanel.tsx:102`・`:192`、`ja.json` の unknown/inProgress/connectionHint/resetState。資料投入の保守的抑止を維持し、outlinedの「状態を確認し直す」でrunId・エラー・確認情報を解除。リセットはPOSTもGETも行わない | 「状態を確認し直す操作はPOSTせずbusyを解除、明示再起動の409を表示できる」、GET404/500解除、実生成クライアントの通信失敗→リセット→明示POST409がRED→GREEN。エラー解除を抜く変異で2 FAIL / 164 PASS。資料投入が画面内で再び有効になることをHTTP境界で確認 |
+| P3-1 | `hooks.ts:14`・`:15`・`:27`。進行中PromiseをuseRefへ変更。caseId変更時はuseEffectでクリアし、旧要求のfinallyが新要求を消さないようPromise一致を確認 | 挙動を維持するリファクタ。追加の「案件切替で進行中POSTの共有を解除し、旧要求の完了は新要求の保持を消さない」は改修前からPASS。caseId変更時のクリア除去、旧完了の一致確認除去の各変異で1 FAIL / 165 PASS。二重起動防止・retry抑止の既存テストもPASS |
+| P3-2 | `model.ts:4`・`:15`・`:17`・`:20`、`components/RunProgress.tsx:32`・`:56`。停止理由9語彙と段階語彙をモジュール定数へ集約し、stopReasonLabelKey / stageLabelKeyをexport。doneを含む既知値と未知値のfallbackを分離 | 挙動を維持するリファクタ。既存9停止理由・段階表示テストは改修前後PASS。failedを語彙定数から除く変異で2 FAIL / 164 PASS。completedだけで成功にしない既存テストも維持 |
+| P3-3 | `model.ts:15`、`ja.json:167`。stage=doneを「結果を確定中」と表示 | 「done段階のrunningは結果を確定中であり完了ではない」がRED→GREEN。doneを語彙から除く変異で1 FAIL / 165 PASS |
+| P3-4 | `components/RunProgress.tsx:70`。outcome=successでは診断コードを併記しない | 「成功時には診断worker_failed/trace_write_failedを併記しない」＋実HTTP成功表示がRED→GREEN。成功時の診断抑止を除く変異で3 FAIL / 163 PASS |
+| P3-5 | `docs/test-results/run-ui-checks.mk`・`run-ui-mutations.py`・`run-ui-browser.cjs` を指示に従って削除 | 採取ドライバ3ファイルの不存在、既存の回帰ログとブラウザ画像11枚の存続をMake経由で確認。非動作の削除なのでコード変異対象外。今回も一時ドライバはリポジトリへ採取していない |
+
+### テスト・証跡
+
+RED実測: 新規画面/hookテストを加えた時点で **13 FAIL / 151 PASS / 164件**。実HTTP境界2件を加えた時点で **15 FAIL / 151 PASS / 166件**。修正後は **166件全てPASS**。リファクタのP3-1/P3-2と削除P3-5には架空のREDを割り当てず、既存挙動の保全と変異・存在検証を記載した。
+
+既存テストの変更理由: 起動結果不明の3ケースについて、タスクJで確定した新文言へ期待を変更し、テスト名を「状態を確認し直すまで再POST不可」とした。リセット前の無効化・POST1回の検証は維持している。既存テストの削除なし。
+
+```text
+$ DEBUG=false CI=true make check
+404 passed, 124 warnings in 95.84s (0:01:35)
+✅ check-be: backend green
+Test Suites: 15 passed, 15 total
+Tests:       166 passed, 166 total
+Time:        20.548 s
+✅ check: all green
+
+$ make -f Makefile -f /tmp/run-ui-short-checks.mk fe-design
+✓ design-lint: 違反なし
+```
+
+BEの124 warningsは既存のFastAPI/Pydantic非推奨警告。ruffは130ファイル変更なし。BE/API・migration・設計書・memoryを含む保護対象143ファイルは着手時ハッシュ一致。既存差分と並行作業を保全し、memoryは編集していない。
+
+[全体ゲート](test-results/run-ui-short-regression-2026-09-12.log) / [design-lint](test-results/run-ui-short-design-2026-09-12.log) / [RED](test-results/run-ui-short-red-2026-09-12.log) / [実HTTP RED](test-results/run-ui-short-http-red-2026-09-12.log) / [作業中GREEN](test-results/run-ui-short-green-2026-09-12.log) / [変異9種](test-results/run-ui-short-mutations-2026-09-12.log) / [採取物削除の確認](test-results/run-ui-short-artifacts-2026-09-12.log)
+
+変異は元ソースを変更せず、一時コピーごとに `make fe-test FRONTEND=<一時コピー>` を全件実行した。各失敗は対応するassertionで発生し、timeoutや実行環境の失敗ではない。作業時入口は `make -f Makefile -f /tmp/run-ui-short-checks.mk fe-mutations`。この一時Makefile・ドライバを恒久ゲートとして配布しない。
+
+### ブラウザ確認
+
+`.env`を除外したfrontendコピーのNext dev（34105）とChromium、実生成クライアント＋HTTP fixtureで確認。版の注記、少数秒の切り捨て、running/done、成功時の診断抑止、成功後の引き継ぎ通知、起動結果不明→状態リセットで通信0・資料投入復帰→明示再起動409を確認した。contained1個・h1=1個、390px幅で横はみ出しなし、pageerror=0。ブラウザと検証サーバーは終了済み。実DBのジョブ起動や外部モデル送信は行っていない。
+
+[ブラウザログ](test-results/run-ui-short-browser-2026-09-12.log) / [成功後の引き継ぎ通知](test-results/run-progress-short-ui/run-progress-short-carry-result.png) / [起動結果不明と復帰操作](test-results/run-progress-short-ui/run-progress-short-unknown.png) / [明示再起動409](test-results/run-progress-short-ui/run-progress-short-conflict.png) / [モバイル](test-results/run-progress-short-ui/run-progress-short-mobile.png)
+
+希望Status: REVIEW。**次は独立再レビュー待ち。** §7見出し「2026-09-12 22:40」が変わるまで待機し、G2ミニ評価やG3へは着手しない。
+
+---
+
+以下はタスクI実装・事前整理の履歴。起動結果不明の「一覧を再読み込み」案内と恒久無効化は、今回のP2-4対応で置き換えた。
+
+# T-204 引き継ぎ
+
+## タスク I 実装（§7 2026-09-12 21:20 対応）
+
+**実装完了・再レビュー依頼。** 最終 `DEBUG=false CI=true make check` は BE 404件、FE 14スイート・152件 PASS。ESLint 警告0、design-lint 違反0。commit なし。以下の事前整理は履歴であり、「未着手」や旧 `stageDetail` の説明は今回の実装には適用しない。
+
+### 変更範囲・レビュー対応
+
+| §7 の指示 | 変更ファイル | 実装・確認結果 |
+|---|---|---|
+| #12〜14 の実生成クライアント接続 | `frontend/src/features/agent-runs/api.ts`・`__tests__/api.test.ts` | `unwrapSuccess` で POST 202 / GET 200 を解包。400/409/413/503、GET 404 を実 fetch 境界で確認。GET の runId 不一致を拒否 |
+| 2秒ポーリング・終端/404/通信中断で停止・二重起動防止 | 同 feature `hooks.ts`・`__tests__/hooks.test.tsx` | success/failed/stopped と取得エラーで停止。自動 retry・focus・再接続で再開しない。最後の取得値を保持し、UIでは取得エラーを優先。POST の進行中 Promise を案件単位で共有。run 切替の AbortSignal、遅延応答の分離も確認 |
+| 起動操作・引き継ぎ確認 | `components/AgentRunPanel.tsx`・`model.ts` | 起動/実行中は「準備中…」。success/partial の資料があることを起動候補の条件にし、一覧取得中・取得エラー・投入中・既知上限超過も無効化。サーバー400/413を最終判定とする。carry-over は拒否を受けた後に未チェックの明示確認を表示。確認だけでは再POSTせず、資料変更でチェックを解除 |
+| 段階・読取数・停止理由・確定版 | `components/RunProgress.tsx`・`model.ts` | 読取中のみ `documentsRead/documentsTotal` を使う。安全な非負整数・n≤Nを満たさない値や未知コードは露出しない。段階3種、停止理由9種、既知診断10種を翻訳。success＋completed＋正のversionId＋isCompleteの型を確認して完了表示。`isComplete=false` は一部完了を併記。202のversionIdは表示しない |
+| steps 補助表示 | `components/RunSteps.tsx` | 展開時に取得し、手動再読込可。seq順・文字列として表示。stepsのエラーを主進捗の失敗へ変換しない。資料件数と区別。HTML/locatorをリンク化・実行しない |
+| SCR-02 接続・TODO-011② | `frontend/src/features/documents/components/IntakePage.tsx`・同既存テスト、feature `index.ts` | 左パネル下に唯一の contained ボタン。ファイル選択を `Button component="label"`＋`visuallyHidden` inputへ。処理中はファイル投入を無効化。既存の同一ファイル再投入・415/413表示・1 h1を保全 |
+| 文言・状態・テスト | `frontend/src/shared/i18n/ja.json`・`components/__tests__/AgentRunPanel.test.tsx` | 起動不能、引き継ぎ、通信中断、部分完了、停止理由、GET404、dblClick、起動413の4単位、未知detailsを確認。JSX日本語直書き・新規デザイン値なし |
+
+### 契約上の制約と決定の反映
+
+- SCR-03 は未実装なので、完了は「案を作成しました」＋版番号＋「Item List の確認画面は次の段階で追加されます」。結果リンクは作成していない（AD-015）。
+- API #22 が未提供のため、引き継ぎ件数は表示しない。警告とチェックだけで確認する。
+- 起動結果不明や `E_JOB_START_FAILED` から runId は復元できない。「起動結果を確認できません。一覧を再読み込みしてください」で停止し、自動POSTしない（TODO-013）。既知の `E_RUN_IN_PROGRESS` でも runId を推定しない。
+- 起動413は `details.kind/actual/limit` を読む専用decoder。`fileBytes` はバイトで表示し、資料投入APIの `details.limit/max/actual`・MBとは混同しない。未知detailsでも汎用の上限案内と起動抑止を保持する。
+- BE/API契約・migration・設計書は変更していない。`.claude/memory.md` を含む保護対象143ファイルは着手時ハッシュと一致。既存のmemory／指示書の未コミット差分は保全。全体ゲート内の既定migration確認と索引確認は実行済み。新規migration・外部モデル送信・G3着手なし。
+
+### RED → GREEN の実結果
+
+検証入口は Makefile。作業中は `CI=true make fe-test`、型/lintを伴う確認は `CI=true make fe-type fe-lint fe-test` を使い、最後に全体 `make check` を実行した。
+
+| 段階 | RED | GREEN |
+|---|---|---|
+| api.ts | 未実装moduleで1 suite失敗、既存78件PASS | 生成クライアント境界10件追加、88件PASS |
+| hooks.ts | 未実装moduleで1 suite失敗、88件PASS | ポーリング・再送抑止・abort・steps10件追加、98件PASS |
+| components | 未実装moduleで1 suite失敗、98件PASS | 状態・操作41件追加。後続のSCR-02統合REDでこのsuiteはPASS（全体は138 PASS / 7 FAIL） |
+| SCR-02統合 | 起動ボタン・ラベル未接続で7件失敗、138件PASS | 既存テスト1件の期待更新＋6件追加、145件PASS |
+| 起動413詳細・確認の維持 | 詳細表示4件失敗、148件PASS | 7件追加、152件PASS |
+| 最終全体ゲート | 初回はテストPASSだがuseMemoのESLint警告1件 | 案件IDを進行中要求のcontextとして参照するよう整理し、警告0で再実行、全件PASS |
+
+既存テストの変更理由: T-103では「案を作成ボタンが存在しない」を期待していた箇所を、§7のSCR-02接続指示に基づき「資料なしでは無効」に変更。h1・注記・投入・5区分・415/413の既存検証は残した。新規hookテストの初回調整では、React Queryのtracked propertiesをrender時に購読する形にし、fake timerの通知分を考慮した。新規UIテストでは、無効なMUIボタンに対するuser-eventのpointer-events検査と、部分完了のpresence assertionを修正した。実装の期待状態は緩めていない。
+
+最終ログ: [全体回帰](test-results/run-ui-regression-2026-09-12.log) / [design-lint](test-results/run-ui-design-2026-09-12.log)。REDログ: [API](test-results/run-ui-api-red-2026-09-12.log) / [hooks](test-results/run-ui-hooks-red-2026-09-12.log) / [画面](test-results/run-ui-components-red-2026-09-12.log) / [SCR-02接続](test-results/run-ui-integration-red-2026-09-12.log) / [起動413詳細](test-results/run-ui-limits-red-2026-09-12.log)。
+
+```text
+$ DEBUG=false CI=true make check
+404 passed, 124 warnings in 38.02s
+✅ check-be: backend green
+Test Suites: 14 passed, 14 total
+Tests:       152 passed, 152 total
+Time:        14.962 s
+✅ check: all green
+
+$ make -f Makefile -f /tmp/run-ui-checks.mk fe-design
+✓ design-lint: 違反なし
+```
+
+BEの124 warningsは既存のFastAPI/Pydantic非推奨警告。ruffは130ファイル変更なし。FEのtypecheck/eslintはエラー・警告なし。生成物は通常のorval生成で更新し、手編集していない。
+
+### 変異による強度確認
+
+一時コピーのfrontendのみを変異させ、各コピーで `make fe-test FRONTEND=<一時コピー>` を全件実行。元コードは変更していない。入口は `make -f Makefile -f /tmp/run-ui-checks.mk fe-mutations`。
+
+| 変異 | 結果（全152件） |
+|---|---|
+| 終端でのポーリング停止条件を除去 | 3 FAIL / 149 PASS |
+| GETエラーでの停止条件を除去 | 2 FAIL / 150 PASS |
+| POSTのretry:falseを除去し、client既定のretry:1を有効化 | 1 FAIL / 151 PASS |
+| 完了表示のoutcome=success条件を除去 | 1 FAIL / 151 PASS |
+| acknowledgedCarryOverを常にtrueにする | 1 FAIL / 151 PASS |
+
+[変異結果](test-results/run-ui-mutations-2026-09-12.log)。当時採取した検証用Makefile・変異スクリプトはRV-027 P3-5の指示により削除した。恒久の品質ゲートはリポジトリ直下のMakefile。
+
+### ブラウザ確認・画像
+
+`make -f Makefile -f /tmp/run-ui-checks.mk fe-browser` で、`.env`を除外したfrontendコピーのNext dev（34104）とChromiumを起動。生成クライアントのHTTPをブラウザfixtureで応答させた。実DBへの起動要求・外部モデル送信なし。検証後にブラウザとサーバーを終了。
+
+二重クリックPOST1回、pending、段階3種、資料1/3、steps、GET確定版99、成功後GET停止、一部完了、validation_loop、404停止、通信中断の維持、未チェックからのcarry-over明示再操作、起動結果不明の再送なしを確認。contained1個・h1=1個、390px幅の横はみ出しなし、pageerror=0。これはUI/HTTP境界の検証であり、Claudeが担当する実ジョブのミニ評価の代替ではない。
+
+[ブラウザログ](test-results/run-ui-browser-2026-09-12.log)。採取ドライバはRV-027 P3-5の指示により削除した。
+
+| 状態 | 画像 |
+|---|---|
+| 資料なし・起動不可 | [画像](test-results/run-progress-ui/run-progress-no-documents.png) |
+| 起動受付待ち | [画像](test-results/run-progress-ui/run-progress-pending.png) |
+| 読取中（1/3） | [画像](test-results/run-progress-ui/run-progress-reading.png) |
+| 成功・確定版 | [画像](test-results/run-progress-ui/run-progress-success.png) |
+| 一部完了 | [画像](test-results/run-progress-ui/run-progress-partial.png) |
+| 停止理由 | [画像](test-results/run-progress-ui/run-progress-stopped.png) |
+| 実行404 | [画像](test-results/run-progress-ui/run-progress-not-found.png) |
+| 通信中断 | [画像](test-results/run-progress-ui/run-progress-interrupted.png) |
+| 引き継ぎ確認 | [画像](test-results/run-progress-ui/run-progress-carry-over.png) |
+| 起動結果不明 | [画像](test-results/run-progress-ui/run-progress-unknown.png) |
+| モバイル | [画像](test-results/run-progress-ui/run-progress-mobile.png) |
+
+**再レビュー依頼。** 希望StatusはREVIEW。独立レビューはClaudeに依頼し、Codexはcommitせず§7見出し「2026-09-12 21:20」の変更まで待機する。次スライスには進まない。
+
+---
+
+## 事前整理（履歴・以下は実装前の記録）
 
 作成日: 2026-09-12。ユーザーの「T-204の画面状態・API契約・テスト観点の整理を進めてください」に基づく事前整理。
 
@@ -220,3 +375,5 @@ FEのAPI/hook/componentテストは実装後に通常のMakefileゲートで確�
 - 今回は整理文書のみでありTDDのRED/GREENは未実施。T-204実装着手はT-203レビュー結果と上記の接続・受入範囲の調整後。
 
 **再レビュー依頼（T-204の事前整理文書）。** 本書の整理作業を完了し、ここで停止する。T-204本体はPLANNEDを維持し、memoryは編集しない。
+
+再レビュー依頼
