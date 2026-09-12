@@ -98,3 +98,21 @@
 | 対処 | Codex L-7: `begin_step` を含む全経路をツール結果へ変換 / 後始末の CancelledError が進行中の例外・結果を上書きしない / jobs は worker のキャンセルを `worker_failed` と区別 / 例外の**コード**（固定文字列）をログに出す |
 
 トレース: `backend/traces/9.jsonl`。DB: version 9（items 6 / evidences 0）。
+
+## 試行 2（run_id=10、L-7 適用後）— `process_interrupted` 再発（外部キャンセル・未特定）
+
+read 後 38 秒で `failed / process_interrupted`、turns 3。L-7 後のこの分類は「`_execute` タスク自身が外部からキャンセルされた」ことを意味する（worker の例外・キャンセルは
+`worker_failed` に分類されるようになったため）。誰がキャンセルしたかは未特定 → task factory で `cancel()` の呼び元スタックを記録する診断サーバ（scratchpad `diag_server2.py`）を常用。
+
+## 試行 3（run_id=11、診断サーバ）— **合格（AE03）**
+
+| 観点 | 結果 |
+|---|---|
+| 終端 | `completed` / `versionId=11` / `isComplete=true`。**192 秒・13 ターン**。キャンセルの記録 0 |
+| 抽出（AE03 の期待） | **6 行**。`qty_value=118 … qty_unit=t`（質量を保持・**本数への換算なし**）、外径 `339.7 mm` 原単位、肉厚・材質・長さレンジ原表記 |
+| インベントリ | 明細 6 → 6 行 mapped、**小計 380 / 46・合計 426 は `excluded`**（明細にしない）、見出し・注記も excluded。合計 14 要素 |
+| 確認事項 | 4 件: 納入希望の基準（出荷/到着）、引合番号なし、Incoterms 未明示、**「本数換算は貴社にて実施」の注記に対し換算を実施していない旨**（換算条件不足を確認事項に登録＝AE03 の期待どおり） |
+| 自己修復 | `propose_items` 1 回目 `E_REQUEST_INVALID` → 2 回目成功。`validate_draft` 違反 → 根拠追加 → 違反 0 |
+| 漏洩 | トレースに原文なし（grep 0） |
+
+**判定: AE03 合格**（換算値を 1 つも出力していない・06 TEST-06 の不合格条件に該当なし）。トレース: `backend/traces/11.jsonl`。

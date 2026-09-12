@@ -197,6 +197,8 @@
 > 並行してよいのは依存が独立でファイルが重ならない組（T-301 / T-401）のみ。規則は
 > `docs/reviews/CODEX-INSTRUCTIONS.md` §5。
 
+> **Phase 3 進捗**: AE01 合格（run 8）・**AE03 合格（run 11・6 行・換算なし・小計除外・192 秒）**。AE02 実行中。`process_interrupted` は間欠再発（run 10）・診断サーバで捕捉待ち（TODO-021）。
+
 > **実モデル評価 AE01 合格・2026-09-13（run 8）**: `AGENT_MODE=claude` / `claude-sonnet-5` で sample-06 が `completed`・11 行（択一 2 組・分割 1 組・TBA・原表記保持・代替は確認事項）・
 > 631 秒・14 ターン・漏洩 0。6 回の試行で L-3〜L-6 の欠陥 4 件を潰した。記録: `docs/evaluations/g2-real-model-ae01-2026-09-13.md`。
 
