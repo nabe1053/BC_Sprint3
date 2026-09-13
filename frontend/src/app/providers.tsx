@@ -101,9 +101,46 @@ const theme = createTheme({
       },
     },
     MuiButton: {
-      defaultProps: { disableElevation: true },
+      defaultProps: { disableElevation: true, variant: "outlined" },
       styleOverrides: {
-        root: { textTransform: "none", borderRadius: radius.md },
+        // モックの button: 透明地・ヘアライン枠・7px 12px。
+        root: {
+          textTransform: "none",
+          borderRadius: radius.md,
+          padding: "7px 12px",
+          fontWeight: typography.weight.medium,
+          lineHeight: 1.2,
+          whiteSpace: "nowrap",
+          minWidth: 0,
+        },
+        outlined: {
+          borderColor: colors.divider,
+          color: colors.text,
+          backgroundColor: "transparent",
+          "&:hover": {
+            borderColor: colors.divider,
+            backgroundColor: `color-mix(in srgb,${colors.text} 7%,transparent)`,
+          },
+        },
+        // モックの .primary: 鋼色地＋角のレジストレーションマーク。
+        contained: {
+          position: "relative",
+          boxShadow: shadow.sm,
+          "&:hover": { backgroundColor: colors.a[600] },
+          "&:active": { backgroundColor: colors.a[700] },
+          "&::before,&::after": {
+            content: '""',
+            position: "absolute",
+            width: "9px",
+            height: "9px",
+            pointerEvents: "none",
+            background:
+              "linear-gradient(currentColor,currentColor) center/1px 100% no-repeat,linear-gradient(currentColor,currentColor) center/100% 1px no-repeat",
+            color: `color-mix(in srgb,${colors.text} 55%,transparent)`,
+          },
+          "&::before": { top: "-5px", left: "-5px" },
+          "&::after": { bottom: "-5px", right: "-5px" },
+        },
       },
     },
     MuiPaper: {
@@ -121,16 +158,41 @@ const theme = createTheme({
         root: { borderRadius: radius.sm, fontSize: typography.size.fs2 },
       },
     },
+    MuiTable: {
+      styleOverrides: {
+        root: { fontSize: typography.size.fs4, whiteSpace: "nowrap" },
+      },
+    },
+    MuiTableBody: {
+      styleOverrides: {
+        root: {
+          "& tr:hover": {
+            backgroundColor: `color-mix(in srgb,${colors.accent} 6%,transparent)`,
+          },
+          "& tr:last-child td": { borderBottom: 0 },
+        },
+      },
+    },
     MuiTableCell: {
       styleOverrides: {
         root: {
           borderBottom: `${border.width}px solid ${colors.hair}`,
           fontSize: typography.size.fs4,
+          padding: `10px ${spacing.s2}px`,
+          verticalAlign: "top",
         },
+        // モックの th: a100 の帯に小さな大文字。縦スクロールで固定する。
         head: {
+          position: "sticky",
+          top: 0,
           fontSize: typography.size.fs1,
-          color: colors.n[500],
-          fontWeight: typography.weight.semibold,
+          fontWeight: typography.weight.medium,
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          color: colors.a[800],
+          backgroundColor: colors.a[100],
+          borderBottom: `${border.width}px solid ${colors.a[300]}`,
+          whiteSpace: "nowrap",
         },
       },
     },

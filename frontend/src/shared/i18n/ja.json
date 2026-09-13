@@ -6,6 +6,25 @@
     "notAvailable": "—",
     "backToCases": "案件一覧へ"
   },
+  "shell": {
+    "brandMark": "O",
+    "brand": "OCTG",
+    "brandSub": "Item List",
+    "tagline": "SPRINT 3 · 引合 Item List 作成支援",
+    "navLabel": "左ナビゲーション",
+    "navOpen": "ナビゲーションを開く",
+    "navClose": "ナビゲーションを閉じる",
+    "navNeedsCase": "案件と版を選ぶと開けます",
+    "nav": {
+      "cases": "案件一覧",
+      "intake": "資料投入・読取結果",
+      "items": "Item List 確認",
+      "inventory": "網羅性照合",
+      "approval": "引合書承認"
+    },
+    "banner": "記録の真実源はこのアプリ内です。出力した .xlsx は書き出した時点の写しで、編集してもアプリ側には戻りません。担当者名・確認者名は入力必須で、AI は補完しません。",
+    "footer": "01 / 02 / 03 / 06 に基づくローカル実装 · デザイントークンは 03-spec.md 3章で確定"
+  },
   "cases": {
     "list": {
       "title": "案件一覧",
@@ -36,7 +55,8 @@
         "hold": "保留",
         "approved": "承認"
       },
-      "sendoff": "送付可否"
+      "sendoff": "送付可否",
+      "eyebrow": "SCR-01 / DOCUMENTS"
     },
     "progress": {
       "intake": "1/4 資料投入",
@@ -163,7 +183,8 @@
       "eml": "EML",
       "text": "TXT",
       "unsupported": "未対応形式"
-    }
+    },
+    "eyebrow": "SCR-02 / DOCUMENTS"
   },
   "agentRuns": {
     "title": "案の作成",
@@ -299,7 +320,8 @@
         "shipment": "出荷",
         "arrival": "到着",
         "unknown": "基準の記載なし"
-      }
+      },
+      "state": "表示状態"
     },
     "counts": {
       "itemCount": "明細",
@@ -468,7 +490,17 @@
       "unresolved": "未解決 {{count}} 件",
       "carryOverWarning": "再実行すると新版は作成案から始まります。この版の訂正・照合・判断の記録は新版へ引き継がれません（自動マージは対象外）。既存版は保全されます。",
       "compare": "2 版を比較",
-      "compareNote": "初版は版を別に保持して人が比較します。"
+      "compareNote": "初版は版を別に保持して人が比較します。",
+      "summary": "版の履歴（{{count}}）",
+      "scope2": "Scope 2",
+      "columns": {
+        "version": "版",
+        "createdAt": "作成日時",
+        "elapsed": "生成所要",
+        "state": "状態",
+        "unresolvedShort": "未解決",
+        "export": "出力"
+      }
     },
     "emptyItems": "この版に明細がありません",
     "emptyFiltered": "条件に一致する明細はありません。フィルターを変更するか、条件をクリアしてください。",
@@ -564,7 +596,8 @@
       "errors": {
         "E_ALREADY_CONFIRMED": "網羅性確認は既に記録されています。最新の記録を表示します"
       },
-      "countsLabel": "照合件数"
+      "countsLabel": "照合件数",
+      "eyebrow": "SCR-05 / WORKSPACE"
     },
     "approval": {
       "title": "引合書承認",
@@ -697,7 +730,8 @@
         "E_COMMENT_REQUIRED": "行コメントを入力してから記録してください。空のコメントは記録できません。",
         "E_RECORDER_REQUIRED": "確認者名を入力してください。AI は補完しません。",
         "E_RECORDER_REQUIRED_SENDOFF": "判断者を入力してください。AI は補完しません。"
-      }
+      },
+      "eyebrow": "SCR-06 / WORKSPACE"
     },
     "staffCheck": {
       "button": "担当者確認済みにする",
@@ -750,7 +784,9 @@
         "approved": "送付可",
         "hold": "保留",
         "rejected": "送付不可"
-      }
-    }
+      },
+      "sendoffShort": "送付 {{state}}"
+    },
+    "eyebrow": "SCR-03 / WORKSPACE"
   }
 }

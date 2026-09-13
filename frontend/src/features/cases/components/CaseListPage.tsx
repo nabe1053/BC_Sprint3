@@ -11,17 +11,16 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  Paper,
   Table,
   TableBody,
   TableCell,
-  TableContainer,
   TableHead,
   TableRow,
   TextField,
   Typography,
 } from "@mui/material";
 import { tokens } from "@/shared/theme/tokens";
+import { PageHeading, Panel, ProgressPips, ScrollArea } from "@/shared/ui";
 import { ApiError } from "@/shared/api/mutator";
 import { useCases, useCreateCase } from "../hooks";
 
@@ -77,27 +76,17 @@ export function CaseListPage() {
     }
   }
   return (
-    <Box
-      component="main"
-      sx={{ padding: `${tokens.spacing.s6}px`, display: "grid", gap }}
-    >
-      <Box
-        component="header"
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "space-between",
-          gap,
-        }}
-      >
-        <Box>
-          <Typography variant="h1">{t("cases.list.title")}</Typography>
-          <Typography>{t("cases.list.description")}</Typography>
-        </Box>
-        <Button variant={open ? "outlined" : "contained"} onClick={showForm}>
-          {t("cases.list.newCaseButton")}
-        </Button>
-      </Box>
+    <Box sx={{ display: "grid", gap }}>
+      <PageHeading
+        eyebrow={t("cases.list.eyebrow")}
+        title={t("cases.list.title")}
+        description={t("cases.list.description")}
+        actions={
+          <Button variant={open ? "outlined" : "contained"} onClick={showForm}>
+            {t("cases.list.newCaseButton")}
+          </Button>
+        }
+      />
       {list.isLoading && (
         <Typography role="status">{t("common.loading")}</Typography>
       )}
@@ -111,117 +100,101 @@ export function CaseListPage() {
         </Box>
       )}
       {!list.isLoading && !list.isError && list.data?.length === 0 && (
-        <Paper variant="outlined" sx={{ padding: gap }}>
+        <Panel>
           <Typography>{t("cases.empty.title")}</Typography>
           <Button onClick={showForm}>{t("cases.empty.cta")}</Button>
-        </Paper>
+        </Panel>
       )}
       {!!list.data?.length && (
-        <TableContainer component={Paper} variant="outlined">
-          <Table aria-label={t("cases.list.title")}>
-            <TableHead>
-              <TableRow>
-                {[
-                  "code",
-                  "case",
-                  "items",
-                  "progress",
-                  "state",
-                  "sendoff",
-                  "action",
-                ].map((key) => (
-                  <TableCell key={key}>
-                    {t(`cases.list.columns.${key}`)}
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {list.data.map((item) => (
-                <TableRow key={item.caseId}>
-                  <TableCell component="th" scope="row">
-                    {item.caseCode}
-                  </TableCell>
-                  <TableCell>
-                    <Typography>
-                      {item.title ?? t("common.notAvailable")}
-                    </Typography>
-                    <Typography variant="caption">
-                      {item.customerName ?? t("common.notAvailable")}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>{t("common.notAvailable")}</TableCell>
-                  <TableCell>
-                    <Typography>
-                      {t(`cases.progress.${item.progressStatus}`)}
-                    </Typography>
-                    <Box
-                      sx={{ display: "flex", gap: `${tokens.spacing.s1}px` }}
-                    >
-                      {stages.map((stage, index) => (
-                        <Box
-                          key={stage}
-                          sx={{
-                            flex: 1,
-                            borderTop: `${tokens.border.quoteWidth}px solid ${index <= stages.indexOf(item.progressStatus) ? tokens.colors.accent : tokens.colors.hair}`,
-                            paddingTop: `${tokens.spacing.s1}px`,
-                          }}
-                        >
-                          <Typography variant="caption">
-                            {t(`cases.progress.stage.${stage}`)}
-                          </Typography>
-                        </Box>
-                      ))}
-                    </Box>
-                  </TableCell>
-                  <TableCell>
-                    {t(`cases.list.states.${item.progressStatus}`)}
-                  </TableCell>
-                  <TableCell>
-                    <Typography
-                      sx={{
-                        color:
-                          item.latestSendoff === "approved"
-                            ? tokens.colors.ok.main
-                            : item.latestSendoff === "hold"
-                              ? tokens.colors.warn.main
-                              : tokens.colors.text,
-                      }}
-                    >
-                      {item.latestSendoff
-                        ? t(`cases.list.sendoffState.${item.latestSendoff}`)
-                        : t("common.notAvailable")}
-                    </Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      component={Link}
-                      href={`/cases/${item.caseId}/intake`}
-                      variant="outlined"
-                    >
-                      {t("cases.list.intakeLink")}
-                    </Button>
-                    {item.latestVersionId !== null && (
+        <Panel>
+          <ScrollArea>
+            <Table aria-label={t("cases.list.title")}>
+              <TableHead>
+                <TableRow>
+                  {[
+                    "code",
+                    "case",
+                    "items",
+                    "progress",
+                    "state",
+                    "sendoff",
+                    "action",
+                  ].map((key) => (
+                    <TableCell key={key}>
+                      {t(`cases.list.columns.${key}`)}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {list.data.map((item) => (
+                  <TableRow key={item.caseId}>
+                    <TableCell component="th" scope="row">
+                      {item.caseCode}
+                    </TableCell>
+                    <TableCell>
+                      <Typography>
+                        {item.title ?? t("common.notAvailable")}
+                      </Typography>
+                      <Typography variant="caption">
+                        {item.customerName ?? t("common.notAvailable")}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>{t("common.notAvailable")}</TableCell>
+                    <TableCell>
+                      <ProgressPips
+                        label={t(`cases.progress.${item.progressStatus}`)}
+                        step={stages.indexOf(item.progressStatus) + 1}
+                        total={stages.length}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      {t(`cases.list.states.${item.progressStatus}`)}
+                    </TableCell>
+                    <TableCell>
+                      <Typography
+                        sx={{
+                          color:
+                            item.latestSendoff === "approved"
+                              ? tokens.colors.ok.main
+                              : item.latestSendoff === "hold"
+                                ? tokens.colors.warn.main
+                                : tokens.colors.text,
+                        }}
+                      >
+                        {item.latestSendoff
+                          ? t(`cases.list.sendoffState.${item.latestSendoff}`)
+                          : t("common.notAvailable")}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
                       <Button
                         component={Link}
-                        href={`/cases/${item.caseId}/versions/${item.latestVersionId}`}
+                        href={`/cases/${item.caseId}/intake`}
                         variant="outlined"
                       >
-                        {t("cases.list.openCase")}
+                        {t("cases.list.intakeLink")}
                       </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
+                      {item.latestVersionId !== null && (
+                        <Button
+                          component={Link}
+                          href={`/cases/${item.caseId}/versions/${item.latestVersionId}`}
+                          variant="outlined"
+                        >
+                          {t("cases.list.openCase")}
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </ScrollArea>
+          <Typography variant="body2">{t("cases.list.versionNote")}</Typography>
+          <Typography variant="body2">{t("cases.list.itemsNote")}</Typography>
+          <Typography variant="body2">{t("cases.list.footnote")}</Typography>
+        </Panel>
       )}
-      <Box>
-        <Typography variant="body2">{t("cases.list.versionNote")}</Typography>
-        <Typography variant="body2">{t("cases.list.itemsNote")}</Typography>
-        <Typography variant="body2">{t("cases.list.footnote")}</Typography>
-      </Box>
       <Dialog
         open={open}
         onClose={() => {

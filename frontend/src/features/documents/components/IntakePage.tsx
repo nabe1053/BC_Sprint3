@@ -20,6 +20,7 @@ import { CaseMetadata } from "@/features/cases";
 import { AgentRunPanel } from "@/features/agent-runs";
 import { ApiError } from "@/shared/api/mutator";
 import { tokens } from "@/shared/theme/tokens";
+import { Note, PageHeading } from "@/shared/ui";
 import { useDocuments, useIntakeDocument } from "../hooks";
 
 const limits = [
@@ -94,20 +95,18 @@ export function IntakePage({ caseId }: { caseId: number }) {
     }
   }
   return (
-    <Box
-      component="main"
-      sx={{ padding: `${tokens.spacing.s6}px`, display: "grid", gap }}
-    >
-      <Paper variant="outlined" sx={{ padding: gap }}>
-        <Typography>{t("documents.banner.noExternalLink")}</Typography>
-      </Paper>
-      <Box component="header">
-        <Button component={Link} href="/cases">
-          {t("common.backToCases")}
-        </Button>
-        <Typography variant="h1">{t("documents.title")}</Typography>
-        <Typography>{t("documents.description")}</Typography>
-      </Box>
+    <Box sx={{ display: "grid", gap }}>
+      <PageHeading
+        eyebrow={t("documents.eyebrow")}
+        title={t("documents.title")}
+        description={t("documents.description")}
+        actions={
+          <Button component={Link} href="/cases">
+            {t("common.backToCases")}
+          </Button>
+        }
+      />
+      <Note>{t("documents.banner.noExternalLink")}</Note>
       <Box
         sx={{
           display: "grid",

@@ -1,8 +1,8 @@
 "use client";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Button, TextField, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import type { ItemCurrentResponse } from "@/shared/api/generated/model";
-import { tokens } from "@/shared/theme/tokens";
+import { FilterBar } from "@/shared/ui";
 import { emptyFilters, filterStates, type Filters } from "../model";
 export function ItemFilters({
   items,
@@ -17,14 +17,7 @@ export function ItemFilters({
 }) {
   const { t } = useTranslation();
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexWrap: "wrap",
-        gap: `${tokens.spacing.s3}px`,
-        alignItems: "center",
-      }}
-    >
+    <FilterBar>
       <TextField
         InputLabelProps={{ shrink: true }}
         label={t("versions.filters.keyword")}
@@ -84,6 +77,6 @@ export function ItemFilters({
       <Typography>
         {t("versions.filters.count", { count, total: items.length })}
       </Typography>
-    </Box>
+    </FilterBar>
   );
 }

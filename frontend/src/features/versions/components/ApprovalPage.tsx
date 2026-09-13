@@ -6,6 +6,7 @@ import { Box, Button, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { ApiError } from "@/shared/api/mutator";
 import { tokens } from "@/shared/theme/tokens";
+import { PageHeading } from "@/shared/ui";
 import {
   useVersion,
   useItems,
@@ -115,34 +116,25 @@ export function ApprovalPage({
     gap = `${tokens.spacing.s4}px`;
   return (
     <Box
-      component="main"
       sx={{
-        padding: `${tokens.spacing.s6}px`,
         display: "grid",
         gap,
         minWidth: 0,
       }}
     >
-      <Box
-        component="header"
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "space-between",
-          gap,
-        }}
-      >
-        <Box>
-          <Typography variant="h1">{t("versions.approval.title")}</Typography>
-          <Typography>{t("versions.approval.description")}</Typography>
-        </Box>
-        <Button
-          component={Link}
-          href={`/cases/${caseId}/versions/${versionId}`}
-        >
-          {t("versions.approval.back")}
-        </Button>
-      </Box>
+      <PageHeading
+        eyebrow={t("versions.approval.eyebrow")}
+        title={t("versions.approval.title")}
+        description={t("versions.approval.description")}
+        actions={
+          <Button
+            component={Link}
+            href={`/cases/${caseId}/versions/${versionId}`}
+          >
+            {t("versions.approval.back")}
+          </Button>
+        }
+      />
       {loading ? (
         <Typography role="status">{t("common.loading")}</Typography>
       ) : loadError ? (

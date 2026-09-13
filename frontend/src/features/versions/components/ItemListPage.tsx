@@ -1,7 +1,7 @@
 "use client";
 import { useRef, useState } from "react";
 import Link from "next/link";
-import { Box, Button, Paper, TextField, Typography } from "@mui/material";
+import { Box, Button, TextField, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import type {
   ItemCurrentResponse,
@@ -9,6 +9,7 @@ import type {
 } from "@/shared/api/generated/model";
 import { ApiError } from "@/shared/api/mutator";
 import { tokens } from "@/shared/theme/tokens";
+import { FilterBar, Note, PageHeading, Panel, PanelTitle } from "@/shared/ui";
 import {
   useVersionHistory,
   useVersion,
@@ -124,48 +125,37 @@ export function ItemListPage({
   const notGenerated = !loading && !history.isError && !history.data?.length;
   const missing =
     version.error instanceof ApiError && version.error.status === 404;
+  const ready = Boolean(version.data) && !loading && !loadError;
   return (
-    <Box
-      component="main"
-      sx={{
-        padding: `${tokens.spacing.s6}px`,
-        display: "grid",
-        gap,
-        minWidth: 0,
-      }}
-    >
-      <Box
-        component="header"
-        sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "space-between",
-          gap,
-        }}
-      >
-        <Box>
-          <Typography variant="h1">{t("versions.title")}</Typography>
-          <Typography>{t("versions.description")}</Typography>
-        </Box>
-        {version.data && !loading && !loadError && (
-          <ExportButton
-            versionId={versionId}
-            label={t("versions.export.button")}
-            disabled={notGenerated}
-          />
-        )}
-        {version.data && !loading && !loadError && (
-          <StaffCheckAction
-            caseId={caseId}
-            version={version.data}
-            recordedBy={recordedBy}
-            onRecorderInvalid={setRecorderInvalid}
-          />
-        )}
-        <Button component={Link} href="/cases">
-          {t("versions.back")}
-        </Button>
-      </Box>
+    <Box sx={{ display: "grid", gap, minWidth: 0 }}>
+      <PageHeading
+        eyebrow={t("versions.eyebrow")}
+        title={t("versions.title")}
+        description={t("versions.description")}
+        actions={
+          <>
+            {ready && version.data && (
+              <StaffCheckAction
+                caseId={caseId}
+                version={version.data}
+                recordedBy={recordedBy}
+                onRecorderInvalid={setRecorderInvalid}
+              />
+            )}
+            {ready && (
+              <ExportButton
+                versionId={versionId}
+                label={t("versions.export.button")}
+                disabled={notGenerated}
+              />
+            )}
+            {ready && <VersionHistory caseId={caseId} versionId={versionId} />}
+            <Button component={Link} href="/cases">
+              {t("versions.back")}
+            </Button>
+          </>
+        }
+      />
       {loading ? (
         <Typography role="status">{t("common.loading")}</Typography>
       ) : loadError ? (
@@ -179,18 +169,10 @@ export function ItemListPage({
         </Box>
       ) : (
         version.data && (
-          <>
-            <VersionHistory caseId={caseId} versionId={versionId} />
+          <Panel sx={{ display: "grid", gap }}>
             <VersionSummary version={version.data} />
             {listItem && <BounceBanner item={listItem} />}
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                alignItems: "center",
-                gap,
-              }}
-            >
+            <FilterBar>
               <TextField
                 InputLabelProps={{ shrink: true }}
                 label={t("versions.recorder")}
@@ -217,7 +199,7 @@ export function ItemListPage({
               >
                 {t("versions.inventory.link")}
               </Button>
-            </Box>
+            </FilterBar>
             <ItemFilters
               items={items.data ?? []}
               filters={filters}
@@ -251,27 +233,26 @@ export function ItemListPage({
               />
             )}
             {!!questions.data?.some((q) => q.itemId === null) && (
-              <Paper
-                component="section"
-                aria-label={t("versions.caseQuestions")}
-                variant="outlined"
-                sx={{ padding: gap, display: "grid", gap }}
-              >
-                <Typography variant="h2">
-                  {t("versions.caseQuestions")}
-                </Typography>
-                {questions.data
-                  .filter((q) => q.itemId === null)
-                  .map((q) => (
-                    <QuestionJudgementForm
-                      key={q.questionId}
-                      question={q}
-                      recordedBy={recordedBy}
-                      onRecord={judge}
-                      busy={busy}
-                    />
-                  ))}
-              </Paper>
+              <Note>
+                <Box
+                  component="section"
+                  aria-label={t("versions.caseQuestions")}
+                  sx={{ display: "grid", gap }}
+                >
+                  <PanelTitle>{t("versions.caseQuestions")}</PanelTitle>
+                  {questions.data
+                    .filter((q) => q.itemId === null)
+                    .map((q) => (
+                      <QuestionJudgementForm
+                        key={q.questionId}
+                        question={q}
+                        recordedBy={recordedBy}
+                        onRecord={judge}
+                        busy={busy}
+                      />
+                    ))}
+                </Box>
+              </Note>
             )}
             {!questions.data?.length && (
               <Typography>{t("versions.noQuestions")}</Typography>
@@ -305,7 +286,7 @@ export function ItemListPage({
                 onReload={refresh}
               />
             )}
-          </>
+          </Panel>
         )
       )}
     </Box>

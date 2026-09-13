@@ -4,6 +4,7 @@ import { Box, Button, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import { ApiError } from "@/shared/api/mutator";
 import { tokens } from "@/shared/theme/tokens";
+import { Note, PageHeading } from "@/shared/ui";
 import { useInventory, useVersion } from "../hooks";
 import { inventoryCounts } from "../model";
 import { InventoryScopePanel } from "./InventoryScopePanel";
@@ -42,50 +43,46 @@ export function InventoryPage({
   };
   return (
     <Box
-      component="main"
       sx={{
-        padding: `${tokens.spacing.s6}px`,
         display: "grid",
         gap,
         minWidth: 0,
       }}
     >
-      <Box
-        component="header"
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap,
-        }}
-      >
-        <Box>
-          <Typography variant="h1">{t("versions.inventory.title")}</Typography>
-          {s && (
-            <Typography>
-              {t("versions.inventory.description", {
+      <PageHeading
+        eyebrow={t("versions.inventory.eyebrow")}
+        title={t("versions.inventory.title")}
+        description={
+          s
+            ? t("versions.inventory.description", {
                 source: s.sourceItemCount,
                 output: s.outputRowCount,
                 split: s.splitEntryIds.length,
                 excluded: s.excludedEntryIds.length,
                 missing: s.unmappedEntryIds.length,
-              })}
-            </Typography>
-          )}
-        </Box>
-        <Button
-          component={Link}
-          href={`/cases/${caseId}/versions/${versionId}`}
+              })
+            : undefined
+        }
+        actions={
+          <Button
+            component={Link}
+            href={`/cases/${caseId}/versions/${versionId}`}
+          >
+            {t("versions.inventory.back")}
+          </Button>
+        }
+      />
+      <Note>
+        <Typography
+          component="b"
+          sx={{ fontWeight: tokens.typography.weight.bold }}
         >
-          {t("versions.inventory.back")}
-        </Button>
-      </Box>
-      <Box>
-        <Typography sx={{ fontWeight: tokens.typography.weight.bold }}>
           {t("versions.inventory.noticeLead")}
         </Typography>
-        <Typography>{t("versions.inventory.noticeBody")}</Typography>
-      </Box>
+        <Typography variant="body2">
+          {t("versions.inventory.noticeBody")}
+        </Typography>
+      </Note>
       {loading ? (
         <Typography role="status">{t("common.loading")}</Typography>
       ) : error ? (

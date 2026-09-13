@@ -44,7 +44,13 @@ export function ApprovalSummaryCard({
       component="section"
       variant="outlined"
       aria-labelledby="approval-summary-title"
-      sx={{ padding: `${tokens.spacing.s4}px`, minWidth: 0 }}
+      sx={{
+        // モックの .approve-status: 状態の要約だけ a100 の面に置く。
+        padding: `${tokens.spacing.s4}px`,
+        minWidth: 0,
+        background: tokens.colors.a[100],
+        borderColor: tokens.colors.a[200],
+      }}
     >
       <Typography id="approval-summary-title" variant="h2">
         {t("versions.approval.summary.title")}

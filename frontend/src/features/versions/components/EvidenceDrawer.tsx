@@ -92,16 +92,44 @@ export function EvidenceDrawer({
       PaperProps={{
         role: "dialog",
         "aria-labelledby": "evidence-title",
+        // モックの dialog: 右からのシート。左に罫線、左上下だけ角丸。
         sx: {
           width: "min(600px,94vw)",
-          padding: `${tokens.spacing.s5}px`,
+          padding: `${tokens.spacing.s5}px ${tokens.spacing.s6}px`,
           display: "block",
+          borderLeft: `${tokens.border.width}px solid ${tokens.colors.divider}`,
+          borderRadius: `${tokens.radius.lg}px 0 0 ${tokens.radius.lg}px`,
+          boxShadow: tokens.shadow.lg,
         },
       }}
     >
       <Box sx={{ display: "grid", gap: `${tokens.spacing.s4}px` }}>
-        <Box>
-          <Typography id="evidence-title" variant="h2">
+        <Box
+          sx={{
+            position: "sticky",
+            top: 0,
+            zIndex: tokens.z.sticky,
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            margin: `${-tokens.spacing.s5}px ${-tokens.spacing.s6}px ${tokens.spacing.s3}px`,
+            padding: `${tokens.spacing.s3}px ${tokens.spacing.s6}px`,
+            background: tokens.colors.a[100],
+            borderBottom: `${tokens.border.width}px solid ${tokens.colors.a[200]}`,
+          }}
+        >
+          <Typography
+            id="evidence-title"
+            component="h2"
+            sx={{
+              fontFamily: tokens.typography.mono,
+              fontSize: `${tokens.typography.size.fs1}px`,
+              letterSpacing: tokens.typography.letterSpacing.caps,
+              textTransform: "uppercase",
+              color: tokens.colors.accent,
+              margin: 0,
+            }}
+          >
             {t("versions.drawer.title", { row: item.rowCode, kind: item.kind })}
           </Typography>
           <Button onClick={onClose}>{t("versions.drawer.close")}</Button>

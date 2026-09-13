@@ -98,8 +98,20 @@ describe("VersionHistory", () => {
   }
   it("版ごとに 作成日時・生成所要・状態・未解決・出力ボタン を出す", () => {
     setup();
-    expect(screen.getByText(/生成所要: 631.5 秒/)).toBeInTheDocument();
-    expect(screen.getByText("未解決 2 件")).toBeInTheDocument();
+    // モックの版の履歴は列見出しを持つ表（`.ver-body table`）。
+    for (const column of [
+      "版",
+      "作成日時",
+      "生成所要",
+      "状態",
+      "未解決",
+      "出力",
+    ])
+      expect(
+        screen.getByRole("columnheader", { name: column }),
+      ).toBeInTheDocument();
+    expect(screen.getByText("631.5 秒")).toBeInTheDocument();
+    expect(screen.getByText("2")).toBeInTheDocument();
     expect(screen.getByText("出力時の未解決: 2")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "版 1 を出力" }),
@@ -110,15 +122,16 @@ describe("VersionHistory", () => {
   });
   it("生成所要が未記録なら「未記録」と出す（0秒と区別）", () => {
     setup({ ...approvalData().listItem, elapsedSec: null });
-    expect(screen.getByText(/生成所要: 未記録/)).toBeInTheDocument();
+    expect(screen.getByText("未記録")).toBeInTheDocument();
   });
   it("出力履歴は保全状態をラベル文字で出す", () => {
     setup();
     expect(
       screen.getByText(/ファイル名: S-01__v2_draft\.xlsx/),
     ).toBeInTheDocument();
-    expect(screen.getByText(/^作成日時: /)).toBeInTheDocument();
-    expect(screen.getByText("状態: 担当者確認済み")).toBeInTheDocument();
+    expect(
+      screen.getByRole("columnheader", { name: "作成日時" }),
+    ).toBeInTheDocument();
     expect(
       screen.getByText(/保存ファイルの状態: 保存どおり/),
     ).toBeInTheDocument();

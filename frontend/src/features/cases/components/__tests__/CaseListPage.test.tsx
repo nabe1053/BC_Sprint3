@@ -117,18 +117,14 @@ describe("CaseListPage: 進捗ステータス・表示状態・送付可否", ()
     expect(screen.getByText("2/4 案の確認")).toBeInTheDocument();
   });
 
-  it("4段階メーターの各段階名がテキストとして存在する（色だけで判断しない）", () => {
+  it("進捗は現在段階をテキストで示し、メーターは装飾に留める（色だけで判断しない）", () => {
     setUseCases({ data: [sampleCase] });
     setUseCreateCase();
-    renderWithProviders(<CaseListPage />);
-    for (const stage of [
-      "資料投入",
-      "案の確認",
-      "担当者確認",
-      "上司の評価確認",
-    ]) {
-      expect(screen.getAllByText(stage).length).toBeGreaterThan(0);
-    }
+    const { container } = renderWithProviders(<CaseListPage />);
+    // モック `.prog`: 「n/4 段階名」＋ aria-hidden のピップ4本。
+    expect(screen.getByText("2/4 案の確認")).toBeInTheDocument();
+    const pips = container.querySelector('[aria-hidden="true"]');
+    expect(pips?.children).toHaveLength(4);
   });
 
   it("AD-013: 進捗が案の確認でも表示状態・送付可否が「—」になる", () => {
