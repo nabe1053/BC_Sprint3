@@ -2,11 +2,22 @@ import { fireEvent, screen, within, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { renderWithProviders } from "@/shared/testing/test-utils";
 import { DimensionValue } from "../components/ItemValue";
+import { VersionHistory } from "../components/VersionHistory";
 import { ItemListPage } from "../components/ItemListPage";
 import * as hooks from "../hooks";
 import i18n from "@/shared/i18n";
 import { ApiError } from "@/shared/api/mutator";
-import { item, edit, question, version } from "../testing/fixtures";
+import { useRouter } from "next/navigation";
+jest.mock("next/navigation", () => ({ useRouter: jest.fn() }));
+const approvalPush = jest.fn(),
+  staffTransition = jest.fn();
+import {
+  approvalData,
+  item,
+  edit,
+  question,
+  version,
+} from "../testing/fixtures";
 jest.mock("../hooks");
 jest.mock("@/features/documents", () => ({
   useDocuments: () => ({
@@ -31,6 +42,11 @@ const mutation = { mutateAsync: mutate, isPending: false, error: null };
 beforeEach(() => {
   jest.resetAllMocks();
   mutate.mockResolvedValue({});
+  staffTransition.mockResolvedValue({});
+  jest.mocked(useRouter).mockReturnValue({ push: approvalPush } as never);
+  mock.useApprovalMutations.mockReturnValue({
+    transition: { mutateAsync: staffTransition, isPending: false },
+  } as never);
   mock.useVersion.mockReturnValue(query(version) as never);
   mock.useItems.mockReturnValue(
     query([
@@ -80,6 +96,8 @@ beforeEach(() => {
         currentState: "draft",
         isComplete: false,
         finalizedAt: version.finalizedAt,
+        unresolvedCount: 0,
+        elapsedSec: null,
       },
     ]) as never,
   );
@@ -100,6 +118,12 @@ beforeEach(() => {
       },
     ]) as never,
   );
+  // T-603: 版の履歴に出力履歴・出力ボタンが載る。
+  mock.useExports.mockReturnValue(query([]) as never);
+  mock.useCreateExport.mockReturnValue({
+    mutateAsync: jest.fn(),
+    isPending: false,
+  } as never);
   mock.useRecordMutations.mockReturnValue({
     edit: mutation,
     undoEdit: mutation,
@@ -132,7 +156,7 @@ it("明細・7件数・版の状態・TBA・択一・旧値を文字で示し合
   expect(screen.getByText("1 / 2")).toBeVisible();
   expect(screen.getByText("訂正のある明細 1 行")).toBeVisible();
   expect(screen.queryByText(/合計数量/)).not.toBeInTheDocument();
-  expect(document.querySelectorAll(".MuiButton-contained")).toHaveLength(0);
+  expect(document.querySelectorAll(".MuiButton-contained")).toHaveLength(1);
 });
 it("loadingと404には原因・戻り先、明細空には専用表示がある", () => {
   mock.useVersion.mockReturnValue({
@@ -423,9 +447,18 @@ it.each(["useItems", "useQuestions"] as const)(
     expect(screen.queryByText("private")).not.toBeInTheDocument();
   },
 );
-it("版履歴は空と取得失敗を区別する", async () => {
+it("SCR-03の見出し右に出力ボタンが1つあり、primaryは増やさない（03-spec:178）", () => {
+  render();
+  const header = screen.getByRole("banner");
+  expect(
+    within(header).getByRole("button", { name: "現在の記録を出力" }),
+  ).toBeEnabled();
+  // primary（塗り）は「担当者確認済みにする」の1つのまま。
+  expect(document.querySelectorAll(".MuiButton-contained")).toHaveLength(1);
+});
+it("版履歴部品は空と取得失敗を区別する", async () => {
   mock.useVersionHistory.mockReturnValue(query([]) as never);
-  const view = render();
+  const view = renderWithProviders(<VersionHistory caseId={8} versionId={9} />);
   expect(
     screen.getByText("未生成。資料投入画面で案を作成してください"),
   ).toBeInTheDocument();
@@ -434,7 +467,7 @@ it("版履歴は空と取得失敗を区別する", async () => {
     isError: true,
     error: new Error("private"),
   } as never);
-  view.rerender(<ItemListPage caseId={8} versionId={9} />);
+  view.rerender(<VersionHistory caseId={8} versionId={9} />);
   expect(screen.getByRole("alert", { hidden: true })).toHaveTextContent(
     "接続を確認して再取得",
   );
@@ -541,3 +574,94 @@ it.each([true, false])(
     );
   },
 );
+
+it("G5担当者確認は空名を拒否しstaff_checkedを1回記録して承認へ進む", async () => {
+  render();
+  fireEvent.click(screen.getByRole("button", { name: "担当者確認済みにする" }));
+  expect(staffTransition).not.toHaveBeenCalled();
+  await screen.findByText("確認者名を入力してください。AI は補完しません。");
+  expect(screen.getByLabelText("担当者名（記録に共用）")).toHaveAttribute(
+    "aria-invalid",
+    "true",
+  );
+  fireEvent.change(screen.getByLabelText("担当者名（記録に共用）"), {
+    target: { value: " 担当者 " },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "担当者確認済みにする" }));
+  await waitFor(() =>
+    expect(staffTransition).toHaveBeenCalledWith({
+      toState: "staff_checked",
+      recordedBy: "担当者",
+    }),
+  );
+  expect(approvalPush).toHaveBeenCalledWith("/cases/8/versions/9/approval");
+});
+it("G5担当者確認の不足は行ID・網羅性と照合画面へのリンクを表示", async () => {
+  staffTransition.mockRejectedValue(
+    new ApiError(409, {
+      code: "E_STAFF_CHECK_INCOMPLETE",
+      details: {
+        unmatchedItemIds: [98765],
+        unmatchedRowCodes: ["R1"],
+        coverageRecorded: false,
+      },
+    }),
+  );
+  render();
+  fireEvent.change(screen.getByLabelText("担当者名（記録に共用）"), {
+    target: { value: "担当者" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "担当者確認済みにする" }));
+  expect(
+    await screen.findByText(/未照合 1 行（R1）。網羅性確認/),
+  ).toBeVisible();
+  expect(
+    screen
+      .getAllByRole("link", { name: "網羅性照合へ" })
+      .some(
+        (link) => link.getAttribute("href") === "/cases/8/versions/9/inventory",
+      ),
+  ).toBe(true);
+  expect(document.body).not.toHaveTextContent("98765");
+});
+it("G5差し戻し中・再確認はAPIのラベルと理由だけを表示、primaryは0", () => {
+  const d = approvalData();
+  mock.useVersion.mockReturnValue(
+    query({ ...version, currentState: "staff_checked" }) as never,
+  );
+  mock.useVersionHistory.mockReturnValue(
+    query([
+      {
+        ...d.listItem,
+        bounced: true,
+        needsRecheck: true,
+        latestBounce: {
+          bounceId: 1,
+          reason: "R1: <b>原資料</b>\nR2: 再確認",
+          recordedBy: "上司",
+          recordedAt: edit.recordedAt,
+          comments: [],
+        },
+      },
+    ]) as never,
+  );
+  render();
+  expect(document.querySelectorAll(".MuiButton-contained")).toHaveLength(0);
+  expect(screen.getByRole("link", { name: "引合書承認へ" })).toHaveAttribute(
+    "href",
+    "/cases/8/versions/9/approval",
+  );
+  expect(screen.getByText("差し戻し中（作成案には戻りません）")).toBeVisible();
+  expect(screen.getByText(/再確認が必要：評価確認済みの後に/)).toBeVisible();
+  expect(screen.getByText("R1: <b>原資料</b>").tagName).toBe("BLOCKQUOTE");
+  expect(mock.useRecords).not.toHaveBeenCalled();
+});
+
+it("G5版一覧に現在版が無い場合は取得失敗として操作を出さない", () => {
+  mock.useVersionHistory.mockReturnValue(query([]) as never);
+  render();
+  expect(screen.getByRole("alert")).toHaveTextContent("接続を確認して再取得");
+  expect(
+    screen.queryByRole("button", { name: "担当者確認済みにする" }),
+  ).not.toBeInTheDocument();
+});

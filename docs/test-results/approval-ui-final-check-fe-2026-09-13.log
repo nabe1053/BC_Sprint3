@@ -1,0 +1,58 @@
+✓ design-lint: 違反なし
+OpenAPI schema exported to: openapi.json
+
+> training-sprint3-frontend@0.1.0 orval
+> orval
+
+🍻 orval v8.30.0 - A swagger client generator for typescript
+api Cleaning output folder
+🎉 api - Your OpenAPI spec has been converted into ready to use orval!
+
+> training-sprint3-frontend@0.1.0 typecheck
+> tsc --noEmit
+
+
+> training-sprint3-frontend@0.1.0 lint
+> eslint .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/features/cases/__tests__/hooks.test.tsx
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx
+PASS src/features/documents/__tests__/hooks.test.tsx
+PASS src/features/agent-runs/__tests__/hooks.test.tsx
+PASS src/features/versions/__tests__/api.test.ts
+PASS src/features/versions/__tests__/approval-api.test.ts
+PASS src/features/versions/__tests__/hooks.test.tsx (6.575 s)
+PASS src/features/versions/__tests__/inventory-hooks.test.tsx (6.136 s)
+PASS src/features/versions/__tests__/approval-model.test.ts
+PASS src/app/__tests__/providers.test.tsx (5.914 s)
+PASS src/shared/api/__tests__/base-url.test.ts
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/features/agent-runs/__tests__/api.test.ts
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/features/versions/__tests__/inventory-model.test.ts
+PASS src/features/versions/__tests__/inventory-api.test.ts
+PASS src/features/versions/__tests__/model.test.ts
+PASS src/features/versions/__tests__/approval-hooks.test.tsx (7.764 s)
+PASS src/app/__tests__/screen-theme.test.tsx (8.066 s)
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/features/documents/components/__tests__/IntakeRecovery.test.tsx (9.33 s)
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx (11.34 s)
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx (9.027 s)
+PASS src/features/versions/__tests__/inventory-components.test.tsx (13.113 s)
+PASS src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx (15.663 s)
+PASS src/features/versions/__tests__/approval-components.test.tsx (18.636 s)
+PASS src/features/versions/__tests__/components.test.tsx (24.634 s)
+
+Test Suites: 28 passed, 28 total
+Tests:       402 passed, 402 total
+Snapshots:   0 total
+Time:        27.24 s
+Ran all test suites.
+✅ check-fe: frontend green

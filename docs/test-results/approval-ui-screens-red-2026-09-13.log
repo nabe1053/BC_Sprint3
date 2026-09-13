@@ -1,0 +1,2400 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/components.test.tsx src/features/cases/components/__tests__/CaseListPage.test.tsx
+
+FAIL src/features/versions/__tests__/components.test.tsx (16.5 s)
+  ● G5担当者確認は空名を拒否しstaff_checkedを1回記録して承認へ進む
+
+    TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "担当者確認済みにする"
+
+    Here are the accessible roles:
+
+      main:
+
+      Name "":
+      [36m<main[39m
+        [33mclass[39m=[32m"MuiBox-root css-146mbm9"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      banner:
+
+      Name "":
+      [36m<header[39m
+        [33mclass[39m=[32m"MuiBox-root css-4vnk0z"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      heading:
+
+      Name "Item List 確認":
+      [36m<h1[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h1 css-o2w69a-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "案件情報":
+      [36m<h2[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "案件レベルの確認事項（案件）":
+      [36m<h2[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      paragraph:
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1wc848c-MuiFormHelperText-root"[39m
+        [33mid[39m=[32m"_r_bl_-helper-text"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-42d2pn-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-42d2pn-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      link:
+
+      Name "案件一覧へ":
+      [36m<a[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+        [33mhref[39m=[32m"/cases"[39m
+        [33mtabindex[39m=[32m"0"[39m
+      [36m/>[39m
+
+      Name "版 1 を開く":
+      [36m<a[39m
+        [33maria-current[39m=[32m"page"[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+        [33mhref[39m=[32m"/cases/8/versions/9"[39m
+        [33mtabindex[39m=[32m"0"[39m
+      [36m/>[39m
+
+      Name "資料投入画面へ":
+      [36m<a[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+        [33mhref[39m=[32m"/cases/8/intake"[39m
+        [33mtabindex[39m=[32m"0"[39m
+      [36m/>[39m
+
+      Name "網羅性照合へ":
+      [36m<a[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+        [33mhref[39m=[32m"/cases/8/versions/9/inventory"[39m
+        [33mtabindex[39m=[32m"0"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      group:
+
+      Name "":
+      [36m<details[39m
+        [33mclass[39m=[32m"MuiBox-root css-0"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      term:
+
+      Name "":
+      [36m<dt[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dt[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dt[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dt[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dt[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dt[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dt[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      definition:
+
+      Name "":
+      [36m<dd[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dd[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dd[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dd[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dd[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dd[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dd[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      textbox:
+
+      Name "担当者名（記録に共用）":
+      [36m<input[39m
+        [33maria-describedby[39m=[32m"_r_bl_-helper-text"[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_bl_"[39m
+        [33mtype[39m=[32m"text"[39m
+        [33mvalue[39m=[32m""[39m
+      [36m/>[39m
+
+      Name "キーワード":
+      [36m<input[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_bm_"[39m
+        [33mtype[39m=[32m"text"[39m
+        [33mvalue[39m=[32m""[39m
+      [36m/>[39m
+
+      Name "判断内容":
+      [36m<input[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_bt_"[39m
+        [33mtype[39m=[32m"text"[39m
+        [33mvalue[39m=[32m""[39m
+      [36m/>[39m
+
+      Name "判断内容":
+      [36m<input[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_c0_"[39m
+        [33mtype[39m=[32m"text"[39m
+        [33mvalue[39m=[32m"照会"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      combobox:
+
+      Name "品種":
+      [36m<select[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_bn_"[39m
+      [36m/>[39m
+
+      Name "材質":
+      [36m<select[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_bo_"[39m
+      [36m/>[39m
+
+      Name "接続":
+      [36m<select[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_bp_"[39m
+      [36m/>[39m
+
+      Name "状態":
+      [36m<select[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_bq_"[39m
+      [36m/>[39m
+
+      Name "対応状況":
+      [36m<select[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_br_"[39m
+      [36m/>[39m
+
+      Name "解決状態":
+      [36m<select[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_bs_"[39m
+      [36m/>[39m
+
+      Name "対応状況":
+      [36m<select[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_bu_"[39m
+      [36m/>[39m
+
+      Name "解決状態":
+      [36m<select[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_bv_"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      option:
+
+      Name "全件":
+      [36m<option[39m
+        [33mvalue[39m=[32m""[39m
+      [36m/>[39m
+
+      Name "Casing":
+      [36m<option[39m
+        [33mvalue[39m=[32m"Casing"[39m
+      [36m/>[39m
+
+      Name "全件":
+      [36m<option[39m
+        [33mvalue[39m=[32m""[39m
+      [36m/>[39m
+
+      Name "K55":
+      [36m<option[39m
+        [33mvalue[39m=[32m"K55"[39m
+      [36m/>[39m
+
+      Name "全件":
+      [36m<option[39m
+        [33mvalue[39m=[32m""[39m
+      [36m/>[39m
+
+      Name "全件":
+      [36m<option[39m
+        [33mvalue[39m=[32m"all"[39m
+      [36m/>[39m
+
+      Name "確認事項あり":
+      [36m<option[39m
+        [33mvalue[39m=[32m"questions"[39m
+      [36m/>[39m
+
+      Name "数量TBA":
+      [36m<option[39m
+        [33mvalue[39m=[32m"tba"[39m
+      [36m/>[39m
+
+      Name "択一候補":
+      [36m<option[39m
+        [33mvalue[39m=[32m"choice"[39m
+      [36m/>[39m
+
+      Name "未照合のみ":
+      [36m<option[39m
+        [33mvalue[39m=[32m"unmatched"[39m
+      [36m/>[39m
+
+      Name "訂正済みのみ":
+      [36m<option[39m
+        [33mvalue[39m=[32m"edited"[39m
+      [36m/>[39m
+
+      Name "未解決のみ":
+      [36m<option[39m
+        [33mvalue[39m=[32m"unresolved"[39m
+      [36m/>[39m
+
+      Name "未対応":
+      [36m<option[39m
+        [33mvalue[39m=[32m"open"[39m
+      [36m/>[39m
+
+      Name "対応中":
+      [36m<option[39m
+        [33mvalue[39m=[32m"in_progress"[39m
+      [36m/>[39m
+
+      Name "判断済み":
+      [36m<option[39m
+        [33mvalue[39m=[32m"judged"[39m
+      [36m/>[39m
+
+      Name "未解決":
+      [36m<option[39m
+        [33mvalue[39m=[32m"unresolved"[39m
+      [36m/>[39m
+
+      Name "解決":
+      [36m<option[39m
+        [33mvalue[39m=[32m"resolved"[39m
+      [36m/>[39m
+
+      Name "未対応":
+      [36m<option[39m
+        [33mvalue[39m=[32m"open"[39m
+      [36m/>[39m
+
+      Name "対応中":
+      [36m<option[39m
+        [33mvalue[39m=[32m"in_progress"[39m
+      [36m/>[39m
+
+      Name "判断済み":
+      [36m<option[39m
+        [33mvalue[39m=[32m"judged"[39m
+      [36m/>[39m
+
+      Name "未解決":
+      [36m<option[39m
+        [33mvalue[39m=[32m"unresolved"[39m
+      [36m/>[39m
+
+      Name "解決":
+      [36m<option[39m
+        [33mvalue[39m=[32m"resolved"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      button:
+
+      Name "条件をクリア":
+      [36m<button[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"[39m
+        [33mtabindex[39m=[32m"0"[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m/>[39m
+
+      Name "記録":
+      [36m<button[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"[39m
+        [33mtabindex[39m=[32m"0"[39m
+        [33mtype[39m=[32m"submit"[39m
+      [36m/>[39m
+
+      Name "詳細を見る":
+      [36m<button[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"[39m
+        [33mtabindex[39m=[32m"0"[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m/>[39m
+
+      Name "詳細を見る":
+      [36m<button[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"[39m
+        [33mtabindex[39m=[32m"0"[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m/>[39m
+
+      Name "記録":
+      [36m<button[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"[39m
+        [33mtabindex[39m=[32m"0"[39m
+        [33mtype[39m=[32m"submit"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      table:
+
+      Name "Item List 確認":
+      [36m<table[39m
+        [33maria-label[39m=[32m"Item List 確認"[39m
+        [33mclass[39m=[32m"MuiTable-root css-ruidq2-MuiTable-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      rowgroup:
+
+      Name "":
+      [36m<thead[39m
+        [33mclass[39m=[32m"MuiTableHead-root css-15wwp11-MuiTableHead-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<tbody[39m
+        [33mclass[39m=[32m"MuiTableBody-root css-apqrd9-MuiTableBody-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      row:
+
+      Name "照合 行ID 品種 外径 単重 材質 接続 長さ 数量 単位 納期 選択グループ 状態 確認事項の要約 原項番 対応状況 解決状態 判断内容 詳細":
+      [36m<tr[39m
+        [33mclass[39m=[32m"MuiTableRow-root MuiTableRow-head css-1q1u3t4-MuiTableRow-root"[39m
+      [36m/>[39m
+
+      Name "行 R1 の重要項目を出典と照合した R1 Casing 4.500 in 記載なし K55 記載なし レンジ —／定尺長 — 記載なし TBA TBA 記載なし — 数量未確定 未照合 材質を照会 4 確認事項 Q1 詳細を見る":
+      [36m<tr[39m
+        [33mclass[39m=[32m"MuiTableRow-root css-10nvc3b-MuiTableRow-root"[39m
+        [33mtabindex[39m=[32m"0"[39m
+      [36m/>[39m
+
+      Name "行 R2 の重要項目を出典と照合した R2 Casing 4.500 in 記載なし K55 記載なし レンジ —／定尺長 — 記載なし 9007199254740993.0010 訂正 · 旧 10.00 本 訂正 · 旧 m 記載なし G1 択一 訂正あり 未照合 確認事項はありません。原資料との照合は必要です。 4 詳細を見る":
+      [36m<tr[39m
+        [33mclass[39m=[32m"MuiTableRow-root css-10nvc3b-MuiTableRow-root"[39m
+        [33mtabindex[39m=[32m"0"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      columnheader:
+
+      Name "照合":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "行ID":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "品種":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "外径":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "単重":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "材質":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "接続":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "長さ":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "数量":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "単位":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "納期":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "選択グループ":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "状態":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "確認事項の要約":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "原項番":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "対応状況":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "解決状態":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "判断内容":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "詳細":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      cell:
+
+      Name "行 R1 の重要項目を出典と照合した":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "Casing":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "4.500 in":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "記載なし":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "K55":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "記載なし":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "レンジ —／定尺長 — 記載なし":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "TBA":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "TBA":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "記載なし":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "—":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "数量未確定 未照合":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "材質を照会":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "4":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "確認事項 Q1":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+        [33mcolspan[39m=[32m"3"[39m
+      [36m/>[39m
+
+      Name "詳細を見る":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "行 R2 の重要項目を出典と照合した":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "Casing":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "4.500 in":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "記載なし":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "K55":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "記載なし":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "レンジ —／定尺長 — 記載なし":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "9007199254740993.0010 訂正 · 旧 10.00":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "本 訂正 · 旧 m":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "記載なし":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "G1":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "択一 訂正あり 未照合":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "確認事項はありません。原資料との照合は必要です。":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "4":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+        [33mcolspan[39m=[32m"3"[39m
+      [36m/>[39m
+
+      Name "詳細を見る":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      checkbox:
+
+      Name "行 R1 の重要項目を出典と照合した":
+      [36m<input[39m
+        [33maria-label[39m=[32m"行 R1 の重要項目を出典と照合した"[39m
+        [33mclass[39m=[32m"PrivateSwitchBase-input css-1p3z7et-MuiSwitchBase-root"[39m
+        [33mdata-indeterminate[39m=[32m"false"[39m
+        [33mtype[39m=[32m"checkbox"[39m
+      [36m/>[39m
+
+      Name "行 R2 の重要項目を出典と照合した":
+      [36m<input[39m
+        [33maria-label[39m=[32m"行 R2 の重要項目を出典と照合した"[39m
+        [33mclass[39m=[32m"PrivateSwitchBase-input css-1p3z7et-MuiSwitchBase-root"[39m
+        [33mdata-indeterminate[39m=[32m"false"[39m
+        [33mtype[39m=[32m"checkbox"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      rowheader:
+
+      Name "R1":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"row"[39m
+      [36m/>[39m
+
+      Name "R2":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"row"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      form:
+
+      Name "確認事項 Q1":
+      [36m<form[39m
+        [33maria-label[39m=[32m"確認事項 Q1"[39m
+        [33mclass[39m=[32m"MuiBox-root css-taqjlb"[39m
+      [36m/>[39m
+
+      Name "確認事項 Q2":
+      [36m<form[39m
+        [33maria-label[39m=[32m"確認事項 Q2"[39m
+        [33mclass[39m=[32m"MuiBox-root css-taqjlb"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      region:
+
+      Name "案件レベルの確認事項（案件）":
+      [36m<section[39m
+        [33maria-label[39m=[32m"案件レベルの確認事項（案件）"[39m
+        [33mclass[39m=[32m"MuiPaper-root MuiPaper-outlined MuiPaper-rounded css-qzr2ua-MuiPaper-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+
+    Ignored nodes: comments, script, style
+    [36m<body[39m
+      [33mstyle[39m=[32m""[39m
+    [36m>[39m
+      [36m<div>[39m
+        [36m<main[39m
+          [33mclass[39m=[32m"MuiBox-root css-146mbm9"[39m
+        [36m>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"MuiBox-root css-4vnk0z"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h1 css-o2w69a-MuiTypography-root"[39m
+              [36m>[39m
+                [0mItem List 確認[0m
+              [36m</h1>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m原資料と明細を照合し、訂正・確認・判断を記録します。[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mhref[39m=[32m"/cases"[39m
+              [33mtabindex[39m=[32m"0"[39m
+            [36m>[39m
+              [0m案件一覧へ[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</a>[39m
+          [36m</header>[39m
+          [36m<details[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<summary[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m版の履歴[0m
+            [36m</summary>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-w4ns3s"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+                [33mhref[39m=[32m"/cases/8/versions/9"[39m
+                [33mtabindex[39m=[32m"0"[39m
+              [36m>[39m
+                [0m版 1 を開く[0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+                [36m/>[39m
+              [36m</a>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m2026-09-13T01:00:00Z[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m作成案[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m表示中[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mhref[39m=[32m"/cases/8/intake"[39m
+              [33mtabindex[39m=[32m"0"[39m
+            [36m>[39m
+              [0m資料投入画面へ[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</a>[39m
+          [36m</details>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-1dqpc7h"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m版 1[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m作成案[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m一部未完了の版です。抽出内容を確認してください。[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiPaper-root MuiPaper-outlined MuiPaper-rounded css-j46zze-MuiPaper-root"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+            [36m>[39m
+              [0m案件情報[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m案件情報なし[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<dl[39m
+            [33mclass[39m=[32m"MuiBox-root css-1nbwj0x"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<dt[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+              [36m>[39m
+                [0m明細[0m
+              [36m</dt>[39m
+              [36m<dd[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m2[0m
+              [36m</dd>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<dt[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+              [36m>[39m
+                [0m確認事項のある行[0m
+              [36m</dt>[39m
+              [36m<dd[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m1[0m
+              [36m</dd>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<dt[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+              [36m>[39m
+                [0m数量TBA[0m
+              [36m</dt>[39m
+              [36m<dd[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m1[0m
+              [36m</dd>[39m
+            [36m</d...
+
+      552 | it("G5担当者確認は空名を拒否しstaff_checkedを1回記録して承認へ進む",async()=>{
+      553 |  render();
+    > 554 |  fireEvent.click(screen.getByRole('button',{name:'担当者確認済みにする'}));
+          |                         ^
+      555 |  expect(staffTransition).not.toHaveBeenCalled();
+      556 |  await screen.findByText('確認者名を入力してください。AI は補完しません。');
+      557 |  fireEvent.change(screen.getByLabelText('担当者名（必須）'),{target:{value:' 担当者 '}});
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByRole (src/features/versions/__tests__/components.test.tsx:554:25)
+
+  ● G5担当者確認の不足は行ID・網羅性と照合画面へのリンクを表示
+
+    TestingLibraryElementError: Unable to find a label with the text of: 担当者名（必須）
+
+    Ignored nodes: comments, script, style
+    [36m<body[39m
+      [33mstyle[39m=[32m""[39m
+    [36m>[39m
+      [36m<div>[39m
+        [36m<main[39m
+          [33mclass[39m=[32m"MuiBox-root css-146mbm9"[39m
+        [36m>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"MuiBox-root css-4vnk0z"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h1 css-o2w69a-MuiTypography-root"[39m
+              [36m>[39m
+                [0mItem List 確認[0m
+              [36m</h1>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m原資料と明細を照合し、訂正・確認・判断を記録します。[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mhref[39m=[32m"/cases"[39m
+              [33mtabindex[39m=[32m"0"[39m
+            [36m>[39m
+              [0m案件一覧へ[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</a>[39m
+          [36m</header>[39m
+          [36m<details[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<summary[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m版の履歴[0m
+            [36m</summary>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-w4ns3s"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+                [33mhref[39m=[32m"/cases/8/versions/9"[39m
+                [33mtabindex[39m=[32m"0"[39m
+              [36m>[39m
+                [0m版 1 を開く[0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+                [36m/>[39m
+              [36m</a>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m2026-09-13T01:00:00Z[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m作成案[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m表示中[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mhref[39m=[32m"/cases/8/intake"[39m
+              [33mtabindex[39m=[32m"0"[39m
+            [36m>[39m
+              [0m資料投入画面へ[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</a>[39m
+          [36m</details>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-1dqpc7h"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m版 1[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m作成案[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m一部未完了の版です。抽出内容を確認してください。[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiPaper-root MuiPaper-outlined MuiPaper-rounded css-j46zze-MuiPaper-root"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+            [36m>[39m
+              [0m案件情報[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m案件情報なし[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<dl[39m
+            [33mclass[39m=[32m"MuiBox-root css-1nbwj0x"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<dt[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+              [36m>[39m
+                [0m明細[0m
+              [36m</dt>[39m
+              [36m<dd[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m2[0m
+              [36m</dd>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<dt[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+              [36m>[39m
+                [0m確認事項のある行[0m
+              [36m</dt>[39m
+              [36m<dd[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m1[0m
+              [36m</dd>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<dt[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+              [36m>[39m
+                [0m数量TBA[0m
+              [36m</dt>[39m
+              [36m<dd[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m1[0m
+              [36m</dd>[39m
+            [36m</d...
+
+      562 | it("G5担当者確認の不足は行ID・網羅性と照合画面へのリンクを表示",async()=>{
+      563 |  staffTransition.mockRejectedValue(new ApiError(409,{code:'E_STAFF_CHECK_INCOMPLETE',details:{unmatchedItemIds:[98765],unmatchedRowCodes:['R1'],coverageRecorded:false}}));
+    > 564 |  render();fireEvent.change(screen.getByLabelText('担当者名（必須）'),{target:{value:'担当者'}});fireEvent.click(screen.getByRole('button',{name:'担当者確認済みにする'}));
+          |                                   ^
+      565 |  expect(await screen.findByText(/未照合 1 行（R1）。網羅性確認/)).toBeVisible();
+      566 |  expect(screen.getAllByRole('link',{name:'網羅性照合へ'}).some(link=>link.getAttribute('href')==='/cases/8/versions/9/inventory')).toBe(true);
+      567 |  expect(document.body).not.toHaveTextContent('98765');
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at getAllByLabelText (node_modules/@testing-library/dom/dist/queries/label-text.js:111:38)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByLabelText (src/features/versions/__tests__/components.test.tsx:564:35)
+
+  ● G5差し戻し中・再確認はAPIのラベルと理由だけを表示、primaryは0
+
+    TestingLibraryElementError: Unable to find an accessible element with the role "link" and name "引合書承認へ"
+
+    Here are the accessible roles:
+
+      main:
+
+      Name "":
+      [36m<main[39m
+        [33mclass[39m=[32m"MuiBox-root css-146mbm9"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      banner:
+
+      Name "":
+      [36m<header[39m
+        [33mclass[39m=[32m"MuiBox-root css-4vnk0z"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      heading:
+
+      Name "Item List 確認":
+      [36m<h1[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h1 css-o2w69a-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "案件情報":
+      [36m<h2[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "案件レベルの確認事項（案件）":
+      [36m<h2[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      paragraph:
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiFormHelperText-root MuiFormHelperText-sizeMedium MuiFormHelperText-contained css-1wc848c-MuiFormHelperText-root"[39m
+        [33mid[39m=[32m"_r_cd_-helper-text"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-42d2pn-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-42d2pn-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<p[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      link:
+
+      Name "案件一覧へ":
+      [36m<a[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+        [33mhref[39m=[32m"/cases"[39m
+        [33mtabindex[39m=[32m"0"[39m
+      [36m/>[39m
+
+      Name "版 1 を開く":
+      [36m<a[39m
+        [33maria-current[39m=[32m"page"[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+        [33mhref[39m=[32m"/cases/8/versions/9"[39m
+        [33mtabindex[39m=[32m"0"[39m
+      [36m/>[39m
+
+      Name "資料投入画面へ":
+      [36m<a[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+        [33mhref[39m=[32m"/cases/8/intake"[39m
+        [33mtabindex[39m=[32m"0"[39m
+      [36m/>[39m
+
+      Name "網羅性照合へ":
+      [36m<a[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+        [33mhref[39m=[32m"/cases/8/versions/9/inventory"[39m
+        [33mtabindex[39m=[32m"0"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      group:
+
+      Name "":
+      [36m<details[39m
+        [33mclass[39m=[32m"MuiBox-root css-0"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      term:
+
+      Name "":
+      [36m<dt[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dt[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dt[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dt[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dt[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dt[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dt[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      definition:
+
+      Name "":
+      [36m<dd[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dd[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dd[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dd[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dd[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dd[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<dd[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      textbox:
+
+      Name "担当者名（記録に共用）":
+      [36m<input[39m
+        [33maria-describedby[39m=[32m"_r_cd_-helper-text"[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_cd_"[39m
+        [33mtype[39m=[32m"text"[39m
+        [33mvalue[39m=[32m""[39m
+      [36m/>[39m
+
+      Name "キーワード":
+      [36m<input[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_ce_"[39m
+        [33mtype[39m=[32m"text"[39m
+        [33mvalue[39m=[32m""[39m
+      [36m/>[39m
+
+      Name "判断内容":
+      [36m<input[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_cl_"[39m
+        [33mtype[39m=[32m"text"[39m
+        [33mvalue[39m=[32m""[39m
+      [36m/>[39m
+
+      Name "判断内容":
+      [36m<input[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_co_"[39m
+        [33mtype[39m=[32m"text"[39m
+        [33mvalue[39m=[32m"照会"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      combobox:
+
+      Name "品種":
+      [36m<select[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_cf_"[39m
+      [36m/>[39m
+
+      Name "材質":
+      [36m<select[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_cg_"[39m
+      [36m/>[39m
+
+      Name "接続":
+      [36m<select[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_ch_"[39m
+      [36m/>[39m
+
+      Name "状態":
+      [36m<select[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_ci_"[39m
+      [36m/>[39m
+
+      Name "対応状況":
+      [36m<select[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_cj_"[39m
+      [36m/>[39m
+
+      Name "解決状態":
+      [36m<select[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_ck_"[39m
+      [36m/>[39m
+
+      Name "対応状況":
+      [36m<select[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_cm_"[39m
+      [36m/>[39m
+
+      Name "解決状態":
+      [36m<select[39m
+        [33maria-invalid[39m=[32m"false"[39m
+        [33mclass[39m=[32m"MuiNativeSelect-select MuiNativeSelect-outlined MuiInputBase-input MuiOutlinedInput-input css-ffg8md-MuiNativeSelect-select-MuiInputBase-input-MuiOutlinedInput-input"[39m
+        [33mid[39m=[32m"_r_cn_"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      option:
+
+      Name "全件":
+      [36m<option[39m
+        [33mvalue[39m=[32m""[39m
+      [36m/>[39m
+
+      Name "Casing":
+      [36m<option[39m
+        [33mvalue[39m=[32m"Casing"[39m
+      [36m/>[39m
+
+      Name "全件":
+      [36m<option[39m
+        [33mvalue[39m=[32m""[39m
+      [36m/>[39m
+
+      Name "K55":
+      [36m<option[39m
+        [33mvalue[39m=[32m"K55"[39m
+      [36m/>[39m
+
+      Name "全件":
+      [36m<option[39m
+        [33mvalue[39m=[32m""[39m
+      [36m/>[39m
+
+      Name "全件":
+      [36m<option[39m
+        [33mvalue[39m=[32m"all"[39m
+      [36m/>[39m
+
+      Name "確認事項あり":
+      [36m<option[39m
+        [33mvalue[39m=[32m"questions"[39m
+      [36m/>[39m
+
+      Name "数量TBA":
+      [36m<option[39m
+        [33mvalue[39m=[32m"tba"[39m
+      [36m/>[39m
+
+      Name "択一候補":
+      [36m<option[39m
+        [33mvalue[39m=[32m"choice"[39m
+      [36m/>[39m
+
+      Name "未照合のみ":
+      [36m<option[39m
+        [33mvalue[39m=[32m"unmatched"[39m
+      [36m/>[39m
+
+      Name "訂正済みのみ":
+      [36m<option[39m
+        [33mvalue[39m=[32m"edited"[39m
+      [36m/>[39m
+
+      Name "未解決のみ":
+      [36m<option[39m
+        [33mvalue[39m=[32m"unresolved"[39m
+      [36m/>[39m
+
+      Name "未対応":
+      [36m<option[39m
+        [33mvalue[39m=[32m"open"[39m
+      [36m/>[39m
+
+      Name "対応中":
+      [36m<option[39m
+        [33mvalue[39m=[32m"in_progress"[39m
+      [36m/>[39m
+
+      Name "判断済み":
+      [36m<option[39m
+        [33mvalue[39m=[32m"judged"[39m
+      [36m/>[39m
+
+      Name "未解決":
+      [36m<option[39m
+        [33mvalue[39m=[32m"unresolved"[39m
+      [36m/>[39m
+
+      Name "解決":
+      [36m<option[39m
+        [33mvalue[39m=[32m"resolved"[39m
+      [36m/>[39m
+
+      Name "未対応":
+      [36m<option[39m
+        [33mvalue[39m=[32m"open"[39m
+      [36m/>[39m
+
+      Name "対応中":
+      [36m<option[39m
+        [33mvalue[39m=[32m"in_progress"[39m
+      [36m/>[39m
+
+      Name "判断済み":
+      [36m<option[39m
+        [33mvalue[39m=[32m"judged"[39m
+      [36m/>[39m
+
+      Name "未解決":
+      [36m<option[39m
+        [33mvalue[39m=[32m"unresolved"[39m
+      [36m/>[39m
+
+      Name "解決":
+      [36m<option[39m
+        [33mvalue[39m=[32m"resolved"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      button:
+
+      Name "条件をクリア":
+      [36m<button[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"[39m
+        [33mtabindex[39m=[32m"0"[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m/>[39m
+
+      Name "記録":
+      [36m<button[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"[39m
+        [33mtabindex[39m=[32m"0"[39m
+        [33mtype[39m=[32m"submit"[39m
+      [36m/>[39m
+
+      Name "詳細を見る":
+      [36m<button[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"[39m
+        [33mtabindex[39m=[32m"0"[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m/>[39m
+
+      Name "詳細を見る":
+      [36m<button[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"[39m
+        [33mtabindex[39m=[32m"0"[39m
+        [33mtype[39m=[32m"button"[39m
+      [36m/>[39m
+
+      Name "記録":
+      [36m<button[39m
+        [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"[39m
+        [33mtabindex[39m=[32m"0"[39m
+        [33mtype[39m=[32m"submit"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      table:
+
+      Name "Item List 確認":
+      [36m<table[39m
+        [33maria-label[39m=[32m"Item List 確認"[39m
+        [33mclass[39m=[32m"MuiTable-root css-ruidq2-MuiTable-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      rowgroup:
+
+      Name "":
+      [36m<thead[39m
+        [33mclass[39m=[32m"MuiTableHead-root css-15wwp11-MuiTableHead-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<tbody[39m
+        [33mclass[39m=[32m"MuiTableBody-root css-apqrd9-MuiTableBody-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      row:
+
+      Name "照合 行ID 品種 外径 単重 材質 接続 長さ 数量 単位 納期 選択グループ 状態 確認事項の要約 原項番 対応状況 解決状態 判断内容 詳細":
+      [36m<tr[39m
+        [33mclass[39m=[32m"MuiTableRow-root MuiTableRow-head css-1q1u3t4-MuiTableRow-root"[39m
+      [36m/>[39m
+
+      Name "行 R1 の重要項目を出典と照合した R1 Casing 4.500 in 記載なし K55 記載なし レンジ —／定尺長 — 記載なし TBA TBA 記載なし — 数量未確定 未照合 材質を照会 4 確認事項 Q1 詳細を見る":
+      [36m<tr[39m
+        [33mclass[39m=[32m"MuiTableRow-root css-10nvc3b-MuiTableRow-root"[39m
+        [33mtabindex[39m=[32m"0"[39m
+      [36m/>[39m
+
+      Name "行 R2 の重要項目を出典と照合した R2 Casing 4.500 in 記載なし K55 記載なし レンジ —／定尺長 — 記載なし 9007199254740993.0010 訂正 · 旧 10.00 本 訂正 · 旧 m 記載なし G1 択一 訂正あり 未照合 確認事項はありません。原資料との照合は必要です。 4 詳細を見る":
+      [36m<tr[39m
+        [33mclass[39m=[32m"MuiTableRow-root css-10nvc3b-MuiTableRow-root"[39m
+        [33mtabindex[39m=[32m"0"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      columnheader:
+
+      Name "照合":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "行ID":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "品種":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "外径":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "単重":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "材質":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "接続":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "長さ":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "数量":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "単位":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "納期":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "選択グループ":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "状態":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "確認事項の要約":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "原項番":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "対応状況":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "解決状態":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "判断内容":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      Name "詳細":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-head MuiTableCell-sizeMedium css-oace7q-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"col"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      cell:
+
+      Name "行 R1 の重要項目を出典と照合した":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "Casing":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "4.500 in":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "記載なし":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "K55":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "記載なし":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "レンジ —／定尺長 — 記載なし":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "TBA":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "TBA":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "記載なし":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "—":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "数量未確定 未照合":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "材質を照会":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "4":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "確認事項 Q1":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+        [33mcolspan[39m=[32m"3"[39m
+      [36m/>[39m
+
+      Name "詳細を見る":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "行 R2 の重要項目を出典と照合した":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "Casing":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "4.500 in":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "記載なし":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "K55":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "記載なし":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "レンジ —／定尺長 — 記載なし":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "9007199254740993.0010 訂正 · 旧 10.00":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "本 訂正 · 旧 m":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "記載なし":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "G1":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "択一 訂正あり 未照合":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "確認事項はありません。原資料との照合は必要です。":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "4":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      Name "":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+        [33mcolspan[39m=[32m"3"[39m
+      [36m/>[39m
+
+      Name "詳細を見る":
+      [36m<td[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      checkbox:
+
+      Name "行 R1 の重要項目を出典と照合した":
+      [36m<input[39m
+        [33maria-label[39m=[32m"行 R1 の重要項目を出典と照合した"[39m
+        [33mclass[39m=[32m"PrivateSwitchBase-input css-1p3z7et-MuiSwitchBase-root"[39m
+        [33mdata-indeterminate[39m=[32m"false"[39m
+        [33mtype[39m=[32m"checkbox"[39m
+      [36m/>[39m
+
+      Name "行 R2 の重要項目を出典と照合した":
+      [36m<input[39m
+        [33maria-label[39m=[32m"行 R2 の重要項目を出典と照合した"[39m
+        [33mclass[39m=[32m"PrivateSwitchBase-input css-1p3z7et-MuiSwitchBase-root"[39m
+        [33mdata-indeterminate[39m=[32m"false"[39m
+        [33mtype[39m=[32m"checkbox"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      rowheader:
+
+      Name "R1":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"row"[39m
+      [36m/>[39m
+
+      Name "R2":
+      [36m<th[39m
+        [33mclass[39m=[32m"MuiTableCell-root MuiTableCell-body MuiTableCell-sizeMedium css-1ex1afd-MuiTableCell-root"[39m
+        [33mscope[39m=[32m"row"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      form:
+
+      Name "確認事項 Q1":
+      [36m<form[39m
+        [33maria-label[39m=[32m"確認事項 Q1"[39m
+        [33mclass[39m=[32m"MuiBox-root css-taqjlb"[39m
+      [36m/>[39m
+
+      Name "確認事項 Q2":
+      [36m<form[39m
+        [33maria-label[39m=[32m"確認事項 Q2"[39m
+        [33mclass[39m=[32m"MuiBox-root css-taqjlb"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+      region:
+
+      Name "案件レベルの確認事項（案件）":
+      [36m<section[39m
+        [33maria-label[39m=[32m"案件レベルの確認事項（案件）"[39m
+        [33mclass[39m=[32m"MuiPaper-root MuiPaper-outlined MuiPaper-rounded css-qzr2ua-MuiPaper-root"[39m
+      [36m/>[39m
+
+      --------------------------------------------------
+
+    Ignored nodes: comments, script, style
+    [36m<body[39m
+      [33mstyle[39m=[32m""[39m
+    [36m>[39m
+      [36m<div>[39m
+        [36m<main[39m
+          [33mclass[39m=[32m"MuiBox-root css-146mbm9"[39m
+        [36m>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"MuiBox-root css-4vnk0z"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h1 css-o2w69a-MuiTypography-root"[39m
+              [36m>[39m
+                [0mItem List 確認[0m
+              [36m</h1>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m原資料と明細を照合し、訂正・確認・判断を記録します。[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mhref[39m=[32m"/cases"[39m
+              [33mtabindex[39m=[32m"0"[39m
+            [36m>[39m
+              [0m案件一覧へ[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</a>[39m
+          [36m</header>[39m
+          [36m<details[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<summary[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m版の履歴[0m
+            [36m</summary>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-w4ns3s"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+                [33mhref[39m=[32m"/cases/8/versions/9"[39m
+                [33mtabindex[39m=[32m"0"[39m
+              [36m>[39m
+                [0m版 1 を開く[0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+                [36m/>[39m
+              [36m</a>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m2026-09-13T01:00:00Z[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m担当者確認済み[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m表示中[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mhref[39m=[32m"/cases/8/intake"[39m
+              [33mtabindex[39m=[32m"0"[39m
+            [36m>[39m
+              [0m資料投入画面へ[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</a>[39m
+          [36m</details>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-1dqpc7h"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m版 1[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m担当者確認済み[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m一部未完了の版です。抽出内容を確認してください。[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiPaper-root MuiPaper-outlined MuiPaper-rounded css-j46zze-MuiPaper-root"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+            [36m>[39m
+              [0m案件情報[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m案件情報なし[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<dl[39m
+            [33mclass[39m=[32m"MuiBox-root css-1nbwj0x"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<dt[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+              [36m>[39m
+                [0m明細[0m
+              [36m</dt>[39m
+              [36m<dd[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m2[0m
+              [36m</dd>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<dt[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+              [36m>[39m
+                [0m確認事項のある行[0m
+              [36m</dt>[39m
+              [36m<dd[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m1[0m
+              [36m</dd>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<dt[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+              [36m>[39m
+                [0m数量TBA[0m
+              [36m</dt>[39m
+              [36m<dd[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m1[0m
+              [36m</dd>[39m
+            ...
+
+      572 |  mock.useVersionHistory.mockReturnValue(query([{...d.listItem,bounced:true,needsRecheck:true,latestBounce:{bounceId:1,reason:'R1: <b>原資料</b>\nR2: 再確認',recordedBy:'上司',recordedAt:edit.recordedAt,comments:[]}}]) as never);
+      573 |  render();expect(document.querySelectorAll('.MuiButton-contained')).toHaveLength(0);
+    > 574 |  expect(screen.getByRole('link',{name:'引合書承認へ'})).toHaveAttribute('href','/cases/8/versions/9/approval');
+          |                ^
+      575 |  expect(screen.getByText('差し戻し中（作成案には戻りません）')).toBeVisible();expect(screen.getByText(/再確認が必要：評価確認済みの後に/)).toBeVisible();
+      576 |  expect(screen.getByText('R1: <b>原資料</b>').tagName).toBe('BLOCKQUOTE');expect(mock.useRecords).not.toHaveBeenCalled();
+      577 | });
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByRole (src/features/versions/__tests__/components.test.tsx:574:16)
+
+FAIL src/features/cases/components/__tests__/CaseListPage.test.tsx
+  ● G5送付可否undecidedを独立列に表示
+
+    expect(element).toHaveTextContent()
+
+    Expected element to have text content:
+      未判断
+    Received:
+      —
+
+      262 |  renderWithProviders(<CaseListPage/>);
+      263 |  const row=screen.getByRole('row',{name:/S04/});
+    > 264 |  expect(within(row).getAllByRole('cell')[4]).toHaveTextContent(label);
+          |                                              ^
+      265 | });
+      266 |
+
+      at toHaveTextContent (src/features/cases/components/__tests__/CaseListPage.test.tsx:264:46)
+
+  ● G5送付可否holdを独立列に表示
+
+    expect(element).toHaveTextContent()
+
+    Expected element to have text content:
+      保留
+    Received:
+      —
+
+      262 |  renderWithProviders(<CaseListPage/>);
+      263 |  const row=screen.getByRole('row',{name:/S04/});
+    > 264 |  expect(within(row).getAllByRole('cell')[4]).toHaveTextContent(label);
+          |                                              ^
+      265 | });
+      266 |
+
+      at toHaveTextContent (src/features/cases/components/__tests__/CaseListPage.test.tsx:264:46)
+
+  ● G5送付可否approvedを独立列に表示
+
+    expect(element).toHaveTextContent()
+
+    Expected element to have text content:
+      承認
+    Received:
+      —
+
+      262 |  renderWithProviders(<CaseListPage/>);
+      263 |  const row=screen.getByRole('row',{name:/S04/});
+    > 264 |  expect(within(row).getAllByRole('cell')[4]).toHaveTextContent(label);
+          |                                              ^
+      265 | });
+      266 |
+
+      at toHaveTextContent (src/features/cases/components/__tests__/CaseListPage.test.tsx:264:46)
+
+Test Suites: 2 failed, 2 total
+Tests:       6 failed, 47 passed, 53 total
+Snapshots:   0 total
+Time:        18.262 s, estimated 26 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/components.test.tsx|src\/features\/cases\/components\/__tests__\/CaseListPage.test.tsx/i.
+make: *** [/tmp/approval-ui-checks.mk:12: approval-ui-screens] Error 1

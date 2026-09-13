@@ -2,6 +2,10 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "@/shared/api/mutator";
 import type {
+  StateEventRequest,
+  BounceCommentRequest,
+  BounceRequest,
+  SendoffDecisionRequest,
   ConfirmationRequest,
   ItemEditRequest,
   JudgementRequest,
@@ -53,7 +57,8 @@ export function useEvidence(versionId: number, itemId: number) {
 function useRecordMutation<Input, Result>(
   versionId: number,
   mutationFn: (input: Input) => Promise<Result>,
-  resource: "items" | "questions" | "inventory",
+  resource: "items" | "questions" | "inventory" | "approvals",
+  caseId?: number,
 ) {
   const client = useQueryClient();
   const refresh = () =>
@@ -64,13 +69,23 @@ function useRecordMutation<Input, Result>(
       }),
       client.invalidateQueries({
         queryKey:
-          resource === "inventory"
-            ? inventoryKey(versionId)
-            : resource === "items"
-              ? itemsKey(versionId)
-              : questionsKey(versionId),
+          resource === "approvals"
+            ? recordsKey(versionId)
+            : resource === "inventory"
+              ? inventoryKey(versionId)
+              : resource === "items"
+                ? itemsKey(versionId)
+                : questionsKey(versionId),
         exact: true,
       }),
+      ...(caseId !== undefined
+        ? [
+            client.invalidateQueries({
+              queryKey: versionsKey(caseId),
+              exact: true,
+            }),
+          ]
+        : []),
     ]);
   return useMutation<Result, ApiError, Input>({
     mutationFn,
@@ -78,6 +93,7 @@ function useRecordMutation<Input, Result>(
     onSuccess: refresh,
     onError: (error) => {
       if (
+        resource === "approvals" ||
         error.status === 409 ||
         error.status === 404 ||
         error.code === "E_TARGET_INVALID"
@@ -86,34 +102,39 @@ function useRecordMutation<Input, Result>(
     },
   });
 }
-export function useRecordMutations(versionId: number) {
+export function useRecordMutations(versionId: number, caseId?: number) {
   const edit = useRecordMutation(
     versionId,
     (input: ItemEditRequest) => api.editItem(versionId, input),
     "items",
+    caseId,
   );
   const undoEdit = useRecordMutation(
     versionId,
     ({ editId, ...input }: UndoRequest & { editId: number }) =>
       api.undoEdit(versionId, editId, input),
     "items",
+    caseId,
   );
   const confirm = useRecordMutation(
     versionId,
     (input: ConfirmationRequest) => api.confirm(versionId, input),
     "items",
+    caseId,
   );
   const undoConfirmation = useRecordMutation(
     versionId,
     ({ confirmationId, ...input }: UndoRequest & { confirmationId: number }) =>
       api.undoConfirmation(versionId, confirmationId, input),
     "items",
+    caseId,
   );
   const judge = useRecordMutation(
     versionId,
     ({ questionId, ...input }: JudgementRequest & { questionId: number }) =>
       api.judge(versionId, questionId, input),
     "questions",
+    caseId,
   );
   return { edit, undoEdit, confirm, undoConfirmation, judge };
 }
@@ -137,4 +158,65 @@ export function useCoverageMutations(versionId: number) {
     "inventory",
   );
   return { confirm, undoConfirmation };
+}
+
+export const recordsKey = (versionId: number) =>
+  ["version", versionId, "records"] as const;
+export function useRecords(versionId: number) {
+  return useQuery({
+    queryKey: recordsKey(versionId),
+    queryFn: () => api.listRecords(versionId),
+  });
+}
+export function useApprovalMutations(caseId: number, versionId: number) {
+  const transition = useRecordMutation(
+    versionId,
+    (input: StateEventRequest) => api.recordStateEvent(versionId, input),
+    "approvals",
+    caseId,
+  );
+  const bounceComment = useRecordMutation(
+    versionId,
+    (input: BounceCommentRequest) => api.recordBounceComment(versionId, input),
+    "approvals",
+    caseId,
+  );
+  const bounce = useRecordMutation(
+    versionId,
+    (input: BounceRequest) => api.recordBounce(versionId, input),
+    "approvals",
+    caseId,
+  );
+  const sendoff = useRecordMutation(
+    versionId,
+    (input: SendoffDecisionRequest) =>
+      api.recordSendoffDecision(versionId, input),
+    "approvals",
+    caseId,
+  );
+  return { transition, bounceComment, bounce, sendoff };
+}
+
+export const exportsKey = (versionId: number) =>
+  ["version", versionId, "exports"] as const;
+export function useExports(versionId: number) {
+  return useQuery({
+    queryKey: exportsKey(versionId),
+    queryFn: () => api.listExports(versionId),
+  });
+}
+export const createExportKey = (versionId: number) =>
+  ["version", versionId, "exports", "create"] as const;
+/** #38。再送は別の出力レコードを作るため retry を必ず false にする。
+ * mutationKey を版ごとに持ち、同じ版の出力ボタンが複数あっても同時 POST にならない
+ * （呼び出し側は useIsMutating で進行中を共有する）。 */
+export function useCreateExport(versionId: number) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationKey: createExportKey(versionId),
+    mutationFn: () => api.createExport(versionId),
+    retry: false,
+    onSuccess: () =>
+      client.invalidateQueries({ queryKey: exportsKey(versionId) }),
+  });
 }

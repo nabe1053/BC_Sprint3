@@ -1,0 +1,27 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-model.test.ts
+
+PASS src/features/versions/__tests__/approval-model.test.ts
+  ✓ 要約7値は個別API材料から取り、コメントは未紐付けだけ数える (2 ms)
+  ✓ 記録者は最新staff/reviewと未取消coverage、入力を変更しない (5 ms)
+  ✓ 変更タグ5種と取消除外、未解決述語・5絞り込みが既存表示と一致 (2 ms)
+  ✓ canReview draft (1 ms)
+  ✓ canReview staff_checked
+  ✓ canReview review_checked
+  ✓ 要求は名前から検査し採時を含めず、未判断の空理由をnullにする (13 ms)
+  ✓ E_STAFF_CHECK_INCOMPLETEは承認文言へ、他は既存fallback (1 ms)
+  ✓ E_COVERAGE_NOT_RECORDEDは承認文言へ、他は既存fallback
+  ✓ E_STATE_ORDERは承認文言へ、他は既存fallback
+  ✓ E_STATE_ROLLBACK_FORBIDDENは承認文言へ、他は既存fallback
+  ✓ E_NO_BOUNCE_COMMENTは承認文言へ、他は既存fallback
+  ✓ E_SENDOFF_REASON_REQUIREDは承認文言へ、他は既存fallback
+  ✓ E_COMMENT_REQUIREDは承認文言へ、他は既存fallback
+  ✓ E_RECORDER_REQUIREDは承認文言へ、他は既存fallback
+  ✓ 状態詳細は行IDだけを抽出し内部IDや生メッセージを返さない (1 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       16 passed, 16 total
+Snapshots:   0 total
+Time:        0.402 s, estimated 1 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-model.test.ts/i.

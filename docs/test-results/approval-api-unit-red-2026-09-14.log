@@ -1,0 +1,344 @@
+FFFFFFFEEEEEEEEEEEEEEEEEEEEEEEEEEEEE                                     [100%]
+==================================== ERRORS ====================================
+_ ERROR at setup of test_invalid_input_never_calls_service[state-events-payload0-422-E_STATE_ROLLBACK_FORBIDDEN] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_invalid_input_never_calls_service[state-events-payload1-422-E_STATE_ROLLBACK_FORBIDDEN] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_invalid_input_never_calls_service[state-events-payload2-400-E_RECORDER_REQUIRED] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_invalid_input_never_calls_service[sendoff-decisions-payload5-400-E_SENDOFF_REASON_REQUIRED] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_invalid_input_never_calls_service[state-events-payload6-422-E_REQUEST_INVALID] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_invalid_input_never_calls_service[state-events-payload7-400-E_REQUEST_INVALID] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_invalid_input_never_calls_service[bounces-payload8-400-E_REQUEST_INVALID] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_success_has_exact_keys_and_no_client_timestamp[state-events-transition-payload0-keys0] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_success_has_exact_keys_and_no_client_timestamp[bounce-comments-comment-payload1-keys1] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_success_has_exact_keys_and_no_client_timestamp[bounces-bounce-payload2-keys2] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_success_has_exact_keys_and_no_client_timestamp[sendoff-decisions-decide_sendoff-payload3-keys3] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+____ ERROR at setup of test_undecided_accepts_absent_or_empty_reason[None] _____
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+______ ERROR at setup of test_undecided_accepts_absent_or_empty_reason[] _______
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_domain_errors_preserve_details[E_STAFF_CHECK_INCOMPLETE-409] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_domain_errors_preserve_details[E_COVERAGE_NOT_RECORDED-409] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+___ ERROR at setup of test_domain_errors_preserve_details[E_STATE_ORDER-409] ___
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_domain_errors_preserve_details[E_STATE_ROLLBACK_FORBIDDEN-422] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_domain_errors_preserve_details[E_NO_BOUNCE_COMMENT-409] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_domain_errors_preserve_details[E_SENDOFF_REASON_REQUIRED-400] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_domain_errors_preserve_details[E_COMMENT_REQUIRED-400] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_history_exact_collections_cancellations_and_nested_comments _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+________ ERROR at setup of test_empty_records_returns_all_seven_arrays _________
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_version_list_uses_approval_service_and_required_fields[False] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_version_list_uses_approval_service_and_required_fields[True] _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+_ ERROR at setup of test_agent_write_is_absent_and_nonpositive_version_is_rejected _
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+________ ERROR at setup of test_case_list_includes_latest_sendoff[None] ________
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+______ ERROR at setup of test_case_list_includes_latest_sendoff[approved] ______
+
+    @pytest.fixture
+    async def approval_http():
+>       from app.api.dependencies import get_approval_service, get_record_service
+E       ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+
+tests/unit/test_approval_api.py:23: ImportError
+=================================== FAILURES ===================================
+______ test_approval_error_status_registry[E_STAFF_CHECK_INCOMPLETE-409] _______
+
+code = 'E_STAFF_CHECK_INCOMPLETE', status = 409
+
+    @pytest.mark.parametrize("code,status", ERRORS)
+    def test_approval_error_status_registry(code, status):
+>       assert DOMAIN_ERROR_STATUS_BY_CODE[code] == status
+E       KeyError: 'E_STAFF_CHECK_INCOMPLETE'
+
+tests/unit/test_approval_api.py:18: KeyError
+_______ test_approval_error_status_registry[E_COVERAGE_NOT_RECORDED-409] _______
+
+code = 'E_COVERAGE_NOT_RECORDED', status = 409
+
+    @pytest.mark.parametrize("code,status", ERRORS)
+    def test_approval_error_status_registry(code, status):
+>       assert DOMAIN_ERROR_STATUS_BY_CODE[code] == status
+E       KeyError: 'E_COVERAGE_NOT_RECORDED'
+
+tests/unit/test_approval_api.py:18: KeyError
+____________ test_approval_error_status_registry[E_STATE_ORDER-409] ____________
+
+code = 'E_STATE_ORDER', status = 409
+
+    @pytest.mark.parametrize("code,status", ERRORS)
+    def test_approval_error_status_registry(code, status):
+>       assert DOMAIN_ERROR_STATUS_BY_CODE[code] == status
+E       KeyError: 'E_STATE_ORDER'
+
+tests/unit/test_approval_api.py:18: KeyError
+_____ test_approval_error_status_registry[E_STATE_ROLLBACK_FORBIDDEN-422] ______
+
+code = 'E_STATE_ROLLBACK_FORBIDDEN', status = 422
+
+    @pytest.mark.parametrize("code,status", ERRORS)
+    def test_approval_error_status_registry(code, status):
+>       assert DOMAIN_ERROR_STATUS_BY_CODE[code] == status
+E       KeyError: 'E_STATE_ROLLBACK_FORBIDDEN'
+
+tests/unit/test_approval_api.py:18: KeyError
+_________ test_approval_error_status_registry[E_NO_BOUNCE_COMMENT-409] _________
+
+code = 'E_NO_BOUNCE_COMMENT', status = 409
+
+    @pytest.mark.parametrize("code,status", ERRORS)
+    def test_approval_error_status_registry(code, status):
+>       assert DOMAIN_ERROR_STATUS_BY_CODE[code] == status
+E       KeyError: 'E_NO_BOUNCE_COMMENT'
+
+tests/unit/test_approval_api.py:18: KeyError
+______ test_approval_error_status_registry[E_SENDOFF_REASON_REQUIRED-400] ______
+
+code = 'E_SENDOFF_REASON_REQUIRED', status = 400
+
+    @pytest.mark.parametrize("code,status", ERRORS)
+    def test_approval_error_status_registry(code, status):
+>       assert DOMAIN_ERROR_STATUS_BY_CODE[code] == status
+E       KeyError: 'E_SENDOFF_REASON_REQUIRED'
+
+tests/unit/test_approval_api.py:18: KeyError
+_________ test_approval_error_status_registry[E_COMMENT_REQUIRED-400] __________
+
+code = 'E_COMMENT_REQUIRED', status = 400
+
+    @pytest.mark.parametrize("code,status", ERRORS)
+    def test_approval_error_status_registry(code, status):
+>       assert DOMAIN_ERROR_STATUS_BY_CODE[code] == status
+E       KeyError: 'E_COMMENT_REQUIRED'
+
+tests/unit/test_approval_api.py:18: KeyError
+=========================== short test summary info ============================
+FAILED tests/unit/test_approval_api.py::test_approval_error_status_registry[E_STAFF_CHECK_INCOMPLETE-409] - KeyError: 'E_STAFF_CHECK_INCOMPLETE'
+FAILED tests/unit/test_approval_api.py::test_approval_error_status_registry[E_COVERAGE_NOT_RECORDED-409] - KeyError: 'E_COVERAGE_NOT_RECORDED'
+FAILED tests/unit/test_approval_api.py::test_approval_error_status_registry[E_STATE_ORDER-409] - KeyError: 'E_STATE_ORDER'
+FAILED tests/unit/test_approval_api.py::test_approval_error_status_registry[E_STATE_ROLLBACK_FORBIDDEN-422] - KeyError: 'E_STATE_ROLLBACK_FORBIDDEN'
+FAILED tests/unit/test_approval_api.py::test_approval_error_status_registry[E_NO_BOUNCE_COMMENT-409] - KeyError: 'E_NO_BOUNCE_COMMENT'
+FAILED tests/unit/test_approval_api.py::test_approval_error_status_registry[E_SENDOFF_REASON_REQUIRED-400] - KeyError: 'E_SENDOFF_REASON_REQUIRED'
+FAILED tests/unit/test_approval_api.py::test_approval_error_status_registry[E_COMMENT_REQUIRED-400] - KeyError: 'E_COMMENT_REQUIRED'
+ERROR tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[state-events-payload0-422-E_STATE_ROLLBACK_FORBIDDEN] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[state-events-payload1-422-E_STATE_ROLLBACK_FORBIDDEN] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[state-events-payload2-400-E_RECORDER_REQUIRED] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload5-400-E_SENDOFF_REASON_REQUIRED] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[state-events-payload6-422-E_REQUEST_INVALID] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[state-events-payload7-400-E_REQUEST_INVALID] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounces-payload8-400-E_REQUEST_INVALID] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_success_has_exact_keys_and_no_client_timestamp[state-events-transition-payload0-keys0] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_success_has_exact_keys_and_no_client_timestamp[bounce-comments-comment-payload1-keys1] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_success_has_exact_keys_and_no_client_timestamp[bounces-bounce-payload2-keys2] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_success_has_exact_keys_and_no_client_timestamp[sendoff-decisions-decide_sendoff-payload3-keys3] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_undecided_accepts_absent_or_empty_reason[None] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_undecided_accepts_absent_or_empty_reason[] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_domain_errors_preserve_details[E_STAFF_CHECK_INCOMPLETE-409] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_domain_errors_preserve_details[E_COVERAGE_NOT_RECORDED-409] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_domain_errors_preserve_details[E_STATE_ORDER-409] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_domain_errors_preserve_details[E_STATE_ROLLBACK_FORBIDDEN-422] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_domain_errors_preserve_details[E_NO_BOUNCE_COMMENT-409] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_domain_errors_preserve_details[E_SENDOFF_REASON_REQUIRED-400] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_domain_errors_preserve_details[E_COMMENT_REQUIRED-400] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_history_exact_collections_cancellations_and_nested_comments - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_empty_records_returns_all_seven_arrays - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_version_list_uses_approval_service_and_required_fields[False] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_version_list_uses_approval_service_and_required_fields[True] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_agent_write_is_absent_and_nonpositive_version_is_rejected - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_case_list_includes_latest_sendoff[None] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+ERROR tests/unit/test_approval_api.py::test_case_list_includes_latest_sendoff[approved] - ImportError: cannot import name 'get_approval_service' from 'app.api.dependencies' (/home/takahiro/Documents/BC_Sprint3/backend/app/api/dependencies.py)
+7 failed, 29 errors in 0.91s
+make: *** [/tmp/approval-api-checks.mk:2: approval-api-unit] Error 1

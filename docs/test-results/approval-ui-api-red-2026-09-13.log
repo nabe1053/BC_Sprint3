@@ -1,0 +1,162 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-api.test.ts
+
+FAIL src/features/versions/__tests__/approval-api.test.ts
+  ✕ listRecordsの実URL・method・body・成功応答 (1 ms)
+  ✕ recordStateEventの実URL・method・body・成功応答 (1 ms)
+  ✕ recordBounceCommentの実URL・method・body・成功応答 (1 ms)
+  ✕ recordBounceの実URL・method・body・成功応答
+  ✕ recordSendoffDecisionの実URL・method・body・成功応答 (1 ms)
+  ✕ listRecordsは非2xxをApiErrorで1回だけ返す
+  ✕ recordStateEventは非2xxをApiErrorで1回だけ返す
+  ✕ recordBounceCommentは非2xxをApiErrorで1回だけ返す
+  ✕ recordBounceは非2xxをApiErrorで1回だけ返す
+  ✕ recordSendoffDecisionは非2xxをApiErrorで1回だけ返す
+
+  ● listRecordsの実URL・method・body・成功応答
+
+    TypeError: fn is not a function
+
+      15 |  request.mockResolvedValue({ok:true,status,headers:new Headers({'Content-Type':'application/json'}),json:async()=>response});
+      16 |  const fn=api[name as keyof typeof api] as (id:number,input:unknown)=>Promise<unknown>;
+    > 17 |  expect(await fn(9,body)).toEqual(response);
+         |               ^
+      18 |  expect(request.mock.calls[0][0]).toContain(`/api/v1/ui/versions/9/${path}`);
+      19 |  expect(request.mock.calls[0][1].method).toBe(method);
+      20 |  if(body) expect(JSON.parse(request.mock.calls[0][1].body)).toEqual(body);
+
+      at fn (src/features/versions/__tests__/approval-api.test.ts:17:15)
+
+  ● recordStateEventの実URL・method・body・成功応答
+
+    TypeError: fn is not a function
+
+      15 |  request.mockResolvedValue({ok:true,status,headers:new Headers({'Content-Type':'application/json'}),json:async()=>response});
+      16 |  const fn=api[name as keyof typeof api] as (id:number,input:unknown)=>Promise<unknown>;
+    > 17 |  expect(await fn(9,body)).toEqual(response);
+         |               ^
+      18 |  expect(request.mock.calls[0][0]).toContain(`/api/v1/ui/versions/9/${path}`);
+      19 |  expect(request.mock.calls[0][1].method).toBe(method);
+      20 |  if(body) expect(JSON.parse(request.mock.calls[0][1].body)).toEqual(body);
+
+      at fn (src/features/versions/__tests__/approval-api.test.ts:17:15)
+
+  ● recordBounceCommentの実URL・method・body・成功応答
+
+    TypeError: fn is not a function
+
+      15 |  request.mockResolvedValue({ok:true,status,headers:new Headers({'Content-Type':'application/json'}),json:async()=>response});
+      16 |  const fn=api[name as keyof typeof api] as (id:number,input:unknown)=>Promise<unknown>;
+    > 17 |  expect(await fn(9,body)).toEqual(response);
+         |               ^
+      18 |  expect(request.mock.calls[0][0]).toContain(`/api/v1/ui/versions/9/${path}`);
+      19 |  expect(request.mock.calls[0][1].method).toBe(method);
+      20 |  if(body) expect(JSON.parse(request.mock.calls[0][1].body)).toEqual(body);
+
+      at fn (src/features/versions/__tests__/approval-api.test.ts:17:15)
+
+  ● recordBounceの実URL・method・body・成功応答
+
+    TypeError: fn is not a function
+
+      15 |  request.mockResolvedValue({ok:true,status,headers:new Headers({'Content-Type':'application/json'}),json:async()=>response});
+      16 |  const fn=api[name as keyof typeof api] as (id:number,input:unknown)=>Promise<unknown>;
+    > 17 |  expect(await fn(9,body)).toEqual(response);
+         |               ^
+      18 |  expect(request.mock.calls[0][0]).toContain(`/api/v1/ui/versions/9/${path}`);
+      19 |  expect(request.mock.calls[0][1].method).toBe(method);
+      20 |  if(body) expect(JSON.parse(request.mock.calls[0][1].body)).toEqual(body);
+
+      at fn (src/features/versions/__tests__/approval-api.test.ts:17:15)
+
+  ● recordSendoffDecisionの実URL・method・body・成功応答
+
+    TypeError: fn is not a function
+
+      15 |  request.mockResolvedValue({ok:true,status,headers:new Headers({'Content-Type':'application/json'}),json:async()=>response});
+      16 |  const fn=api[name as keyof typeof api] as (id:number,input:unknown)=>Promise<unknown>;
+    > 17 |  expect(await fn(9,body)).toEqual(response);
+         |               ^
+      18 |  expect(request.mock.calls[0][0]).toContain(`/api/v1/ui/versions/9/${path}`);
+      19 |  expect(request.mock.calls[0][1].method).toBe(method);
+      20 |  if(body) expect(JSON.parse(request.mock.calls[0][1].body)).toEqual(body);
+
+      at fn (src/features/versions/__tests__/approval-api.test.ts:17:15)
+
+  ● listRecordsは非2xxをApiErrorで1回だけ返す
+
+    TypeError: fn is not a function
+
+      24 |  request.mockResolvedValue({ok:false,status:409,headers:new Headers({'Content-Type':'application/json'}),json:async()=>({code:'E_STATE_ORDER',message:'private'})});
+      25 |  const fn=api[name as keyof typeof api] as (id:number,input:unknown)=>Promise<unknown>;
+    > 26 |  const result=fn(9,{});
+         |               ^
+      27 |  await expect(result).rejects.toBeInstanceOf(ApiError);
+      28 |  await expect(result).rejects.toMatchObject({status:409,code:'E_STATE_ORDER'});
+      29 |  expect(request).toHaveBeenCalledTimes(1);
+
+      at fn (src/features/versions/__tests__/approval-api.test.ts:26:15)
+
+  ● recordStateEventは非2xxをApiErrorで1回だけ返す
+
+    TypeError: fn is not a function
+
+      24 |  request.mockResolvedValue({ok:false,status:409,headers:new Headers({'Content-Type':'application/json'}),json:async()=>({code:'E_STATE_ORDER',message:'private'})});
+      25 |  const fn=api[name as keyof typeof api] as (id:number,input:unknown)=>Promise<unknown>;
+    > 26 |  const result=fn(9,{});
+         |               ^
+      27 |  await expect(result).rejects.toBeInstanceOf(ApiError);
+      28 |  await expect(result).rejects.toMatchObject({status:409,code:'E_STATE_ORDER'});
+      29 |  expect(request).toHaveBeenCalledTimes(1);
+
+      at fn (src/features/versions/__tests__/approval-api.test.ts:26:15)
+
+  ● recordBounceCommentは非2xxをApiErrorで1回だけ返す
+
+    TypeError: fn is not a function
+
+      24 |  request.mockResolvedValue({ok:false,status:409,headers:new Headers({'Content-Type':'application/json'}),json:async()=>({code:'E_STATE_ORDER',message:'private'})});
+      25 |  const fn=api[name as keyof typeof api] as (id:number,input:unknown)=>Promise<unknown>;
+    > 26 |  const result=fn(9,{});
+         |               ^
+      27 |  await expect(result).rejects.toBeInstanceOf(ApiError);
+      28 |  await expect(result).rejects.toMatchObject({status:409,code:'E_STATE_ORDER'});
+      29 |  expect(request).toHaveBeenCalledTimes(1);
+
+      at fn (src/features/versions/__tests__/approval-api.test.ts:26:15)
+
+  ● recordBounceは非2xxをApiErrorで1回だけ返す
+
+    TypeError: fn is not a function
+
+      24 |  request.mockResolvedValue({ok:false,status:409,headers:new Headers({'Content-Type':'application/json'}),json:async()=>({code:'E_STATE_ORDER',message:'private'})});
+      25 |  const fn=api[name as keyof typeof api] as (id:number,input:unknown)=>Promise<unknown>;
+    > 26 |  const result=fn(9,{});
+         |               ^
+      27 |  await expect(result).rejects.toBeInstanceOf(ApiError);
+      28 |  await expect(result).rejects.toMatchObject({status:409,code:'E_STATE_ORDER'});
+      29 |  expect(request).toHaveBeenCalledTimes(1);
+
+      at fn (src/features/versions/__tests__/approval-api.test.ts:26:15)
+
+  ● recordSendoffDecisionは非2xxをApiErrorで1回だけ返す
+
+    TypeError: fn is not a function
+
+      24 |  request.mockResolvedValue({ok:false,status:409,headers:new Headers({'Content-Type':'application/json'}),json:async()=>({code:'E_STATE_ORDER',message:'private'})});
+      25 |  const fn=api[name as keyof typeof api] as (id:number,input:unknown)=>Promise<unknown>;
+    > 26 |  const result=fn(9,{});
+         |               ^
+      27 |  await expect(result).rejects.toBeInstanceOf(ApiError);
+      28 |  await expect(result).rejects.toMatchObject({status:409,code:'E_STATE_ORDER'});
+      29 |  expect(request).toHaveBeenCalledTimes(1);
+
+      at fn (src/features/versions/__tests__/approval-api.test.ts:26:15)
+
+Test Suites: 1 failed, 1 total
+Tests:       10 failed, 10 total
+Snapshots:   0 total
+Time:        0.549 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-api.test.ts/i.
+make: *** [/tmp/approval-ui-checks.mk:2: approval-ui-api] Error 1

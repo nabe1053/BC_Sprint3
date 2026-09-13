@@ -1,0 +1,59 @@
+..FF........                                                             [100%]
+=================================== FAILURES ===================================
+_ test_untrusted_strings_are_literal_and_have_no_formula_style_or_link[=HYPERLINK("https://invalid.example","x")] _
+
+text = '=HYPERLINK("https://invalid.example","x")'
+
+    @pytest.mark.parametrize(
+        "text", ['=HYPERLINK("https://invalid.example","x")', "=1+1", "+1", "-1", "@SUM"]
+    )
+    def test_untrusted_strings_are_literal_and_have_no_formula_style_or_link(text):
+        data = snapshot()
+        data.items[0].values["note"] = text
+        data.evidences[0].quote = text
+        data.records["unlinked_comments"][0].comment = text
+        wb = workbook(data)
+        assert wb[SHEET_NAMES[1]].cell(2, 38).value == text
+        assert text in [cell.value for cell in cells(wb)]
+        for cell in cells(wb):
+>           assert (
+                cell.data_type != "f"
+                and cell.hyperlink is None
+                and cell.fill.patternType is None
+            )
+E           AssertionError: assert ('f' != 'f')
+E            +  where 'f' = <Cell 'Item List'.AL2>.data_type
+
+tests/unit/test_export_workbook.py:105: AssertionError
+__ test_untrusted_strings_are_literal_and_have_no_formula_style_or_link[=1+1] __
+
+text = '=1+1'
+
+    @pytest.mark.parametrize(
+        "text", ['=HYPERLINK("https://invalid.example","x")', "=1+1", "+1", "-1", "@SUM"]
+    )
+    def test_untrusted_strings_are_literal_and_have_no_formula_style_or_link(text):
+        data = snapshot()
+        data.items[0].values["note"] = text
+        data.evidences[0].quote = text
+        data.records["unlinked_comments"][0].comment = text
+        wb = workbook(data)
+        assert wb[SHEET_NAMES[1]].cell(2, 38).value == text
+        assert text in [cell.value for cell in cells(wb)]
+        for cell in cells(wb):
+>           assert (
+                cell.data_type != "f"
+                and cell.hyperlink is None
+                and cell.fill.patternType is None
+            )
+E           AssertionError: assert ('f' != 'f')
+E            +  where 'f' = <Cell 'Item List'.AL2>.data_type
+
+tests/unit/test_export_workbook.py:105: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_export_workbook.py::test_untrusted_strings_are_literal_and_have_no_formula_style_or_link[=HYPERLINK("https://invalid.example","x")] - AssertionError: assert ('f' != 'f')
+ +  where 'f' = <Cell 'Item List'.AL2>.data_type
+FAILED tests/unit/test_export_workbook.py::test_untrusted_strings_are_literal_and_have_no_formula_style_or_link[=1+1] - AssertionError: assert ('f' != 'f')
+ +  where 'f' = <Cell 'Item List'.AL2>.data_type
+2 failed, 10 passed in 0.28s
+make: *** [/tmp/workbook-checks.mk:4: workbook-build] Error 1

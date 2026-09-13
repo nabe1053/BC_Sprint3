@@ -1,0 +1,37 @@
+FFFF                                                                     [100%]
+=================================== FAILURES ===================================
+_______________ test_sheet_names_and_label_domains_are_complete ________________
+
+    def test_sheet_names_and_label_domains_are_complete():
+>       from app.domain import export_types as e
+E       ImportError: cannot import name 'export_types' from 'app.domain' (/home/takahiro/Documents/BC_Sprint3/backend/app/domain/__init__.py)
+
+tests/unit/test_export_types.py:7: ImportError
+______________ test_timestamp_is_jst_to_seconds_and_none_is_empty ______________
+
+    def test_timestamp_is_jst_to_seconds_and_none_is_empty():
+>       from app.domain.export_types import format_ts
+E       ModuleNotFoundError: No module named 'app.domain.export_types'
+
+tests/unit/test_export_types.py:16: ModuleNotFoundError
+______________ test_export_filename_uses_ascii_safe_code_and_jst _______________
+
+    def test_export_filename_uses_ascii_safe_code_and_jst():
+>       from app.domain.export_types import export_file_name
+E       ModuleNotFoundError: No module named 'app.domain.export_types'
+
+tests/unit/test_export_types.py:22: ModuleNotFoundError
+________________ test_content_hash_is_sha256_hex_of_exact_bytes ________________
+
+    def test_content_hash_is_sha256_hex_of_exact_bytes():
+>       from app.domain.export_types import sha256_hex
+E       ModuleNotFoundError: No module named 'app.domain.export_types'
+
+tests/unit/test_export_types.py:29: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/unit/test_export_types.py::test_sheet_names_and_label_domains_are_complete - ImportError: cannot import name 'export_types' from 'app.domain' (/home/takahiro/Documents/BC_Sprint3/backend/app/domain/__init__.py)
+FAILED tests/unit/test_export_types.py::test_timestamp_is_jst_to_seconds_and_none_is_empty - ModuleNotFoundError: No module named 'app.domain.export_types'
+FAILED tests/unit/test_export_types.py::test_export_filename_uses_ascii_safe_code_and_jst - ModuleNotFoundError: No module named 'app.domain.export_types'
+FAILED tests/unit/test_export_types.py::test_content_hash_is_sha256_hex_of_exact_bytes - ModuleNotFoundError: No module named 'app.domain.export_types'
+4 failed in 0.03s
+make: *** [/tmp/workbook-checks.mk:2: workbook-types] Error 1

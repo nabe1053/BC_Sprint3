@@ -105,7 +105,7 @@
 
 | # | エンドポイント | メソッド | 機能 | 認証 | 必要権限 |
 |---|--------------|---------|------|------|---------|
-| 22 | `/cases/{caseId}/versions` | GET | 版の履歴（版・生成所要・状態・未解決件数）。**生成所要は G6 T-603 で付与**（`agent_runs` との結線。Build AD-029 ⑭）。G5 では `carryOver`・`latestStateEvent`・`latestBounce`・`latestSendoff`・`bounced`・`needsRecheck` を付与（下記「22 の引き継ぎ警告の材料」） | 不要 | UI |
+| 22 | `/cases/{caseId}/versions` | GET | 版の履歴（版・生成所要・状態・未解決件数）。**生成所要 `elapsedSec` は G6 T-603 で付与済み**（`agent_runs.elapsed_sec` を `version_id` で結線。未記録は `null`。Decimal は丸めず文字列。Build AD-029 ⑭）。G5 では `carryOver`・`latestStateEvent`・`latestBounce`・`latestSendoff`・`bounced`・`needsRecheck` を付与（下記「22 の引き継ぎ警告の材料」） | 不要 | UI |
 | 23 | `/versions/{versionId}` | GET | 版の要約（案件情報・件数・状態・確認の進捗） | 不要 | UI |
 | 24 | `/versions/{versionId}/items` | GET | 明細（**未取消の訂正を適用した現在値**と訂正履歴） **応答の各行に `rowMatch: {confirmationId, recordedBy, recordedAt} | null`（未取消の一致確認。2026-09-13 追記・AD-024。SCR-03 の照合チェック表示と #32 の取消に必要）** | 不要 | UI |
 | 25 | `/versions/{versionId}/items/{itemId}/evidence` | GET | 行の根拠・原表記・出典・原文抜粋（SCR-04） | 不要 | UI |

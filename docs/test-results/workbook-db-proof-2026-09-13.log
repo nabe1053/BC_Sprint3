@@ -1,0 +1,59 @@
+                                            Table "public.exports"
+        Column        |           Type           | Collation | Nullable |               Default               
+----------------------+--------------------------+-----------+----------+-------------------------------------
+ id                   | bigint                   |           | not null | nextval('exports_id_seq'::regclass)
+ created_at           | timestamp with time zone |           | not null | now()
+ updated_at           | timestamp with time zone |           | not null | now()
+ version_id           | bigint                   |           | not null | 
+ file_name            | text                     |           | not null | 
+ storage_path         | text                     |           | not null | 
+ content_hash         | text                     |           | not null | 
+ exported_at          | timestamp with time zone |           | not null | 
+ state_at_export      | text                     |           | not null | 
+ sendoff_at_export    | text                     |           | not null | 
+ unresolved_at_export | integer                  |           | not null | 
+ is_initial           | boolean                  |           | not null | false
+Indexes:
+    "exports_pkey" PRIMARY KEY, btree (id)
+    "ix_exports_version_id" btree (version_id)
+    "uq_exports_initial_per_version" UNIQUE, btree (version_id) WHERE is_initial
+Check constraints:
+    "ck_exports_content_hash" CHECK (TRIM(BOTH FROM content_hash) <> ''::text)
+    "ck_exports_file_name" CHECK (TRIM(BOTH FROM file_name) <> ''::text)
+    "ck_exports_sendoff_at_export" CHECK (sendoff_at_export = ANY (ARRAY['undecided'::text, 'hold'::text, 'approved'::text]))
+    "ck_exports_state_at_export" CHECK (state_at_export = ANY (ARRAY['draft'::text, 'staff_checked'::text, 'review_checked'::text]))
+    "ck_exports_storage_path" CHECK (TRIM(BOTH FROM storage_path) <> ''::text)
+    "ck_exports_unresolved_nonneg" CHECK (unresolved_at_export >= 0)
+Foreign-key constraints:
+    "exports_version_id_fkey" FOREIGN KEY (version_id) REFERENCES versions(id)
+
+                                            Table "public.exports"
+        Column        |           Type           | Collation | Nullable |               Default               
+----------------------+--------------------------+-----------+----------+-------------------------------------
+ id                   | bigint                   |           | not null | nextval('exports_id_seq'::regclass)
+ created_at           | timestamp with time zone |           | not null | now()
+ updated_at           | timestamp with time zone |           | not null | now()
+ version_id           | bigint                   |           | not null | 
+ file_name            | text                     |           | not null | 
+ storage_path         | text                     |           | not null | 
+ content_hash         | text                     |           | not null | 
+ exported_at          | timestamp with time zone |           | not null | 
+ state_at_export      | text                     |           | not null | 
+ sendoff_at_export    | text                     |           | not null | 
+ unresolved_at_export | integer                  |           | not null | 
+ is_initial           | boolean                  |           | not null | false
+Indexes:
+    "exports_pkey" PRIMARY KEY, btree (id)
+    "ix_exports_version_id" btree (version_id)
+    "uq_exports_initial_per_version" UNIQUE, btree (version_id) WHERE is_initial
+Check constraints:
+    "ck_exports_content_hash" CHECK (TRIM(BOTH FROM content_hash) <> ''::text)
+    "ck_exports_file_name" CHECK (TRIM(BOTH FROM file_name) <> ''::text)
+    "ck_exports_sendoff_at_export" CHECK (sendoff_at_export = ANY (ARRAY['undecided'::text, 'hold'::text, 'approved'::text]))
+    "ck_exports_state_at_export" CHECK (state_at_export = ANY (ARRAY['draft'::text, 'staff_checked'::text, 'review_checked'::text]))
+    "ck_exports_storage_path" CHECK (TRIM(BOTH FROM storage_path) <> ''::text)
+    "ck_exports_unresolved_nonneg" CHECK (unresolved_at_export >= 0)
+Foreign-key constraints:
+    "exports_version_id_fkey" FOREIGN KEY (version_id) REFERENCES versions(id)
+
+export_records (head)

@@ -6,18 +6,21 @@ from unittest.mock import AsyncMock
 import pytest
 
 from app.domain.draft_errors import DraftError
-from tests.fixtures.record_data import current_item, edit, edit_data
+from tests.fixtures.record_data import current_item, edit, edit_data, approval_questions
 
 
 @pytest.fixture
 def repository():
     active = []
+    version = N(id=1, current_state="draft")
 
     @asynccontextmanager
     async def record(version_id):
         active.append(version_id)
-        yield
-        active.pop()
+        try:
+            yield version
+        finally:
+            active.pop()
 
     async def save(version_id, rows):
         assert active == [version_id]
@@ -25,6 +28,9 @@ def repository():
 
     return N(
         record=record,
+        version=version,
+        save_state_event=AsyncMock(),
+        list_questions_with_latest=AsyncMock(return_value=approval_questions()),
         item=AsyncMock(return_value=current_item()),
         edits=AsyncMock(return_value=[]),
         save_edits=AsyncMock(side_effect=save),
@@ -105,3 +111,64 @@ async def test_duplicate_confirmation_is_prechecked(repository):
         )
     assert error.value.code == "E_ALREADY_CONFIRMED"
     repository.save_confirmation.assert_not_awaited()
+
+
+@pytest.mark.parametrize("state", ["draft", "staff_checked", "review_checked"])
+async def test_edit_only_downgrades_review_and_reuses_actor_time(repository, state):
+    from app.services.record_service import RecordService
+
+    repository.version.current_state = state
+    rows = await RecordService(repository).edit(1, edit_data(recorded_by="訂正者"))
+    if state == "review_checked":
+        repository.save_state_event.assert_awaited_once_with(
+            repository.version,
+            from_state="review_checked",
+            to_state="staff_checked",
+            recorded_by="訂正者",
+            recorded_at=rows[0]["recorded_at"],
+            unresolved_count=2,
+        )
+    else:
+        repository.save_state_event.assert_not_awaited()
+
+
+async def test_undo_confirm_and_judge_never_emit_state_events(repository):
+    from app.services.record_service import RecordService
+
+    repository.version.current_state = "review_checked"
+    service = RecordService(repository)
+    await service.undo_edit(1, 1, {"recorded_by": "人"})
+    await service.confirm(1, {"kind": "coverage", "recorded_by": "人"})
+    await service.judge(
+        1, 1, {"status": "judged", "resolution": "unresolved", "recorded_by": "人"}
+    )
+    repository.save_state_event.assert_not_awaited()
+    assert repository.version.current_state == "review_checked"
+
+
+async def test_summary_unresolved_count_matches_transition_counter(repository):
+    from app.services.record_service import RecordService
+    from app.services.version_state import unresolved_count
+
+    questions = approval_questions()
+    for row in questions:
+        row["question"].item_id = None
+    repository.summary = AsyncMock(
+        return_value={
+            "version": N(
+                id=1,
+                case_id=2,
+                version_no=1,
+                current_state="draft",
+                is_complete=True,
+                finalized_at=datetime.now(UTC),
+            ),
+            "case_header": None,
+            "items": [],
+            "confirmations": [],
+            "questions": questions,
+        }
+    )
+    result = await RecordService(repository).summary(1)
+    assert result["unresolved_question_ids"] == {1, 2}
+    assert result["unresolved_count"] == unresolved_count(questions) == 2

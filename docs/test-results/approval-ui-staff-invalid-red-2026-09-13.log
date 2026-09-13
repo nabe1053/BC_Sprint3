@@ -1,0 +1,32 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/components.test.tsx src/features/cases/components/__tests__/CaseListPage.test.tsx
+
+FAIL src/features/versions/__tests__/components.test.tsx (8.908 s)
+  ● G5担当者確認は空名を拒否しstaff_checkedを1回記録して承認へ進む
+
+    expect(element).toHaveAttribute("aria-invalid", "true") // element.getAttribute("aria-invalid") === "true"
+
+    Expected the element to have attribute:
+      aria-invalid="true"
+    Received:
+      aria-invalid="false"
+
+      564 |   expect(staffTransition).not.toHaveBeenCalled();
+      565 |   await screen.findByText("確認者名を入力してください。AI は補完しません。");
+    > 566 |   expect(screen.getByLabelText("担当者名（記録に共用）")).toHaveAttribute("aria-invalid","true");
+          |                                                ^
+      567 |   fireEvent.change(screen.getByLabelText("担当者名（記録に共用）"), {
+      568 |     target: { value: " 担当者 " },
+      569 |   });
+
+      at Object.toHaveAttribute (src/features/versions/__tests__/components.test.tsx:566:48)
+
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx
+
+Test Suites: 1 failed, 1 passed, 2 total
+Tests:       1 failed, 53 passed, 54 total
+Snapshots:   0 total
+Time:        11.044 s, estimated 36 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/components.test.tsx|src\/features\/cases\/components\/__tests__\/CaseListPage.test.tsx/i.
+make: *** [/tmp/approval-ui-checks.mk:12: approval-ui-screens] Error 1

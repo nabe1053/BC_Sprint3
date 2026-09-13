@@ -1,0 +1,204 @@
+F.F                                                                      [100%]
+=================================== FAILURES ===================================
+______________ test_real_di_approval_lifecycle_and_derived_flags _______________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x777ab021f710>
+approval_client = <httpx.AsyncClient object at 0x777ab0081700>
+
+    async def test_real_di_approval_lifecycle_and_derived_flags(db_session,approval_client):
+        seed=await seed_record_version(db_session)
+        vid,item_id,case_id=seed.version.id,seed.item.id,seed.case.id
+        db_session.add(Question(version_id=vid,item_id=item_id,question_code="Q1",target_field="grade",reason="check"))
+        await db_session.commit()
+        client=approval_client;path=f'/api/v1/ui/versions/{vid}';actor={'recordedBy':'人'}
+        for payload in ({'kind':'row_match','itemId':item_id,**actor},{'kind':'coverage',**actor}):
+            assert (await client.post(path+'/confirmations',json=payload)).status_code==201
+        state=await client.post(path+'/state-events',json={'toState':'staff_checked',**actor})
+        assert state.status_code==201 and state.json()['unresolvedCount']==1
+        comment=await client.post(path+'/bounce-comments',json={'itemId':item_id,'comment':'確認',**actor})
+        assert comment.status_code==201 and comment.json()['bounceId'] is None
+        bounce=await client.post(path+'/bounces',json=actor)
+>       assert bounce.status_code==201 and bounce.json()['reason']=='R1: 確認'
+E       AssertionError: assert (201 == 201 and '1: 確認' == 'R1: 確認'
+E        +  where 201 = <Response [201 Created]>.status_code
+E         - R1: 確認
+E         ? -
+E         + 1: 確認)
+
+tests/integration/test_api_approvals.py:39: AssertionError
+_ test_case_latest_sendoff_uses_latest_finalized_version_and_constant_queries __
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x777aaf6a81d0>
+approval_client = <httpx.AsyncClient object at 0x777aaf54ba40>
+
+    async def test_case_latest_sendoff_uses_latest_finalized_version_and_constant_queries(db_session,approval_client):
+        seed=await seed_record_version(db_session)
+        vid,case_id=seed.version.id,seed.case.id
+        at=datetime.now(UTC)
+        db_session.add_all([SendoffDecision(version_id=vid,decision='hold',reason='first',**record_actor(at=at)),SendoffDecision(version_id=vid,decision='approved',reason='second',**record_actor(at=at))])
+        pending=Version(case_id=case_id,rule_set_id=seed.rule.id,version_no=2,current_state='draft',is_complete=False)
+        db_session.add(pending);await db_session.flush()
+        db_session.add(SendoffDecision(version_id=pending.id,decision='hold',reason='pending ignored',**record_actor()))
+        await db_session.commit()
+        async def measured():
+            queries=[]
+            def observe(conn,cursor,statement,parameters,context,executemany):
+                if statement.lstrip().upper().startswith('SELECT'): queries.append(statement)
+            event.listen(db_session.bind.sync_engine,'before_cursor_execute',observe)
+            try: response=await approval_client.get('/api/v1/ui/cases')
+            finally: event.remove(db_session.bind.sync_engine,'before_cursor_execute',observe)
+            assert response.status_code==200
+            return response.json()['cases'],len(queries)
+>       first,count1=await measured()
+
+tests/integration/test_api_approvals.py:96: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/test_api_approvals.py:92: in measured
+    try: response=await approval_client.get('/api/v1/ui/cases')
+.venv/lib/python3.12/site-packages/httpx/_client.py:1768: in get
+    return await self.request(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1540: in request
+    return await self.send(request, auth=auth, follow_redirects=follow_redirects)
+.venv/lib/python3.12/site-packages/httpx/_client.py:1629: in send
+    response = await self._send_handling_auth(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1657: in _send_handling_auth
+    response = await self._send_handling_redirects(
+.venv/lib/python3.12/site-packages/httpx/_client.py:1694: in _send_handling_redirects
+    response = await self._send_single_request(request)
+.venv/lib/python3.12/site-packages/httpx/_client.py:1730: in _send_single_request
+    response = await transport.handle_async_request(request)
+.venv/lib/python3.12/site-packages/httpx/_transports/asgi.py:170: in handle_async_request
+    await self.app(scope, receive, send)
+.venv/lib/python3.12/site-packages/fastapi/applications.py:1054: in __call__
+    await super().__call__(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/applications.py:113: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/middleware/errors.py:187: in __call__
+    raise exc
+.venv/lib/python3.12/site-packages/starlette/middleware/errors.py:165: in __call__
+    await self.app(scope, receive, _send)
+.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py:62: in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+.venv/lib/python3.12/site-packages/starlette/routing.py:715: in __call__
+    await self.middleware_stack(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/routing.py:735: in app
+    await route.handle(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/routing.py:288: in handle
+    await self.app(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/routing.py:76: in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:53: in wrapped_app
+    raise exc
+.venv/lib/python3.12/site-packages/starlette/_exception_handler.py:42: in wrapped_app
+    await app(scope, receive, sender)
+.venv/lib/python3.12/site-packages/starlette/routing.py:73: in app
+    response = await f(request)
+.venv/lib/python3.12/site-packages/fastapi/routing.py:301: in app
+    raw_response = await run_endpoint_function(
+.venv/lib/python3.12/site-packages/fastapi/routing.py:212: in run_endpoint_function
+    return await dependant.call(**values)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+service = <app.services.case_service.CaseService object at 0x777aaf55e600>
+
+    @router.get("", response_model=CaseListResponse)
+    async def list_cases(
+        service: CaseService = Depends(get_case_service),
+    ) -> CaseListResponse:
+        """#1: 案件一覧・進捗ステータス。"""
+        pairs = await service.list_cases()
+        items = [
+            CaseListItem(
+                case_id=case.id,
+                case_code=case.case_code,
+                customer_name=case.customer_name,
+                title=case.title,
+                created_at=case.created_at,
+                progress_status=progress_status,
+                latest_version_id=latest_version_id,
+                latest_sendoff=latest_sendoff,
+            )
+>           for case, progress_status, latest_version_id, latest_sendoff in pairs
+        ]
+E       ValueError: not enough values to unpack (expected 4, got 3)
+
+app/api/ui/endpoints/cases.py:66: ValueError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'recordedBy' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'recordedBy' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'recordedBy' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'kind' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'kind' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'kind' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'itemId' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'itemId' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'itemId' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'toState' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'toState' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'toState' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'comment' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'comment' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'comment' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags - AssertionError: assert (201 == 201 and '1: 確認' == 'R1: 確認'
+ +  where 201 = <Response [201 Created]>.status_code
+  - R1: 確認
+  ? -
+  + 1: 確認)
+FAILED tests/integration/test_api_approvals.py::test_case_latest_sendoff_uses_latest_finalized_version_and_constant_queries - ValueError: not enough values to unpack (expected 4, got 3)
+2 failed, 1 passed, 16 warnings in 1.53s
+make: *** [/tmp/approval-api-checks.mk:6: approval-api-integration] Error 1

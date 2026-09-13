@@ -1,0 +1,106 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+...............FF....................F                                   [100%]
+=================================== FAILURES ===================================
+________ test_bounced_compares_latest_bounce_and_last_review[1-2-False] ________
+
+bounce_at = 1, review_at = 2, expected = False
+
+    @pytest.mark.parametrize(
+        "bounce_at,review_at,expected",
+        [
+            (None, None, False),
+            (None, 2, False),
+            (2, None, True),
+            (1, 2, False),
+            (2, 1, True),
+            (2, 2, False),
+        ],
+    )
+    def test_bounced_compares_latest_bounce_and_last_review(bounce_at, review_at, expected):
+        from app.services.version_state import bounced
+    
+>       assert bounced(bounce_at, review_at) is expected
+E       assert True is False
+E        +  where True = <function bounced at 0x78a6507f8a40>(1, 2)
+
+tests/unit/test_version_state.py:122: AssertionError
+________ test_bounced_compares_latest_bounce_and_last_review[2-1-True] _________
+
+bounce_at = 2, review_at = 1, expected = True
+
+    @pytest.mark.parametrize(
+        "bounce_at,review_at,expected",
+        [
+            (None, None, False),
+            (None, 2, False),
+            (2, None, True),
+            (1, 2, False),
+            (2, 1, True),
+            (2, 2, False),
+        ],
+    )
+    def test_bounced_compares_latest_bounce_and_last_review(bounce_at, review_at, expected):
+        from app.services.version_state import bounced
+    
+>       assert bounced(bounce_at, review_at) is expected
+E       assert False is True
+E        +  where False = <function bounced at 0x78a6507f8a40>(2, 1)
+
+tests/unit/test_version_state.py:122: AssertionError
+_____ test_version_list_derives_flags_without_mutating_repository_material _____
+
+repository = namespace(version=namespace(id=7, current_state='draft'), active=[], record=<function repository.<locals>.record at 0x...96993008'>, list_records=<AsyncMock id='132655697067856'>, list_versions_with_records=<AsyncMock id='132655697063776'>)
+
+    async def test_version_list_derives_flags_without_mutating_repository_material(
+        repository
+    ):
+        from app.services.approval_service import ApprovalService
+    
+        rows = [
+            {
+                "latest_bounce": N(recorded_at=2),
+                "latest_review_checked_at": 1,
+                "latest_state_event": N(
+                    from_state="review_checked", to_state="staff_checked"
+                ),
+            },
+            {
+                "latest_bounce": N(recorded_at=1),
+                "latest_review_checked_at": 2,
+                "latest_state_event": N(
+                    from_state="staff_checked", to_state="review_checked"
+                ),
+            },
+            {
+                "latest_bounce": None,
+                "latest_review_checked_at": None,
+                "latest_state_event": None,
+            },
+        ]
+        repository.list_versions_with_records.return_value = rows
+        result = await ApprovalService(repository).list_versions_with_records(4)
+>       assert [(row["bounced"], row["needs_recheck"]) for row in result] == [
+            (True, True),
+            (False, False),
+            (False, False),
+        ]
+E       assert [(False, True...False, False)] == [(True, True)...False, False)]
+E         At index 0 diff: (False, True) != (True, True)
+E         Full diff:
+E         - [(True, True), (False, False), (False, False)]
+E         + [(False, True), (True, False), (False, False)]
+
+tests/unit/test_approval_service.py:215: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_version_state.py::test_bounced_compares_latest_bounce_and_last_review[1-2-False] - assert True is False
+ +  where True = <function bounced at 0x78a6507f8a40>(1, 2)
+FAILED tests/unit/test_version_state.py::test_bounced_compares_latest_bounce_and_last_review[2-1-True] - assert False is True
+ +  where False = <function bounced at 0x78a6507f8a40>(2, 1)
+FAILED tests/unit/test_approval_service.py::test_version_list_derives_flags_without_mutating_repository_material - assert [(False, True...False, False)] == [(True, True)...False, False)]
+  At index 0 diff: (False, True) != (True, True)
+  Full diff:
+  - [(True, True), (False, False), (False, False)]
+  + [(False, True), (True, False), (False, False)]
+3 failed, 35 passed in 0.11s
+make[1]: *** [/tmp/approval-api-checks.mk:4: approval-api-state] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

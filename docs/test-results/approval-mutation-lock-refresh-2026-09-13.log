@@ -1,0 +1,84 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+.F...............                                                        [100%]
+=================================== FAILURES ===================================
+___________ test_two_sessions_block_then_reject_repeated_transition ____________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x70b268ec63c0>
+
+    async def test_two_sessions_block_then_reject_repeated_transition(db_session):
+        from app.services.approval_service import ApprovalService
+    
+        seed = await seed_record_version(db_session)
+        version_id, item_id = seed.version.id, seed.item.id
+        repo = RecordRepository(db_session)
+        async with repo.record(version_id):
+            await repo.save_confirmation(
+                version_id, {"kind": "row_match", "item_id": item_id, **record_actor()}
+            )
+            await repo.save_confirmation(
+                version_id, {"kind": "coverage", "item_id": None, **record_actor()}
+            )
+        sessions = async_sessionmaker(db_session.bind, expire_on_commit=False)
+        started = asyncio.Event()
+        worker_pid = []
+    
+        async def second():
+            async with sessions() as session:
+                worker_pid.append(
+                    (await session.execute(text("SELECT pg_backend_pid()"))).scalar_one()
+                )
+                # Prime the identity map before the lock; lock re-read must refresh it.
+                stale = await session.get(Version, version_id)
+                assert stale.current_state == "draft"
+                started.set()
+                return await ApprovalService(RecordRepository(session)).transition(
+                    version_id, {"recorded_by": "second", "to_state": "staff_checked"}
+                )
+    
+        async with sessions() as first_session:
+            first = RecordRepository(first_session)
+            async with first.record(version_id) as version:
+                first_pid = (
+                    await first_session.execute(text("SELECT pg_backend_pid()"))
+                ).scalar_one()
+                task = asyncio.create_task(second())
+                try:
+                    await asyncio.wait_for(started.wait(), 2)
+                    blockers = []
+                    for _ in range(100):
+                        blockers = (
+                            await db_session.execute(
+                                text("SELECT pg_blocking_pids(:pid)"),
+                                {"pid": worker_pid[0]},
+                            )
+                        ).scalar_one()
+                        if first_pid in blockers:
+                            break
+                        await asyncio.sleep(0.01)
+                    assert first_pid in blockers and not task.done()
+                    saved = await first.save_state_event(
+                        version,
+                        from_state="draft",
+                        to_state="staff_checked",
+                        unresolved_count=0,
+                        **record_actor("first"),
+                    )
+                except BaseException:
+                    task.cancel()
+                    await asyncio.gather(task, return_exceptions=True)
+                    raise
+>           with pytest.raises(DraftError) as error:
+E           Failed: DID NOT RAISE <class 'app.domain.draft_errors.DraftError'>
+
+tests/integration/test_approval_repository.py:110: Failed
+=============================== warnings summary ===============================
+../../../home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_approval_repository.py::test_two_sessions_block_then_reject_repeated_transition - Failed: DID NOT RAISE <class 'app.domain.draft_errors.DraftError'>
+1 failed, 16 passed, 1 warning in 9.86s
+make[1]: *** [/tmp/approval-checks.mk:10: approval-repository] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

@@ -1,0 +1,26 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-components.test.tsx
+
+FAIL src/features/versions/__tests__/approval-components.test.tsx
+  ● Test suite failed to run
+
+    Cannot find module '../components/ApprovalPage' from 'src/features/versions/__tests__/approval-components.test.tsx'
+
+      21 |  jest.mocked(useRouter).mockReturnValue({push} as never);
+      22 |  for(const fn of [transition,bounceComment,bounce,sendoff]) fn.mockResolvedValue({});
+    > 23 |  mock.useApprovalMutations.mockReturnValue(Object.fromEntries(Object.entries({transition,bounceComment,bounce,sendoff}).map(([name,fn])=>[name,{mutateAsync:fn,isPending:false}])) as never);
+         |                       ^
+      24 |  mock.useEvidence.mockReturnValue(query([]) as never);
+      25 | });
+      26 | const render=()=>renderWithProviders(<ApprovalPage caseId={8} versionId={9}/>);
+
+      at Resolver._throwModNotFoundError (node_modules/jest-resolve/build/resolver.js:427:11)
+      at Object.<anonymous> (src/features/versions/__tests__/approval-components.test.tsx:23:23)
+
+Test Suites: 1 failed, 1 total
+Tests:       0 total
+Snapshots:   0 total
+Time:        0.543 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-components.test.tsx/i.
+make: *** [/tmp/approval-ui-checks.mk:8: approval-ui-components] Error 1

@@ -1,0 +1,15 @@
+retry: detected; Tests:       1 failed, 16 passed, 17 total
+Traceback (most recent call last):
+  File "/tmp/approval-ui-mutations.py", line 20, in <module>
+    p=clone/'src/features/versions'/file;s=p.read_text();assert s.count(old)==1,(name,s.count(old));p.write_text(s.replace(old,new))
+                                                                ^^^^^^^^^^^^^^^
+AssertionError: ('versions-invalidation', 2)
+versions-invalidation: detected; Tests:       16 failed, 1 passed, 17 total
+recorder: detected; Tests:       1 failed, 15 passed, 16 total
+unlinked: detected; Tests:       1 failed, 15 passed, 16 total
+hold-reason: detected; Tests:       1 failed, 15 passed, 16 total
+cancelled-meta: detected; Tests:       1 failed, 15 passed, 16 total
+inherit: detected; Tests:       1 failed, 15 passed, 16 total
+read-only: detected; Tests:       1 failed, 17 passed, 18 total
+row-input: detected; Tests:       1 failed, 17 passed, 18 total
+internal-ids: detected; Tests:       1 failed, 15 passed, 16 total

@@ -1,0 +1,96 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+........F........                                                        [100%]
+=================================== FAILURES ===================================
+_ test_carryover_counts_active_rows_and_questions_once_with_latest_resolution __
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7767ebec2a50>
+
+    async def test_carryover_counts_active_rows_and_questions_once_with_latest_resolution(
+        db_session
+    ):
+        from app.services.record_service import RecordService
+        from tests.fixtures.record_data import edit_data
+    
+        seed = await seed_record_version(db_session)
+        repo = RecordRepository(db_session)
+        service = RecordService(repo)
+        vid = seed.version.id
+        edits = await service.edit(
+            vid,
+            edit_data(
+                item_id=seed.item.id,
+                field="qty_value",
+                new_value="200",
+                new_state="numeric",
+                qty_unit="本",
+            ),
+        )
+        assert {row.field for row in edits} == {"qty_value", "qty_unit"}
+        cancelled = await service.confirm(
+            vid, {"kind": "row_match", "item_id": seed.item.id, "recorded_by": "人"}
+        )
+        await service.undo_confirmation(vid, cancelled.id, {"recorded_by": "取消者"})
+        coverage = await service.confirm(vid, {"kind": "coverage", "recorded_by": "人"})
+        question = Question(
+            version_id=vid,
+            question_code="Q1",
+            item_id=seed.item.id,
+            target_field="grade",
+            reason="check",
+        )
+        db_session.add(question)
+        await db_session.flush()
+        at = datetime.now(UTC)
+        first = QuestionJudgement(
+            question_id=question.id,
+            status="judged",
+            resolution="unresolved",
+            **record_actor(at=at),
+        )
+        last = QuestionJudgement(
+            question_id=question.id,
+            status="judged",
+            resolution="resolved",
+            **record_actor(at=at),
+        )
+        db_session.add_all([first, last])
+        await db_session.commit()
+        row = (await repo.list_versions_with_records(seed.case.id))[0]
+        assert set(row) == {
+            "version",
+            "carry_over",
+            "unresolved_count",
+            "latest_state_event",
+            "latest_review_checked_at",
+            "latest_bounce",
+            "latest_sendoff_decision",
+        }
+>       assert row["carry_over"] == CarryOver(2, 0, 1, True, 1)
+E       AssertionError: assert CarryOver(edi...ement_count=2) == CarryOver(edi...ement_count=1)
+E         
+E         Omitting 4 identical items, use -vv to show
+E         Differing attributes:
+E         ['judgement_count']
+E         
+E         Drill down into differing attribute judgement_count:
+E           judgement_count: 2 != 1
+
+tests/integration/test_approval_queries.py:295: AssertionError
+=============================== warnings summary ===============================
+../../../home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_approval_queries.py::test_carryover_counts_active_rows_and_questions_once_with_latest_resolution - AssertionError: assert CarryOver(edi...ement_count=2) == CarryOver(edi...ement_count=1)
+  
+  Omitting 4 identical items, use -vv to show
+  Differing attributes:
+  ['judgement_count']
+  
+  Drill down into differing attribute judgement_count:
+    judgement_count: 2 != 1
+1 failed, 16 passed, 1 warning in 10.01s
+make[1]: *** [/tmp/approval-checks.mk:10: approval-repository] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

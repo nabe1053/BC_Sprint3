@@ -22,13 +22,30 @@ from app.services.draft_service import DraftService
 from app.services.inventory_service import InventoryService
 from app.repositories.inventory_repository import InventoryRepository
 from app.services.record_service import RecordService
+from app.services.approval_service import ApprovalService
 from app.repositories.record_repository import RecordRepository
 from app.services.run_service import RunService
 from app.services.run_dispatcher import RunDispatcher
+from app.services.export_service import ExportService
+from app.repositories.export_repository import ExportRepository
+from app.repositories.document_storage import DocumentStorageGateway
+
+
+async def get_export_service(session: AsyncSession = Depends(get_db)) -> ExportService:
+    return ExportService(
+        ExportRepository(session),
+        DocumentStorageGateway(storage_root=settings.EXPORT_ROOT),
+    )
 
 
 async def get_draft_service(session: AsyncSession = Depends(get_db)) -> DraftService:
     return DraftService(DraftRepository(session))
+
+
+async def get_approval_service(
+    session: AsyncSession = Depends(get_db)
+) -> ApprovalService:
+    return ApprovalService(RecordRepository(session))
 
 
 async def get_record_service(session: AsyncSession = Depends(get_db)) -> RecordService:

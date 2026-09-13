@@ -20,11 +20,14 @@ export function AgentRunPanel({
   blockedReason,
   inputRevision = "",
   onBusyChange,
+  emphasis = "primary",
 }: {
   caseId: number;
   blockedReason: BlockedReason | null;
   inputRevision?: string;
   onBusyChange?: (busy: boolean) => void;
+  // primary（塗り）は1画面1つ。既に primary がある画面では "secondary" で置く。
+  emphasis?: "primary" | "secondary";
 }) {
   const { t } = useTranslation();
   const reasonId = useId();
@@ -118,7 +121,7 @@ export function AgentRunPanel({
     >
       <Typography variant="h2">{t("agentRuns.title")}</Typography>
       <Button
-        variant="contained"
+        variant={emphasis === "primary" ? "contained" : "outlined"}
         disabled={blocked}
         aria-describedby={blockedReason ? reasonId : undefined}
         onClick={() => void launch()}

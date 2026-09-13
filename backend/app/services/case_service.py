@@ -10,12 +10,14 @@ from __future__ import annotations
 from typing import Protocol
 
 from app.models.cases import Case
+from app.domain.record_types import SendoffState
 from app.services.exceptions import DuplicateCaseCodeError, NotFoundError
 
 
 class LatestVersion(Protocol):
     id: int
     current_state: str
+    latest_sendoff: SendoffState | None
 
 
 class CaseRepositoryProtocol(Protocol):
@@ -75,7 +77,9 @@ class CaseService:
         case = Case(case_code=case_code, customer_name=customer_name, title=title)
         return await self.case_repository.create(case)
 
-    async def list_cases(self) -> list[tuple[Case, str, int | None]]:
+    async def list_cases(
+        self
+    ) -> list[tuple[Case, str, int | None, SendoffState | None]]:
         """案件一覧と確定済み最新版への到達情報を返す（AD-022）。"""
         cases = await self.case_repository.list()
         latest = await self.case_repository.latest_versions([case.id for case in cases])
@@ -89,7 +93,14 @@ class CaseService:
                     if version.current_state in ("staff_checked", "review_checked")
                     else "draft_review"
                 )
-            result.append((case, status, version.id if version is not None else None))
+            result.append(
+                (
+                    case,
+                    status,
+                    version.id if version is not None else None,
+                    version.latest_sendoff if version is not None else None,
+                )
+            )
         return result
 
     async def get_case(self, case_id: int) -> Case:

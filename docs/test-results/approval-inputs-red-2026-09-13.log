@@ -1,0 +1,201 @@
+..........FFFFFFFFF                                                      [100%]
+=================================== FAILURES ===================================
+_ test_approval_input_codes_and_recorder_precedence[StateEventInput-data0-E_RECORDER_REQUIRED] _
+
+schema = 'StateEventInput', data = {'recorded_by': ' ', 'to_state': 'draft'}
+code = 'E_RECORDER_REQUIRED'
+
+    @pytest.mark.parametrize("schema,data,code", [
+        ("StateEventInput", {"recorded_by":" ","to_state":"draft"}, "E_RECORDER_REQUIRED"),
+        ("StateEventInput", {"recorded_by":"person","to_state":"draft"}, "E_STATE_ROLLBACK_FORBIDDEN"),
+        ("BounceCommentInput", {"recorded_by":" ","item_id":1,"comment":"text"}, "E_RECORDER_REQUIRED"),
+        ("BounceCommentInput", {"recorded_by":"person","item_id":1,"comment":" \t"}, "E_COMMENT_REQUIRED"),
+        ("BounceInput", {"recorded_by":" "}, "E_RECORDER_REQUIRED"),
+        ("SendoffInput", {"recorded_by":" ","decision":"hold"}, "E_RECORDER_REQUIRED"),
+        ("SendoffInput", {"recorded_by":"person","decision":"hold"}, "E_SENDOFF_REASON_REQUIRED"),
+        ("SendoffInput", {"recorded_by":"person","decision":"approved","reason":" "}, "E_SENDOFF_REASON_REQUIRED"),
+    ])
+    def test_approval_input_codes_and_recorder_precedence(schema,data,code):
+        from app.domain import record_types
+        with pytest.raises(ValidationError) as error:
+>           getattr(record_types,schema).model_validate(data)
+E           AttributeError: module 'app.domain.record_types' has no attribute 'StateEventInput'
+
+tests/unit/test_record_inputs.py:88: AttributeError
+_ test_approval_input_codes_and_recorder_precedence[StateEventInput-data1-E_STATE_ROLLBACK_FORBIDDEN] _
+
+schema = 'StateEventInput'
+data = {'recorded_by': 'person', 'to_state': 'draft'}
+code = 'E_STATE_ROLLBACK_FORBIDDEN'
+
+    @pytest.mark.parametrize("schema,data,code", [
+        ("StateEventInput", {"recorded_by":" ","to_state":"draft"}, "E_RECORDER_REQUIRED"),
+        ("StateEventInput", {"recorded_by":"person","to_state":"draft"}, "E_STATE_ROLLBACK_FORBIDDEN"),
+        ("BounceCommentInput", {"recorded_by":" ","item_id":1,"comment":"text"}, "E_RECORDER_REQUIRED"),
+        ("BounceCommentInput", {"recorded_by":"person","item_id":1,"comment":" \t"}, "E_COMMENT_REQUIRED"),
+        ("BounceInput", {"recorded_by":" "}, "E_RECORDER_REQUIRED"),
+        ("SendoffInput", {"recorded_by":" ","decision":"hold"}, "E_RECORDER_REQUIRED"),
+        ("SendoffInput", {"recorded_by":"person","decision":"hold"}, "E_SENDOFF_REASON_REQUIRED"),
+        ("SendoffInput", {"recorded_by":"person","decision":"approved","reason":" "}, "E_SENDOFF_REASON_REQUIRED"),
+    ])
+    def test_approval_input_codes_and_recorder_precedence(schema,data,code):
+        from app.domain import record_types
+        with pytest.raises(ValidationError) as error:
+>           getattr(record_types,schema).model_validate(data)
+E           AttributeError: module 'app.domain.record_types' has no attribute 'StateEventInput'
+
+tests/unit/test_record_inputs.py:88: AttributeError
+_ test_approval_input_codes_and_recorder_precedence[BounceCommentInput-data2-E_RECORDER_REQUIRED] _
+
+schema = 'BounceCommentInput'
+data = {'comment': 'text', 'item_id': 1, 'recorded_by': ' '}
+code = 'E_RECORDER_REQUIRED'
+
+    @pytest.mark.parametrize("schema,data,code", [
+        ("StateEventInput", {"recorded_by":" ","to_state":"draft"}, "E_RECORDER_REQUIRED"),
+        ("StateEventInput", {"recorded_by":"person","to_state":"draft"}, "E_STATE_ROLLBACK_FORBIDDEN"),
+        ("BounceCommentInput", {"recorded_by":" ","item_id":1,"comment":"text"}, "E_RECORDER_REQUIRED"),
+        ("BounceCommentInput", {"recorded_by":"person","item_id":1,"comment":" \t"}, "E_COMMENT_REQUIRED"),
+        ("BounceInput", {"recorded_by":" "}, "E_RECORDER_REQUIRED"),
+        ("SendoffInput", {"recorded_by":" ","decision":"hold"}, "E_RECORDER_REQUIRED"),
+        ("SendoffInput", {"recorded_by":"person","decision":"hold"}, "E_SENDOFF_REASON_REQUIRED"),
+        ("SendoffInput", {"recorded_by":"person","decision":"approved","reason":" "}, "E_SENDOFF_REASON_REQUIRED"),
+    ])
+    def test_approval_input_codes_and_recorder_precedence(schema,data,code):
+        from app.domain import record_types
+        with pytest.raises(ValidationError) as error:
+>           getattr(record_types,schema).model_validate(data)
+E           AttributeError: module 'app.domain.record_types' has no attribute 'BounceCommentInput'
+
+tests/unit/test_record_inputs.py:88: AttributeError
+_ test_approval_input_codes_and_recorder_precedence[BounceCommentInput-data3-E_COMMENT_REQUIRED] _
+
+schema = 'BounceCommentInput'
+data = {'comment': ' \t', 'item_id': 1, 'recorded_by': 'person'}
+code = 'E_COMMENT_REQUIRED'
+
+    @pytest.mark.parametrize("schema,data,code", [
+        ("StateEventInput", {"recorded_by":" ","to_state":"draft"}, "E_RECORDER_REQUIRED"),
+        ("StateEventInput", {"recorded_by":"person","to_state":"draft"}, "E_STATE_ROLLBACK_FORBIDDEN"),
+        ("BounceCommentInput", {"recorded_by":" ","item_id":1,"comment":"text"}, "E_RECORDER_REQUIRED"),
+        ("BounceCommentInput", {"recorded_by":"person","item_id":1,"comment":" \t"}, "E_COMMENT_REQUIRED"),
+        ("BounceInput", {"recorded_by":" "}, "E_RECORDER_REQUIRED"),
+        ("SendoffInput", {"recorded_by":" ","decision":"hold"}, "E_RECORDER_REQUIRED"),
+        ("SendoffInput", {"recorded_by":"person","decision":"hold"}, "E_SENDOFF_REASON_REQUIRED"),
+        ("SendoffInput", {"recorded_by":"person","decision":"approved","reason":" "}, "E_SENDOFF_REASON_REQUIRED"),
+    ])
+    def test_approval_input_codes_and_recorder_precedence(schema,data,code):
+        from app.domain import record_types
+        with pytest.raises(ValidationError) as error:
+>           getattr(record_types,schema).model_validate(data)
+E           AttributeError: module 'app.domain.record_types' has no attribute 'BounceCommentInput'
+
+tests/unit/test_record_inputs.py:88: AttributeError
+_ test_approval_input_codes_and_recorder_precedence[BounceInput-data4-E_RECORDER_REQUIRED] _
+
+schema = 'BounceInput', data = {'recorded_by': ' '}
+code = 'E_RECORDER_REQUIRED'
+
+    @pytest.mark.parametrize("schema,data,code", [
+        ("StateEventInput", {"recorded_by":" ","to_state":"draft"}, "E_RECORDER_REQUIRED"),
+        ("StateEventInput", {"recorded_by":"person","to_state":"draft"}, "E_STATE_ROLLBACK_FORBIDDEN"),
+        ("BounceCommentInput", {"recorded_by":" ","item_id":1,"comment":"text"}, "E_RECORDER_REQUIRED"),
+        ("BounceCommentInput", {"recorded_by":"person","item_id":1,"comment":" \t"}, "E_COMMENT_REQUIRED"),
+        ("BounceInput", {"recorded_by":" "}, "E_RECORDER_REQUIRED"),
+        ("SendoffInput", {"recorded_by":" ","decision":"hold"}, "E_RECORDER_REQUIRED"),
+        ("SendoffInput", {"recorded_by":"person","decision":"hold"}, "E_SENDOFF_REASON_REQUIRED"),
+        ("SendoffInput", {"recorded_by":"person","decision":"approved","reason":" "}, "E_SENDOFF_REASON_REQUIRED"),
+    ])
+    def test_approval_input_codes_and_recorder_precedence(schema,data,code):
+        from app.domain import record_types
+        with pytest.raises(ValidationError) as error:
+>           getattr(record_types,schema).model_validate(data)
+E           AttributeError: module 'app.domain.record_types' has no attribute 'BounceInput'
+
+tests/unit/test_record_inputs.py:88: AttributeError
+_ test_approval_input_codes_and_recorder_precedence[SendoffInput-data5-E_RECORDER_REQUIRED] _
+
+schema = 'SendoffInput', data = {'decision': 'hold', 'recorded_by': ' '}
+code = 'E_RECORDER_REQUIRED'
+
+    @pytest.mark.parametrize("schema,data,code", [
+        ("StateEventInput", {"recorded_by":" ","to_state":"draft"}, "E_RECORDER_REQUIRED"),
+        ("StateEventInput", {"recorded_by":"person","to_state":"draft"}, "E_STATE_ROLLBACK_FORBIDDEN"),
+        ("BounceCommentInput", {"recorded_by":" ","item_id":1,"comment":"text"}, "E_RECORDER_REQUIRED"),
+        ("BounceCommentInput", {"recorded_by":"person","item_id":1,"comment":" \t"}, "E_COMMENT_REQUIRED"),
+        ("BounceInput", {"recorded_by":" "}, "E_RECORDER_REQUIRED"),
+        ("SendoffInput", {"recorded_by":" ","decision":"hold"}, "E_RECORDER_REQUIRED"),
+        ("SendoffInput", {"recorded_by":"person","decision":"hold"}, "E_SENDOFF_REASON_REQUIRED"),
+        ("SendoffInput", {"recorded_by":"person","decision":"approved","reason":" "}, "E_SENDOFF_REASON_REQUIRED"),
+    ])
+    def test_approval_input_codes_and_recorder_precedence(schema,data,code):
+        from app.domain import record_types
+        with pytest.raises(ValidationError) as error:
+>           getattr(record_types,schema).model_validate(data)
+E           AttributeError: module 'app.domain.record_types' has no attribute 'SendoffInput'. Did you mean: 'UndoInput'?
+
+tests/unit/test_record_inputs.py:88: AttributeError
+_ test_approval_input_codes_and_recorder_precedence[SendoffInput-data6-E_SENDOFF_REASON_REQUIRED] _
+
+schema = 'SendoffInput', data = {'decision': 'hold', 'recorded_by': 'person'}
+code = 'E_SENDOFF_REASON_REQUIRED'
+
+    @pytest.mark.parametrize("schema,data,code", [
+        ("StateEventInput", {"recorded_by":" ","to_state":"draft"}, "E_RECORDER_REQUIRED"),
+        ("StateEventInput", {"recorded_by":"person","to_state":"draft"}, "E_STATE_ROLLBACK_FORBIDDEN"),
+        ("BounceCommentInput", {"recorded_by":" ","item_id":1,"comment":"text"}, "E_RECORDER_REQUIRED"),
+        ("BounceCommentInput", {"recorded_by":"person","item_id":1,"comment":" \t"}, "E_COMMENT_REQUIRED"),
+        ("BounceInput", {"recorded_by":" "}, "E_RECORDER_REQUIRED"),
+        ("SendoffInput", {"recorded_by":" ","decision":"hold"}, "E_RECORDER_REQUIRED"),
+        ("SendoffInput", {"recorded_by":"person","decision":"hold"}, "E_SENDOFF_REASON_REQUIRED"),
+        ("SendoffInput", {"recorded_by":"person","decision":"approved","reason":" "}, "E_SENDOFF_REASON_REQUIRED"),
+    ])
+    def test_approval_input_codes_and_recorder_precedence(schema,data,code):
+        from app.domain import record_types
+        with pytest.raises(ValidationError) as error:
+>           getattr(record_types,schema).model_validate(data)
+E           AttributeError: module 'app.domain.record_types' has no attribute 'SendoffInput'. Did you mean: 'UndoInput'?
+
+tests/unit/test_record_inputs.py:88: AttributeError
+_ test_approval_input_codes_and_recorder_precedence[SendoffInput-data7-E_SENDOFF_REASON_REQUIRED] _
+
+schema = 'SendoffInput'
+data = {'decision': 'approved', 'reason': ' ', 'recorded_by': 'person'}
+code = 'E_SENDOFF_REASON_REQUIRED'
+
+    @pytest.mark.parametrize("schema,data,code", [
+        ("StateEventInput", {"recorded_by":" ","to_state":"draft"}, "E_RECORDER_REQUIRED"),
+        ("StateEventInput", {"recorded_by":"person","to_state":"draft"}, "E_STATE_ROLLBACK_FORBIDDEN"),
+        ("BounceCommentInput", {"recorded_by":" ","item_id":1,"comment":"text"}, "E_RECORDER_REQUIRED"),
+        ("BounceCommentInput", {"recorded_by":"person","item_id":1,"comment":" \t"}, "E_COMMENT_REQUIRED"),
+        ("BounceInput", {"recorded_by":" "}, "E_RECORDER_REQUIRED"),
+        ("SendoffInput", {"recorded_by":" ","decision":"hold"}, "E_RECORDER_REQUIRED"),
+        ("SendoffInput", {"recorded_by":"person","decision":"hold"}, "E_SENDOFF_REASON_REQUIRED"),
+        ("SendoffInput", {"recorded_by":"person","decision":"approved","reason":" "}, "E_SENDOFF_REASON_REQUIRED"),
+    ])
+    def test_approval_input_codes_and_recorder_precedence(schema,data,code):
+        from app.domain import record_types
+        with pytest.raises(ValidationError) as error:
+>           getattr(record_types,schema).model_validate(data)
+E           AttributeError: module 'app.domain.record_types' has no attribute 'SendoffInput'. Did you mean: 'UndoInput'?
+
+tests/unit/test_record_inputs.py:88: AttributeError
+________ test_approval_inputs_trim_names_and_keep_decisions_independent ________
+
+    def test_approval_inputs_trim_names_and_keep_decisions_independent():
+>       from app.domain.record_types import StateEventInput, BounceCommentInput, BounceInput, SendoffInput
+E       ImportError: cannot import name 'StateEventInput' from 'app.domain.record_types' (/home/takahiro/Documents/BC_Sprint3/backend/app/domain/record_types.py)
+
+tests/unit/test_record_inputs.py:93: ImportError
+=========================== short test summary info ============================
+FAILED tests/unit/test_record_inputs.py::test_approval_input_codes_and_recorder_precedence[StateEventInput-data0-E_RECORDER_REQUIRED] - AttributeError: module 'app.domain.record_types' has no attribute 'StateEventInput'
+FAILED tests/unit/test_record_inputs.py::test_approval_input_codes_and_recorder_precedence[StateEventInput-data1-E_STATE_ROLLBACK_FORBIDDEN] - AttributeError: module 'app.domain.record_types' has no attribute 'StateEventInput'
+FAILED tests/unit/test_record_inputs.py::test_approval_input_codes_and_recorder_precedence[BounceCommentInput-data2-E_RECORDER_REQUIRED] - AttributeError: module 'app.domain.record_types' has no attribute 'BounceCommentInput'
+FAILED tests/unit/test_record_inputs.py::test_approval_input_codes_and_recorder_precedence[BounceCommentInput-data3-E_COMMENT_REQUIRED] - AttributeError: module 'app.domain.record_types' has no attribute 'BounceCommentInput'
+FAILED tests/unit/test_record_inputs.py::test_approval_input_codes_and_recorder_precedence[BounceInput-data4-E_RECORDER_REQUIRED] - AttributeError: module 'app.domain.record_types' has no attribute 'BounceInput'
+FAILED tests/unit/test_record_inputs.py::test_approval_input_codes_and_recorder_precedence[SendoffInput-data5-E_RECORDER_REQUIRED] - AttributeError: module 'app.domain.record_types' has no attribute 'SendoffInput'. Did you mean: 'UndoInput'?
+FAILED tests/unit/test_record_inputs.py::test_approval_input_codes_and_recorder_precedence[SendoffInput-data6-E_SENDOFF_REASON_REQUIRED] - AttributeError: module 'app.domain.record_types' has no attribute 'SendoffInput'. Did you mean: 'UndoInput'?
+FAILED tests/unit/test_record_inputs.py::test_approval_input_codes_and_recorder_precedence[SendoffInput-data7-E_SENDOFF_REASON_REQUIRED] - AttributeError: module 'app.domain.record_types' has no attribute 'SendoffInput'. Did you mean: 'UndoInput'?
+FAILED tests/unit/test_record_inputs.py::test_approval_inputs_trim_names_and_keep_decisions_independent - ImportError: cannot import name 'StateEventInput' from 'app.domain.record_types' (/home/takahiro/Documents/BC_Sprint3/backend/app/domain/record_types.py)
+9 failed, 10 passed in 0.08s
+make: *** [/tmp/approval-checks.mk:2: approval-inputs] Error 1

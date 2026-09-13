@@ -30,6 +30,12 @@ class DocumentStorageProtocol(Protocol):
     def resolve_readable_path(self, storage_path: str) -> str | None:
         ...
 
+    def read(self, path: str) -> bytes | None:
+        ...
+
+    def remove(self, path: str) -> None:
+        ...
+
 
 class DocumentStorageGateway:
     """`STORAGE_ROOT` 配下の原本の保存・読取検証を担う（Data Access層）。"""
@@ -68,3 +74,21 @@ class DocumentStorageGateway:
         if not is_within_root or not os.path.isfile(resolved):
             return None
         return resolved
+
+    def read(self, path: str) -> bytes | None:
+        resolved = self.resolve_readable_path(path)
+        if resolved is None:
+            return None
+        try:
+            with open(resolved, "rb") as stream:
+                return stream.read()
+        except FileNotFoundError:
+            return None
+
+    def remove(self, path: str) -> None:
+        resolved = self.resolve_readable_path(path)
+        if resolved is not None:
+            try:
+                os.remove(resolved)
+            except FileNotFoundError:
+                pass

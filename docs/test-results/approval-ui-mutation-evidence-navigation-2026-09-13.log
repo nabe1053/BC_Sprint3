@@ -1,0 +1,68 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-components.test.tsx
+
+FAIL src/features/versions/__tests__/approval-components.test.tsx (5.891 s)
+  ✓ 索引nullの変更・判断事項に解決済み確認の理由と判断内容を併記 (103 ms)
+  ✓ 索引4の変更・判断事項に解決済み確認の理由と判断内容を併記 (32 ms)
+  ✓ h1・primaryは1つ、7要約・メタ・未解決注記・10列を表示する (204 ms)
+  ✓ draftでは確認/差し戻しを無効にして理由を示す (177 ms)
+  ✓ review_checkedでは確認/差し戻しを無効にして理由を示す (178 ms)
+  ✓ 空名ではPOSTせず、記録後も留まり評価確認と送付の区別をstatus表示 (319 ms)
+  ✓ 差し戻しの未紐付け0件はPOSTせず、成功時はItem Listへ戻る (308 ms)
+  ✓ 行コメントは明示記録だけ送信し、成功時だけ入力を空にする (288 ms)
+  ✓ 送付は判断者と保留理由を検査し未判断空理由をnullで送る (416 ms)
+  ✓ 行の索引・全行索引・根拠は排他、閲覧専用には訂正/取消/判断フォームなし (387 ms)
+  ✓ ボタン/入力上のclickやEnterは行索引を開かない (253 ms)
+  ✕ tableから開いた根拠は前後行へ移動でき、両端だけ無効 (230 ms)
+  ✕ indexから開いた根拠は前後行へ移動でき、両端だけ無効 (469 ms)
+  ✓ 空/読込/404/取得失敗/版一覧に該当なしを明示する (99 ms)
+  ✓ 409の表示は行IDと網羅性だけ、内部ID・生本文を出さない (228 ms)
+  ✓ readOnlyは操作コールバックが渡されても訂正・取消・判断・照合を出さない (49 ms)
+  ✓ 絞り込み全行でも索引の全体件数は変わらない (247 ms)
+  ✓ 絞り込み変更・判断事項のある行でも索引の全体件数は変わらない (235 ms)
+  ✓ 絞り込み訂正ありでも索引の全体件数は変わらない (262 ms)
+  ✓ 絞り込み未解決のみでも索引の全体件数は変わらない (270 ms)
+  ✓ 絞り込み差し戻しコメントありでも索引の全体件数は変わらない (252 ms)
+  ✓ API導出の差し戻し中・再確認と現在の送付判断を表示する (73 ms)
+
+  ● tableから開いた根拠は前後行へ移動でき、両端だけ無効
+
+    expect(element).toBeEnabled()
+
+    Received element is not enabled:
+      <button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root" disabled="" tabindex="-1" type="button" />
+
+      302 |     const dialog = within(screen.getByRole("dialog"));
+      303 |     expect(dialog.getByRole("button", { name: "前の行" })).toBeDisabled();
+    > 304 |     expect(dialog.getByRole("button", { name: "次の行" })).toBeEnabled();
+          |                                                         ^
+      305 |     await user.click(dialog.getByRole("button", { name: "次の行" }));
+      306 |     expect(screen.getByRole("dialog")).toHaveAccessibleName("行 R2 · Casing");
+      307 |     expect(mock.useEvidence).toHaveBeenLastCalledWith(9, 6);
+
+      at toBeEnabled (src/features/versions/__tests__/approval-components.test.tsx:304:57)
+
+  ● indexから開いた根拠は前後行へ移動でき、両端だけ無効
+
+    expect(element).toBeEnabled()
+
+    Received element is not enabled:
+      <button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root" disabled="" tabindex="-1" type="button" />
+
+      302 |     const dialog = within(screen.getByRole("dialog"));
+      303 |     expect(dialog.getByRole("button", { name: "前の行" })).toBeDisabled();
+    > 304 |     expect(dialog.getByRole("button", { name: "次の行" })).toBeEnabled();
+          |                                                         ^
+      305 |     await user.click(dialog.getByRole("button", { name: "次の行" }));
+      306 |     expect(screen.getByRole("dialog")).toHaveAccessibleName("行 R2 · Casing");
+      307 |     expect(mock.useEvidence).toHaveBeenLastCalledWith(9, 6);
+
+      at toBeEnabled (src/features/versions/__tests__/approval-components.test.tsx:304:57)
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 20 passed, 22 total
+Snapshots:   0 total
+Time:        6.095 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-components.test.tsx/i.
+make: *** [/tmp/approval-ui-checks.mk:8: approval-ui-components] Error 1

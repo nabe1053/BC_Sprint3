@@ -2,11 +2,18 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, Path
 from app.api.common.route_errors import DraftRoute, ERROR_RESPONSES
-from app.api.dependencies import get_record_service
+from app.api.dependencies import get_record_service, get_approval_service
+from app.services.approval_service import ApprovalService
+from app.api.ui.schemas.approvals import (
+    StateEventRecord,
+    BounceRecord,
+    SendoffDecisionRecord,
+)
 from app.services.record_service import RecordService
 from app.api.ui.schemas.records import ItemEditRecord, JudgementRecord, record_response
 from app.api.ui.schemas.versions import (
     VersionListItem,
+    CarryOverResponse,
     VersionsResponse,
     CaseHeaderResponse,
     VersionCounts,
@@ -26,10 +33,43 @@ Service = Annotated[RecordService, Depends(get_record_service)]
 
 
 @router.get("/cases/{caseId}/versions", response_model=VersionsResponse)
-async def list_versions(caseId: Id, service: Service):
-    rows = await service.list_versions(caseId)
+async def list_versions(
+    caseId: Id, service: Annotated[ApprovalService, Depends(get_approval_service)]
+):
+    rows = await service.list_versions_with_records(caseId)
     return VersionsResponse(
-        versions=[record_response(VersionListItem, row, "version_id") for row in rows]
+        versions=[
+            record_response(
+                VersionListItem,
+                row["version"],
+                "version_id",
+                unresolved_count=row["unresolved_count"],
+                carry_over=CarryOverResponse.model_validate(
+                    row["carry_over"], from_attributes=True
+                ),
+                latest_state_event=record_response(
+                    StateEventRecord, row["latest_state_event"], "state_event_id"
+                )
+                if row["latest_state_event"]
+                else None,
+                latest_bounce=record_response(
+                    BounceRecord, row["latest_bounce"], "bounce_id", comments=[]
+                )
+                if row["latest_bounce"]
+                else None,
+                latest_sendoff=record_response(
+                    SendoffDecisionRecord,
+                    row["latest_sendoff_decision"],
+                    "sendoff_decision_id",
+                )
+                if row["latest_sendoff_decision"]
+                else None,
+                bounced=row["bounced"],
+                needs_recheck=row["needs_recheck"],
+                elapsed_sec=row["elapsed_sec"],
+            )
+            for row in rows
+        ]
     )
 
 

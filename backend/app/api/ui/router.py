@@ -13,13 +13,15 @@ from app.api.common.draft_validation import router as validation_router
 
 from app.api.common.endpoints_reference import router as reference_router
 from app.api.ui.endpoints import cases, documents
-from app.api.ui.endpoints import records, versions, inventory
+from app.api.ui.endpoints import records, versions, inventory, approvals, exports
 
 router = APIRouter(prefix="/ui", tags=["ui"])
 
 router.include_router(cases.router)
 router.include_router(documents.router)
 router.include_router(records.router)
+router.include_router(approvals.router)
+router.include_router(exports.router)
 router.include_router(versions.router)
 router.include_router(inventory.router)
 # #4・#6・#7 は UI/AGENT 共通ハンドラ（05-api-ipo.md 0.3）。

@@ -1,0 +1,28 @@
+..........F                                                              [100%]
+=================================== FAILURES ===================================
+______ test_export_projection_has_no_float_round_or_duplicate_vocabulary _______
+
+    def test_export_projection_has_no_float_round_or_duplicate_vocabulary():
+        import ast
+    
+        for relative in (
+            "domain/export_types.py",
+            "services/export_workbook.py",
+            "services/export_service.py",
+        ):
+            tree = ast.parse((APP_DIR / relative).read_text())
+            calls = {
+                node.func.id
+                for node in ast.walk(tree)
+                if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+            }
+>           assert not calls & {"float", "round"}, relative
+E           AssertionError: services/export_workbook.py
+E           assert not ({'BytesIO', 'ExcelWriter', 'Workbook', 'ZipFile', '_get', '_row', ...} & {'float', 'round'})
+
+tests/unit/test_single_source_of_truth.py:260: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_single_source_of_truth.py::test_export_projection_has_no_float_round_or_duplicate_vocabulary - AssertionError: services/export_workbook.py
+assert not ({'BytesIO', 'ExcelWriter', 'Workbook', 'ZipFile', '_get', '_row', ...} & {'float', 'round'})
+1 failed, 10 passed in 0.41s
+make: *** [/tmp/workbook-checks.mk:14: workbook-ssot] Error 1

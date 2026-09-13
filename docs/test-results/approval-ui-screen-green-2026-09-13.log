@@ -1,0 +1,113 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-components.test.tsx
+
+PASS src/features/versions/__tests__/approval-components.test.tsx
+  ✓ h1・primaryは1つ、7要約・メタ・未解決注記・10列を表示する (285 ms)
+  ✓ draftでは確認/差し戻しを無効にして理由を示す (181 ms)
+  ✓ review_checkedでは確認/差し戻しを無効にして理由を示す (166 ms)
+  ✓ 空名ではPOSTせず、記録後も留まり評価確認と送付の区別をstatus表示 (362 ms)
+  ✓ 差し戻しの未紐付け0件はPOSTせず、成功時はItem Listへ戻る (286 ms)
+  ✓ 行コメントは明示記録だけ送信し、成功時だけ入力を空にする (310 ms)
+  ✓ 送付は判断者と保留理由を検査し未判断空理由をnullで送る (450 ms)
+  ✓ 行の索引・全行索引・根拠は排他、閲覧専用には訂正/取消/判断フォームなし (511 ms)
+  ✓ ボタン/入力上のclickやEnterは行索引を開かない (256 ms)
+  ✓ 空/読込/404/取得失敗/版一覧に該当なしを明示する (98 ms)
+  ✓ 409の表示は行IDと網羅性だけ、内部ID・生本文を出さない (220 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       11 passed, 11 total
+Snapshots:   0 total
+Time:        4.213 s, estimated 5 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-components.test.tsx/i.
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/components.test.tsx src/features/cases/components/__tests__/CaseListPage.test.tsx
+
+FAIL src/features/versions/__tests__/components.test.tsx (9.345 s)
+  ● 版履歴は空と取得失敗を区別する
+
+    TestingLibraryElementError: Unable to find an element with the text: 未生成。資料投入画面で案を作成してください. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<body[39m
+      [33mstyle[39m=[32m""[39m
+    [36m>[39m
+      [36m<div>[39m
+        [36m<main[39m
+          [33mclass[39m=[32m"MuiBox-root css-146mbm9"[39m
+        [36m>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"MuiBox-root css-4vnk0z"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h1 css-o2w69a-MuiTypography-root"[39m
+              [36m>[39m
+                [0mItem List 確認[0m
+              [36m</h1>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m原資料と明細を照合し、訂正・確認・判断を記録します。[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mhref[39m=[32m"/cases"[39m
+              [33mtabindex[39m=[32m"0"[39m
+            [36m>[39m
+              [0m案件一覧へ[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</a>[39m
+          [36m</header>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [33mrole[39m=[32m"alert"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0mデータを取得できませんでした。接続を確認して再取得してください。[0m
+            [36m</p>[39m
+            [36m<button[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"[39m
+              [33mtabindex[39m=[32m"0"[39m
+              [33mtype[39m=[32m"button"[39m
+            [36m>[39m
+              [0m再取得[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</button>[39m
+          [36m</div>[39m
+        [36m</main>[39m
+      [36m</div>[39m
+    [36m</body>[39m
+
+      443 |   const view = render();
+      444 |   expect(
+    > 445 |     screen.getByText("未生成。資料投入画面で案を作成してください"),
+          |            ^
+      446 |   ).toBeInTheDocument();
+      447 |   mock.useVersionHistory.mockReturnValue({
+      448 |     ...query(undefined),
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.getByText (src/features/versions/__tests__/components.test.tsx:445:12)
+
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx
+
+Test Suites: 1 failed, 1 passed, 2 total
+Tests:       1 failed, 52 passed, 53 total
+Snapshots:   0 total
+Time:        11.257 s, estimated 19 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/components.test.tsx|src\/features\/cases\/components\/__tests__\/CaseListPage.test.tsx/i.
+make: *** [/tmp/approval-ui-checks.mk:12: approval-ui-screens] Error 1

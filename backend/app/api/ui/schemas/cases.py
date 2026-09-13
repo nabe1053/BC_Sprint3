@@ -6,6 +6,7 @@ from typing import Annotated, Literal
 from pydantic import StringConstraints
 
 from app.api.schemas_base import CamelModel, CamelRequestModel
+from app.domain.record_types import SendoffState
 
 ProgressStatus = Literal["intake", "draft_review", "staff_checked", "review_checked"]
 
@@ -46,6 +47,7 @@ class CaseListItem(CamelModel):
     created_at: datetime
     progress_status: ProgressStatus
     latest_version_id: int | None
+    latest_sendoff: SendoffState | None
 
 
 class CaseListResponse(CamelModel):

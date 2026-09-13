@@ -1,0 +1,46 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-components.test.tsx
+
+FAIL src/features/versions/__tests__/approval-components.test.tsx (8.608 s)
+  ✓ h1・primaryは1つ、7要約・メタ・未解決注記・10列を表示する (346 ms)
+  ✓ draftでは確認/差し戻しを無効にして理由を示す (370 ms)
+  ✓ review_checkedでは確認/差し戻しを無効にして理由を示す (377 ms)
+  ✓ 空名ではPOSTせず、記録後も留まり評価確認と送付の区別をstatus表示 (594 ms)
+  ✓ 差し戻しの未紐付け0件はPOSTせず、成功時はItem Listへ戻る (523 ms)
+  ✓ 行コメントは明示記録だけ送信し、成功時だけ入力を空にする (469 ms)
+  ✓ 送付は判断者と保留理由を検査し未判断空理由をnullで送る (748 ms)
+  ✓ 行の索引・全行索引・根拠は排他、閲覧専用には訂正/取消/判断フォームなし (682 ms)
+  ✕ ボタン/入力上のclickやEnterは行索引を開かない (382 ms)
+  ✓ 空/読込/404/取得失敗/版一覧に該当なしを明示する (184 ms)
+  ✓ 409の表示は行IDと網羅性だけ、内部ID・生本文を出さない (373 ms)
+  ✓ readOnlyは操作コールバックが渡されても訂正・取消・判断・照合を出さない (92 ms)
+  ✓ 絞り込み全行でも索引の全体件数は変わらない (394 ms)
+  ✓ 絞り込み変更・判断事項のある行でも索引の全体件数は変わらない (451 ms)
+  ✓ 絞り込み訂正ありでも索引の全体件数は変わらない (480 ms)
+  ✓ 絞り込み未解決のみでも索引の全体件数は変わらない (392 ms)
+  ✓ 絞り込み差し戻しコメントありでも索引の全体件数は変わらない (349 ms)
+  ✓ API導出の差し戻し中・再確認と現在の送付判断を表示する (96 ms)
+
+  ● ボタン/入力上のclickやEnterは行索引を開かない
+
+    expect(element).not.toBeInTheDocument()
+
+    expected document not to contain element, found <div aria-labelledby="approval-lists-title" class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation16 MuiDrawer-paper MuiDrawer-paperAnchorRight css-1y2f43l-MuiPaper-root-MuiDrawer-paper" role="dialog" tabindex="-1"><div class="MuiBox-root css-vkgmse"><h2 class="MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root" id="approval-lists-title">行 R1 の変更・判断事項と未解決事項</h2><button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root" tabindex="0" type="button">閉じる<span class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root" /></button><p class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">この行に紐づく事項だけを表示しています（変更・判断事項 5 件／未解決 1 件）。</p><p class="MuiTypography-root MuiTypography-body1 css-42d2pn-MuiTypography-root">行に紐づかない案件レベルの未解決 1 件があります。「全行の索引を開く」で確認してください。</p><div class="MuiBox-root css-0"><button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root" tabindex="0" type="button">全行の索引を開く<span class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root" /></button><button class="MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root" tabindex="0" type="button">この行の根拠を開く<span class="MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root" /></button></div><div class="MuiBox-root css-0"><h3 class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root">変更・判断事項（1 行）</h3><div class="MuiBox-root css-el8wl9"><p class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">R1</p><div class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root">択一 G1</div><div class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root">数量TBA</div><div class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root">継承候補</div><div class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root">担当者訂正 1 件</div><div class="MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root">担当者判断 判断済み／未解決</div></div></div><div class="MuiBox-root css-0"><h3 class="MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root">未解決事項（1 件）</h3><div class="MuiBox-root css-el8wl9"><p class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">Q1 / R1</p><p class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">材質を照会</p><p class="MuiTypography-root MuiTypography-body1 css-42d2pn-MuiTypography-root">判断済み / 未解決</p><p class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">客先回答待ち</p></div></div><p class="MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root">「照会中」「保留」と判断しても客先回答が無い限り未解決です。件数は評価確認の記録と .xlsx に残ります。</p></div></div> instead
+
+      239 |   fireEvent.click(input);
+      240 |   fireEvent.keyDown(input, { key: "Enter" });
+    > 241 |   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+          |                                            ^
+      242 |   fireEvent.click(within(row).getByRole("button", { name: "根拠" }));
+      243 |   expect(screen.getByRole("dialog")).toHaveAccessibleName("行 R1 · Casing");
+      244 | });
+
+      at Object.toBeInTheDocument (src/features/versions/__tests__/approval-components.test.tsx:241:44)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 17 passed, 18 total
+Snapshots:   0 total
+Time:        9.139 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-components.test.tsx/i.
+make: *** [/tmp/approval-ui-checks.mk:8: approval-ui-components] Error 1

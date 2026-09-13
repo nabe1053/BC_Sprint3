@@ -1,0 +1,1743 @@
+FFFFFFF                                                                  [100%]
+=================================== FAILURES ===================================
+___________________ test_export_checks_in_postgres[changes0] ___________________
+
+self = <sqlalchemy.engine.base.Connection object at 0x76728246b6e0>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialectAsync_psycopg object at 0x767287548500>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x76728246b3b0>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x767282468d40>
+parameters = [{'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': False, ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INTRANS] (host=localhost user=postgres database=octg_test) at 0x767282db16d0>
+query = 'INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unr...,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at'
+params = {'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': False, ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "exports" does not exist
+E           LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+E                               ^
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x767283561f10>
+changes = {'state_at_export': 'pending'}
+
+    @pytest.mark.parametrize('changes', [dict(state_at_export='pending'), dict(sendoff_at_export='yes'), dict(unresolved_at_export=-1), dict(file_name=' '), dict(storage_path=' '), dict(content_hash=' ')])
+    async def test_export_checks_in_postgres(db_session, changes):
+        seed = await seed_record_version(db_session)
+        values = {**export_values(seed.version.id), **changes}
+        with pytest.raises(IntegrityError) as error:
+            async with db_session.begin_nested():
+>               await insert(db_session, values)
+
+tests/integration/test_export_schema.py:23: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/test_export_schema.py:14: in insert
+    return (await session.execute(text(f"INSERT INTO exports ({','.join(values)}) VALUES ({','.join(':'+key for key in values)}) RETURNING id,created_at,updated_at"), values)).one()
+.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INTRANS] (host=localhost user=postgres database=octg_test) at 0x767282db16d0>
+query = 'INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unr...,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at'
+params = {'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': False, ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "exports" does not exist
+E           LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+E                               ^
+E           [SQL: INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unresolved_at_export,is_initial) VALUES (%(version_id)s,%(file_name)s,%(storage_path)s,%(content_hash)s,%(exported_at)s,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at]
+E           [parameters: {'version_id': 1, 'file_name': 'synthetic.xlsx', 'storage_path': 'synthetic.xlsx', 'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'state_at_export': 'pending', 'sendoff_at_export': 'undecided', 'unresolved_at_export': 0, 'is_initial': False}]
+E           (Background on this error at: https://sqlalche.me/e/20/f405)
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: ProgrammingError
+___________________ test_export_checks_in_postgres[changes1] ___________________
+
+self = <sqlalchemy.engine.base.Connection object at 0x76728248ee70>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialectAsync_psycopg object at 0x767287548500>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x76728248e960>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x767282468d40>
+parameters = [{'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': False, ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INTRANS] (host=localhost user=postgres database=octg_test) at 0x767282db1fd0>
+query = 'INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unr...,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at'
+params = {'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': False, ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "exports" does not exist
+E           LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+E                               ^
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x76728246b410>
+changes = {'sendoff_at_export': 'yes'}
+
+    @pytest.mark.parametrize('changes', [dict(state_at_export='pending'), dict(sendoff_at_export='yes'), dict(unresolved_at_export=-1), dict(file_name=' '), dict(storage_path=' '), dict(content_hash=' ')])
+    async def test_export_checks_in_postgres(db_session, changes):
+        seed = await seed_record_version(db_session)
+        values = {**export_values(seed.version.id), **changes}
+        with pytest.raises(IntegrityError) as error:
+            async with db_session.begin_nested():
+>               await insert(db_session, values)
+
+tests/integration/test_export_schema.py:23: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/test_export_schema.py:14: in insert
+    return (await session.execute(text(f"INSERT INTO exports ({','.join(values)}) VALUES ({','.join(':'+key for key in values)}) RETURNING id,created_at,updated_at"), values)).one()
+.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INTRANS] (host=localhost user=postgres database=octg_test) at 0x767282db1fd0>
+query = 'INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unr...,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at'
+params = {'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': False, ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "exports" does not exist
+E           LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+E                               ^
+E           [SQL: INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unresolved_at_export,is_initial) VALUES (%(version_id)s,%(file_name)s,%(storage_path)s,%(content_hash)s,%(exported_at)s,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at]
+E           [parameters: {'version_id': 1, 'file_name': 'synthetic.xlsx', 'storage_path': 'synthetic.xlsx', 'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'state_at_export': 'draft', 'sendoff_at_export': 'yes', 'unresolved_at_export': 0, 'is_initial': False}]
+E           (Background on this error at: https://sqlalche.me/e/20/f405)
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: ProgrammingError
+___________________ test_export_checks_in_postgres[changes2] ___________________
+
+self = <sqlalchemy.engine.base.Connection object at 0x7672821a53d0>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialectAsync_psycopg object at 0x767287548500>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x7672821a4fb0>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x767282468d40>
+parameters = [{'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': False, ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INTRANS] (host=localhost user=postgres database=octg_test) at 0x767282db37d0>
+query = 'INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unr...,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at'
+params = {'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': False, ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "exports" does not exist
+E           LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+E                               ^
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x76728248eea0>
+changes = {'unresolved_at_export': -1}
+
+    @pytest.mark.parametrize('changes', [dict(state_at_export='pending'), dict(sendoff_at_export='yes'), dict(unresolved_at_export=-1), dict(file_name=' '), dict(storage_path=' '), dict(content_hash=' ')])
+    async def test_export_checks_in_postgres(db_session, changes):
+        seed = await seed_record_version(db_session)
+        values = {**export_values(seed.version.id), **changes}
+        with pytest.raises(IntegrityError) as error:
+            async with db_session.begin_nested():
+>               await insert(db_session, values)
+
+tests/integration/test_export_schema.py:23: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/test_export_schema.py:14: in insert
+    return (await session.execute(text(f"INSERT INTO exports ({','.join(values)}) VALUES ({','.join(':'+key for key in values)}) RETURNING id,created_at,updated_at"), values)).one()
+.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INTRANS] (host=localhost user=postgres database=octg_test) at 0x767282db37d0>
+query = 'INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unr...,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at'
+params = {'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': False, ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "exports" does not exist
+E           LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+E                               ^
+E           [SQL: INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unresolved_at_export,is_initial) VALUES (%(version_id)s,%(file_name)s,%(storage_path)s,%(content_hash)s,%(exported_at)s,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at]
+E           [parameters: {'version_id': 1, 'file_name': 'synthetic.xlsx', 'storage_path': 'synthetic.xlsx', 'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'state_at_export': 'draft', 'sendoff_at_export': 'undecided', 'unresolved_at_export': -1, 'is_initial': False}]
+E           (Background on this error at: https://sqlalche.me/e/20/f405)
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: ProgrammingError
+___________________ test_export_checks_in_postgres[changes3] ___________________
+
+self = <sqlalchemy.engine.base.Connection object at 0x7672821a7b90>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialectAsync_psycopg object at 0x767287548500>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x7672821a7710>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x767282468d40>
+parameters = [{'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': ' ', 'is_initial': False, ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INTRANS] (host=localhost user=postgres database=octg_test) at 0x7672821f4710>
+query = 'INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unr...,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at'
+params = {'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': ' ', 'is_initial': False, ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "exports" does not exist
+E           LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+E                               ^
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7672821a4f50>
+changes = {'file_name': ' '}
+
+    @pytest.mark.parametrize('changes', [dict(state_at_export='pending'), dict(sendoff_at_export='yes'), dict(unresolved_at_export=-1), dict(file_name=' '), dict(storage_path=' '), dict(content_hash=' ')])
+    async def test_export_checks_in_postgres(db_session, changes):
+        seed = await seed_record_version(db_session)
+        values = {**export_values(seed.version.id), **changes}
+        with pytest.raises(IntegrityError) as error:
+            async with db_session.begin_nested():
+>               await insert(db_session, values)
+
+tests/integration/test_export_schema.py:23: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/test_export_schema.py:14: in insert
+    return (await session.execute(text(f"INSERT INTO exports ({','.join(values)}) VALUES ({','.join(':'+key for key in values)}) RETURNING id,created_at,updated_at"), values)).one()
+.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INTRANS] (host=localhost user=postgres database=octg_test) at 0x7672821f4710>
+query = 'INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unr...,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at'
+params = {'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': ' ', 'is_initial': False, ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "exports" does not exist
+E           LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+E                               ^
+E           [SQL: INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unresolved_at_export,is_initial) VALUES (%(version_id)s,%(file_name)s,%(storage_path)s,%(content_hash)s,%(exported_at)s,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at]
+E           [parameters: {'version_id': 1, 'file_name': ' ', 'storage_path': 'synthetic.xlsx', 'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'state_at_export': 'draft', 'sendoff_at_export': 'undecided', 'unresolved_at_export': 0, 'is_initial': False}]
+E           (Background on this error at: https://sqlalche.me/e/20/f405)
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: ProgrammingError
+___________________ test_export_checks_in_postgres[changes4] ___________________
+
+self = <sqlalchemy.engine.base.Connection object at 0x767282201e50>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialectAsync_psycopg object at 0x767287548500>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x767282201910>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x767282468d40>
+parameters = [{'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': False, ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INTRANS] (host=localhost user=postgres database=octg_test) at 0x7672821f50d0>
+query = 'INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unr...,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at'
+params = {'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': False, ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "exports" does not exist
+E           LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+E                               ^
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7672821a74d0>
+changes = {'storage_path': ' '}
+
+    @pytest.mark.parametrize('changes', [dict(state_at_export='pending'), dict(sendoff_at_export='yes'), dict(unresolved_at_export=-1), dict(file_name=' '), dict(storage_path=' '), dict(content_hash=' ')])
+    async def test_export_checks_in_postgres(db_session, changes):
+        seed = await seed_record_version(db_session)
+        values = {**export_values(seed.version.id), **changes}
+        with pytest.raises(IntegrityError) as error:
+            async with db_session.begin_nested():
+>               await insert(db_session, values)
+
+tests/integration/test_export_schema.py:23: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/test_export_schema.py:14: in insert
+    return (await session.execute(text(f"INSERT INTO exports ({','.join(values)}) VALUES ({','.join(':'+key for key in values)}) RETURNING id,created_at,updated_at"), values)).one()
+.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INTRANS] (host=localhost user=postgres database=octg_test) at 0x7672821f50d0>
+query = 'INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unr...,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at'
+params = {'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': False, ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "exports" does not exist
+E           LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+E                               ^
+E           [SQL: INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unresolved_at_export,is_initial) VALUES (%(version_id)s,%(file_name)s,%(storage_path)s,%(content_hash)s,%(exported_at)s,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at]
+E           [parameters: {'version_id': 1, 'file_name': 'synthetic.xlsx', 'storage_path': ' ', 'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'state_at_export': 'draft', 'sendoff_at_export': 'undecided', 'unresolved_at_export': 0, 'is_initial': False}]
+E           (Background on this error at: https://sqlalche.me/e/20/f405)
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: ProgrammingError
+___________________ test_export_checks_in_postgres[changes5] ___________________
+
+self = <sqlalchemy.engine.base.Connection object at 0x767282202f90>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialectAsync_psycopg object at 0x767287548500>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x7672822035f0>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x767282468d40>
+parameters = [{'content_hash': ' ', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': False, ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INTRANS] (host=localhost user=postgres database=octg_test) at 0x7672821f4710>
+query = 'INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unr...,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at'
+params = {'content_hash': ' ', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': False, ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "exports" does not exist
+E           LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+E                               ^
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7672822024e0>
+changes = {'content_hash': ' '}
+
+    @pytest.mark.parametrize('changes', [dict(state_at_export='pending'), dict(sendoff_at_export='yes'), dict(unresolved_at_export=-1), dict(file_name=' '), dict(storage_path=' '), dict(content_hash=' ')])
+    async def test_export_checks_in_postgres(db_session, changes):
+        seed = await seed_record_version(db_session)
+        values = {**export_values(seed.version.id), **changes}
+        with pytest.raises(IntegrityError) as error:
+            async with db_session.begin_nested():
+>               await insert(db_session, values)
+
+tests/integration/test_export_schema.py:23: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/test_export_schema.py:14: in insert
+    return (await session.execute(text(f"INSERT INTO exports ({','.join(values)}) VALUES ({','.join(':'+key for key in values)}) RETURNING id,created_at,updated_at"), values)).one()
+.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INTRANS] (host=localhost user=postgres database=octg_test) at 0x7672821f4710>
+query = 'INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unr...,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at'
+params = {'content_hash': ' ', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': False, ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "exports" does not exist
+E           LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+E                               ^
+E           [SQL: INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unresolved_at_export,is_initial) VALUES (%(version_id)s,%(file_name)s,%(storage_path)s,%(content_hash)s,%(exported_at)s,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at]
+E           [parameters: {'version_id': 1, 'file_name': 'synthetic.xlsx', 'storage_path': 'synthetic.xlsx', 'content_hash': ' ', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'state_at_export': 'draft', 'sendoff_at_export': 'undecided', 'unresolved_at_export': 0, 'is_initial': False}]
+E           (Background on this error at: https://sqlalche.me/e/20/f405)
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: ProgrammingError
+_________ test_only_one_initial_export_but_multiple_subsequent_exports _________
+
+self = <sqlalchemy.engine.base.Connection object at 0x7672821a5610>
+dialect = <sqlalchemy.dialects.postgresql.psycopg.PGDialectAsync_psycopg object at 0x767287548500>
+context = <sqlalchemy.dialects.postgresql.psycopg.PGExecutionContext_psycopg object at 0x767282201e50>
+statement = <sqlalchemy.dialects.postgresql.psycopg.PGCompiler_psycopg object at 0x767282468d40>
+parameters = [{'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': True, ...}]
+
+    def _exec_single_context(
+        self,
+        dialect: Dialect,
+        context: ExecutionContext,
+        statement: Union[str, Compiled],
+        parameters: Optional[_AnyMultiExecuteParams],
+    ) -> CursorResult[Any]:
+        """continue the _execute_context() method for a single DBAPI
+        cursor.execute() or cursor.executemany() call.
+    
+        """
+        if dialect.bind_typing is BindTyping.SETINPUTSIZES:
+            generic_setinputsizes = context._prepare_set_input_sizes()
+    
+            if generic_setinputsizes:
+                try:
+                    dialect.do_set_input_sizes(
+                        context.cursor, generic_setinputsizes, context
+                    )
+                except BaseException as e:
+                    self._handle_dbapi_exception(
+                        e, str(statement), parameters, None, context
+                    )
+    
+        cursor, str_statement, parameters = (
+            context.cursor,
+            context.statement,
+            context.parameters,
+        )
+    
+        effective_parameters: Optional[_AnyExecuteParams]
+    
+        if not context.executemany:
+            effective_parameters = parameters[0]
+        else:
+            effective_parameters = parameters
+    
+        if self._has_events or self.engine._has_events:
+            for fn in self.dispatch.before_cursor_execute:
+                str_statement, effective_parameters = fn(
+                    self,
+                    cursor,
+                    str_statement,
+                    effective_parameters,
+                    context,
+                    context.executemany,
+                )
+    
+        if self._echo:
+            self._log_info(str_statement)
+    
+            stats = context._get_cache_stats()
+    
+            if not self.engine.hide_parameters:
+                self._log_info(
+                    "[%s] %r",
+                    stats,
+                    sql_util._repr_params(
+                        effective_parameters,
+                        batches=10,
+                        ismulti=context.executemany,
+                    ),
+                )
+            else:
+                self._log_info(
+                    "[%s] [SQL parameters hidden due to hide_parameters=True]",
+                    stats,
+                )
+    
+        evt_handled: bool = False
+        try:
+            if context.execute_style is ExecuteStyle.EXECUTEMANY:
+                effective_parameters = cast(
+                    "_CoreMultiExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_executemany:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_executemany(
+                        cursor,
+                        str_statement,
+                        effective_parameters,
+                        context,
+                    )
+            elif not effective_parameters and context.no_parameters:
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute_no_params:
+                        if fn(cursor, str_statement, context):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+                    self.dialect.do_execute_no_params(
+                        cursor, str_statement, context
+                    )
+            else:
+                effective_parameters = cast(
+                    "_CoreSingleExecuteParams", effective_parameters
+                )
+                if self.dialect._has_events:
+                    for fn in self.dialect.dispatch.do_execute:
+                        if fn(
+                            cursor,
+                            str_statement,
+                            effective_parameters,
+                            context,
+                        ):
+                            evt_handled = True
+                            break
+                if not evt_handled:
+>                   self.dialect.do_execute(
+                        cursor, str_statement, effective_parameters, context
+                    )
+
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x767282db3110>
+query = 'INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unr...,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at'
+params = {'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': True, ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           psycopg.errors.UndefinedTable: relation "exports" does not exist
+E           LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+E                               ^
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: UndefinedTable
+
+The above exception was the direct cause of the following exception:
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7672822029f0>
+
+    async def test_only_one_initial_export_but_multiple_subsequent_exports(db_session):
+        seed = await seed_record_version(db_session)
+        values = export_values(seed.version.id)
+>       first = await insert(db_session, {**values, 'is_initial':True})
+
+tests/integration/test_export_schema.py:30: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/integration/test_export_schema.py:14: in insert
+    return (await session.execute(text(f"INSERT INTO exports ({','.join(values)}) VALUES ({','.join(':'+key for key in values)}) RETURNING id,created_at,updated_at"), values)).one()
+.venv/lib/python3.12/site-packages/sqlalchemy/ext/asyncio/session.py:455: in execute
+    result = await greenlet_spawn(
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:190: in greenlet_spawn
+    result = context.throw(*sys.exc_info())
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2308: in execute
+    return self._execute_internal(
+.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py:2199: in _execute_internal
+    result = conn.execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1416: in execute
+    return meth(
+.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py:516: in _execute_on_connection
+    return connection._execute_clauseelement(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1639: in _execute_clauseelement
+    ret = self._execute_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:2343: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py:922: in do_execute
+    cursor.execute(statement, parameters)
+.venv/lib/python3.12/site-packages/sqlalchemy/dialects/postgresql/psycopg.py:552: in execute
+    result = self.await_(self._cursor.execute(query, params, **kw))
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:125: in await_only
+    return current.driver.switch(awaitable)  # type: ignore[no-any-return]
+.venv/lib/python3.12/site-packages/sqlalchemy/util/_concurrency_py3k.py:185: in greenlet_spawn
+    value = await result
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <psycopg.AsyncCursor [closed] [INERROR] (host=localhost user=postgres database=octg_test) at 0x767282db3110>
+query = 'INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unr...,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at'
+params = {'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'file_name': 'synthetic.xlsx', 'is_initial': True, ...}
+
+    async def execute(
+        self: _Self,
+        query: Query,
+        params: Optional[Params] = None,
+        *,
+        prepare: Optional[bool] = None,
+        binary: Optional[bool] = None,
+    ) -> _Self:
+        try:
+            async with self._conn.lock:
+                await self._conn.wait(
+                    self._execute_gen(query, params, prepare=prepare, binary=binary)
+                )
+        except e._NO_TRACEBACK as ex:
+>           raise ex.with_traceback(None)
+E           sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "exports" does not exist
+E           LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+E                               ^
+E           [SQL: INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unresolved_at_export,is_initial) VALUES (%(version_id)s,%(file_name)s,%(storage_path)s,%(content_hash)s,%(exported_at)s,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at]
+E           [parameters: {'version_id': 1, 'file_name': 'synthetic.xlsx', 'storage_path': 'synthetic.xlsx', 'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'state_at_export': 'draft', 'sendoff_at_export': 'undecided', 'unresolved_at_export': 0, 'is_initial': True}]
+E           (Background on this error at: https://sqlalche.me/e/20/f405)
+
+.venv/lib/python3.12/site-packages/psycopg/cursor_async.py:94: ProgrammingError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_export_schema.py::test_export_checks_in_postgres[changes0] - sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "exports" does not exist
+LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+                    ^
+[SQL: INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unresolved_at_export,is_initial) VALUES (%(version_id)s,%(file_name)s,%(storage_path)s,%(content_hash)s,%(exported_at)s,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at]
+[parameters: {'version_id': 1, 'file_name': 'synthetic.xlsx', 'storage_path': 'synthetic.xlsx', 'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'state_at_export': 'pending', 'sendoff_at_export': 'undecided', 'unresolved_at_export': 0, 'is_initial': False}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+FAILED tests/integration/test_export_schema.py::test_export_checks_in_postgres[changes1] - sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "exports" does not exist
+LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+                    ^
+[SQL: INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unresolved_at_export,is_initial) VALUES (%(version_id)s,%(file_name)s,%(storage_path)s,%(content_hash)s,%(exported_at)s,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at]
+[parameters: {'version_id': 1, 'file_name': 'synthetic.xlsx', 'storage_path': 'synthetic.xlsx', 'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'state_at_export': 'draft', 'sendoff_at_export': 'yes', 'unresolved_at_export': 0, 'is_initial': False}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+FAILED tests/integration/test_export_schema.py::test_export_checks_in_postgres[changes2] - sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "exports" does not exist
+LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+                    ^
+[SQL: INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unresolved_at_export,is_initial) VALUES (%(version_id)s,%(file_name)s,%(storage_path)s,%(content_hash)s,%(exported_at)s,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at]
+[parameters: {'version_id': 1, 'file_name': 'synthetic.xlsx', 'storage_path': 'synthetic.xlsx', 'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'state_at_export': 'draft', 'sendoff_at_export': 'undecided', 'unresolved_at_export': -1, 'is_initial': False}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+FAILED tests/integration/test_export_schema.py::test_export_checks_in_postgres[changes3] - sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "exports" does not exist
+LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+                    ^
+[SQL: INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unresolved_at_export,is_initial) VALUES (%(version_id)s,%(file_name)s,%(storage_path)s,%(content_hash)s,%(exported_at)s,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at]
+[parameters: {'version_id': 1, 'file_name': ' ', 'storage_path': 'synthetic.xlsx', 'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'state_at_export': 'draft', 'sendoff_at_export': 'undecided', 'unresolved_at_export': 0, 'is_initial': False}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+FAILED tests/integration/test_export_schema.py::test_export_checks_in_postgres[changes4] - sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "exports" does not exist
+LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+                    ^
+[SQL: INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unresolved_at_export,is_initial) VALUES (%(version_id)s,%(file_name)s,%(storage_path)s,%(content_hash)s,%(exported_at)s,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at]
+[parameters: {'version_id': 1, 'file_name': 'synthetic.xlsx', 'storage_path': ' ', 'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'state_at_export': 'draft', 'sendoff_at_export': 'undecided', 'unresolved_at_export': 0, 'is_initial': False}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+FAILED tests/integration/test_export_schema.py::test_export_checks_in_postgres[changes5] - sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "exports" does not exist
+LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+                    ^
+[SQL: INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unresolved_at_export,is_initial) VALUES (%(version_id)s,%(file_name)s,%(storage_path)s,%(content_hash)s,%(exported_at)s,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at]
+[parameters: {'version_id': 1, 'file_name': 'synthetic.xlsx', 'storage_path': 'synthetic.xlsx', 'content_hash': ' ', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'state_at_export': 'draft', 'sendoff_at_export': 'undecided', 'unresolved_at_export': 0, 'is_initial': False}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+FAILED tests/integration/test_export_schema.py::test_only_one_initial_export_but_multiple_subsequent_exports - sqlalchemy.exc.ProgrammingError: (psycopg.errors.UndefinedTable) relation "exports" does not exist
+LINE 1: INSERT INTO exports (version_id,file_name,storage_path,conte...
+                    ^
+[SQL: INSERT INTO exports (version_id,file_name,storage_path,content_hash,exported_at,state_at_export,sendoff_at_export,unresolved_at_export,is_initial) VALUES (%(version_id)s,%(file_name)s,%(storage_path)s,%(content_hash)s,%(exported_at)s,%(state_at_export)s,%(sendoff_at_export)s,%(unresolved_at_export)s,%(is_initial)s) RETURNING id,created_at,updated_at]
+[parameters: {'version_id': 1, 'file_name': 'synthetic.xlsx', 'storage_path': 'synthetic.xlsx', 'content_hash': 'abc', 'exported_at': datetime.datetime(2026, 9, 13, 5, 3, 5, tzinfo=datetime.timezone.utc), 'state_at_export': 'draft', 'sendoff_at_export': 'undecided', 'unresolved_at_export': 0, 'is_initial': True}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+7 failed, 1 warning in 3.15s
+make: *** [/tmp/workbook-checks.mk:6: workbook-schema] Error 1

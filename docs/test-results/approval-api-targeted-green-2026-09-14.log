@@ -1,0 +1,228 @@
+185 files left unchanged
+....................................                                     [100%]
+=============================== warnings summary ===============================
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[state-events-payload0-422-E_STATE_ROLLBACK_FORBIDDEN]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounces-payload8-400-E_REQUEST_INVALID]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'recordedBy' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[state-events-payload0-422-E_STATE_ROLLBACK_FORBIDDEN]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounces-payload8-400-E_REQUEST_INVALID]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'recordedBy' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[state-events-payload0-422-E_STATE_ROLLBACK_FORBIDDEN]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounces-payload8-400-E_REQUEST_INVALID]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'recordedBy' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[state-events-payload0-422-E_STATE_ROLLBACK_FORBIDDEN]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'toState' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[state-events-payload0-422-E_STATE_ROLLBACK_FORBIDDEN]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'toState' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[state-events-payload0-422-E_STATE_ROLLBACK_FORBIDDEN]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'toState' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'itemId' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'itemId' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'itemId' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'comment' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'comment' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'comment' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'decision' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'decision' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'decision' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'reason' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'reason' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'reason' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+36 passed, 27 warnings in 2.30s
+......................................                                   [100%]
+38 passed in 0.15s
+...                                                                      [100%]
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'recordedBy' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'recordedBy' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'recordedBy' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'kind' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'kind' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'kind' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'itemId' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'itemId' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'itemId' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'toState' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'toState' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'toState' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'comment' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'comment' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'comment' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'reason' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'reason' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'reason' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'field' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'field' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'field' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'newValue' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'newValue' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'newValue' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'newState' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'newState' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'newState' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'qtyUnit' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'qtyUnit' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'qtyUnit' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'decision' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'decision' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/integration/test_api_approvals.py::test_real_di_approval_lifecycle_and_derived_flags
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'decision' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 34 warnings in 1.40s

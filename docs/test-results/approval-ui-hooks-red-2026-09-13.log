@@ -1,0 +1,589 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-hooks.test.tsx
+
+FAIL src/features/versions/__tests__/approval-hooks.test.tsx
+  ✕ transition/201はrecords・版・版一覧だけ再取得 (24 ms)
+  ✕ transition/409はrecords・版・版一覧だけ再取得 (3 ms)
+  ✕ transition/404はrecords・版・版一覧だけ再取得 (2 ms)
+  ✕ transition/400はrecords・版・版一覧だけ再取得 (3 ms)
+  ✕ bounceComment/201はrecords・版・版一覧だけ再取得 (7 ms)
+  ✕ bounceComment/409はrecords・版・版一覧だけ再取得 (3 ms)
+  ✕ bounceComment/404はrecords・版・版一覧だけ再取得 (2 ms)
+  ✕ bounceComment/400はrecords・版・版一覧だけ再取得 (3 ms)
+  ✕ bounce/201はrecords・版・版一覧だけ再取得 (3 ms)
+  ✕ bounce/409はrecords・版・版一覧だけ再取得 (2 ms)
+  ✕ bounce/404はrecords・版・版一覧だけ再取得 (2 ms)
+  ✕ bounce/400はrecords・版・版一覧だけ再取得 (8 ms)
+  ✕ sendoff/201はrecords・版・版一覧だけ再取得 (2 ms)
+  ✕ sendoff/409はrecords・版・版一覧だけ再取得 (2 ms)
+  ✕ sendoff/404はrecords・版・版一覧だけ再取得 (4 ms)
+  ✕ sendoff/400はrecords・版・版一覧だけ再取得 (1 ms)
+  ✕ 本番Providersでも承認400 POSTは1回、mutation retry設定を優先 (24 ms)
+
+  ● transition/201はrecords・版・版一覧だけ再取得
+
+    TypeError: _hooks.useRecords is not a function
+
+      16 | it.each((Object.keys(names) as (keyof typeof names)[]).flatMap(name=>[201,409,404,400].map(status=>({name,status}))))('$name/$statusはrecords・版・版一覧だけ再取得',async({name,status})=>{
+      17 |  const client=createTestQueryClient(),d=approvalData();
+    > 18 |  const {result}=renderHookWithProviders(()=>({records:hooks.useRecords(9),version:hooks.useVersion(9),versions:hooks.useVersionHistory(8),items:hooks.useItems(9),questions:hooks.useQuestions(9),mutations:hooks.useApprovalMutations(8,9)}),client);
+         |                                                             ^
+      19 |  await waitFor(()=>expect([result.current.records,result.current.version,result.current.versions,result.current.items,result.current.questions].every(q=>q.isSuccess)).toBe(true));
+      20 |  const nextRecords={...d.records,unlinkedComments:[]},nextVersion={...d.version,currentState:'review_checked' as const},nextList=[{...d.listItem,needsRecheck:true}];
+      21 |  mock.listRecords.mockResolvedValue(nextRecords);mock.getVersion.mockResolvedValue(nextVersion);mock.listVersions.mockResolvedValue(nextList);
+
+      at useRecords (src/features/versions/__tests__/approval-hooks.test.tsx:18:61)
+      at TestComponent (node_modules/@testing-library/react/dist/pure.js:339:27)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:10569:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12205:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderHook (node_modules/@testing-library/react/dist/pure.js:348:7)
+      at renderHookWithProviders (src/shared/testing/test-utils.tsx:65:18)
+      at src/features/versions/__tests__/approval-hooks.test.tsx:18:40
+
+  ● transition/409はrecords・版・版一覧だけ再取得
+
+    TypeError: _hooks.useRecords is not a function
+
+      16 | it.each((Object.keys(names) as (keyof typeof names)[]).flatMap(name=>[201,409,404,400].map(status=>({name,status}))))('$name/$statusはrecords・版・版一覧だけ再取得',async({name,status})=>{
+      17 |  const client=createTestQueryClient(),d=approvalData();
+    > 18 |  const {result}=renderHookWithProviders(()=>({records:hooks.useRecords(9),version:hooks.useVersion(9),versions:hooks.useVersionHistory(8),items:hooks.useItems(9),questions:hooks.useQuestions(9),mutations:hooks.useApprovalMutations(8,9)}),client);
+         |                                                             ^
+      19 |  await waitFor(()=>expect([result.current.records,result.current.version,result.current.versions,result.current.items,result.current.questions].every(q=>q.isSuccess)).toBe(true));
+      20 |  const nextRecords={...d.records,unlinkedComments:[]},nextVersion={...d.version,currentState:'review_checked' as const},nextList=[{...d.listItem,needsRecheck:true}];
+      21 |  mock.listRecords.mockResolvedValue(nextRecords);mock.getVersion.mockResolvedValue(nextVersion);mock.listVersions.mockResolvedValue(nextList);
+
+      at useRecords (src/features/versions/__tests__/approval-hooks.test.tsx:18:61)
+      at TestComponent (node_modules/@testing-library/react/dist/pure.js:339:27)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:10569:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12205:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderHook (node_modules/@testing-library/react/dist/pure.js:348:7)
+      at renderHookWithProviders (src/shared/testing/test-utils.tsx:65:18)
+      at src/features/versions/__tests__/approval-hooks.test.tsx:18:40
+
+  ● transition/404はrecords・版・版一覧だけ再取得
+
+    TypeError: _hooks.useRecords is not a function
+
+      16 | it.each((Object.keys(names) as (keyof typeof names)[]).flatMap(name=>[201,409,404,400].map(status=>({name,status}))))('$name/$statusはrecords・版・版一覧だけ再取得',async({name,status})=>{
+      17 |  const client=createTestQueryClient(),d=approvalData();
+    > 18 |  const {result}=renderHookWithProviders(()=>({records:hooks.useRecords(9),version:hooks.useVersion(9),versions:hooks.useVersionHistory(8),items:hooks.useItems(9),questions:hooks.useQuestions(9),mutations:hooks.useApprovalMutations(8,9)}),client);
+         |                                                             ^
+      19 |  await waitFor(()=>expect([result.current.records,result.current.version,result.current.versions,result.current.items,result.current.questions].every(q=>q.isSuccess)).toBe(true));
+      20 |  const nextRecords={...d.records,unlinkedComments:[]},nextVersion={...d.version,currentState:'review_checked' as const},nextList=[{...d.listItem,needsRecheck:true}];
+      21 |  mock.listRecords.mockResolvedValue(nextRecords);mock.getVersion.mockResolvedValue(nextVersion);mock.listVersions.mockResolvedValue(nextList);
+
+      at useRecords (src/features/versions/__tests__/approval-hooks.test.tsx:18:61)
+      at TestComponent (node_modules/@testing-library/react/dist/pure.js:339:27)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:10569:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12205:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderHook (node_modules/@testing-library/react/dist/pure.js:348:7)
+      at renderHookWithProviders (src/shared/testing/test-utils.tsx:65:18)
+      at src/features/versions/__tests__/approval-hooks.test.tsx:18:40
+
+  ● transition/400はrecords・版・版一覧だけ再取得
+
+    TypeError: _hooks.useRecords is not a function
+
+      16 | it.each((Object.keys(names) as (keyof typeof names)[]).flatMap(name=>[201,409,404,400].map(status=>({name,status}))))('$name/$statusはrecords・版・版一覧だけ再取得',async({name,status})=>{
+      17 |  const client=createTestQueryClient(),d=approvalData();
+    > 18 |  const {result}=renderHookWithProviders(()=>({records:hooks.useRecords(9),version:hooks.useVersion(9),versions:hooks.useVersionHistory(8),items:hooks.useItems(9),questions:hooks.useQuestions(9),mutations:hooks.useApprovalMutations(8,9)}),client);
+         |                                                             ^
+      19 |  await waitFor(()=>expect([result.current.records,result.current.version,result.current.versions,result.current.items,result.current.questions].every(q=>q.isSuccess)).toBe(true));
+      20 |  const nextRecords={...d.records,unlinkedComments:[]},nextVersion={...d.version,currentState:'review_checked' as const},nextList=[{...d.listItem,needsRecheck:true}];
+      21 |  mock.listRecords.mockResolvedValue(nextRecords);mock.getVersion.mockResolvedValue(nextVersion);mock.listVersions.mockResolvedValue(nextList);
+
+      at useRecords (src/features/versions/__tests__/approval-hooks.test.tsx:18:61)
+      at TestComponent (node_modules/@testing-library/react/dist/pure.js:339:27)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:10569:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12205:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderHook (node_modules/@testing-library/react/dist/pure.js:348:7)
+      at renderHookWithProviders (src/shared/testing/test-utils.tsx:65:18)
+      at src/features/versions/__tests__/approval-hooks.test.tsx:18:40
+
+  ● bounceComment/201はrecords・版・版一覧だけ再取得
+
+    TypeError: _hooks.useRecords is not a function
+
+      16 | it.each((Object.keys(names) as (keyof typeof names)[]).flatMap(name=>[201,409,404,400].map(status=>({name,status}))))('$name/$statusはrecords・版・版一覧だけ再取得',async({name,status})=>{
+      17 |  const client=createTestQueryClient(),d=approvalData();
+    > 18 |  const {result}=renderHookWithProviders(()=>({records:hooks.useRecords(9),version:hooks.useVersion(9),versions:hooks.useVersionHistory(8),items:hooks.useItems(9),questions:hooks.useQuestions(9),mutations:hooks.useApprovalMutations(8,9)}),client);
+         |                                                             ^
+      19 |  await waitFor(()=>expect([result.current.records,result.current.version,result.current.versions,result.current.items,result.current.questions].every(q=>q.isSuccess)).toBe(true));
+      20 |  const nextRecords={...d.records,unlinkedComments:[]},nextVersion={...d.version,currentState:'review_checked' as const},nextList=[{...d.listItem,needsRecheck:true}];
+      21 |  mock.listRecords.mockResolvedValue(nextRecords);mock.getVersion.mockResolvedValue(nextVersion);mock.listVersions.mockResolvedValue(nextList);
+
+      at useRecords (src/features/versions/__tests__/approval-hooks.test.tsx:18:61)
+      at TestComponent (node_modules/@testing-library/react/dist/pure.js:339:27)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:10569:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12205:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderHook (node_modules/@testing-library/react/dist/pure.js:348:7)
+      at renderHookWithProviders (src/shared/testing/test-utils.tsx:65:18)
+      at src/features/versions/__tests__/approval-hooks.test.tsx:18:40
+
+  ● bounceComment/409はrecords・版・版一覧だけ再取得
+
+    TypeError: _hooks.useRecords is not a function
+
+      16 | it.each((Object.keys(names) as (keyof typeof names)[]).flatMap(name=>[201,409,404,400].map(status=>({name,status}))))('$name/$statusはrecords・版・版一覧だけ再取得',async({name,status})=>{
+      17 |  const client=createTestQueryClient(),d=approvalData();
+    > 18 |  const {result}=renderHookWithProviders(()=>({records:hooks.useRecords(9),version:hooks.useVersion(9),versions:hooks.useVersionHistory(8),items:hooks.useItems(9),questions:hooks.useQuestions(9),mutations:hooks.useApprovalMutations(8,9)}),client);
+         |                                                             ^
+      19 |  await waitFor(()=>expect([result.current.records,result.current.version,result.current.versions,result.current.items,result.current.questions].every(q=>q.isSuccess)).toBe(true));
+      20 |  const nextRecords={...d.records,unlinkedComments:[]},nextVersion={...d.version,currentState:'review_checked' as const},nextList=[{...d.listItem,needsRecheck:true}];
+      21 |  mock.listRecords.mockResolvedValue(nextRecords);mock.getVersion.mockResolvedValue(nextVersion);mock.listVersions.mockResolvedValue(nextList);
+
+      at useRecords (src/features/versions/__tests__/approval-hooks.test.tsx:18:61)
+      at TestComponent (node_modules/@testing-library/react/dist/pure.js:339:27)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:10569:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12205:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderHook (node_modules/@testing-library/react/dist/pure.js:348:7)
+      at renderHookWithProviders (src/shared/testing/test-utils.tsx:65:18)
+      at src/features/versions/__tests__/approval-hooks.test.tsx:18:40
+
+  ● bounceComment/404はrecords・版・版一覧だけ再取得
+
+    TypeError: _hooks.useRecords is not a function
+
+      16 | it.each((Object.keys(names) as (keyof typeof names)[]).flatMap(name=>[201,409,404,400].map(status=>({name,status}))))('$name/$statusはrecords・版・版一覧だけ再取得',async({name,status})=>{
+      17 |  const client=createTestQueryClient(),d=approvalData();
+    > 18 |  const {result}=renderHookWithProviders(()=>({records:hooks.useRecords(9),version:hooks.useVersion(9),versions:hooks.useVersionHistory(8),items:hooks.useItems(9),questions:hooks.useQuestions(9),mutations:hooks.useApprovalMutations(8,9)}),client);
+         |                                                             ^
+      19 |  await waitFor(()=>expect([result.current.records,result.current.version,result.current.versions,result.current.items,result.current.questions].every(q=>q.isSuccess)).toBe(true));
+      20 |  const nextRecords={...d.records,unlinkedComments:[]},nextVersion={...d.version,currentState:'review_checked' as const},nextList=[{...d.listItem,needsRecheck:true}];
+      21 |  mock.listRecords.mockResolvedValue(nextRecords);mock.getVersion.mockResolvedValue(nextVersion);mock.listVersions.mockResolvedValue(nextList);
+
+      at useRecords (src/features/versions/__tests__/approval-hooks.test.tsx:18:61)
+      at TestComponent (node_modules/@testing-library/react/dist/pure.js:339:27)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:10569:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12205:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderHook (node_modules/@testing-library/react/dist/pure.js:348:7)
+      at renderHookWithProviders (src/shared/testing/test-utils.tsx:65:18)
+      at src/features/versions/__tests__/approval-hooks.test.tsx:18:40
+
+  ● bounceComment/400はrecords・版・版一覧だけ再取得
+
+    TypeError: _hooks.useRecords is not a function
+
+      16 | it.each((Object.keys(names) as (keyof typeof names)[]).flatMap(name=>[201,409,404,400].map(status=>({name,status}))))('$name/$statusはrecords・版・版一覧だけ再取得',async({name,status})=>{
+      17 |  const client=createTestQueryClient(),d=approvalData();
+    > 18 |  const {result}=renderHookWithProviders(()=>({records:hooks.useRecords(9),version:hooks.useVersion(9),versions:hooks.useVersionHistory(8),items:hooks.useItems(9),questions:hooks.useQuestions(9),mutations:hooks.useApprovalMutations(8,9)}),client);
+         |                                                             ^
+      19 |  await waitFor(()=>expect([result.current.records,result.current.version,result.current.versions,result.current.items,result.current.questions].every(q=>q.isSuccess)).toBe(true));
+      20 |  const nextRecords={...d.records,unlinkedComments:[]},nextVersion={...d.version,currentState:'review_checked' as const},nextList=[{...d.listItem,needsRecheck:true}];
+      21 |  mock.listRecords.mockResolvedValue(nextRecords);mock.getVersion.mockResolvedValue(nextVersion);mock.listVersions.mockResolvedValue(nextList);
+
+      at useRecords (src/features/versions/__tests__/approval-hooks.test.tsx:18:61)
+      at TestComponent (node_modules/@testing-library/react/dist/pure.js:339:27)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:10569:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12205:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderHook (node_modules/@testing-library/react/dist/pure.js:348:7)
+      at renderHookWithProviders (src/shared/testing/test-utils.tsx:65:18)
+      at src/features/versions/__tests__/approval-hooks.test.tsx:18:40
+
+  ● bounce/201はrecords・版・版一覧だけ再取得
+
+    TypeError: _hooks.useRecords is not a function
+
+      16 | it.each((Object.keys(names) as (keyof typeof names)[]).flatMap(name=>[201,409,404,400].map(status=>({name,status}))))('$name/$statusはrecords・版・版一覧だけ再取得',async({name,status})=>{
+      17 |  const client=createTestQueryClient(),d=approvalData();
+    > 18 |  const {result}=renderHookWithProviders(()=>({records:hooks.useRecords(9),version:hooks.useVersion(9),versions:hooks.useVersionHistory(8),items:hooks.useItems(9),questions:hooks.useQuestions(9),mutations:hooks.useApprovalMutations(8,9)}),client);
+         |                                                             ^
+      19 |  await waitFor(()=>expect([result.current.records,result.current.version,result.current.versions,result.current.items,result.current.questions].every(q=>q.isSuccess)).toBe(true));
+      20 |  const nextRecords={...d.records,unlinkedComments:[]},nextVersion={...d.version,currentState:'review_checked' as const},nextList=[{...d.listItem,needsRecheck:true}];
+      21 |  mock.listRecords.mockResolvedValue(nextRecords);mock.getVersion.mockResolvedValue(nextVersion);mock.listVersions.mockResolvedValue(nextList);
+
+      at useRecords (src/features/versions/__tests__/approval-hooks.test.tsx:18:61)
+      at TestComponent (node_modules/@testing-library/react/dist/pure.js:339:27)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:10569:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12205:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderHook (node_modules/@testing-library/react/dist/pure.js:348:7)
+      at renderHookWithProviders (src/shared/testing/test-utils.tsx:65:18)
+      at src/features/versions/__tests__/approval-hooks.test.tsx:18:40
+
+  ● bounce/409はrecords・版・版一覧だけ再取得
+
+    TypeError: _hooks.useRecords is not a function
+
+      16 | it.each((Object.keys(names) as (keyof typeof names)[]).flatMap(name=>[201,409,404,400].map(status=>({name,status}))))('$name/$statusはrecords・版・版一覧だけ再取得',async({name,status})=>{
+      17 |  const client=createTestQueryClient(),d=approvalData();
+    > 18 |  const {result}=renderHookWithProviders(()=>({records:hooks.useRecords(9),version:hooks.useVersion(9),versions:hooks.useVersionHistory(8),items:hooks.useItems(9),questions:hooks.useQuestions(9),mutations:hooks.useApprovalMutations(8,9)}),client);
+         |                                                             ^
+      19 |  await waitFor(()=>expect([result.current.records,result.current.version,result.current.versions,result.current.items,result.current.questions].every(q=>q.isSuccess)).toBe(true));
+      20 |  const nextRecords={...d.records,unlinkedComments:[]},nextVersion={...d.version,currentState:'review_checked' as const},nextList=[{...d.listItem,needsRecheck:true}];
+      21 |  mock.listRecords.mockResolvedValue(nextRecords);mock.getVersion.mockResolvedValue(nextVersion);mock.listVersions.mockResolvedValue(nextList);
+
+      at useRecords (src/features/versions/__tests__/approval-hooks.test.tsx:18:61)
+      at TestComponent (node_modules/@testing-library/react/dist/pure.js:339:27)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:10569:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12205:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderHook (node_modules/@testing-library/react/dist/pure.js:348:7)
+      at renderHookWithProviders (src/shared/testing/test-utils.tsx:65:18)
+      at src/features/versions/__tests__/approval-hooks.test.tsx:18:40
+
+  ● bounce/404はrecords・版・版一覧だけ再取得
+
+    TypeError: _hooks.useRecords is not a function
+
+      16 | it.each((Object.keys(names) as (keyof typeof names)[]).flatMap(name=>[201,409,404,400].map(status=>({name,status}))))('$name/$statusはrecords・版・版一覧だけ再取得',async({name,status})=>{
+      17 |  const client=createTestQueryClient(),d=approvalData();
+    > 18 |  const {result}=renderHookWithProviders(()=>({records:hooks.useRecords(9),version:hooks.useVersion(9),versions:hooks.useVersionHistory(8),items:hooks.useItems(9),questions:hooks.useQuestions(9),mutations:hooks.useApprovalMutations(8,9)}),client);
+         |                                                             ^
+      19 |  await waitFor(()=>expect([result.current.records,result.current.version,result.current.versions,result.current.items,result.current.questions].every(q=>q.isSuccess)).toBe(true));
+      20 |  const nextRecords={...d.records,unlinkedComments:[]},nextVersion={...d.version,currentState:'review_checked' as const},nextList=[{...d.listItem,needsRecheck:true}];
+      21 |  mock.listRecords.mockResolvedValue(nextRecords);mock.getVersion.mockResolvedValue(nextVersion);mock.listVersions.mockResolvedValue(nextList);
+
+      at useRecords (src/features/versions/__tests__/approval-hooks.test.tsx:18:61)
+      at TestComponent (node_modules/@testing-library/react/dist/pure.js:339:27)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:10569:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12205:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderHook (node_modules/@testing-library/react/dist/pure.js:348:7)
+      at renderHookWithProviders (src/shared/testing/test-utils.tsx:65:18)
+      at src/features/versions/__tests__/approval-hooks.test.tsx:18:40
+
+  ● bounce/400はrecords・版・版一覧だけ再取得
+
+    TypeError: _hooks.useRecords is not a function
+
+      16 | it.each((Object.keys(names) as (keyof typeof names)[]).flatMap(name=>[201,409,404,400].map(status=>({name,status}))))('$name/$statusはrecords・版・版一覧だけ再取得',async({name,status})=>{
+      17 |  const client=createTestQueryClient(),d=approvalData();
+    > 18 |  const {result}=renderHookWithProviders(()=>({records:hooks.useRecords(9),version:hooks.useVersion(9),versions:hooks.useVersionHistory(8),items:hooks.useItems(9),questions:hooks.useQuestions(9),mutations:hooks.useApprovalMutations(8,9)}),client);
+         |                                                             ^
+      19 |  await waitFor(()=>expect([result.current.records,result.current.version,result.current.versions,result.current.items,result.current.questions].every(q=>q.isSuccess)).toBe(true));
+      20 |  const nextRecords={...d.records,unlinkedComments:[]},nextVersion={...d.version,currentState:'review_checked' as const},nextList=[{...d.listItem,needsRecheck:true}];
+      21 |  mock.listRecords.mockResolvedValue(nextRecords);mock.getVersion.mockResolvedValue(nextVersion);mock.listVersions.mockResolvedValue(nextList);
+
+      at useRecords (src/features/versions/__tests__/approval-hooks.test.tsx:18:61)
+      at TestComponent (node_modules/@testing-library/react/dist/pure.js:339:27)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:10569:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12205:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderHook (node_modules/@testing-library/react/dist/pure.js:348:7)
+      at renderHookWithProviders (src/shared/testing/test-utils.tsx:65:18)
+      at src/features/versions/__tests__/approval-hooks.test.tsx:18:40
+
+  ● sendoff/201はrecords・版・版一覧だけ再取得
+
+    TypeError: _hooks.useRecords is not a function
+
+      16 | it.each((Object.keys(names) as (keyof typeof names)[]).flatMap(name=>[201,409,404,400].map(status=>({name,status}))))('$name/$statusはrecords・版・版一覧だけ再取得',async({name,status})=>{
+      17 |  const client=createTestQueryClient(),d=approvalData();
+    > 18 |  const {result}=renderHookWithProviders(()=>({records:hooks.useRecords(9),version:hooks.useVersion(9),versions:hooks.useVersionHistory(8),items:hooks.useItems(9),questions:hooks.useQuestions(9),mutations:hooks.useApprovalMutations(8,9)}),client);
+         |                                                             ^
+      19 |  await waitFor(()=>expect([result.current.records,result.current.version,result.current.versions,result.current.items,result.current.questions].every(q=>q.isSuccess)).toBe(true));
+      20 |  const nextRecords={...d.records,unlinkedComments:[]},nextVersion={...d.version,currentState:'review_checked' as const},nextList=[{...d.listItem,needsRecheck:true}];
+      21 |  mock.listRecords.mockResolvedValue(nextRecords);mock.getVersion.mockResolvedValue(nextVersion);mock.listVersions.mockResolvedValue(nextList);
+
+      at useRecords (src/features/versions/__tests__/approval-hooks.test.tsx:18:61)
+      at TestComponent (node_modules/@testing-library/react/dist/pure.js:339:27)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:10569:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12205:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderHook (node_modules/@testing-library/react/dist/pure.js:348:7)
+      at renderHookWithProviders (src/shared/testing/test-utils.tsx:65:18)
+      at src/features/versions/__tests__/approval-hooks.test.tsx:18:40
+
+  ● sendoff/409はrecords・版・版一覧だけ再取得
+
+    TypeError: _hooks.useRecords is not a function
+
+      16 | it.each((Object.keys(names) as (keyof typeof names)[]).flatMap(name=>[201,409,404,400].map(status=>({name,status}))))('$name/$statusはrecords・版・版一覧だけ再取得',async({name,status})=>{
+      17 |  const client=createTestQueryClient(),d=approvalData();
+    > 18 |  const {result}=renderHookWithProviders(()=>({records:hooks.useRecords(9),version:hooks.useVersion(9),versions:hooks.useVersionHistory(8),items:hooks.useItems(9),questions:hooks.useQuestions(9),mutations:hooks.useApprovalMutations(8,9)}),client);
+         |                                                             ^
+      19 |  await waitFor(()=>expect([result.current.records,result.current.version,result.current.versions,result.current.items,result.current.questions].every(q=>q.isSuccess)).toBe(true));
+      20 |  const nextRecords={...d.records,unlinkedComments:[]},nextVersion={...d.version,currentState:'review_checked' as const},nextList=[{...d.listItem,needsRecheck:true}];
+      21 |  mock.listRecords.mockResolvedValue(nextRecords);mock.getVersion.mockResolvedValue(nextVersion);mock.listVersions.mockResolvedValue(nextList);
+
+      at useRecords (src/features/versions/__tests__/approval-hooks.test.tsx:18:61)
+      at TestComponent (node_modules/@testing-library/react/dist/pure.js:339:27)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:10569:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12205:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderHook (node_modules/@testing-library/react/dist/pure.js:348:7)
+      at renderHookWithProviders (src/shared/testing/test-utils.tsx:65:18)
+      at src/features/versions/__tests__/approval-hooks.test.tsx:18:40
+
+  ● sendoff/404はrecords・版・版一覧だけ再取得
+
+    TypeError: _hooks.useRecords is not a function
+
+      16 | it.each((Object.keys(names) as (keyof typeof names)[]).flatMap(name=>[201,409,404,400].map(status=>({name,status}))))('$name/$statusはrecords・版・版一覧だけ再取得',async({name,status})=>{
+      17 |  const client=createTestQueryClient(),d=approvalData();
+    > 18 |  const {result}=renderHookWithProviders(()=>({records:hooks.useRecords(9),version:hooks.useVersion(9),versions:hooks.useVersionHistory(8),items:hooks.useItems(9),questions:hooks.useQuestions(9),mutations:hooks.useApprovalMutations(8,9)}),client);
+         |                                                             ^
+      19 |  await waitFor(()=>expect([result.current.records,result.current.version,result.current.versions,result.current.items,result.current.questions].every(q=>q.isSuccess)).toBe(true));
+      20 |  const nextRecords={...d.records,unlinkedComments:[]},nextVersion={...d.version,currentState:'review_checked' as const},nextList=[{...d.listItem,needsRecheck:true}];
+      21 |  mock.listRecords.mockResolvedValue(nextRecords);mock.getVersion.mockResolvedValue(nextVersion);mock.listVersions.mockResolvedValue(nextList);
+
+      at useRecords (src/features/versions/__tests__/approval-hooks.test.tsx:18:61)
+      at TestComponent (node_modules/@testing-library/react/dist/pure.js:339:27)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:10569:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12205:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderHook (node_modules/@testing-library/react/dist/pure.js:348:7)
+      at renderHookWithProviders (src/shared/testing/test-utils.tsx:65:18)
+      at src/features/versions/__tests__/approval-hooks.test.tsx:18:40
+
+  ● sendoff/400はrecords・版・版一覧だけ再取得
+
+    TypeError: _hooks.useRecords is not a function
+
+      16 | it.each((Object.keys(names) as (keyof typeof names)[]).flatMap(name=>[201,409,404,400].map(status=>({name,status}))))('$name/$statusはrecords・版・版一覧だけ再取得',async({name,status})=>{
+      17 |  const client=createTestQueryClient(),d=approvalData();
+    > 18 |  const {result}=renderHookWithProviders(()=>({records:hooks.useRecords(9),version:hooks.useVersion(9),versions:hooks.useVersionHistory(8),items:hooks.useItems(9),questions:hooks.useQuestions(9),mutations:hooks.useApprovalMutations(8,9)}),client);
+         |                                                             ^
+      19 |  await waitFor(()=>expect([result.current.records,result.current.version,result.current.versions,result.current.items,result.current.questions].every(q=>q.isSuccess)).toBe(true));
+      20 |  const nextRecords={...d.records,unlinkedComments:[]},nextVersion={...d.version,currentState:'review_checked' as const},nextList=[{...d.listItem,needsRecheck:true}];
+      21 |  mock.listRecords.mockResolvedValue(nextRecords);mock.getVersion.mockResolvedValue(nextVersion);mock.listVersions.mockResolvedValue(nextList);
+
+      at useRecords (src/features/versions/__tests__/approval-hooks.test.tsx:18:61)
+      at TestComponent (node_modules/@testing-library/react/dist/pure.js:339:27)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:10569:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12205:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderHook (node_modules/@testing-library/react/dist/pure.js:348:7)
+      at renderHookWithProviders (src/shared/testing/test-utils.tsx:65:18)
+      at src/features/versions/__tests__/approval-hooks.test.tsx:18:40
+
+  ● 本番Providersでも承認400 POSTは1回、mutation retry設定を優先
+
+    TypeError: _hooks.useApprovalMutations is not a function
+
+      39 |  const original=global.fetch,request=jest.fn().mockResolvedValue({ok:false,status:400,headers:new Headers({'Content-Type':'application/json'}),json:async()=>({code:'E_RECORDER_REQUIRED'})});
+      40 |  global.fetch=request;mock.recordStateEvent.mockImplementation(jest.requireActual<typeof api>('../api').recordStateEvent);
+    > 41 |  const {result,rerender}=renderHook(()=>({mutations:hooks.useApprovalMutations(8,9),client:useQueryClient()}),{wrapper:Providers});
+         |                                                           ^
+      42 |  act(()=>{result.current.client.setDefaultOptions({mutations:{retry:1,retryDelay:0}});rerender();});
+      43 |  try {await act(async()=>{await expect(result.current.mutations.transition.mutateAsync({toState:'review_checked',recordedBy:''})).rejects.toMatchObject({code:'E_RECORDER_REQUIRED'});});expect(request).toHaveBeenCalledTimes(1);}finally{global.fetch=original;}
+      44 | });
+
+      at useApprovalMutations (src/features/versions/__tests__/approval-hooks.test.tsx:41:59)
+      at TestComponent (node_modules/@testing-library/react/dist/pure.js:339:27)
+      at Object.react_stack_bottom_frame (node_modules/react-dom/cjs/react-dom-client.development.js:28571:20)
+      at renderWithHooks (node_modules/react-dom/cjs/react-dom-client.development.js:8030:22)
+      at updateFunctionComponent (node_modules/react-dom/cjs/react-dom-client.development.js:10569:19)
+      at beginWork (node_modules/react-dom/cjs/react-dom-client.development.js:12205:18)
+      at runWithFiberInDEV (node_modules/react-dom/cjs/react-dom-client.development.js:1048:13)
+      at performUnitOfWork (node_modules/react-dom/cjs/react-dom-client.development.js:19176:22)
+      at workLoopSync (node_modules/react-dom/cjs/react-dom-client.development.js:19004:41)
+      at renderRootSync (node_modules/react-dom/cjs/react-dom-client.development.js:18985:11)
+      at performWorkOnRoot (node_modules/react-dom/cjs/react-dom-client.development.js:18094:35)
+      at performWorkOnRootViaSchedulerTask (node_modules/react-dom/cjs/react-dom-client.development.js:20665:7)
+      at flushActQueue (node_modules/react/cjs/react.development.js:664:34)
+      at Object.<anonymous>.process.env.NODE_ENV.exports.act (node_modules/react/cjs/react.development.js:960:10)
+      at node_modules/@testing-library/react/dist/act-compat.js:46:25
+      at renderRoot (node_modules/@testing-library/react/dist/pure.js:198:26)
+      at render (node_modules/@testing-library/react/dist/pure.js:300:10)
+      at renderHook (node_modules/@testing-library/react/dist/pure.js:348:7)
+      at Object.<anonymous> (src/features/versions/__tests__/approval-hooks.test.tsx:41:36)
+
+Test Suites: 1 failed, 1 total
+Tests:       17 failed, 17 total
+Snapshots:   0 total
+Time:        1.201 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-hooks.test.tsx/i.
+make: *** [/tmp/approval-ui-checks.mk:6: approval-ui-hooks] Error 1

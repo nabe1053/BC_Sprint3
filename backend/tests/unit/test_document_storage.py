@@ -41,3 +41,23 @@ def test_save_returns_distinct_paths_for_repeated_calls(tmp_path) -> None:
     path2 = gateway.save(case_id=1, file_name="a.txt", file_bytes=b"y")
 
     assert path1 != path2
+
+
+def test_export_root_and_validated_read_remove(monkeypatch, tmp_path):
+    from pathlib import Path
+    from uuid import UUID
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "EXPORT_ROOT", str(tmp_path / "exports"))
+    gateway = DocumentStorageGateway(settings.EXPORT_ROOT)
+    path = gateway.save(7, "x.xlsx", b"workbook")
+    assert Path(path).parent == tmp_path / "exports" / "7"
+    assert UUID(Path(path).stem) and Path(path).suffix == ".xlsx"
+    assert gateway.read(path) == b"workbook"
+    outside = tmp_path / "outside.xlsx"
+    outside.write_bytes(b"private")
+    assert gateway.read(str(outside)) is None
+    gateway.remove(str(outside))
+    assert outside.exists()
+    gateway.remove(path)
+    assert gateway.read(path) is None

@@ -1,0 +1,120 @@
+src/features/versions/__tests__/api.test.ts 57ms (unchanged)
+src/features/versions/__tests__/approval-api.test.ts 16ms (unchanged)
+src/features/versions/__tests__/approval-components.test.tsx 100ms (unchanged)
+src/features/versions/__tests__/approval-hooks.test.tsx 30ms (unchanged)
+src/features/versions/__tests__/approval-model.test.ts 34ms (unchanged)
+src/features/versions/__tests__/approval-refresh.test.tsx 14ms (unchanged)
+src/features/versions/__tests__/components.test.tsx 62ms (unchanged)
+src/features/versions/__tests__/hooks.test.tsx 26ms (unchanged)
+src/features/versions/__tests__/inventory-api.test.ts 5ms (unchanged)
+src/features/versions/__tests__/inventory-components.test.tsx 42ms (unchanged)
+src/features/versions/__tests__/inventory-hooks.test.tsx 6ms (unchanged)
+src/features/versions/__tests__/inventory-model.test.ts 5ms (unchanged)
+src/features/versions/__tests__/model.test.ts 13ms (unchanged)
+src/features/versions/api.ts 5ms (unchanged)
+src/features/versions/components/ApprovalError.tsx 8ms (unchanged)
+src/features/versions/components/ApprovalFilters.tsx 3ms (unchanged)
+src/features/versions/components/ApprovalListsDrawer.tsx 13ms (unchanged)
+src/features/versions/components/ApprovalPage.tsx 17ms (unchanged)
+src/features/versions/components/ApprovalSummaryCard.tsx 6ms (unchanged)
+src/features/versions/components/ApprovalTable.tsx 19ms (unchanged)
+src/features/versions/components/BounceBanner.tsx 3ms (unchanged)
+src/features/versions/components/BounceCommentCell.tsx 4ms (unchanged)
+src/features/versions/components/CoverageRecordPanel.tsx 5ms (unchanged)
+src/features/versions/components/EditForm.tsx 9ms (unchanged)
+src/features/versions/components/EditHistory.tsx 7ms (unchanged)
+src/features/versions/components/EvidenceDrawer.tsx 19ms (unchanged)
+src/features/versions/components/InventoryEntriesTable.tsx 6ms (unchanged)
+src/features/versions/components/InventoryItemsTable.tsx 7ms (unchanged)
+src/features/versions/components/InventoryPage.tsx 9ms (unchanged)
+src/features/versions/components/InventoryScopePanel.tsx 5ms (unchanged)
+src/features/versions/components/ItemFilters.tsx 11ms (unchanged)
+src/features/versions/components/ItemListPage.tsx 14ms (unchanged)
+src/features/versions/components/ItemTable.tsx 11ms (unchanged)
+src/features/versions/components/ItemValue.tsx 3ms (unchanged)
+src/features/versions/components/QuestionJudgementForm.tsx 5ms (unchanged)
+src/features/versions/components/ReviewCheckPanel.tsx 3ms (unchanged)
+src/features/versions/components/SendoffPanel.tsx 5ms (unchanged)
+src/features/versions/components/StaffCheckAction.tsx 4ms (unchanged)
+src/features/versions/components/VersionHistory.tsx 5ms (unchanged)
+src/features/versions/components/VersionSummary.tsx 5ms (unchanged)
+src/features/versions/hooks.ts 10ms (unchanged)
+src/features/versions/index.ts 1ms (unchanged)
+src/features/versions/model.ts 28ms (unchanged)
+src/features/versions/testing/fixtures.ts 12ms (unchanged)
+src/features/cases/components/CaseListPage.tsx 18ms (unchanged)
+src/features/cases/components/__tests__/CaseListPage.test.tsx 16ms (unchanged)
+src/shared/i18n/ja.json 24ms (unchanged)
+src/app/__tests__/case-routes.test.tsx 8ms (unchanged)
+src/app/(portal)/cases/[caseId]/versions/[versionId]/approval/page.tsx 3ms (unchanged)
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-refresh.test.tsx
+
+PASS src/features/versions/__tests__/approval-refresh.test.tsx
+  ✓ 評価確認済み版の訂正POST後、同一画面で版一覧を再取得して再確認バナーを出す (1007 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Snapshots:   0 total
+Time:        1.92 s, estimated 2 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-refresh.test.tsx/i.
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-components.test.tsx
+
+PASS src/features/versions/__tests__/approval-components.test.tsx (5.032 s)
+  ✓ 索引nullの変更・判断事項に解決済み確認の理由と判断内容を併記 (95 ms)
+  ✓ 索引4の変更・判断事項に解決済み確認の理由と判断内容を併記 (33 ms)
+  ✓ h1・primaryは1つ、7要約・メタ・未解決注記・10列を表示する (194 ms)
+  ✓ draftでは確認/差し戻しを無効にして理由を示す (172 ms)
+  ✓ review_checkedでは確認/差し戻しを無効にして理由を示す (172 ms)
+  ✓ 空名ではPOSTせず、記録後も留まり評価確認と送付の区別をstatus表示 (330 ms)
+  ✓ 差し戻しの未紐付け0件はPOSTせず、成功時はItem Listへ戻る (285 ms)
+  ✓ 行コメントは明示記録だけ送信し、成功時だけ入力を空にする (314 ms)
+  ✓ 送付は判断者と保留理由を検査し未判断空理由をnullで送る (452 ms)
+  ✓ 行の索引・全行索引・根拠は排他、閲覧専用には訂正/取消/判断フォームなし (411 ms)
+  ✓ ボタン/入力上のclickやEnterは行索引を開かない (230 ms)
+  ✓ 空/読込/404/取得失敗/版一覧に該当なしを明示する (99 ms)
+  ✓ 409の表示は行IDと網羅性だけ、内部ID・生本文を出さない (217 ms)
+  ✓ readOnlyは操作コールバックが渡されても訂正・取消・判断・照合を出さない (49 ms)
+  ✓ 絞り込み全行でも索引の全体件数は変わらない (241 ms)
+  ✓ 絞り込み変更・判断事項のある行でも索引の全体件数は変わらない (232 ms)
+  ✓ 絞り込み訂正ありでも索引の全体件数は変わらない (253 ms)
+  ✓ 絞り込み未解決のみでも索引の全体件数は変わらない (235 ms)
+  ✓ 絞り込み差し戻しコメントありでも索引の全体件数は変わらない (262 ms)
+  ✓ API導出の差し戻し中・再確認と現在の送付判断を表示する (61 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       20 passed, 20 total
+Snapshots:   0 total
+Time:        5.224 s, estimated 6 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-components.test.tsx/i.
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-hooks.test.tsx
+
+PASS src/features/versions/__tests__/approval-hooks.test.tsx
+  ✓ transition/201はrecords・版・版一覧だけ再取得 (75 ms)
+  ✓ transition/409はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ transition/404はrecords・版・版一覧だけ再取得 (58 ms)
+  ✓ transition/400はrecords・版・版一覧だけ再取得 (58 ms)
+  ✓ bounceComment/201はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ bounceComment/409はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ bounceComment/404はrecords・版・版一覧だけ再取得 (55 ms)
+  ✓ bounceComment/400はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ bounce/201はrecords・版・版一覧だけ再取得 (58 ms)
+  ✓ bounce/409はrecords・版・版一覧だけ再取得 (56 ms)
+  ✓ bounce/404はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ bounce/400はrecords・版・版一覧だけ再取得 (56 ms)
+  ✓ sendoff/201はrecords・版・版一覧だけ再取得 (56 ms)
+  ✓ sendoff/409はrecords・版・版一覧だけ再取得 (55 ms)
+  ✓ sendoff/404はrecords・版・版一覧だけ再取得 (54 ms)
+  ✓ sendoff/400はrecords・版・版一覧だけ再取得 (55 ms)
+  ✓ 本番Providersでも承認400 POSTは1回、mutation retry設定を優先 (14 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       17 passed, 17 total
+Snapshots:   0 total
+Time:        1.821 s, estimated 7 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-hooks.test.tsx/i.

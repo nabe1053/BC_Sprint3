@@ -1,0 +1,525 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-hooks.test.tsx
+
+FAIL src/features/versions/__tests__/approval-hooks.test.tsx
+  ✕ transition/201はrecords・版・版一覧だけ再取得 (81 ms)
+  ✕ transition/409はrecords・版・版一覧だけ再取得 (59 ms)
+  ✕ transition/404はrecords・版・版一覧だけ再取得 (58 ms)
+  ✕ transition/400はrecords・版・版一覧だけ再取得 (59 ms)
+  ✕ bounceComment/201はrecords・版・版一覧だけ再取得 (56 ms)
+  ✕ bounceComment/409はrecords・版・版一覧だけ再取得 (60 ms)
+  ✕ bounceComment/404はrecords・版・版一覧だけ再取得 (60 ms)
+  ✕ bounceComment/400はrecords・版・版一覧だけ再取得 (59 ms)
+  ✕ bounce/201はrecords・版・版一覧だけ再取得 (59 ms)
+  ✕ bounce/409はrecords・版・版一覧だけ再取得 (57 ms)
+  ✕ bounce/404はrecords・版・版一覧だけ再取得 (57 ms)
+  ✕ bounce/400はrecords・版・版一覧だけ再取得 (55 ms)
+  ✕ sendoff/201はrecords・版・版一覧だけ再取得 (55 ms)
+  ✕ sendoff/409はrecords・版・版一覧だけ再取得 (56 ms)
+  ✕ sendoff/404はrecords・版・版一覧だけ再取得 (55 ms)
+  ✕ sendoff/400はrecords・版・版一覧だけ再取得 (58 ms)
+  ✓ 本番Providersでも承認400 POSTは1回、mutation retry設定を優先 (14 ms)
+
+  ● transition/201はrecords・版・版一覧だけ再取得
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -20,11 +20,11 @@
+            "recordedBy": "担当",
+            "stateEventId": 50,
+            "toState": "staff_checked",
+            "unresolvedCount": 2,
+          },
+    -     "needsRecheck": true,
+    +     "needsRecheck": false,
+          "unresolvedCount": 2,
+          "versionId": 9,
+          "versionNo": 1,
+        },
+      ]
+
+      105 |   );
+      106 |   expect(client.getQueryData(hooks.versionKey(9))).toEqual(nextVersion);
+    > 107 |   expect(client.getQueryData(hooks.versionsKey(8))).toEqual(nextList);
+          |                                                     ^
+      108 |   expect(mock.listItems).toHaveBeenCalledTimes(1);
+      109 |   expect(mock.listQuestions).toHaveBeenCalledTimes(1);
+      110 |   expect(action).toHaveBeenCalledTimes(1);
+
+      at toEqual (src/features/versions/__tests__/approval-hooks.test.tsx:107:53)
+
+  ● transition/409はrecords・版・版一覧だけ再取得
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -20,11 +20,11 @@
+            "recordedBy": "担当",
+            "stateEventId": 50,
+            "toState": "staff_checked",
+            "unresolvedCount": 2,
+          },
+    -     "needsRecheck": true,
+    +     "needsRecheck": false,
+          "unresolvedCount": 2,
+          "versionId": 9,
+          "versionNo": 1,
+        },
+      ]
+
+      105 |   );
+      106 |   expect(client.getQueryData(hooks.versionKey(9))).toEqual(nextVersion);
+    > 107 |   expect(client.getQueryData(hooks.versionsKey(8))).toEqual(nextList);
+          |                                                     ^
+      108 |   expect(mock.listItems).toHaveBeenCalledTimes(1);
+      109 |   expect(mock.listQuestions).toHaveBeenCalledTimes(1);
+      110 |   expect(action).toHaveBeenCalledTimes(1);
+
+      at toEqual (src/features/versions/__tests__/approval-hooks.test.tsx:107:53)
+
+  ● transition/404はrecords・版・版一覧だけ再取得
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -20,11 +20,11 @@
+            "recordedBy": "担当",
+            "stateEventId": 50,
+            "toState": "staff_checked",
+            "unresolvedCount": 2,
+          },
+    -     "needsRecheck": true,
+    +     "needsRecheck": false,
+          "unresolvedCount": 2,
+          "versionId": 9,
+          "versionNo": 1,
+        },
+      ]
+
+      105 |   );
+      106 |   expect(client.getQueryData(hooks.versionKey(9))).toEqual(nextVersion);
+    > 107 |   expect(client.getQueryData(hooks.versionsKey(8))).toEqual(nextList);
+          |                                                     ^
+      108 |   expect(mock.listItems).toHaveBeenCalledTimes(1);
+      109 |   expect(mock.listQuestions).toHaveBeenCalledTimes(1);
+      110 |   expect(action).toHaveBeenCalledTimes(1);
+
+      at toEqual (src/features/versions/__tests__/approval-hooks.test.tsx:107:53)
+
+  ● transition/400はrecords・版・版一覧だけ再取得
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -20,11 +20,11 @@
+            "recordedBy": "担当",
+            "stateEventId": 50,
+            "toState": "staff_checked",
+            "unresolvedCount": 2,
+          },
+    -     "needsRecheck": true,
+    +     "needsRecheck": false,
+          "unresolvedCount": 2,
+          "versionId": 9,
+          "versionNo": 1,
+        },
+      ]
+
+      105 |   );
+      106 |   expect(client.getQueryData(hooks.versionKey(9))).toEqual(nextVersion);
+    > 107 |   expect(client.getQueryData(hooks.versionsKey(8))).toEqual(nextList);
+          |                                                     ^
+      108 |   expect(mock.listItems).toHaveBeenCalledTimes(1);
+      109 |   expect(mock.listQuestions).toHaveBeenCalledTimes(1);
+      110 |   expect(action).toHaveBeenCalledTimes(1);
+
+      at toEqual (src/features/versions/__tests__/approval-hooks.test.tsx:107:53)
+
+  ● bounceComment/201はrecords・版・版一覧だけ再取得
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -20,11 +20,11 @@
+            "recordedBy": "担当",
+            "stateEventId": 50,
+            "toState": "staff_checked",
+            "unresolvedCount": 2,
+          },
+    -     "needsRecheck": true,
+    +     "needsRecheck": false,
+          "unresolvedCount": 2,
+          "versionId": 9,
+          "versionNo": 1,
+        },
+      ]
+
+      105 |   );
+      106 |   expect(client.getQueryData(hooks.versionKey(9))).toEqual(nextVersion);
+    > 107 |   expect(client.getQueryData(hooks.versionsKey(8))).toEqual(nextList);
+          |                                                     ^
+      108 |   expect(mock.listItems).toHaveBeenCalledTimes(1);
+      109 |   expect(mock.listQuestions).toHaveBeenCalledTimes(1);
+      110 |   expect(action).toHaveBeenCalledTimes(1);
+
+      at toEqual (src/features/versions/__tests__/approval-hooks.test.tsx:107:53)
+
+  ● bounceComment/409はrecords・版・版一覧だけ再取得
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -20,11 +20,11 @@
+            "recordedBy": "担当",
+            "stateEventId": 50,
+            "toState": "staff_checked",
+            "unresolvedCount": 2,
+          },
+    -     "needsRecheck": true,
+    +     "needsRecheck": false,
+          "unresolvedCount": 2,
+          "versionId": 9,
+          "versionNo": 1,
+        },
+      ]
+
+      105 |   );
+      106 |   expect(client.getQueryData(hooks.versionKey(9))).toEqual(nextVersion);
+    > 107 |   expect(client.getQueryData(hooks.versionsKey(8))).toEqual(nextList);
+          |                                                     ^
+      108 |   expect(mock.listItems).toHaveBeenCalledTimes(1);
+      109 |   expect(mock.listQuestions).toHaveBeenCalledTimes(1);
+      110 |   expect(action).toHaveBeenCalledTimes(1);
+
+      at toEqual (src/features/versions/__tests__/approval-hooks.test.tsx:107:53)
+
+  ● bounceComment/404はrecords・版・版一覧だけ再取得
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -20,11 +20,11 @@
+            "recordedBy": "担当",
+            "stateEventId": 50,
+            "toState": "staff_checked",
+            "unresolvedCount": 2,
+          },
+    -     "needsRecheck": true,
+    +     "needsRecheck": false,
+          "unresolvedCount": 2,
+          "versionId": 9,
+          "versionNo": 1,
+        },
+      ]
+
+      105 |   );
+      106 |   expect(client.getQueryData(hooks.versionKey(9))).toEqual(nextVersion);
+    > 107 |   expect(client.getQueryData(hooks.versionsKey(8))).toEqual(nextList);
+          |                                                     ^
+      108 |   expect(mock.listItems).toHaveBeenCalledTimes(1);
+      109 |   expect(mock.listQuestions).toHaveBeenCalledTimes(1);
+      110 |   expect(action).toHaveBeenCalledTimes(1);
+
+      at toEqual (src/features/versions/__tests__/approval-hooks.test.tsx:107:53)
+
+  ● bounceComment/400はrecords・版・版一覧だけ再取得
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -20,11 +20,11 @@
+            "recordedBy": "担当",
+            "stateEventId": 50,
+            "toState": "staff_checked",
+            "unresolvedCount": 2,
+          },
+    -     "needsRecheck": true,
+    +     "needsRecheck": false,
+          "unresolvedCount": 2,
+          "versionId": 9,
+          "versionNo": 1,
+        },
+      ]
+
+      105 |   );
+      106 |   expect(client.getQueryData(hooks.versionKey(9))).toEqual(nextVersion);
+    > 107 |   expect(client.getQueryData(hooks.versionsKey(8))).toEqual(nextList);
+          |                                                     ^
+      108 |   expect(mock.listItems).toHaveBeenCalledTimes(1);
+      109 |   expect(mock.listQuestions).toHaveBeenCalledTimes(1);
+      110 |   expect(action).toHaveBeenCalledTimes(1);
+
+      at toEqual (src/features/versions/__tests__/approval-hooks.test.tsx:107:53)
+
+  ● bounce/201はrecords・版・版一覧だけ再取得
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -20,11 +20,11 @@
+            "recordedBy": "担当",
+            "stateEventId": 50,
+            "toState": "staff_checked",
+            "unresolvedCount": 2,
+          },
+    -     "needsRecheck": true,
+    +     "needsRecheck": false,
+          "unresolvedCount": 2,
+          "versionId": 9,
+          "versionNo": 1,
+        },
+      ]
+
+      105 |   );
+      106 |   expect(client.getQueryData(hooks.versionKey(9))).toEqual(nextVersion);
+    > 107 |   expect(client.getQueryData(hooks.versionsKey(8))).toEqual(nextList);
+          |                                                     ^
+      108 |   expect(mock.listItems).toHaveBeenCalledTimes(1);
+      109 |   expect(mock.listQuestions).toHaveBeenCalledTimes(1);
+      110 |   expect(action).toHaveBeenCalledTimes(1);
+
+      at toEqual (src/features/versions/__tests__/approval-hooks.test.tsx:107:53)
+
+  ● bounce/409はrecords・版・版一覧だけ再取得
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -20,11 +20,11 @@
+            "recordedBy": "担当",
+            "stateEventId": 50,
+            "toState": "staff_checked",
+            "unresolvedCount": 2,
+          },
+    -     "needsRecheck": true,
+    +     "needsRecheck": false,
+          "unresolvedCount": 2,
+          "versionId": 9,
+          "versionNo": 1,
+        },
+      ]
+
+      105 |   );
+      106 |   expect(client.getQueryData(hooks.versionKey(9))).toEqual(nextVersion);
+    > 107 |   expect(client.getQueryData(hooks.versionsKey(8))).toEqual(nextList);
+          |                                                     ^
+      108 |   expect(mock.listItems).toHaveBeenCalledTimes(1);
+      109 |   expect(mock.listQuestions).toHaveBeenCalledTimes(1);
+      110 |   expect(action).toHaveBeenCalledTimes(1);
+
+      at toEqual (src/features/versions/__tests__/approval-hooks.test.tsx:107:53)
+
+  ● bounce/404はrecords・版・版一覧だけ再取得
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -20,11 +20,11 @@
+            "recordedBy": "担当",
+            "stateEventId": 50,
+            "toState": "staff_checked",
+            "unresolvedCount": 2,
+          },
+    -     "needsRecheck": true,
+    +     "needsRecheck": false,
+          "unresolvedCount": 2,
+          "versionId": 9,
+          "versionNo": 1,
+        },
+      ]
+
+      105 |   );
+      106 |   expect(client.getQueryData(hooks.versionKey(9))).toEqual(nextVersion);
+    > 107 |   expect(client.getQueryData(hooks.versionsKey(8))).toEqual(nextList);
+          |                                                     ^
+      108 |   expect(mock.listItems).toHaveBeenCalledTimes(1);
+      109 |   expect(mock.listQuestions).toHaveBeenCalledTimes(1);
+      110 |   expect(action).toHaveBeenCalledTimes(1);
+
+      at toEqual (src/features/versions/__tests__/approval-hooks.test.tsx:107:53)
+
+  ● bounce/400はrecords・版・版一覧だけ再取得
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -20,11 +20,11 @@
+            "recordedBy": "担当",
+            "stateEventId": 50,
+            "toState": "staff_checked",
+            "unresolvedCount": 2,
+          },
+    -     "needsRecheck": true,
+    +     "needsRecheck": false,
+          "unresolvedCount": 2,
+          "versionId": 9,
+          "versionNo": 1,
+        },
+      ]
+
+      105 |   );
+      106 |   expect(client.getQueryData(hooks.versionKey(9))).toEqual(nextVersion);
+    > 107 |   expect(client.getQueryData(hooks.versionsKey(8))).toEqual(nextList);
+          |                                                     ^
+      108 |   expect(mock.listItems).toHaveBeenCalledTimes(1);
+      109 |   expect(mock.listQuestions).toHaveBeenCalledTimes(1);
+      110 |   expect(action).toHaveBeenCalledTimes(1);
+
+      at toEqual (src/features/versions/__tests__/approval-hooks.test.tsx:107:53)
+
+  ● sendoff/201はrecords・版・版一覧だけ再取得
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -20,11 +20,11 @@
+            "recordedBy": "担当",
+            "stateEventId": 50,
+            "toState": "staff_checked",
+            "unresolvedCount": 2,
+          },
+    -     "needsRecheck": true,
+    +     "needsRecheck": false,
+          "unresolvedCount": 2,
+          "versionId": 9,
+          "versionNo": 1,
+        },
+      ]
+
+      105 |   );
+      106 |   expect(client.getQueryData(hooks.versionKey(9))).toEqual(nextVersion);
+    > 107 |   expect(client.getQueryData(hooks.versionsKey(8))).toEqual(nextList);
+          |                                                     ^
+      108 |   expect(mock.listItems).toHaveBeenCalledTimes(1);
+      109 |   expect(mock.listQuestions).toHaveBeenCalledTimes(1);
+      110 |   expect(action).toHaveBeenCalledTimes(1);
+
+      at toEqual (src/features/versions/__tests__/approval-hooks.test.tsx:107:53)
+
+  ● sendoff/409はrecords・版・版一覧だけ再取得
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -20,11 +20,11 @@
+            "recordedBy": "担当",
+            "stateEventId": 50,
+            "toState": "staff_checked",
+            "unresolvedCount": 2,
+          },
+    -     "needsRecheck": true,
+    +     "needsRecheck": false,
+          "unresolvedCount": 2,
+          "versionId": 9,
+          "versionNo": 1,
+        },
+      ]
+
+      105 |   );
+      106 |   expect(client.getQueryData(hooks.versionKey(9))).toEqual(nextVersion);
+    > 107 |   expect(client.getQueryData(hooks.versionsKey(8))).toEqual(nextList);
+          |                                                     ^
+      108 |   expect(mock.listItems).toHaveBeenCalledTimes(1);
+      109 |   expect(mock.listQuestions).toHaveBeenCalledTimes(1);
+      110 |   expect(action).toHaveBeenCalledTimes(1);
+
+      at toEqual (src/features/versions/__tests__/approval-hooks.test.tsx:107:53)
+
+  ● sendoff/404はrecords・版・版一覧だけ再取得
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -20,11 +20,11 @@
+            "recordedBy": "担当",
+            "stateEventId": 50,
+            "toState": "staff_checked",
+            "unresolvedCount": 2,
+          },
+    -     "needsRecheck": true,
+    +     "needsRecheck": false,
+          "unresolvedCount": 2,
+          "versionId": 9,
+          "versionNo": 1,
+        },
+      ]
+
+      105 |   );
+      106 |   expect(client.getQueryData(hooks.versionKey(9))).toEqual(nextVersion);
+    > 107 |   expect(client.getQueryData(hooks.versionsKey(8))).toEqual(nextList);
+          |                                                     ^
+      108 |   expect(mock.listItems).toHaveBeenCalledTimes(1);
+      109 |   expect(mock.listQuestions).toHaveBeenCalledTimes(1);
+      110 |   expect(action).toHaveBeenCalledTimes(1);
+
+      at toEqual (src/features/versions/__tests__/approval-hooks.test.tsx:107:53)
+
+  ● sendoff/400はrecords・版・版一覧だけ再取得
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -20,11 +20,11 @@
+            "recordedBy": "担当",
+            "stateEventId": 50,
+            "toState": "staff_checked",
+            "unresolvedCount": 2,
+          },
+    -     "needsRecheck": true,
+    +     "needsRecheck": false,
+          "unresolvedCount": 2,
+          "versionId": 9,
+          "versionNo": 1,
+        },
+      ]
+
+      105 |   );
+      106 |   expect(client.getQueryData(hooks.versionKey(9))).toEqual(nextVersion);
+    > 107 |   expect(client.getQueryData(hooks.versionsKey(8))).toEqual(nextList);
+          |                                                     ^
+      108 |   expect(mock.listItems).toHaveBeenCalledTimes(1);
+      109 |   expect(mock.listQuestions).toHaveBeenCalledTimes(1);
+      110 |   expect(action).toHaveBeenCalledTimes(1);
+
+      at toEqual (src/features/versions/__tests__/approval-hooks.test.tsx:107:53)
+
+Test Suites: 1 failed, 1 total
+Tests:       16 failed, 1 passed, 17 total
+Snapshots:   0 total
+Time:        1.914 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-hooks.test.tsx/i.
+make: *** [/tmp/approval-ui-checks.mk:6: approval-ui-hooks] Error 1

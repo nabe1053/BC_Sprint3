@@ -1,0 +1,214 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+FF.....F.......F.                                                        [100%]
+=================================== FAILURES ===================================
+___________ test_event_and_cached_state_commit_or_rollback_together ____________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x702a8431b1d0>
+
+    async def test_event_and_cached_state_commit_or_rollback_together(db_session):
+        seed = await seed_record_version(db_session)
+        version_id = seed.version.id
+        repo = RecordRepository(db_session)
+        with pytest.raises(RuntimeError):
+            async with repo.record(version_id) as version:
+                assert version.id == version_id
+                await repo.save_state_event(
+                    version,
+                    from_state="draft",
+                    to_state="staff_checked",
+                    unresolved_count=2,
+                    **record_actor(),
+                )
+                raise RuntimeError("rollback")
+        assert (
+            await db_session.get(Version, version_id, populate_existing=True)
+        ).current_state == "draft"
+        assert list((await db_session.execute(select(VersionStateEvent))).scalars()) == []
+        async with repo.record(version_id) as version:
+            event = await repo.save_state_event(
+                version,
+                from_state="draft",
+                to_state="staff_checked",
+                unresolved_count=2,
+                **record_actor(),
+            )
+>       assert (
+            await db_session.get(Version, version_id, populate_existing=True)
+        ).current_state == "staff_checked"
+E       AssertionError: assert 'draft' == 'staff_checked'
+E         - staff_checked
+E         + draft
+
+tests/integration/test_approval_repository.py:39: AssertionError
+___________ test_two_sessions_block_then_reject_repeated_transition ____________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x702a845aa5d0>
+
+    async def test_two_sessions_block_then_reject_repeated_transition(db_session):
+        from app.services.approval_service import ApprovalService
+    
+        seed = await seed_record_version(db_session)
+        version_id, item_id = seed.version.id, seed.item.id
+        repo = RecordRepository(db_session)
+        async with repo.record(version_id):
+            await repo.save_confirmation(
+                version_id, {"kind": "row_match", "item_id": item_id, **record_actor()}
+            )
+            await repo.save_confirmation(
+                version_id, {"kind": "coverage", "item_id": None, **record_actor()}
+            )
+        sessions = async_sessionmaker(db_session.bind, expire_on_commit=False)
+        started = asyncio.Event()
+        worker_pid = []
+    
+        async def second():
+            async with sessions() as session:
+                worker_pid.append(
+                    (await session.execute(text("SELECT pg_backend_pid()"))).scalar_one()
+                )
+                # Prime the identity map before the lock; lock re-read must refresh it.
+                stale = await session.get(Version, version_id)
+                assert stale.current_state == "draft"
+                started.set()
+                return await ApprovalService(RecordRepository(session)).transition(
+                    version_id, {"recorded_by": "second", "to_state": "staff_checked"}
+                )
+    
+        async with sessions() as first_session:
+            first = RecordRepository(first_session)
+            async with first.record(version_id) as version:
+                first_pid = (
+                    await first_session.execute(text("SELECT pg_backend_pid()"))
+                ).scalar_one()
+                task = asyncio.create_task(second())
+                try:
+                    await asyncio.wait_for(started.wait(), 2)
+                    blockers = []
+                    for _ in range(100):
+                        blockers = (
+                            await db_session.execute(
+                                text("SELECT pg_blocking_pids(:pid)"),
+                                {"pid": worker_pid[0]},
+                            )
+                        ).scalar_one()
+                        if first_pid in blockers:
+                            break
+                        await asyncio.sleep(0.01)
+                    assert first_pid in blockers and not task.done()
+                    saved = await first.save_state_event(
+                        version,
+                        from_state="draft",
+                        to_state="staff_checked",
+                        unresolved_count=0,
+                        **record_actor("first"),
+                    )
+                except BaseException:
+                    task.cancel()
+                    await asyncio.gather(task, return_exceptions=True)
+                    raise
+>           with pytest.raises(DraftError) as error:
+E           Failed: DID NOT RAISE <class 'app.domain.draft_errors.DraftError'>
+
+tests/integration/test_approval_repository.py:110: Failed
+_______ test_latest_review_time_survives_bounce_and_corrective_downgrade _______
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x702a838d8650>
+
+    async def test_latest_review_time_survives_bounce_and_corrective_downgrade(db_session):
+        from app.services.approval_service import ApprovalService
+        from app.services.record_service import RecordService
+        from tests.fixtures.record_data import edit_data
+    
+        seed = await seed_record_version(db_session, state="review_checked")
+        repo = RecordRepository(db_session)
+        previous = list(
+            (
+                await db_session.execute(
+                    select(VersionStateEvent).where(
+                        VersionStateEvent.to_state == "review_checked"
+                    )
+                )
+            ).scalars()
+        )
+        reviewed_at = previous[0].recorded_at
+        await RecordService(repo).edit(seed.version.id, edit_data(item_id=seed.item.id))
+        service = ApprovalService(repo)
+        await service.comment(
+            seed.version.id,
+            {"item_id": seed.item.id, "comment": "再確認", "recorded_by": "人"},
+        )
+>       await service.bounce(seed.version.id, {"recorded_by": "人"})
+
+tests/integration/test_approval_queries.py:228: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+app/services/approval_service.py:64: in bounce
+    require(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, code = 'E_STATE_ORDER', message = '状態遷移の順序を確認してください'
+
+    def require(
+        condition, code="E_NOT_FOUND", message="対象が存在しないか、案件・版が一致しません"
+    ):
+        if not condition:
+>           raise DraftError(code, message)
+E           app.domain.draft_errors.DraftError: 状態遷移の順序を確認してください
+
+app/repositories/draft_repository.py:29: DraftError
+__________ test_review_edit_commits_one_event_with_the_edit_timestamp __________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x702a837a1f10>
+
+    async def test_review_edit_commits_one_event_with_the_edit_timestamp(db_session):
+        from app.models import VersionStateEvent, Version
+        from app.repositories.record_repository import RecordRepository
+        from app.services.record_service import RecordService
+    
+        seed = await seed_record_version(db_session, state="review_checked")
+        version_id = seed.version.id
+        before = {
+            row.id
+            for row in (await db_session.execute(select(VersionStateEvent))).scalars()
+        }
+        service = RecordService(RecordRepository(db_session))
+        edits = await service.edit(
+            version_id, edit_data(item_id=seed.item.id, recorded_by="訂正者")
+        )
+        events = list((await db_session.execute(select(VersionStateEvent))).scalars())
+        added = [row for row in events if row.id not in before]
+        assert len(added) == 1
+        event = added[0]
+        assert {row.id for row in events} == before | {event.id}
+        assert (
+            event.from_state,
+            event.to_state,
+            event.recorded_by,
+            event.unresolved_count,
+        ) == ("review_checked", "staff_checked", "訂正者", 0)
+        assert event.recorded_at == edits[0].recorded_at
+>       assert (
+            await db_session.get(Version, version_id, populate_existing=True)
+        ).current_state == "staff_checked"
+E       AssertionError: assert 'review_checked' == 'staff_checked'
+E         - staff_checked
+E         + review_checked
+
+tests/integration/test_record_repository.py:207: AssertionError
+=============================== warnings summary ===============================
+../../../home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_approval_repository.py::test_event_and_cached_state_commit_or_rollback_together - AssertionError: assert 'draft' == 'staff_checked'
+  - staff_checked
+  + draft
+FAILED tests/integration/test_approval_repository.py::test_two_sessions_block_then_reject_repeated_transition - Failed: DID NOT RAISE <class 'app.domain.draft_errors.DraftError'>
+FAILED tests/integration/test_approval_queries.py::test_latest_review_time_survives_bounce_and_corrective_downgrade - app.domain.draft_errors.DraftError: 状態遷移の順序を確認してください
+FAILED tests/integration/test_record_repository.py::test_review_edit_commits_one_event_with_the_edit_timestamp - AssertionError: assert 'review_checked' == 'staff_checked'
+  - staff_checked
+  + review_checked
+4 failed, 13 passed, 1 warning in 10.42s
+make[1]: *** [/tmp/approval-checks.mk:10: approval-repository] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

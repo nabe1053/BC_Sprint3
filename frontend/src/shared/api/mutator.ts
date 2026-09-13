@@ -50,7 +50,19 @@ export class ApiError extends Error {
 export const customInstance = async <T>(
   url: string,
   options?: RequestInit,
-): Promise<T> => {
+): Promise<T> => requestInstance<T>(url, options, false);
+
+/** バイナリ契約のoperationだけで使用する。エラー処理はJSONと共通。 */
+export const binaryInstance = async <T>(
+  url: string,
+  options?: RequestInit,
+): Promise<T> => requestInstance<T>(url, options, true);
+
+async function requestInstance<T>(
+  url: string,
+  options: RequestInit | undefined,
+  binary: boolean,
+): Promise<T> {
   const headers = new Headers(options?.headers);
 
   if (
@@ -66,20 +78,28 @@ export const customInstance = async <T>(
   const isJson = (response.headers.get("Content-Type") ?? "").includes(
     "application/json",
   );
-  const body = isJson
-    ? await response.json().catch(() => undefined)
-    : undefined;
+  const readJson = () => response.json().catch(() => undefined);
 
   if (!response.ok) {
+    const body = isJson ? await readJson() : undefined;
     throw new ApiError(response.status, (body ?? {}) as Partial<ApiErrorBody>);
   }
+
+  const body =
+    response.status === 204
+      ? undefined
+      : binary
+        ? await response.blob()
+        : isJson
+          ? await readJson()
+          : undefined;
 
   return {
     data: body,
     status: response.status,
     headers: response.headers,
   } as T;
-};
+}
 
 /**
  * エラー型（orval用）。TanStack Query の error 型として使われる。

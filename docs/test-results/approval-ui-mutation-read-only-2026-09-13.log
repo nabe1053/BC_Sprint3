@@ -1,0 +1,250 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-components.test.tsx
+
+FAIL src/features/versions/__tests__/approval-components.test.tsx (10.618 s)
+  ✓ h1・primaryは1つ、7要約・メタ・未解決注記・10列を表示する (552 ms)
+  ✓ draftでは確認/差し戻しを無効にして理由を示す (318 ms)
+  ✓ review_checkedでは確認/差し戻しを無効にして理由を示す (264 ms)
+  ✓ 空名ではPOSTせず、記録後も留まり評価確認と送付の区別をstatus表示 (539 ms)
+  ✓ 差し戻しの未紐付け0件はPOSTせず、成功時はItem Listへ戻る (739 ms)
+  ✓ 行コメントは明示記録だけ送信し、成功時だけ入力を空にする (815 ms)
+  ✓ 送付は判断者と保留理由を検査し未判断空理由をnullで送る (1394 ms)
+  ✓ 行の索引・全行索引・根拠は排他、閲覧専用には訂正/取消/判断フォームなし (1306 ms)
+  ✓ ボタン/入力上のclickやEnterは行索引を開かない (528 ms)
+  ✓ 空/読込/404/取得失敗/版一覧に該当なしを明示する (174 ms)
+  ✓ 409の表示は行IDと網羅性だけ、内部ID・生本文を出さない (322 ms)
+  ✕ readOnlyは操作コールバックが渡されても訂正・取消・判断・照合を出さない (219 ms)
+  ✓ 絞り込み全行でも索引の全体件数は変わらない (417 ms)
+  ✓ 絞り込み変更・判断事項のある行でも索引の全体件数は変わらない (408 ms)
+  ✓ 絞り込み訂正ありでも索引の全体件数は変わらない (410 ms)
+  ✓ 絞り込み未解決のみでも索引の全体件数は変わらない (345 ms)
+  ✓ 絞り込み差し戻しコメントありでも索引の全体件数は変わらない (351 ms)
+  ✓ API導出の差し戻し中・再確認と現在の送付判断を表示する (101 ms)
+
+  ● readOnlyは操作コールバックが渡されても訂正・取消・判断・照合を出さない
+
+    TestingLibraryElementError: Found multiple elements with the role "textbox"
+
+    Here are the matching elements:
+
+    Ignored nodes: comments, script, style
+    [36m<input[39m
+      [33maria-invalid[39m=[32m"false"[39m
+      [33mclass[39m=[32m"MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"[39m
+      [33mid[39m=[32m"_r_33_"[39m
+      [33mtype[39m=[32m"text"[39m
+      [33mvalue[39m=[32m""[39m
+    [36m/>[39m
+
+    Ignored nodes: comments, script, style
+    [36m<textarea[39m
+      [33maria-invalid[39m=[32m"false"[39m
+      [33mclass[39m=[32m"MuiInputBase-input MuiOutlinedInput-input MuiInputBase-inputMultiline css-1sqnrkk-MuiInputBase-input-MuiOutlinedInput-input"[39m
+      [33mid[39m=[32m"_r_34_"[39m
+      [33mstyle[39m=[32m"height: 0px; overflow: hidden;"[39m
+    [36m/>[39m
+
+    Ignored nodes: comments, script, style
+    [36m<input[39m
+      [33maria-invalid[39m=[32m"false"[39m
+      [33mclass[39m=[32m"MuiInputBase-input MuiOutlinedInput-input css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input"[39m
+      [33mid[39m=[32m"_r_35_"[39m
+      [33mtype[39m=[32m"text"[39m
+      [33mvalue[39m=[32m"人"[39m
+    [36m/>[39m
+
+    (If this is intentional, then use the `*AllBy*` variant of the query (like `queryAllByText`, `getAllByText`, or `findAllByText`)).
+
+    Ignored nodes: comments, script, style
+    [36m<div[39m
+      [33maria-labelledby[39m=[32m"evidence-title"[39m
+      [33mclass[39m=[32m"MuiPaper-root MuiPaper-elevation MuiPaper-elevation16 MuiDrawer-paper MuiDrawer-paperAnchorRight css-1y2f43l-MuiPaper-root-MuiDrawer-paper"[39m
+      [33mrole[39m=[32m"dialog"[39m
+      [33mtabindex[39m=[32m"-1"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"MuiBox-root css-1p44k52"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiBox-root css-0"[39m
+        [36m>[39m
+          [36m<h2[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+            [33mid[39m=[32m"evidence-title"[39m
+          [36m>[39m
+            [0m行 R1 · Casing[0m
+          [36m</h2>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+            [33mtabindex[39m=[32m"0"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0m閉じる[0m
+            [36m<span[39m
+              [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+            [36m/>[39m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiBox-root css-gg4vpm"[39m
+        [36m>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtabindex[39m=[32m"-1"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0m前の行[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary Mui-disabled MuiButton-root MuiButton-outlined MuiButton-outlinedPrimary MuiButton-sizeMedium MuiButton-outlinedSizeMedium MuiButton-colorPrimary css-1rwt2y5-MuiButtonBase-root-MuiButton-root"[39m
+            [33mdisabled[39m=[32m""[39m
+            [33mtabindex[39m=[32m"-1"[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [0m次の行[0m
+          [36m</button>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiBox-root css-0"[39m
+        [36m>[39m
+          [36m<h3[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"[39m
+          [36m>[39m
+            [0m原表記（編集対象外）[0m
+          [36m</h3>[39m
+          [36m<blockquote[39m
+            [33mclass[39m=[32m"MuiBox-root css-1el1l73"[39m
+          [36m>[39m
+            [0mCASING[0m
+          [36m</blockquote>[39m
+          [36m<blockquote[39m
+            [33mclass[39m=[32m"MuiBox-root css-1el1l73"[39m
+          [36m>[39m
+            [0m4-1/2 inch[0m
+          [36m</blockquote>[39m
+          [36m<blockquote[39m
+            [33mclass[39m=[32m"MuiBox-root css-1el1l73"[39m
+          [36m>[39m
+            [0mK55[0m
+          [36m</blockquote>[39m
+          [36m<blockquote[39m
+            [33mclass[39m=[32m"MuiBox-root css-1el1l73"[39m
+          [36m>[39m
+            [0mTBA[0m
+          [36m</blockquote>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiBox-root css-0"[39m
+        [36m>[39m
+          [36m<h3[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"[39m
+          [36m>[39m
+            [0m採用値・出典[0m
+          [36m</h3>[39m
+          [36m<p[39m
+            [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+          [36m>[39m
+            [0mこの行の根拠は登録されていません[0m
+          [36m</p>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-8l51sc"[39m
+          [36m>[39m
+            [36m<h3[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"[39m
+            [36m>[39m
+              [0m品種[0m
+            [36m</h3>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0mCasing[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+            [36m>[39m
+              [0m根拠なし[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-8l51sc"[39m
+          [36m>[39m
+            [36m<h3[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"[39m
+            [36m>[39m
+              [0m用途[0m
+            [36m</h3>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m—[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+            [36m>[39m
+              [0m根拠なし[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-8l51sc"[39m
+          [36m>[39m
+            [36m<h3[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"[39m
+            [36m>[39m
+              [0m外径の値[0m
+            [36m</h3>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m4.500[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+            [36m>[39m
+              [0m根拠なし[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-8l51sc"[39m
+          [36m>[39m
+            [36m<h3[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"[39m
+            [36m>[39m
+              [0m外径の単位[0m
+            [36m</h3>[39m
+            [36m<span[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0min[0m
+            [36m</span>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+            [36m>[39m
+              [0m根拠なし[0m
+            [36m</div>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[3...
+
+      320 |   );
+      321 |   const dialog = screen.getByRole("dialog");
+    > 322 |   expect(within(dialog).queryByRole("textbox")).not.toBeInTheDocument();
+          |                         ^
+      323 |   expect(within(dialog).queryByRole("checkbox")).not.toBeInTheDocument();
+      324 |   expect(
+      325 |     within(dialog).queryByRole("button", { name: "取消" }),
+
+      at Object.getElementError (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:37:19)
+      at getElementError (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:20:35)
+      at getMultipleElementsFoundError (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:23:10)
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:55:13
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at Object.queryByRole (src/features/versions/__tests__/approval-components.test.tsx:322:25)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 17 passed, 18 total
+Snapshots:   0 total
+Time:        11.053 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-components.test.tsx/i.
+make: *** [/tmp/approval-ui-checks.mk:8: approval-ui-components] Error 1

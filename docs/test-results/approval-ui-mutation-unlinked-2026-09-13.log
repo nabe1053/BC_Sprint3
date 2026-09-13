@@ -1,0 +1,46 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-model.test.ts
+
+FAIL src/features/versions/__tests__/approval-model.test.ts
+  ✓ 要約7値は個別API材料から取り、コメントは未紐付けだけ数える (5 ms)
+  ✓ 記録者は最新staff/reviewと未取消coverage、入力を変更しない (11 ms)
+  ✓ 変更タグ5種と取消除外、未解決述語・5絞り込みが既存表示と一致 (3 ms)
+  ✓ canReview draft
+  ✓ canReview staff_checked (1 ms)
+  ✓ canReview review_checked
+  ✕ 要求は名前から検査し採時を含めず、未判断の空理由をnullにする (19 ms)
+  ✓ E_STAFF_CHECK_INCOMPLETEは承認文言へ、他は既存fallback
+  ✓ E_COVERAGE_NOT_RECORDEDは承認文言へ、他は既存fallback
+  ✓ E_STATE_ORDERは承認文言へ、他は既存fallback
+  ✓ E_STATE_ROLLBACK_FORBIDDENは承認文言へ、他は既存fallback
+  ✓ E_NO_BOUNCE_COMMENTは承認文言へ、他は既存fallback
+  ✓ E_SENDOFF_REASON_REQUIREDは承認文言へ、他は既存fallback
+  ✓ E_COMMENT_REQUIREDは承認文言へ、他は既存fallback (1 ms)
+  ✓ E_RECORDER_REQUIREDは承認文言へ、他は既存fallback
+  ✓ 状態詳細は行IDだけを抽出し内部IDや生メッセージを返さない (2 ms)
+
+  ● 要求は名前から検査し採時を含めず、未判断の空理由をnullにする
+
+    expect(received).toThrow(expected)
+
+    Expected substring: "E_NO_BOUNCE_COMMENT"
+
+    Received function did not throw
+
+      139 |   });
+      140 |   expect(() => model.buildBounceRequest(" ", 0)).toThrow("E_RECORDER_REQUIRED");
+    > 141 |   expect(() => model.buildBounceRequest("人", 0)).toThrow(
+          |                                                  ^
+      142 |     "E_NO_BOUNCE_COMMENT",
+      143 |   );
+      144 |   expect(model.buildBounceRequest("人", 1)).toEqual({ recordedBy: "人" });
+
+      at Object.toThrow (src/features/versions/__tests__/approval-model.test.ts:141:50)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 15 passed, 16 total
+Snapshots:   0 total
+Time:        0.783 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-model.test.ts/i.
+make: *** [/tmp/approval-ui-checks.mk:4: approval-ui-model] Error 1

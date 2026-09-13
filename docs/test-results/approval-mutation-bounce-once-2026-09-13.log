@@ -1,0 +1,53 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+..F..............                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_bounce_links_comments_once_without_changing_state_or_events _______
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7bbbe49df9e0>
+
+    async def test_bounce_links_comments_once_without_changing_state_or_events(db_session):
+        seed = await seed_record_version(db_session, state="staff_checked")
+        repo = RecordRepository(db_session)
+        version_id = seed.version.id
+        before = {
+            row.id
+            for row in (await db_session.execute(select(VersionStateEvent))).scalars()
+        }
+        async with repo.record(version_id):
+            old = await repo.save_bounce_comment(
+                version_id, {"item_id": seed.item.id, "comment": "first", **record_actor()}
+            )
+            first = await repo.save_bounce(
+                version_id, {"reason": "R1: first", **record_actor()}, [old]
+            )
+        async with repo.record(version_id):
+            new = await repo.save_bounce_comment(
+                version_id, {"item_id": seed.item.id, "comment": "second", **record_actor()}
+            )
+            assert {row.id for row in await repo.unlinked_bounce_comments(version_id)} == {
+                new.id
+            }
+            second = await repo.save_bounce(
+                version_id, {"reason": "R1: second", **record_actor()}, [old, new]
+            )
+>       assert (
+            await db_session.get(BounceComment, old.id, populate_existing=True)
+        ).bounce_id == first.id
+E       assert 2 == 1
+E        +  where 2 = <app.models.approvals.BounceComment object at 0x7bbbe49f8e90>.bounce_id
+E        +  and   1 = <app.models.approvals.Bounce object at 0x7bbbe49fb470>.id
+
+tests/integration/test_approval_repository.py:147: AssertionError
+=============================== warnings summary ===============================
+../../../home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_approval_repository.py::test_bounce_links_comments_once_without_changing_state_or_events - assert 2 == 1
+ +  where 2 = <app.models.approvals.BounceComment object at 0x7bbbe49f8e90>.bounce_id
+ +  and   1 = <app.models.approvals.Bounce object at 0x7bbbe49fb470>.id
+1 failed, 16 passed, 1 warning in 10.59s
+make[1]: *** [/tmp/approval-checks.mk:10: approval-repository] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

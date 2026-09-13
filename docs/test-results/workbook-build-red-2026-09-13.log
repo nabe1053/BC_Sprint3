@@ -1,0 +1,207 @@
+FFFFFFFFFF                                                               [100%]
+=================================== FAILURES ===================================
+________ test_five_sheets_headers_current_values_and_raw_are_preserved _________
+
+    def test_five_sheets_headers_current_values_and_raw_are_preserved():
+>       wb=workbook()
+
+tests/unit/test_export_workbook.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = None
+
+    def workbook(data=None):
+>       from app.services.export_workbook import build_workbook
+E       ModuleNotFoundError: No module named 'app.services.export_workbook'
+
+tests/unit/test_export_workbook.py:13: ModuleNotFoundError
+________ test_unapproved_conversion_never_creates_other_numeric_values _________
+
+    def test_unapproved_conversion_never_creates_other_numeric_values():
+        data=snapshot()
+        values={**data.items[0].values}
+        for key in values:
+            if key.endswith('_value'): values[key]=None
+        values.update(od_value=Decimal('339.7'),od_unit='mm',od_raw='339.7 mm',qty_value=Decimal('118'),qty_unit='t',qty_raw='118 t')
+        data=replace(data,items=[replace(data.items[0],values=values,ends=[])],elapsed_sec=None)
+>       numbers={Decimal(str(c.value)) for c in cells(workbook(data)) if c.data_type=='n' and c.value is not None}
+
+tests/unit/test_export_workbook.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = ExportSnapshot(case=namespace(id=3, case_code='S-01'), version=namespace(id=7, version_no=2, current_state='draft', fi..._sec=None, rule_version='R-01', conversion_enabled=False, unresolved_count=1, matched_count=1, coverage_confirmed=True)
+
+    def workbook(data=None):
+>       from app.services.export_workbook import build_workbook
+E       ModuleNotFoundError: No module named 'app.services.export_workbook'
+
+tests/unit/test_export_workbook.py:13: ModuleNotFoundError
+_ test_untrusted_strings_are_literal_and_have_no_formula_style_or_link[=HYPERLINK("https://invalid.example","x")] _
+
+text = '=HYPERLINK("https://invalid.example","x")'
+
+    @pytest.mark.parametrize('text',['=HYPERLINK("https://invalid.example","x")','=1+1','+1','-1','@SUM'])
+    def test_untrusted_strings_are_literal_and_have_no_formula_style_or_link(text):
+        data=snapshot()
+        data.items[0].values['note']=text
+        data.evidences[0].quote=text
+        data.records['unlinked_comments'][0].comment=text
+>       wb=workbook(data)
+
+tests/unit/test_export_workbook.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = ExportSnapshot(case=namespace(id=3, case_code='S-01'), version=namespace(id=7, version_no=2, current_state='draft', fi..._sec=None, rule_version='R-01', conversion_enabled=False, unresolved_count=1, matched_count=1, coverage_confirmed=True)
+
+    def workbook(data=None):
+>       from app.services.export_workbook import build_workbook
+E       ModuleNotFoundError: No module named 'app.services.export_workbook'
+
+tests/unit/test_export_workbook.py:13: ModuleNotFoundError
+__ test_untrusted_strings_are_literal_and_have_no_formula_style_or_link[=1+1] __
+
+text = '=1+1'
+
+    @pytest.mark.parametrize('text',['=HYPERLINK("https://invalid.example","x")','=1+1','+1','-1','@SUM'])
+    def test_untrusted_strings_are_literal_and_have_no_formula_style_or_link(text):
+        data=snapshot()
+        data.items[0].values['note']=text
+        data.evidences[0].quote=text
+        data.records['unlinked_comments'][0].comment=text
+>       wb=workbook(data)
+
+tests/unit/test_export_workbook.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = ExportSnapshot(case=namespace(id=3, case_code='S-01'), version=namespace(id=7, version_no=2, current_state='draft', fi..._sec=None, rule_version='R-01', conversion_enabled=False, unresolved_count=1, matched_count=1, coverage_confirmed=True)
+
+    def workbook(data=None):
+>       from app.services.export_workbook import build_workbook
+E       ModuleNotFoundError: No module named 'app.services.export_workbook'
+
+tests/unit/test_export_workbook.py:13: ModuleNotFoundError
+___ test_untrusted_strings_are_literal_and_have_no_formula_style_or_link[+1] ___
+
+text = '+1'
+
+    @pytest.mark.parametrize('text',['=HYPERLINK("https://invalid.example","x")','=1+1','+1','-1','@SUM'])
+    def test_untrusted_strings_are_literal_and_have_no_formula_style_or_link(text):
+        data=snapshot()
+        data.items[0].values['note']=text
+        data.evidences[0].quote=text
+        data.records['unlinked_comments'][0].comment=text
+>       wb=workbook(data)
+
+tests/unit/test_export_workbook.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = ExportSnapshot(case=namespace(id=3, case_code='S-01'), version=namespace(id=7, version_no=2, current_state='draft', fi..._sec=None, rule_version='R-01', conversion_enabled=False, unresolved_count=1, matched_count=1, coverage_confirmed=True)
+
+    def workbook(data=None):
+>       from app.services.export_workbook import build_workbook
+E       ModuleNotFoundError: No module named 'app.services.export_workbook'
+
+tests/unit/test_export_workbook.py:13: ModuleNotFoundError
+___ test_untrusted_strings_are_literal_and_have_no_formula_style_or_link[-1] ___
+
+text = '-1'
+
+    @pytest.mark.parametrize('text',['=HYPERLINK("https://invalid.example","x")','=1+1','+1','-1','@SUM'])
+    def test_untrusted_strings_are_literal_and_have_no_formula_style_or_link(text):
+        data=snapshot()
+        data.items[0].values['note']=text
+        data.evidences[0].quote=text
+        data.records['unlinked_comments'][0].comment=text
+>       wb=workbook(data)
+
+tests/unit/test_export_workbook.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = ExportSnapshot(case=namespace(id=3, case_code='S-01'), version=namespace(id=7, version_no=2, current_state='draft', fi..._sec=None, rule_version='R-01', conversion_enabled=False, unresolved_count=1, matched_count=1, coverage_confirmed=True)
+
+    def workbook(data=None):
+>       from app.services.export_workbook import build_workbook
+E       ModuleNotFoundError: No module named 'app.services.export_workbook'
+
+tests/unit/test_export_workbook.py:13: ModuleNotFoundError
+__ test_untrusted_strings_are_literal_and_have_no_formula_style_or_link[@SUM] __
+
+text = '@SUM'
+
+    @pytest.mark.parametrize('text',['=HYPERLINK("https://invalid.example","x")','=1+1','+1','-1','@SUM'])
+    def test_untrusted_strings_are_literal_and_have_no_formula_style_or_link(text):
+        data=snapshot()
+        data.items[0].values['note']=text
+        data.evidences[0].quote=text
+        data.records['unlinked_comments'][0].comment=text
+>       wb=workbook(data)
+
+tests/unit/test_export_workbook.py:60: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = ExportSnapshot(case=namespace(id=3, case_code='S-01'), version=namespace(id=7, version_no=2, current_state='draft', fi..._sec=None, rule_version='R-01', conversion_enabled=False, unresolved_count=1, matched_count=1, coverage_confirmed=True)
+
+    def workbook(data=None):
+>       from app.services.export_workbook import build_workbook
+E       ModuleNotFoundError: No module named 'app.services.export_workbook'
+
+tests/unit/test_export_workbook.py:13: ModuleNotFoundError
+_______ test_empty_records_have_only_header_and_summary_keeps_unresolved _______
+
+    def test_empty_records_have_only_header_and_summary_keeps_unresolved():
+        data=snapshot();data=replace(data,records={key:[] for key in data.records})
+>       wb=workbook(data)
+
+tests/unit/test_export_workbook.py:70: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = ExportSnapshot(case=namespace(id=3, case_code='S-01'), version=namespace(id=7, version_no=2, current_state='draft', fi..._sec=None, rule_version='R-01', conversion_enabled=False, unresolved_count=1, matched_count=1, coverage_confirmed=True)
+
+    def workbook(data=None):
+>       from app.services.export_workbook import build_workbook
+E       ModuleNotFoundError: No module named 'app.services.export_workbook'
+
+tests/unit/test_export_workbook.py:13: ModuleNotFoundError
+_____ test_documents_are_received_order_and_snapshot_does_not_cross_cases ______
+
+    def test_documents_are_received_order_and_snapshot_does_not_cross_cases():
+>       data=snapshot();wb=workbook(data)
+
+tests/unit/test_export_workbook.py:78: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = ExportSnapshot(case=namespace(id=3, case_code='S-01'), version=namespace(id=7, version_no=2, current_state='draft', fi..._sec=None, rule_version='R-01', conversion_enabled=False, unresolved_count=1, matched_count=1, coverage_confirmed=True)
+
+    def workbook(data=None):
+>       from app.services.export_workbook import build_workbook
+E       ModuleNotFoundError: No module named 'app.services.export_workbook'
+
+tests/unit/test_export_workbook.py:13: ModuleNotFoundError
+_____ test_same_snapshot_has_identical_cells_and_fixed_document_properties _____
+
+    def test_same_snapshot_has_identical_cells_and_fixed_document_properties():
+>       data=snapshot();first=workbook(data);second=workbook(data)
+
+tests/unit/test_export_workbook.py:91: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = ExportSnapshot(case=namespace(id=3, case_code='S-01'), version=namespace(id=7, version_no=2, current_state='draft', fi..._sec=None, rule_version='R-01', conversion_enabled=False, unresolved_count=1, matched_count=1, coverage_confirmed=True)
+
+    def workbook(data=None):
+>       from app.services.export_workbook import build_workbook
+E       ModuleNotFoundError: No module named 'app.services.export_workbook'
+
+tests/unit/test_export_workbook.py:13: ModuleNotFoundError
+=========================== short test summary info ============================
+FAILED tests/unit/test_export_workbook.py::test_five_sheets_headers_current_values_and_raw_are_preserved - ModuleNotFoundError: No module named 'app.services.export_workbook'
+FAILED tests/unit/test_export_workbook.py::test_unapproved_conversion_never_creates_other_numeric_values - ModuleNotFoundError: No module named 'app.services.export_workbook'
+FAILED tests/unit/test_export_workbook.py::test_untrusted_strings_are_literal_and_have_no_formula_style_or_link[=HYPERLINK("https://invalid.example","x")] - ModuleNotFoundError: No module named 'app.services.export_workbook'
+FAILED tests/unit/test_export_workbook.py::test_untrusted_strings_are_literal_and_have_no_formula_style_or_link[=1+1] - ModuleNotFoundError: No module named 'app.services.export_workbook'
+FAILED tests/unit/test_export_workbook.py::test_untrusted_strings_are_literal_and_have_no_formula_style_or_link[+1] - ModuleNotFoundError: No module named 'app.services.export_workbook'
+FAILED tests/unit/test_export_workbook.py::test_untrusted_strings_are_literal_and_have_no_formula_style_or_link[-1] - ModuleNotFoundError: No module named 'app.services.export_workbook'
+FAILED tests/unit/test_export_workbook.py::test_untrusted_strings_are_literal_and_have_no_formula_style_or_link[@SUM] - ModuleNotFoundError: No module named 'app.services.export_workbook'
+FAILED tests/unit/test_export_workbook.py::test_empty_records_have_only_header_and_summary_keeps_unresolved - ModuleNotFoundError: No module named 'app.services.export_workbook'
+FAILED tests/unit/test_export_workbook.py::test_documents_are_received_order_and_snapshot_does_not_cross_cases - ModuleNotFoundError: No module named 'app.services.export_workbook'
+FAILED tests/unit/test_export_workbook.py::test_same_snapshot_has_identical_cells_and_fixed_document_properties - ModuleNotFoundError: No module named 'app.services.export_workbook'
+10 failed in 0.12s
+make: *** [/tmp/workbook-checks.mk:4: workbook-build] Error 1

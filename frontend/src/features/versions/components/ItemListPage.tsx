@@ -10,14 +10,23 @@ import type {
 import { ApiError } from "@/shared/api/mutator";
 import { tokens } from "@/shared/theme/tokens";
 import {
+  useVersionHistory,
   useVersion,
   useItems,
   useQuestions,
   useRecordMutations,
 } from "../hooks";
-import { emptyFilters, filterItems, recordErrorKey } from "../model";
+import {
+  findVersionListItem,
+  emptyFilters,
+  filterItems,
+  recordErrorKey,
+} from "../model";
+import { StaffCheckAction } from "./StaffCheckAction";
+import { BounceBanner } from "./BounceBanner";
 import { VersionSummary } from "./VersionSummary";
 import { VersionHistory } from "./VersionHistory";
+import { ExportButton } from "./ExportButton";
 import { ItemFilters } from "./ItemFilters";
 import { ItemTable } from "./ItemTable";
 import { EvidenceDrawer } from "./EvidenceDrawer";
@@ -34,10 +43,13 @@ export function ItemListPage({
 }) {
   const { t } = useTranslation();
   const version = useVersion(versionId);
+  const history = useVersionHistory(caseId);
+  const listItem = findVersionListItem(history.data ?? [], versionId);
   const items = useItems(versionId);
   const questions = useQuestions(versionId);
-  const mutations = useRecordMutations(versionId);
+  const mutations = useRecordMutations(versionId, caseId);
   const [recordedBy, setRecordedBy] = useState("");
+  const [recorderInvalid, setRecorderInvalid] = useState(false);
   const [filters, setFilters] = useState({ ...emptyFilters });
   const [selected, setSelected] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +60,12 @@ export function ItemListPage({
   const current = rows[index];
   const refresh = () => {
     setError(null);
-    void Promise.all([version.refetch(), items.refetch(), questions.refetch()]);
+    void Promise.all([
+      version.refetch(),
+      items.refetch(),
+      questions.refetch(),
+      history.refetch(),
+    ]);
   };
   async function record(by: string, action: () => Promise<unknown>) {
     if (lock.current) return false;
@@ -89,8 +106,22 @@ export function ItemListPage({
   const judge = (input: JudgementInput) =>
     record(input.recordedBy, () => mutations.judge.mutateAsync(input));
   const gap = `${tokens.spacing.s4}px`;
-  const loading = version.isLoading || items.isLoading || questions.isLoading;
-  const loadError = version.isError || items.isError || questions.isError;
+  const loading =
+    version.isLoading ||
+    items.isLoading ||
+    questions.isLoading ||
+    history.isLoading;
+  const loadError =
+    version.isError ||
+    items.isError ||
+    questions.isError ||
+    history.isError ||
+    (!loading && !listItem);
+  // 03-spec:237「未生成」の無効化。本ルートは URL に versionId を持つため
+  // （AD-024 ①）、版が 1 つも無い状態は T-503 の契約で取得失敗に畳まれる。
+  // **現契約ではこの分岐は到達しない**（loadError が先に真になる）。
+  // 齟齬は memory TODO-044 として研修者判断に上げる（本スライスで決めない）。
+  const notGenerated = !loading && !history.isError && !history.data?.length;
   const missing =
     version.error instanceof ApiError && version.error.status === 404;
   return (
@@ -116,6 +147,21 @@ export function ItemListPage({
           <Typography variant="h1">{t("versions.title")}</Typography>
           <Typography>{t("versions.description")}</Typography>
         </Box>
+        {version.data && !loading && !loadError && (
+          <ExportButton
+            versionId={versionId}
+            label={t("versions.export.button")}
+            disabled={notGenerated}
+          />
+        )}
+        {version.data && !loading && !loadError && (
+          <StaffCheckAction
+            caseId={caseId}
+            version={version.data}
+            recordedBy={recordedBy}
+            onRecorderInvalid={setRecorderInvalid}
+          />
+        )}
         <Button component={Link} href="/cases">
           {t("versions.back")}
         </Button>
@@ -136,6 +182,7 @@ export function ItemListPage({
           <>
             <VersionHistory caseId={caseId} versionId={versionId} />
             <VersionSummary version={version.data} />
+            {listItem && <BounceBanner item={listItem} />}
             <Box
               sx={{
                 display: "flex",
@@ -148,7 +195,11 @@ export function ItemListPage({
                 InputLabelProps={{ shrink: true }}
                 label={t("versions.recorder")}
                 value={recordedBy}
-                onChange={(event) => setRecordedBy(event.target.value)}
+                onChange={(event) => {
+                  setRecordedBy(event.target.value);
+                  setRecorderInvalid(false);
+                }}
+                inputProps={{ "aria-invalid": recorderInvalid }}
                 helperText={t("versions.recorderHint")}
               />
               <Typography>

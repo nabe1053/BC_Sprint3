@@ -1,0 +1,89 @@
+src/features/versions/__tests__/api.test.ts 54ms (unchanged)
+src/features/versions/__tests__/approval-api.test.ts 15ms (unchanged)
+src/features/versions/__tests__/approval-components.test.tsx 66ms
+src/features/versions/__tests__/approval-hooks.test.tsx 29ms (unchanged)
+src/features/versions/__tests__/approval-model.test.ts 17ms (unchanged)
+src/features/versions/__tests__/components.test.tsx 54ms
+src/features/versions/__tests__/hooks.test.tsx 20ms (unchanged)
+src/features/versions/__tests__/inventory-api.test.ts 7ms (unchanged)
+src/features/versions/__tests__/inventory-components.test.tsx 28ms (unchanged)
+src/features/versions/__tests__/inventory-hooks.test.tsx 8ms (unchanged)
+src/features/versions/__tests__/inventory-model.test.ts 7ms (unchanged)
+src/features/versions/__tests__/model.test.ts 12ms (unchanged)
+src/features/versions/api.ts 6ms (unchanged)
+src/features/versions/components/ApprovalError.tsx 4ms (unchanged)
+src/features/versions/components/ApprovalFilters.tsx 3ms (unchanged)
+src/features/versions/components/ApprovalListsDrawer.tsx 11ms (unchanged)
+src/features/versions/components/ApprovalPage.tsx 18ms (unchanged)
+src/features/versions/components/ApprovalSummaryCard.tsx 6ms (unchanged)
+src/features/versions/components/ApprovalTable.tsx 12ms (unchanged)
+src/features/versions/components/BounceBanner.tsx 4ms (unchanged)
+src/features/versions/components/BounceCommentCell.tsx 5ms
+src/features/versions/components/CoverageRecordPanel.tsx 5ms (unchanged)
+src/features/versions/components/EditForm.tsx 10ms (unchanged)
+src/features/versions/components/EditHistory.tsx 4ms (unchanged)
+src/features/versions/components/EvidenceDrawer.tsx 20ms (unchanged)
+src/features/versions/components/InventoryEntriesTable.tsx 4ms (unchanged)
+src/features/versions/components/InventoryItemsTable.tsx 4ms (unchanged)
+src/features/versions/components/InventoryPage.tsx 8ms (unchanged)
+src/features/versions/components/InventoryScopePanel.tsx 3ms (unchanged)
+src/features/versions/components/ItemFilters.tsx 5ms (unchanged)
+src/features/versions/components/ItemListPage.tsx 12ms
+src/features/versions/components/ItemTable.tsx 11ms (unchanged)
+src/features/versions/components/ItemValue.tsx 4ms (unchanged)
+src/features/versions/components/QuestionJudgementForm.tsx 10ms (unchanged)
+src/features/versions/components/ReviewCheckPanel.tsx 3ms (unchanged)
+src/features/versions/components/SendoffPanel.tsx 6ms (unchanged)
+src/features/versions/components/StaffCheckAction.tsx 7ms
+src/features/versions/components/VersionHistory.tsx 3ms (unchanged)
+src/features/versions/components/VersionSummary.tsx 5ms (unchanged)
+src/features/versions/hooks.ts 11ms (unchanged)
+src/features/versions/index.ts 1ms (unchanged)
+src/features/versions/model.ts 28ms (unchanged)
+src/features/versions/testing/fixtures.ts 13ms
+src/features/cases/components/CaseListPage.tsx 12ms (unchanged)
+src/features/cases/components/__tests__/CaseListPage.test.tsx 25ms (unchanged)
+src/shared/i18n/ja.json 20ms (unchanged)
+src/app/__tests__/case-routes.test.tsx 35ms (unchanged)
+src/app/(portal)/cases/[caseId]/versions/[versionId]/approval/page.tsx 4ms (unchanged)
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-components.test.tsx
+
+PASS src/features/versions/__tests__/approval-components.test.tsx (6.04 s)
+  ✓ h1・primaryは1つ、7要約・メタ・未解決注記・10列を表示する (277 ms)
+  ✓ draftでは確認/差し戻しを無効にして理由を示す (167 ms)
+  ✓ review_checkedでは確認/差し戻しを無効にして理由を示す (154 ms)
+  ✓ 空名ではPOSTせず、記録後も留まり評価確認と送付の区別をstatus表示 (337 ms)
+  ✓ 差し戻しの未紐付け0件はPOSTせず、成功時はItem Listへ戻る (341 ms)
+  ✓ 行コメントは明示記録だけ送信し、成功時だけ入力を空にする (347 ms)
+  ✓ 送付は判断者と保留理由を検査し未判断空理由をnullで送る (620 ms)
+  ✓ 行の索引・全行索引・根拠は排他、閲覧専用には訂正/取消/判断フォームなし (527 ms)
+  ✓ ボタン/入力上のclickやEnterは行索引を開かない (293 ms)
+  ✓ 空/読込/404/取得失敗/版一覧に該当なしを明示する (126 ms)
+  ✓ 409の表示は行IDと網羅性だけ、内部ID・生本文を出さない (276 ms)
+  ✓ readOnlyは操作コールバックが渡されても訂正・取消・判断・照合を出さない (66 ms)
+  ✓ 絞り込み全行でも索引の全体件数は変わらない (337 ms)
+  ✓ 絞り込み変更・判断事項のある行でも索引の全体件数は変わらない (328 ms)
+  ✓ 絞り込み訂正ありでも索引の全体件数は変わらない (333 ms)
+  ✓ 絞り込み未解決のみでも索引の全体件数は変わらない (312 ms)
+  ✓ 絞り込み差し戻しコメントありでも索引の全体件数は変わらない (311 ms)
+  ✓ API導出の差し戻し中・再確認と現在の送付判断を表示する (90 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       18 passed, 18 total
+Snapshots:   0 total
+Time:        6.315 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-components.test.tsx/i.
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/components.test.tsx src/features/cases/components/__tests__/CaseListPage.test.tsx
+
+PASS src/features/versions/__tests__/components.test.tsx (10.975 s)
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx
+
+Test Suites: 2 passed, 2 total
+Tests:       54 passed, 54 total
+Snapshots:   0 total
+Time:        13.198 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/components.test.tsx|src\/features\/cases\/components\/__tests__\/CaseListPage.test.tsx/i.

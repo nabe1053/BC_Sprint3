@@ -1,4 +1,11 @@
 import type {
+  RecordsResponse,
+  VersionResponse,
+  VersionListItem,
+  StateEventRequest,
+  BounceCommentRequest,
+  BounceRequest,
+  SendoffDecisionRequest,
   InventoryEntryResponse,
   InventoryItemResponse,
   InventorySummaryResponse,
@@ -105,7 +112,7 @@ export function filterItems(
       choice: !!item.groupCode,
       unmatched: item.rowMatch === null,
       edited: hasEdits(item),
-      unresolved: qs.some((q) => q.latest?.resolution !== "resolved"),
+      unresolved: unresolvedQuestions(qs).length > 0,
     };
     const haystack = [
       ...Object.values(item).filter((v) => typeof v === "string"),
@@ -256,4 +263,225 @@ export function inventoryErrorKey(error: unknown) {
   return error instanceof ApiError && error.code === "E_ALREADY_CONFIRMED"
     ? "versions.inventory.errors.E_ALREADY_CONFIRMED"
     : recordErrorKey(error);
+}
+
+export const findVersionListItem = (
+  rows: readonly VersionListItem[],
+  versionId: number,
+) => rows.find((row) => row.versionId === versionId);
+export function approvalSummary(
+  version: VersionResponse,
+  listItem: VersionListItem,
+  records: RecordsResponse,
+) {
+  return {
+    state: version.currentState,
+    sendoff: listItem.latestSendoff?.decision ?? "undecided",
+    noSendoff: listItem.latestSendoff === null,
+    matched: version.counts.matchedCount,
+    total: version.counts.itemCount,
+    coverage: version.coverageConfirmed,
+    edits: version.counts.editCount,
+    unresolved: version.counts.unresolvedCount,
+    bounceComments: records.unlinkedComments.length,
+    bounced: listItem.bounced,
+    needsRecheck: listItem.needsRecheck,
+  };
+}
+export function recorderMeta(records: RecordsResponse) {
+  const events = [...records.stateEvents].sort(
+    (a, b) =>
+      a.recordedAt.localeCompare(b.recordedAt) ||
+      a.stateEventId - b.stateEventId,
+  );
+  const coverage =
+    [...records.confirmations]
+      .filter((r) => r.kind === "coverage" && r.undoneAt === null)
+      .sort(
+        (a, b) =>
+          a.recordedAt.localeCompare(b.recordedAt) ||
+          a.confirmationId - b.confirmationId,
+      )
+      .at(-1) ?? null;
+  return {
+    staff: events.filter((r) => r.toState === "staff_checked").at(-1) ?? null,
+    coverage,
+    review: events.filter((r) => r.toState === "review_checked").at(-1) ?? null,
+  };
+}
+export function changeTags(
+  item: ItemCurrentResponse,
+  questions: readonly QuestionResponse[],
+) {
+  const tags: ("choice" | "tba" | "inherit" | "edited" | "judged")[] = [];
+  if (item.groupCode) tags.push("choice");
+  if (item.qtyState === "tba") tags.push("tba");
+  if (item.isInheritCandidate) tags.push("inherit");
+  if (hasEdits(item)) tags.push("edited");
+  if (itemQuestions(item, questions).some((q) => q.latest != null))
+    tags.push("judged");
+  return tags;
+}
+export const hasChanges = (
+  item: ItemCurrentResponse,
+  questions: readonly QuestionResponse[],
+) => changeTags(item, questions).length > 0;
+export const unresolvedQuestions = (questions: readonly QuestionResponse[]) =>
+  questions.filter((q) => q.latest?.resolution !== "resolved");
+export const rowUnresolved = (
+  questions: readonly QuestionResponse[],
+  itemId: number,
+) => unresolvedQuestions(questions).filter((q) => q.itemId === itemId);
+export const caseLevelUnresolved = (questions: readonly QuestionResponse[]) =>
+  unresolvedQuestions(questions).filter((q) => q.itemId === null);
+export const rowBounceComments = (records: RecordsResponse, itemId: number) =>
+  records.unlinkedComments.filter((row) => row.itemId === itemId);
+export const approvalFilters = [
+  "all",
+  "changes",
+  "edited",
+  "unresolved",
+  "bounce",
+] as const;
+export type ApprovalFilter = (typeof approvalFilters)[number];
+export function filterApprovalRows(
+  items: ItemCurrentResponse[],
+  questions: QuestionResponse[],
+  records: RecordsResponse,
+  filter: ApprovalFilter,
+) {
+  return items.filter(
+    (item) =>
+      ({
+        all: true,
+        changes: hasChanges(item, questions),
+        edited: hasEdits(item),
+        unresolved: rowUnresolved(questions, item.itemId).length > 0,
+        bounce: rowBounceComments(records, item.itemId).length > 0,
+      })[filter],
+  );
+}
+export function buildStateEventRequest(
+  toState: StateEventRequest["toState"],
+  recordedBy: string,
+): StateEventRequest {
+  if (!recordedBy.trim()) invalid("E_RECORDER_REQUIRED");
+  return { toState, recordedBy: recordedBy.trim() };
+}
+export function buildBounceCommentRequest(
+  itemId: number,
+  comment: string,
+  recordedBy: string,
+): BounceCommentRequest {
+  if (!recordedBy.trim()) invalid("E_RECORDER_REQUIRED");
+  if (!comment.trim()) invalid("E_COMMENT_REQUIRED");
+  return { itemId, comment: comment.trim(), recordedBy: recordedBy.trim() };
+}
+export function buildBounceRequest(
+  recordedBy: string,
+  unlinkedCount: number,
+): BounceRequest {
+  if (!recordedBy.trim()) invalid("E_RECORDER_REQUIRED");
+  if (unlinkedCount === 0) invalid("E_NO_BOUNCE_COMMENT");
+  return { recordedBy: recordedBy.trim() };
+}
+export function buildSendoffRequest(
+  decision: SendoffDecisionRequest["decision"],
+  reason: string,
+  recordedBy: string,
+): SendoffDecisionRequest {
+  if (!recordedBy.trim()) invalid("E_RECORDER_REQUIRED");
+  if (decision !== "undecided" && !reason.trim())
+    invalid("E_SENDOFF_REASON_REQUIRED");
+  return {
+    decision,
+    reason: reason.trim() || null,
+    recordedBy: recordedBy.trim(),
+  };
+}
+export const canReview = (state: VersionResponse["currentState"]) =>
+  (
+    ({
+      draft: "incomplete",
+      staff_checked: "ready",
+      review_checked: "reviewed",
+    }) as const
+  )[state];
+const approvalCodes = new Set([
+  "E_STAFF_CHECK_INCOMPLETE",
+  "E_COVERAGE_NOT_RECORDED",
+  "E_STATE_ORDER",
+  "E_STATE_ROLLBACK_FORBIDDEN",
+  "E_NO_BOUNCE_COMMENT",
+  "E_SENDOFF_REASON_REQUIRED",
+  "E_COMMENT_REQUIRED",
+  "E_RECORDER_REQUIRED",
+]);
+export function approvalErrorKey(error: unknown) {
+  return error instanceof ApiError && approvalCodes.has(error.code)
+    ? `versions.approval.errors.${error.code}`
+    : recordErrorKey(error);
+}
+export function staffCheckDetails(error: unknown) {
+  const details =
+    error instanceof ApiError &&
+    error.details &&
+    typeof error.details === "object"
+      ? (error.details as Record<string, unknown>)
+      : {};
+  return {
+    rowCodes: Array.isArray(details.unmatchedRowCodes)
+      ? details.unmatchedRowCodes.filter(
+          (v): v is string => typeof v === "string",
+        )
+      : [],
+    coverageRecorded: details.coverageRecorded === true,
+  };
+}
+export const sendoffTone = (decision: SendoffDecisionRequest["decision"]) =>
+  decision === "approved" ? "ok" : decision === "hold" ? "warn" : null;
+export const stateTone = (state: VersionResponse["currentState"]) =>
+  state === "review_checked" ? "ok" : null;
+
+const DEFAULT_EXPORT_NAME = "export.xlsx";
+/** Content-Disposition の filename を取り出す純粋関数。
+ * 由来（fromHeader）を返し、既定名へ落ちたことを画面側が区別できるようにする。 */
+export function parseExportFileName(headers?: Headers | null): {
+  name: string;
+  fromHeader: boolean;
+} {
+  const raw = headers?.get("Content-Disposition") ?? "";
+  const extended = /filename\*\s*=\s*[^']*'[^']*'([^;]+)/i.exec(raw);
+  const plain = /filename\s*=\s*(?:"([^"]*)"|([^;]+))/i.exec(raw);
+  const candidate = extended
+    ? decodeUriComponentSafely(extended[1].trim())
+    : (plain?.[1] ?? plain?.[2] ?? "").trim();
+  // 保存先を誘導させないため、区切りを含む名前は単純名に落とす。
+  const name = candidate.split(/[/\\]/).pop()?.trim() ?? "";
+  return name
+    ? { name, fromHeader: true }
+    : { name: DEFAULT_EXPORT_NAME, fromHeader: false };
+}
+function decodeUriComponentSafely(value: string) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+const exportCodes = new Set(["E_VERSION_NOT_FINALIZED", "E_NOT_FOUND"]);
+export function exportErrorKey(error: unknown) {
+  if (!(error instanceof ApiError) || !exportCodes.has(error.code))
+    return "versions.export.errors.failed";
+  return error.code === "E_VERSION_NOT_FINALIZED"
+    ? "versions.export.errors.notFinalized"
+    : "versions.export.errors.notFound";
+}
+/** 保全状態は色でなく文字ラベルで伝える（design-guidelines）。 */
+export function integrityLabelKey(integrity: string) {
+  return `versions.export.integrity.${
+    ["intact", "modified", "missing"].includes(integrity)
+      ? integrity
+      : "unknown"
+  }`;
 }

@@ -200,3 +200,75 @@ def test_recovery_grace_covers_terminal_persistence() -> None:
     from app.agent.jobs import FINISH_TIMEOUT_S
 
     assert RECOVERY_GRACE_S > FINISH_TIMEOUT_S * 3 + 0.3 + CANCEL_CLEANUP_S
+
+
+def test_current_state_has_only_initialization_and_event_writers():
+    import ast
+
+    writers = []
+    for path in sorted(APP_DIR.rglob("*.py")):
+        tree = ast.parse(path.read_text())
+        parents = {
+            child: node
+            for node in ast.walk(tree)
+            for child in ast.iter_child_nodes(node)
+        }
+        for node in ast.walk(tree):
+            is_write = (
+                isinstance(node, ast.Attribute)
+                and node.attr == "current_state"
+                and isinstance(node.ctx, ast.Store)
+            )
+            is_setattr = (
+                isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Name)
+                and node.func.id == "setattr"
+                and len(node.args) >= 2
+                and isinstance(node.args[1], ast.Constant)
+                and node.args[1].value == "current_state"
+            )
+            if not (is_write or is_setattr):
+                continue
+            owner = parents.get(node)
+            while owner is not None and not isinstance(
+                owner, (ast.FunctionDef, ast.AsyncFunctionDef)
+            ):
+                owner = parents.get(owner)
+            writers.append(
+                (str(path.relative_to(APP_DIR)), owner.name if owner else None)
+            )
+    assert sorted(writers) == [
+        ("repositories/draft_repository.py", "complete"),
+        ("repositories/record_repository.py", "save_state_event"),
+    ]
+
+
+def test_export_projection_has_no_float_round_or_duplicate_vocabulary():
+    import ast
+
+    for relative in (
+        "domain/export_types.py",
+        "services/export_workbook.py",
+        "services/export_service.py",
+    ):
+        tree = ast.parse((APP_DIR / relative).read_text())
+        calls = {
+            node.func.id
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+        }
+        assert not calls & {"float", "round"}, relative
+    owners = []
+    counters = []
+    for path in APP_DIR.rglob("*.py"):
+        tree = ast.parse(path.read_text())
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Constant) and node.value == "変更・確認記録":
+                owners.append(str(path.relative_to(APP_DIR)))
+            if (
+                isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and node.name == "unresolved_count"
+            ):
+                counters.append(str(path.relative_to(APP_DIR)))
+    assert owners == ["domain/export_types.py"]
+    assert counters == ["services/version_state.py"]

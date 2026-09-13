@@ -1,5 +1,12 @@
 import { unwrapSuccess } from "@/shared/api/unwrap";
+import { ApiError } from "@/shared/api/mutator";
+import { parseExportFileName } from "./model";
 import {
+  listRecordsApiV1UiVersionsVersionIdRecordsGet,
+  recordStateEventApiV1UiVersionsVersionIdStateEventsPost,
+  recordBounceCommentApiV1UiVersionsVersionIdBounceCommentsPost,
+  recordBounceApiV1UiVersionsVersionIdBouncesPost,
+  recordSendoffDecisionApiV1UiVersionsVersionIdSendoffDecisionsPost,
   getInventoryApiV1UiVersionsVersionIdInventoryGet,
   listVersionsApiV1UiCasesCaseIdVersionsGet,
   getVersionApiV1UiVersionsVersionIdGet,
@@ -11,8 +18,14 @@ import {
   confirmApiV1UiVersionsVersionIdConfirmationsPost,
   undoConfirmationApiV1UiVersionsVersionIdConfirmationsConfirmationIdUndoPost,
   judgeApiV1UiVersionsVersionIdQuestionsQuestionIdJudgementsPost,
+  createExportApiV1UiVersionsVersionIdExportsPost,
+  listExportsApiV1UiVersionsVersionIdExportsGet,
 } from "@/shared/api/generated/ui";
 import type {
+  StateEventRequest,
+  BounceCommentRequest,
+  BounceRequest,
+  SendoffDecisionRequest,
   ItemEditRequest,
   UndoRequest,
   ConfirmationRequest,
@@ -112,4 +125,74 @@ export async function getInventory(versionId: number) {
     await getInventoryApiV1UiVersionsVersionIdInventoryGet(versionId),
     200,
   );
+}
+
+export async function listRecords(versionId: number) {
+  return unwrapSuccess(
+    await listRecordsApiV1UiVersionsVersionIdRecordsGet(versionId),
+    200,
+  );
+}
+export async function recordStateEvent(
+  versionId: number,
+  input: StateEventRequest,
+) {
+  return unwrapSuccess(
+    await recordStateEventApiV1UiVersionsVersionIdStateEventsPost(
+      versionId,
+      input,
+    ),
+    201,
+  );
+}
+export async function recordBounceComment(
+  versionId: number,
+  input: BounceCommentRequest,
+) {
+  return unwrapSuccess(
+    await recordBounceCommentApiV1UiVersionsVersionIdBounceCommentsPost(
+      versionId,
+      input,
+    ),
+    201,
+  );
+}
+export async function recordBounce(versionId: number, input: BounceRequest) {
+  return unwrapSuccess(
+    await recordBounceApiV1UiVersionsVersionIdBouncesPost(versionId, input),
+    201,
+  );
+}
+export async function recordSendoffDecision(
+  versionId: number,
+  input: SendoffDecisionRequest,
+) {
+  return unwrapSuccess(
+    await recordSendoffDecisionApiV1UiVersionsVersionIdSendoffDecisionsPost(
+      versionId,
+      input,
+    ),
+    201,
+  );
+}
+
+/** #38 出力。再送は別の出力を作るため、この関数は自動リトライしない。 */
+export async function createExport(versionId: number) {
+  const response =
+    await createExportApiV1UiVersionsVersionIdExportsPost(versionId);
+  if (response.status !== 200)
+    throw new ApiError(response.status, { code: "E_UNEXPECTED_RESPONSE" });
+  const headers = response.headers;
+  const file = parseExportFileName(headers);
+  return {
+    blob: response.data,
+    fileName: file.name,
+    namedByServer: file.fromHeader,
+  };
+}
+export async function listExports(versionId: number) {
+  return unwrapSuccess(
+    await listExportsApiV1UiVersionsVersionIdExportsGet(versionId),
+    200,
+  ).exports;
 }

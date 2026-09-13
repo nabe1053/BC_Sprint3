@@ -1,0 +1,158 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-components.test.tsx
+
+FAIL src/features/versions/__tests__/approval-components.test.tsx (5.055 s)
+  ✕ 索引nullの変更・判断事項に解決済み確認の理由と判断内容を併記 (83 ms)
+  ✕ 索引4の変更・判断事項に解決済み確認の理由と判断内容を併記 (29 ms)
+  ✓ h1・primaryは1つ、7要約・メタ・未解決注記・10列を表示する (194 ms)
+  ✓ draftでは確認/差し戻しを無効にして理由を示す (181 ms)
+  ✓ review_checkedでは確認/差し戻しを無効にして理由を示す (171 ms)
+  ✓ 空名ではPOSTせず、記録後も留まり評価確認と送付の区別をstatus表示 (327 ms)
+  ✓ 差し戻しの未紐付け0件はPOSTせず、成功時はItem Listへ戻る (276 ms)
+  ✓ 行コメントは明示記録だけ送信し、成功時だけ入力を空にする (264 ms)
+  ✓ 送付は判断者と保留理由を検査し未判断空理由をnullで送る (445 ms)
+  ✓ 行の索引・全行索引・根拠は排他、閲覧専用には訂正/取消/判断フォームなし (409 ms)
+  ✓ ボタン/入力上のclickやEnterは行索引を開かない (231 ms)
+  ✓ 空/読込/404/取得失敗/版一覧に該当なしを明示する (100 ms)
+  ✓ 409の表示は行IDと網羅性だけ、内部ID・生本文を出さない (224 ms)
+  ✓ readOnlyは操作コールバックが渡されても訂正・取消・判断・照合を出さない (56 ms)
+  ✓ 絞り込み全行でも索引の全体件数は変わらない (245 ms)
+  ✓ 絞り込み変更・判断事項のある行でも索引の全体件数は変わらない (246 ms)
+  ✓ 絞り込み訂正ありでも索引の全体件数は変わらない (260 ms)
+  ✓ 絞り込み未解決のみでも索引の全体件数は変わらない (240 ms)
+  ✓ 絞り込み差し戻しコメントありでも索引の全体件数は変わらない (264 ms)
+  ✓ API導出の差し戻し中・再確認と現在の送付判断を表示する (58 ms)
+
+  ● 索引nullの変更・判断事項に解決済み確認の理由と判断内容を併記
+
+    TestingLibraryElementError: Unable to find an element with the text: 規格の記載が二通り / 客先がL80を指定. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<div[39m
+      [33mclass[39m=[32m"MuiBox-root css-0"[39m
+    [36m>[39m
+      [36m<h3[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"[39m
+      [36m>[39m
+        [0m変更・判断事項（1 行）[0m
+      [36m</h3>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"MuiBox-root css-el8wl9"[39m
+      [36m>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+        [36m>[39m
+          [0mR1[0m
+        [36m</p>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m択一 G1[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m数量TBA[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m継承候補[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m担当者訂正 1 件[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m担当者判断 判断済み／解決[0m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+
+      65 |   const heading = screen.getByRole("heading", { name: /変更・判断事項（/ });
+      66 |   const changes = within(heading.parentElement!);
+    > 67 |   expect(changes.getByText("規格の記載が二通り / 客先がL80を指定")).toBeVisible();
+         |                  ^
+      68 |   expect(within(screen.getByRole("dialog")).queryByRole("textbox")).not.toBeInTheDocument();
+      69 | });
+      70 | it("h1・primaryは1つ、7要約・メタ・未解決注記・10列を表示する", () => {
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at getByText (src/features/versions/__tests__/approval-components.test.tsx:67:18)
+
+  ● 索引4の変更・判断事項に解決済み確認の理由と判断内容を併記
+
+    TestingLibraryElementError: Unable to find an element with the text: 規格の記載が二通り / 客先がL80を指定. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<div[39m
+      [33mclass[39m=[32m"MuiBox-root css-0"[39m
+    [36m>[39m
+      [36m<h3[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"[39m
+      [36m>[39m
+        [0m変更・判断事項（1 行）[0m
+      [36m</h3>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"MuiBox-root css-el8wl9"[39m
+      [36m>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+        [36m>[39m
+          [0mR1[0m
+        [36m</p>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m択一 G1[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m数量TBA[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m継承候補[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m担当者訂正 1 件[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m担当者判断 判断済み／解決[0m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+
+      65 |   const heading = screen.getByRole("heading", { name: /変更・判断事項（/ });
+      66 |   const changes = within(heading.parentElement!);
+    > 67 |   expect(changes.getByText("規格の記載が二通り / 客先がL80を指定")).toBeVisible();
+         |                  ^
+      68 |   expect(within(screen.getByRole("dialog")).queryByRole("textbox")).not.toBeInTheDocument();
+      69 | });
+      70 | it("h1・primaryは1つ、7要約・メタ・未解決注記・10列を表示する", () => {
+
+      at Object.getElementError (node_modules/@testing-library/dom/dist/config.js:37:19)
+      at node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at getByText (src/features/versions/__tests__/approval-components.test.tsx:67:18)
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 18 passed, 20 total
+Snapshots:   0 total
+Time:        5.267 s, estimated 19 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-components.test.tsx/i.
+make: *** [/tmp/approval-ui-checks.mk:8: approval-ui-components] Error 1

@@ -8,9 +8,11 @@ export function EditHistory({
   history,
   onUndo,
   busy,
+  readOnly = false,
 }: {
   history: ItemEditRecord[];
-  onUndo: (editId: number) => void;
+  onUndo?: (editId: number) => void;
+  readOnly?: boolean;
   busy: boolean;
 }) {
   const { t } = useTranslation();
@@ -54,7 +56,7 @@ export function EditHistory({
                   })}
                 </Typography>
               </>
-            ) : (
+            ) : !readOnly && onUndo ? (
               <Button
                 variant="outlined"
                 disabled={busy}
@@ -62,7 +64,7 @@ export function EditHistory({
               >
                 {t("versions.edit.undo")}
               </Button>
-            )}
+            ) : null}
           </Box>
         ))
       ) : (

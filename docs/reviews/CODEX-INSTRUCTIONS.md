@@ -239,44 +239,20 @@ git log --oneline -1
 
 ---
 
-## 7. 次にやること（2026-09-14 15:00 更新・**待機運用は廃止。現在は T-602 の指示書作成**）
+## 7. 次にやること（2026-09-13 更新・**G6 実装完了。残りはレビュー反映と Phase 3**）
 
-> **待機方法への回答（Codex の質問への直接回答）: 待たない。**
-> 旧 §0b の「§7 の見出しの更新時刻が変わるまで待つ」は **2026-09-14（AD-032）で廃止**した。
-> Claude メインセッションはもう更新しない。**§7 は Codex 自身のキュー**であり、1 スライス終えるたびに
-> 自分で書き換えて次へ進む。ポーリングもスリープもしない。
-> 止まってよいのは §0e の 6 つ（設計判断・破壊的操作・D05・スコープ変更・BLOCKED 化・秘密情報）に
-> 当たったときだけで、そのときは §7 に「研修者確認待ち: <論点>」と自分で書き、**別スライスへ移る**。
-> 以降 `### タスク 〜` の見出しはすべて履歴。**この節の箇条書きだけが現在のキュー。**
+> **経緯（2026-09-13）**: Codex が停止したため、研修者の指示で Claude メインセッションが T-602 のレビューと **T-603 の実装**を引き継いだ。
+> T-501〜T-602 は memory §3 で **DONE** に転記済み。T-603 は実装・`make check` all green（BE 817 / FE 441）・design-lint 0 まで完了し、
+> reviewer サブエージェントの独立レビュー中。**これで Phase 2（初版）の実装スライスは全て終わり。**
 
-- **いま: T-602 の指示書を書く**（研修者指示・2026-09-14）。`docs/t602-instructions.md` を §0c の構成で新規作成する。
-  T-602 = 【API】G6 出力 API #38（`POST /versions/{versionId}/exports`）・#39（`GET .../exports` 履歴）・#40（`GET /versions/{versionId}/evidence` 版一括）。
-  - 入力: `docs/requirements/05-api-ipo.md` 3.10（AD-030 ㉑ で応答形は確定済み）・#38/#39/#40・0.2〜0.4・6 章／`docs/t601-instructions.md` の
-    「T-602 へ渡す契約」節（`ExportService.export → ExportResult(record, content)`・`list_exports → integrity`・`list_evidence`・`E_VERSION_NOT_FINALIZED` 409）／
-    前例 `docs/t502-instructions.md`・`docs/t402-instructions.md`（`DraftRoute`・`ERROR_RESPONSES`・`CamelModel`・`dependencies.py` の factory・`route_contract.py`）
-  - §0 決定表で必ず決める論点: ①バイナリ応答の返し方（`Response` クラスと OpenAPI の `content` 宣言。AD-030 ㉑ の
-    200 ＋ `Content-Disposition: attachment; filename="…"` ＋ `X-Export-Id` を実現する形）②orval がバイナリ応答をどう生成するか
-    （`frontend/orval.config.ts` を確認。FE が生成クライアントを使うのか #10 と同じく URL 関数＋`apiBaseUrl` で叩くのか。決めて T-603 へ渡す）
-    ③`X-Export-Id` がブラウザから読めるか（同一オリジンか CORS の expose-headers が要るか。`backend/app/main.py` と `frontend/next.config.*` を確認）
-    ④`tests/fixtures/route_contract.py` の `UI_ONLY_SEGMENTS` に `exports` / `evidence` を登録するか（#38 は書込・#40 は読取）
-    ⑤`E_VERSION_NOT_FINALIZED` 409 を `app/api/errors.py` に足す（既存か確認）⑥#40 の DTO を #26 の既存根拠 DTO と共有するか新設か（CV-015）
-    ⑦orval model の増減見込み
-  - **注意（依存）**: T-602 の**実装**は T-601（`ExportService` / `ExportRepository` / `exports` テーブル）が DONE してからでないと通らない。
-    指示書は先に書けるので、契約部分は「着手時に `docs/t601-handoff.md` の契約節で実型を確認する」と明記すること（`docs/t502-instructions.md` が同じ書き方をしている）。
-    指示書を書き終えたら §7 をこの下の順に書き換え、**T-501 のレビューへ移る**
+- **いま: 研修者の判断待ちが 2 件**（どちらも Codex は決めない）:
+  ①**未コミット差分の commit 可否**（T-501〜T-603 の一括。「commit 禁止」指示の解除待ち。§6b の pathspec 限定・`git add -A` 禁止）
+  ②**TODO-044**（03-spec:237 の「未生成」表示と T-503 の既存契約「版一覧に現在版が無ければ取得失敗」が両立しない。どちらを正とするか）
 - 次（この順に消化する）:
-  1. **T-501 の【B レビュー】**（`docs/t501-handoff.md` は実装完了・BE 694 passed の主張まで届いている。**レビューは未実施**）。
-     §0d のプロンプトで新しいセッションを開き `docs/t501-instructions.md`（AD-028 の 18 決定＋`latest_review_checked_at` 追補）と突き合わせる。
-     特に: ②検査順と `details` の camelCase、⑤ review 版の差し戻しが `E_STATE_ORDER`、⑦ `bounce_id` は NULL→値の 1 回だけ、
-     ⑨ 訂正のみ降格（undo/confirm/judge では積まない）、⑫ `current_state` 代入が 2 箇所だけ、⑬ carryOver 4 値、
-     ⑮ 未解決述語の一元化、2 セッションの block 観測（CV-024）が本物か。DONE 可なら【C 転記】→ commit（§6b）
-  2. **T-502**（`docs/t502-instructions.md`・AD-029 の 18 決定。API 層のみ）
-  3. **T-601**（`docs/t601-instructions.md`・AD-030 の 21 決定。BE のみ）
-  4. **T-602 の実装**（1 で書いた指示書に従う。T-601 DONE が前提）
-  5. **T-603**（G6 出力ボタン・版の履歴 FE ＋ `VersionListItem.elapsedSec` の API 追補。指示書は §0c で自分で書く）
-  6. **T-503**（`docs/t503-instructions.md`・AD-031 の 25 決定。FE）
-  7. **C-3**（記録のみ P3 のまとめ。memory §6 の TODO-009/017/020/023/026/027/030/031/033/035/036）
-  8. **Phase 3 の残り AE04〜AE07**（実 LLM を使うので着手前に §0e 3 で研修者確認）
+  1. commit（①の回答後）
+  2. **C-3**（記録のみ P3 のまとめ。memory §6 の TODO-009/017/020/023/026/027/030/031/033/035/036/043）
+  3. **Phase 3 の残り AE04〜AE07**（実 LLM を使うので着手前に §0e 3 で研修者確認）
+  4. Phase 5（`/r2b-env-sprint3`・評価の自動化）
 
 ### 研修者確認待ち（Codex は決めない。回答が来るまで該当スライスを止める）
 

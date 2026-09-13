@@ -1,0 +1,56 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-model.test.ts
+
+FAIL src/features/versions/__tests__/approval-model.test.ts
+  ✓ 要約7値は個別API材料から取り、コメントは未紐付けだけ数える (9 ms)
+  ✕ 記録者は最新staff/reviewと未取消coverage、入力を変更しない (24 ms)
+  ✓ 変更タグ5種と取消除外、未解決述語・5絞り込みが既存表示と一致 (15 ms)
+  ✓ canReview draft (1 ms)
+  ✓ canReview staff_checked (1 ms)
+  ✓ canReview review_checked (1 ms)
+  ✓ 要求は名前から検査し採時を含めず、未判断の空理由をnullにする (24 ms)
+  ✓ E_STAFF_CHECK_INCOMPLETEは承認文言へ、他は既存fallback (1 ms)
+  ✓ E_COVERAGE_NOT_RECORDEDは承認文言へ、他は既存fallback (1 ms)
+  ✓ E_STATE_ORDERは承認文言へ、他は既存fallback (1 ms)
+  ✓ E_STATE_ROLLBACK_FORBIDDENは承認文言へ、他は既存fallback (1 ms)
+  ✓ E_NO_BOUNCE_COMMENTは承認文言へ、他は既存fallback (1 ms)
+  ✓ E_SENDOFF_REASON_REQUIREDは承認文言へ、他は既存fallback
+  ✓ E_COMMENT_REQUIREDは承認文言へ、他は既存fallback
+  ✓ E_RECORDER_REQUIREDは承認文言へ、他は既存fallback (1 ms)
+  ✓ 状態詳細は行IDだけを抽出し内部IDや生メッセージを返さない (2 ms)
+
+  ● 記録者は最新staff/reviewと未取消coverage、入力を変更しない
+
+    expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+    @@ -1,8 +1,8 @@
+      Object {
+        "coverage": Object {
+    -     "recordedBy": "網羅担当",
+    +     "recordedBy": "取消済み",
+        },
+        "review": Object {
+          "recordedBy": "評価者",
+        },
+        "staff": Object {
+
+      49 |   );
+      50 |   const before = JSON.stringify(d.records);
+    > 51 |   expect(model.recorderMeta(d.records)).toMatchObject({
+         |                                         ^
+      52 |     staff: { recordedBy: "再確認担当" },
+      53 |     coverage: { recordedBy: "網羅担当" },
+      54 |     review: { recordedBy: "評価者" },
+
+      at Object.toMatchObject (src/features/versions/__tests__/approval-model.test.ts:51:41)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 15 passed, 16 total
+Snapshots:   0 total
+Time:        1.071 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-model.test.ts/i.
+make: *** [/tmp/approval-ui-checks.mk:4: approval-ui-model] Error 1

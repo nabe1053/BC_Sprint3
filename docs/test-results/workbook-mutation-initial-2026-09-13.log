@@ -1,0 +1,63 @@
+.F.F........                                                             [100%]
+=================================== FAILURES ===================================
+____ test_export_locks_stamps_saves_exact_bytes_and_metadata[False-1-False] ____
+
+count = 1, initial = False, sendoff = False
+
+    @pytest.mark.parametrize("count,initial", [(0, True), (1, False)])
+    @pytest.mark.parametrize("sendoff", [False, True])
+    async def test_export_locks_stamps_saves_exact_bytes_and_metadata(
+        count, initial, sendoff
+    ):
+        from openpyxl import load_workbook
+        from io import BytesIO
+        from app.domain.export_types import SHEET_NAMES, format_ts
+    
+        service, repo, storage, data, order = setup_service(
+            count=count, with_sendoff=sendoff
+        )
+        before = datetime.now(UTC)
+        result = await service.export(data.version.id)
+        after = datetime.now(UTC)
+        assert order == ["lock", "snapshot", "storage", "insert", "commit"]
+        row = result.record
+        assert before <= row.exported_at <= after
+>       assert row.is_initial is initial and row.state_at_export == "draft"
+E       AssertionError: assert (True is False)
+E        +  where True = namespace(id=5, version_id=7, file_name='S-01_v2_draft_20260913-093047.xlsx', storage_path='saved.xlsx', content_hash=...atetime.timezone.utc), state_at_export='draft', sendoff_at_export='undecided', unresolved_at_export=1, is_initial=True).is_initial
+
+tests/unit/test_export_service.py:73: AssertionError
+____ test_export_locks_stamps_saves_exact_bytes_and_metadata[True-1-False] _____
+
+count = 1, initial = False, sendoff = True
+
+    @pytest.mark.parametrize("count,initial", [(0, True), (1, False)])
+    @pytest.mark.parametrize("sendoff", [False, True])
+    async def test_export_locks_stamps_saves_exact_bytes_and_metadata(
+        count, initial, sendoff
+    ):
+        from openpyxl import load_workbook
+        from io import BytesIO
+        from app.domain.export_types import SHEET_NAMES, format_ts
+    
+        service, repo, storage, data, order = setup_service(
+            count=count, with_sendoff=sendoff
+        )
+        before = datetime.now(UTC)
+        result = await service.export(data.version.id)
+        after = datetime.now(UTC)
+        assert order == ["lock", "snapshot", "storage", "insert", "commit"]
+        row = result.record
+        assert before <= row.exported_at <= after
+>       assert row.is_initial is initial and row.state_at_export == "draft"
+E       AssertionError: assert (True is False)
+E        +  where True = namespace(id=5, version_id=7, file_name='S-01_v2_draft_20260913-093047.xlsx', storage_path='saved.xlsx', content_hash=...datetime.timezone.utc), state_at_export='draft', sendoff_at_export='approved', unresolved_at_export=1, is_initial=True).is_initial
+
+tests/unit/test_export_service.py:73: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_export_service.py::test_export_locks_stamps_saves_exact_bytes_and_metadata[False-1-False] - AssertionError: assert (True is False)
+ +  where True = namespace(id=5, version_id=7, file_name='S-01_v2_draft_20260913-093047.xlsx', storage_path='saved.xlsx', content_hash=...atetime.timezone.utc), state_at_export='draft', sendoff_at_export='undecided', unresolved_at_export=1, is_initial=True).is_initial
+FAILED tests/unit/test_export_service.py::test_export_locks_stamps_saves_exact_bytes_and_metadata[True-1-False] - AssertionError: assert (True is False)
+ +  where True = namespace(id=5, version_id=7, file_name='S-01_v2_draft_20260913-093047.xlsx', storage_path='saved.xlsx', content_hash=...datetime.timezone.utc), state_at_export='draft', sendoff_at_export='approved', unresolved_at_export=1, is_initial=True).is_initial
+2 failed, 10 passed in 0.20s
+make: *** [/tmp/workbook-checks.mk:10: workbook-service] Error 1

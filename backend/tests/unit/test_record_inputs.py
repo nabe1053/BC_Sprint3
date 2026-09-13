@@ -71,3 +71,78 @@ def test_judged_unresolved_and_coverage_are_separate_valid_contracts():
     with pytest.raises(ValidationError) as error:
         UndoInput(recorded_by=" ")
     assert error.value.errors()[0]["type"] == "E_RECORDER_REQUIRED"
+
+
+@pytest.mark.parametrize(
+    "schema,data,code",
+    [
+        (
+            "StateEventInput",
+            {"recorded_by": " ", "to_state": "draft"},
+            "E_RECORDER_REQUIRED",
+        ),
+        (
+            "StateEventInput",
+            {"recorded_by": "person", "to_state": "draft"},
+            "E_STATE_ROLLBACK_FORBIDDEN",
+        ),
+        (
+            "BounceCommentInput",
+            {"recorded_by": " ", "item_id": 1, "comment": "text"},
+            "E_RECORDER_REQUIRED",
+        ),
+        (
+            "BounceCommentInput",
+            {"recorded_by": "person", "item_id": 1, "comment": " \t"},
+            "E_COMMENT_REQUIRED",
+        ),
+        ("BounceInput", {"recorded_by": " "}, "E_RECORDER_REQUIRED"),
+        (
+            "SendoffInput",
+            {"recorded_by": " ", "decision": "hold"},
+            "E_RECORDER_REQUIRED",
+        ),
+        (
+            "SendoffInput",
+            {"recorded_by": "person", "decision": "hold"},
+            "E_SENDOFF_REASON_REQUIRED",
+        ),
+        (
+            "SendoffInput",
+            {"recorded_by": "person", "decision": "approved", "reason": " "},
+            "E_SENDOFF_REASON_REQUIRED",
+        ),
+    ],
+)
+def test_approval_input_codes_and_recorder_precedence(schema, data, code):
+    from app.domain import record_types
+
+    with pytest.raises(ValidationError) as error:
+        getattr(record_types, schema).model_validate(data)
+    assert error.value.errors()[0]["type"] == code
+
+
+def test_approval_inputs_trim_names_and_keep_decisions_independent():
+    from app.domain.record_types import (
+        StateEventInput,
+        BounceCommentInput,
+        BounceInput,
+        SendoffInput,
+    )
+
+    assert (
+        StateEventInput(recorded_by=" actor ", to_state="staff_checked").recorded_by
+        == "actor"
+    )
+    assert (
+        BounceCommentInput(recorded_by="actor", item_id=1, comment=" note ").comment
+        == "note"
+    )
+    assert BounceInput(recorded_by="actor").model_dump() == {"recorded_by": "actor"}
+    assert SendoffInput(recorded_by="actor", decision="undecided").reason is None
+    assert (
+        SendoffInput(
+            recorded_by="actor", decision="approved", reason=" condition "
+        ).reason
+        == "condition"
+    )

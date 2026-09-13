@@ -18,6 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.cases import Case
 from app.models.versions import Version
+from app.models.approvals import SendoffDecision
 from app.services.exceptions import DuplicateCaseCodeError
 
 _UNIQUE_VIOLATION_SQLSTATE = "23505"
@@ -76,12 +77,25 @@ class CaseRepository:
     async def latest_versions(self, case_ids):
         if not case_ids:
             return {}
+        latest_sendoff = (
+            select(SendoffDecision.decision)
+            .where(SendoffDecision.version_id == Version.id)
+            .order_by(SendoffDecision.recorded_at.desc(), SendoffDecision.id.desc())
+            .limit(1)
+            .correlate(Version)
+            .scalar_subquery()
+        )
         rows = (
             await self.session.execute(
-                select(Version)
+                select(
+                    Version.id,
+                    Version.case_id,
+                    Version.current_state,
+                    latest_sendoff.label("latest_sendoff"),
+                )
                 .where(Version.case_id.in_(case_ids), Version.finalized_at.is_not(None))
                 .distinct(Version.case_id)
                 .order_by(Version.case_id, Version.version_no.desc())
             )
-        ).scalars()
+        ).all()
         return {row.case_id: row for row in rows}

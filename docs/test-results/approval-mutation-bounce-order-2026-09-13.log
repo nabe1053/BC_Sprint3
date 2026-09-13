@@ -1,0 +1,40 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+...........F                                                             [100%]
+=================================== FAILURES ===================================
+_____________ test_bounce_reason_is_ordered_by_server_time_and_id ______________
+
+    def test_bounce_reason_is_ordered_by_server_time_and_id():
+        from app.services.version_state import bounce_reason
+    
+        comments = [
+            N(id=3, item_id=1, recorded_at=2, comment="後"),
+            N(id=2, item_id=3, recorded_at=1, comment="同時刻後"),
+            N(id=1, item_id=1, recorded_at=1, comment="先"),
+        ]
+>       assert bounce_reason(comments, {1: "R1", 3: "R3"}) == "R1: 先\nR3: 同時刻後\nR1: 後"
+E       AssertionError: assert 'R1: 後\nR3: 同時刻後\nR1: 先' == 'R1: 先\nR3: 同時刻後\nR1: 後'
+E         - R1: 先
+E         ?     ^
+E         + R1: 後
+E         ?     ^
+E           R3: 同時刻後
+E         - R1: 後
+E         ?     ^
+E         + R1: 先
+E         ?     ^
+
+tests/unit/test_version_state.py:101: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_version_state.py::test_bounce_reason_is_ordered_by_server_time_and_id - AssertionError: assert 'R1: 後\nR3: 同時刻後\nR1: 先' == 'R1: 先\nR3: 同時刻後\nR1: 後'
+  - R1: 先
+  ?     ^
+  + R1: 後
+  ?     ^
+    R3: 同時刻後
+  - R1: 後
+  ?     ^
+  + R1: 先
+  ?     ^
+1 failed, 11 passed in 0.07s
+make[1]: *** [/tmp/approval-checks.mk:4: approval-state] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

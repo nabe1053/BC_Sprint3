@@ -31,6 +31,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["Content-Disposition", "X-Export-Id"],
 )
 
 app.add_exception_handler(ApiError, api_error_handler)

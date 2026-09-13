@@ -1,0 +1,80 @@
+src/features/versions/__tests__/api.test.ts 63ms (unchanged)
+src/features/versions/__tests__/approval-api.test.ts 16ms (unchanged)
+src/features/versions/__tests__/approval-components.test.tsx 77ms
+src/features/versions/__tests__/approval-hooks.test.tsx 25ms (unchanged)
+src/features/versions/__tests__/approval-model.test.ts 21ms (unchanged)
+src/features/versions/__tests__/approval-refresh.test.tsx 16ms
+src/features/versions/__tests__/components.test.tsx 51ms (unchanged)
+src/features/versions/__tests__/hooks.test.tsx 24ms (unchanged)
+src/features/versions/__tests__/inventory-api.test.ts 9ms (unchanged)
+src/features/versions/__tests__/inventory-components.test.tsx 66ms (unchanged)
+src/features/versions/__tests__/inventory-hooks.test.tsx 12ms (unchanged)
+src/features/versions/__tests__/inventory-model.test.ts 13ms (unchanged)
+src/features/versions/__tests__/model.test.ts 15ms (unchanged)
+src/features/versions/api.ts 8ms (unchanged)
+src/features/versions/components/ApprovalError.tsx 6ms (unchanged)
+src/features/versions/components/ApprovalFilters.tsx 6ms (unchanged)
+src/features/versions/components/ApprovalListsDrawer.tsx 22ms (unchanged)
+src/features/versions/components/ApprovalPage.tsx 23ms (unchanged)
+src/features/versions/components/ApprovalSummaryCard.tsx 5ms (unchanged)
+src/features/versions/components/ApprovalTable.tsx 13ms (unchanged)
+src/features/versions/components/BounceBanner.tsx 4ms (unchanged)
+src/features/versions/components/BounceCommentCell.tsx 5ms (unchanged)
+src/features/versions/components/CoverageRecordPanel.tsx 6ms (unchanged)
+src/features/versions/components/EditForm.tsx 11ms (unchanged)
+src/features/versions/components/EditHistory.tsx 5ms (unchanged)
+src/features/versions/components/EvidenceDrawer.tsx 25ms (unchanged)
+src/features/versions/components/InventoryEntriesTable.tsx 9ms (unchanged)
+src/features/versions/components/InventoryItemsTable.tsx 6ms (unchanged)
+src/features/versions/components/InventoryPage.tsx 9ms (unchanged)
+src/features/versions/components/InventoryScopePanel.tsx 4ms (unchanged)
+src/features/versions/components/ItemFilters.tsx 9ms (unchanged)
+src/features/versions/components/ItemListPage.tsx 25ms (unchanged)
+src/features/versions/components/ItemTable.tsx 15ms (unchanged)
+src/features/versions/components/ItemValue.tsx 4ms (unchanged)
+src/features/versions/components/QuestionJudgementForm.tsx 10ms (unchanged)
+src/features/versions/components/ReviewCheckPanel.tsx 5ms (unchanged)
+src/features/versions/components/SendoffPanel.tsx 12ms (unchanged)
+src/features/versions/components/StaffCheckAction.tsx 7ms (unchanged)
+src/features/versions/components/VersionHistory.tsx 3ms (unchanged)
+src/features/versions/components/VersionSummary.tsx 10ms (unchanged)
+src/features/versions/hooks.ts 9ms (unchanged)
+src/features/versions/index.ts 1ms (unchanged)
+src/features/versions/model.ts 30ms (unchanged)
+src/features/versions/testing/fixtures.ts 21ms (unchanged)
+src/features/cases/components/CaseListPage.tsx 14ms (unchanged)
+src/features/cases/components/__tests__/CaseListPage.test.tsx 18ms (unchanged)
+src/shared/i18n/ja.json 20ms (unchanged)
+src/app/__tests__/case-routes.test.tsx 6ms (unchanged)
+src/app/(portal)/cases/[caseId]/versions/[versionId]/approval/page.tsx 2ms (unchanged)
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-refresh.test.tsx
+
+FAIL src/features/versions/__tests__/approval-refresh.test.tsx
+  ✕ 評価確認済み版の訂正POST後、同一画面で版一覧を再取得して再確認バナーを出す (1031 ms)
+
+  ● 評価確認済み版の訂正POST後、同一画面で版一覧を再取得して再確認バナーを出す
+
+    expect(received).toHaveLength(expected)
+
+    Expected length: 2
+    Received length: 3
+    Received array:  [["http://localhost:8000/api/v1/ui/cases/8/versions", {"headers": {}, "method": "GET"}], ["http://localhost:8000/api/v1/ui/cases/8/versions", {"headers": {}, "method": "GET"}], ["http://localhost:8000/api/v1/ui/cases/8/versions", {"headers": {}, "method": "GET"}]]
+
+       97 |         String(url).endsWith("/cases/8/versions"),
+       98 |       ),
+    >  99 |     ).toHaveLength(2);
+          |       ^
+      100 |     expect(
+      101 |       request.mock.calls.some(([url]) => String(url).endsWith("/records")),
+      102 |     ).toBe(false);
+
+      at Object.toHaveLength (src/features/versions/__tests__/approval-refresh.test.tsx:99:7)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        1.933 s, estimated 3 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-refresh.test.tsx/i.
+make: *** [/tmp/approval-ui-checks.mk:21: approval-ui-refresh] Error 1

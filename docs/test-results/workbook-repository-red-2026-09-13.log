@@ -1,0 +1,75 @@
+FFFFFF                                                                   [100%]
+=================================== FAILURES ===================================
+______ test_snapshot_current_values_and_all_materials_are_version_scoped _______
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x777bba35d940>
+
+    async def test_snapshot_current_values_and_all_materials_are_version_scoped(db_session):
+>       from app.repositories.export_repository import ExportRepository
+E       ModuleNotFoundError: No module named 'app.repositories.export_repository'
+
+tests/integration/test_export_repository.py:13: ModuleNotFoundError
+____ test_lock_errors_distinguish_missing_and_unfinalized[True-E_NOT_FOUND] ____
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x777bba3a9be0>
+missing = True, code = 'E_NOT_FOUND'
+
+    @pytest.mark.parametrize('missing,code', [(True,'E_NOT_FOUND'), (False,'E_VERSION_NOT_FINALIZED')])
+    async def test_lock_errors_distinguish_missing_and_unfinalized(db_session, missing, code):
+>       from app.repositories.export_repository import ExportRepository
+E       ModuleNotFoundError: No module named 'app.repositories.export_repository'
+
+tests/integration/test_export_repository.py:40: ModuleNotFoundError
+_ test_lock_errors_distinguish_missing_and_unfinalized[False-E_VERSION_NOT_FINALIZED] _
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x777bba3a9220>
+missing = False, code = 'E_VERSION_NOT_FINALIZED'
+
+    @pytest.mark.parametrize('missing,code', [(True,'E_NOT_FOUND'), (False,'E_VERSION_NOT_FINALIZED')])
+    async def test_lock_errors_distinguish_missing_and_unfinalized(db_session, missing, code):
+>       from app.repositories.export_repository import ExportRepository
+E       ModuleNotFoundError: No module named 'app.repositories.export_repository'
+
+tests/integration/test_export_repository.py:40: ModuleNotFoundError
+_______________________ test_export_count_and_list_order _______________________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x777bba957cb0>
+
+    async def test_export_count_and_list_order(db_session):
+>       from app.repositories.export_repository import ExportRepository
+E       ModuleNotFoundError: No module named 'app.repositories.export_repository'
+
+tests/integration/test_export_repository.py:49: ModuleNotFoundError
+______________ test_snapshot_query_count_does_not_grow_with_items ______________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x777bba3b6840>
+
+    async def test_snapshot_query_count_does_not_grow_with_items(db_session):
+>       from app.repositories.export_repository import ExportRepository
+E       ModuleNotFoundError: No module named 'app.repositories.export_repository'
+
+tests/integration/test_export_repository.py:67: ModuleNotFoundError
+_______________ test_human_edit_waits_for_export_snapshot_commit _______________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x777bba3b7500>
+
+    async def test_human_edit_waits_for_export_snapshot_commit(db_session):
+>       from app.repositories.export_repository import ExportRepository
+E       ModuleNotFoundError: No module named 'app.repositories.export_repository'
+
+tests/integration/test_export_repository.py:89: ModuleNotFoundError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_export_repository.py::test_snapshot_current_values_and_all_materials_are_version_scoped - ModuleNotFoundError: No module named 'app.repositories.export_repository'
+FAILED tests/integration/test_export_repository.py::test_lock_errors_distinguish_missing_and_unfinalized[True-E_NOT_FOUND] - ModuleNotFoundError: No module named 'app.repositories.export_repository'
+FAILED tests/integration/test_export_repository.py::test_lock_errors_distinguish_missing_and_unfinalized[False-E_VERSION_NOT_FINALIZED] - ModuleNotFoundError: No module named 'app.repositories.export_repository'
+FAILED tests/integration/test_export_repository.py::test_export_count_and_list_order - ModuleNotFoundError: No module named 'app.repositories.export_repository'
+FAILED tests/integration/test_export_repository.py::test_snapshot_query_count_does_not_grow_with_items - ModuleNotFoundError: No module named 'app.repositories.export_repository'
+FAILED tests/integration/test_export_repository.py::test_human_edit_waits_for_export_snapshot_commit - ModuleNotFoundError: No module named 'app.repositories.export_repository'
+6 failed, 1 warning in 2.15s
+make: *** [/tmp/workbook-checks.mk:8: workbook-repository] Error 1

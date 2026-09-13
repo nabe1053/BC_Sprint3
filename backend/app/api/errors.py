@@ -43,6 +43,14 @@ async def api_error_handler(_: Request, exc: ApiError) -> JSONResponse:
 # DomainError.code → HTTP status（05-api-ipo.md 6章）。
 # ここに無い code は開発時の取りこぼしなので 400（Bad Request）に丸める。
 DOMAIN_ERROR_STATUS_BY_CODE: dict[str, int] = {
+    "E_VERSION_NOT_FINALIZED": 409,
+    "E_STAFF_CHECK_INCOMPLETE": 409,
+    "E_COVERAGE_NOT_RECORDED": 409,
+    "E_STATE_ORDER": 409,
+    "E_STATE_ROLLBACK_FORBIDDEN": 422,
+    "E_NO_BOUNCE_COMMENT": 409,
+    "E_SENDOFF_REASON_REQUIRED": 400,
+    "E_COMMENT_REQUIRED": 400,
     "E_FIELD_NOT_EDITABLE": 422,
     "E_ALREADY_UNDONE": 409,
     "E_ALREADY_CONFIRMED": 409,

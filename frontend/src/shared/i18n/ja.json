@@ -30,7 +30,13 @@
         "draft_review": "作成案",
         "staff_checked": "担当者確認済み",
         "review_checked": "評価確認済み"
-      }
+      },
+      "sendoffState": {
+        "undecided": "未判断",
+        "hold": "保留",
+        "approved": "承認"
+      },
+      "sendoff": "送付可否"
     },
     "progress": {
       "intake": "1/4 資料投入",
@@ -454,7 +460,15 @@
       "createdAt": "作成日時",
       "state": "状態",
       "open": "版 {{number}} を開く",
-      "current": "表示中"
+      "current": "表示中",
+      "elapsed": "生成所要",
+      "elapsedSeconds": "{{seconds}} 秒",
+      "elapsedUnrecorded": "未記録",
+      "elapsedNote": "生成所要は起動から作成案の確定までの経過時間です。AI の待ち時間は人の作業時間に含めません。",
+      "unresolved": "未解決 {{count}} 件",
+      "carryOverWarning": "再実行すると新版は作成案から始まります。この版の訂正・照合・判断の記録は新版へ引き継がれません（自動マージは対象外）。既存版は保全されます。",
+      "compare": "2 版を比較",
+      "compareNote": "初版は版を別に保持して人が比較します。"
     },
     "emptyItems": "この版に明細がありません",
     "emptyFiltered": "条件に一致する明細はありません。フィルターを変更するか、条件をクリアしてください。",
@@ -551,6 +565,192 @@
         "E_ALREADY_CONFIRMED": "網羅性確認は既に記録されています。最新の記録を表示します"
       },
       "countsLabel": "照合件数"
+    },
+    "approval": {
+      "title": "引合書承認",
+      "description": "担当者が確定した Item List を、修正と判断がわかる状態で確認し、承認または差し戻しを記録します。",
+      "back": "Item List へ",
+      "link": "引合書承認へ",
+      "summary": {
+        "title": "状態の要約 — 担当者の確認結果",
+        "state": "評価状態",
+        "sendoff": "送付可否",
+        "matched": "一致確認",
+        "coverage": "網羅性確認",
+        "edits": "訂正",
+        "unresolved": "未解決",
+        "bounceComments": "差し戻しコメント",
+        "matchedValue": "{{matched}} / {{total}}",
+        "bounced": "差し戻し中（作成案には戻りません）",
+        "needsRecheck": "再確認が必要（評価確認済みの後に訂正が記録されました。評価確認の記録は消えません）",
+        "noSendoff": "記録なし"
+      },
+      "meta": {
+        "line": "担当者：{{staff}} ／ 網羅性確認：{{coverage}} ／ 評価確認：{{review}}",
+        "recorded": "{{by}} / {{at}}",
+        "unrecorded": "未記録"
+      },
+      "review": {
+        "title": "① 評価確認 — 原資料への適合を確認する",
+        "recorder": "確認者名（必須）",
+        "recorderHint": "評価確認・差し戻し・行コメントの記録者になります。AI は補完しません。",
+        "approve": "評価確認済みにする",
+        "bounce": "差し戻す",
+        "hint": "差し戻しは表右端の行コメント（{{rows}} 行）を理由にします。評価確認済みは送付承認ではありません。",
+        "draftHint": "担当者の確認が完了すると押せます。",
+        "reviewedHint": "評価確認済みです。訂正が記録されると再確認が必要になります。",
+        "done": "評価確認済みにしました（未解決 {{unresolved}} 件を含む）。送付可否は別に判断してください。",
+        "bounced": "差し戻しを記録しました（{{rows}} 行）。状態は担当者確認済みのままです。"
+      },
+      "sendoff": {
+        "title": "② 送付可否 — 対外送付の判断（①とは別の記録）",
+        "decision": "判断",
+        "reason": "理由・条件（保留・承認は必須）",
+        "recorder": "判断者（必須）",
+        "record": "記録",
+        "current": "現在：{{decision}} ／ {{by}} ／ {{at}}",
+        "done": "送付可否を「{{decision}}」として記録しました。評価確認とは別の記録です。",
+        "state": {
+          "undecided": "未判断",
+          "hold": "保留",
+          "approved": "承認"
+        }
+      },
+      "notice": {
+        "lead": "評価確認済みは送付承認ではありません。",
+        "incomplete": "担当者の確認が未完了です（照合 {{matched}}/{{total}} 行・網羅性確認 {{coverage}}）。Item List 確認画面で照合と網羅性確認を完了してください。",
+        "unresolved": "未解決 {{unresolved}} 件を含めて評価確認を終えられます。件数は記録と出力に残ります。"
+      },
+      "filters": {
+        "label": "表示",
+        "all": "全行",
+        "changes": "変更・判断事項のある行",
+        "edited": "訂正あり",
+        "unresolved": "未解決のみ",
+        "bounce": "差し戻しコメントあり",
+        "shown": "{{shown}} / {{total}} 行"
+      },
+      "lists": {
+        "open": "変更・判断事項 {{changes}} 行 ／ 未解決 {{unresolved}} 件 を開く",
+        "title": "変更・判断事項と未解決事項",
+        "rowTitle": "行 {{row}} の変更・判断事項と未解決事項",
+        "description": "どの行を見るべきかを示す索引です。{{total}} 行のうち 変更・判断事項 {{changes}} 行／未解決 {{unresolved}} 件。判断の入力は表または Item List 確認画面で行います。",
+        "rowDescription": "この行に紐づく事項だけを表示しています（変更・判断事項 {{changes}} 件／未解決 {{unresolved}} 件）。",
+        "caseUnresolved": "行に紐づかない案件レベルの未解決 {{caseLevel}} 件があります。「全行の索引を開く」で確認してください。",
+        "openEvidence": "この行の根拠を開く",
+        "openAll": "全行の索引を開く",
+        "close": "閉じる",
+        "changesTitle": "変更・判断事項（{{total}} 行）",
+        "unresolvedTitle": "未解決事項（{{total}} 件）",
+        "noChanges": "変更・択一・TBA・継承候補・訂正・判断のある行はありません。",
+        "noRowChanges": "この行に変更・判断事項はありません。原資料との照合は必要です。",
+        "noUnresolved": "未解決の確認事項はありません。",
+        "noRowUnresolved": "この行に未解決の確認事項はありません。",
+        "unresolvedNote": "「照会中」「保留」と判断しても客先回答が無い限り未解決です。件数は評価確認の記録と .xlsx に残ります。",
+        "caseLevel": "案件レベル"
+      },
+      "tags": {
+        "choice": "択一 {{group}}",
+        "tba": "数量TBA",
+        "inherit": "継承候補",
+        "edited": "担当者訂正 {{total}} 件",
+        "judged": "担当者判断 {{status}}／{{resolution}}"
+      },
+      "columns": {
+        "rowCode": "行ID",
+        "kind": "品種",
+        "spec": "仕様（外径／単重／材質／接続／長さ）",
+        "qty": "数量",
+        "due": "納期",
+        "group": "グループ",
+        "edits": "担当者の訂正",
+        "judgement": "担当者の判断",
+        "evidence": "根拠",
+        "bounce": "上司の差し戻しコメント"
+      },
+      "row": {
+        "matched": "照合済み",
+        "unmatched": "未照合",
+        "noGroupSum": "合算しない",
+        "openLabel": "行 {{row}} の変更・判断事項と未解決事項を開く",
+        "edit": "{{field}}：{{old}} → {{new}}",
+        "evidence": "根拠"
+      },
+      "bounce": {
+        "label": "行 {{row}} の差し戻しコメント",
+        "record": "記録",
+        "recorded": "{{comment}} — {{by}} / {{at}}"
+      },
+      "emptyFiltered": "条件に一致する行はありません。表示を「全行」に戻してください。",
+      "emptyItems": "この版に明細がありません。資料投入画面で案を作成してください。",
+      "tableNote": "仕様・数量は担当者の訂正を反映した確定値です。訂正欄に旧値・新値・理由、判断欄に対応状況・解決状態・判断内容が出ます。差し戻す行にコメントを入れて記録し、①の「差し戻す」で確定してください。",
+      "notFound": "版が見つかりません。案件一覧から版を選び直してください。",
+      "loadError": "承認データを取得できませんでした。接続を確認して再取得してください。",
+      "reload": "再取得",
+      "errors": {
+        "E_STAFF_CHECK_INCOMPLETE": "担当者の確認が未完了です。未照合 {{unmatched}} 行（{{rowCodes}}）・網羅性確認 {{coverage}}。Item List 確認画面で完了してから再操作してください。",
+        "E_COVERAGE_NOT_RECORDED": "網羅性確認が未記録です。網羅性照合画面で記録してから再操作してください。",
+        "E_STATE_ORDER": "この状態からは記録できません（同じ状態への再遷移、または評価確認済みの版への差し戻し）。最新の状態を再取得して確認してください。",
+        "E_STATE_ROLLBACK_FORBIDDEN": "作成案には戻せません。差し戻しは状態を変えず記録として残します。",
+        "E_NO_BOUNCE_COMMENT": "差し戻す行にコメントを入力してください（表の右端の列）。理由の無い差し戻しは記録できません。",
+        "E_SENDOFF_REASON_REQUIRED": "保留・承認は理由・条件の入力が必要です。未解決を残して承認する場合も理由を残してください。",
+        "E_COMMENT_REQUIRED": "行コメントを入力してから記録してください。空のコメントは記録できません。",
+        "E_RECORDER_REQUIRED": "確認者名を入力してください。AI は補完しません。",
+        "E_RECORDER_REQUIRED_SENDOFF": "判断者を入力してください。AI は補完しません。"
+      }
+    },
+    "staffCheck": {
+      "button": "担当者確認済みにする",
+      "link": "引合書承認へ",
+      "unresolvedNote": "未解決 {{unresolved}} 件のまま担当者確認済みにできます。件数は記録と出力に残ります。",
+      "bounced": "差し戻し中（作成案には戻りません）",
+      "bouncedBy": "判断者：{{by}} / {{at}}",
+      "needsRecheck": "再確認が必要：評価確認済みの後に訂正が記録されました。評価確認の記録は消えません。",
+      "errors": {
+        "E_STAFF_CHECK_INCOMPLETE": "未照合 {{unmatched}} 行（{{rowCodes}}）。網羅性確認：{{coverage}}。すべて照合し、網羅性確認を記録してから再操作してください。"
+      },
+      "toInventory": "網羅性照合へ"
+    },
+    "export": {
+      "button": "現在の記録を出力",
+      "versionButton": "版 {{number}} を出力",
+      "pending": "出力中…",
+      "savedAs": "{{name}} を保存しました。",
+      "fallbackName": "ファイル名をサーバーから読めなかったため、既定の名前で保存しました。",
+      "sheets": "出力するシートは 案件情報／Item List／根拠／確認事項／変更・確認記録 の5シートです。原明細インベントリは出力せず、網羅性照合の画面で参照します。",
+      "sampleFormat": "サンプル用の簡略書式です。正式メーカー書式ではありません。",
+      "snapshot": ".xlsx は書き出した時点の写しです。編集内容はアプリに取り込まれません。",
+      "unresolvedNote": "未解決 {{count}} 件を含めて出力します。件数は案件情報シートにも残ります。",
+      "history": {
+        "title": "この版の出力履歴",
+        "empty": "この版はまだ出力していません。",
+        "exportedAt": "出力日時",
+        "fileName": "ファイル名",
+        "stateAtExport": "出力時の評価状態",
+        "unresolvedAtExport": "出力時の未解決",
+        "initial": "初回の出力",
+        "reexport": "再出力",
+        "integrity": "保存ファイルの状態",
+        "loadError": "出力履歴を取得できませんでした。接続を確認してから再取得してください。"
+      },
+      "integrity": {
+        "intact": "保存どおり",
+        "modified": "保存後に変更あり",
+        "missing": "保存ファイルなし",
+        "unknown": "不明"
+      },
+      "errors": {
+        "failed": "出力できませんでした。通信状態を確認してからもう一度お試しください。",
+        "notFinalized": "この版はまだ確定していません。作成案の確定を待ってから出力してください。",
+        "notFound": "この版は見つかりません。版の履歴から選び直してください。"
+      },
+      "currentStateNote": "いま出力すると 評価状態「{{state}}」・送付可否「{{sendoff}}」として書き出されます。",
+      "sendoff": {
+        "undecided": "未判断",
+        "approved": "送付可",
+        "hold": "保留",
+        "rejected": "送付不可"
+      }
     }
   }
 }

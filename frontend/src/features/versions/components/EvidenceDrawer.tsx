@@ -48,7 +48,8 @@ export function EvidenceDrawer({
   versionId,
   item,
   questions,
-  recordedBy,
+  recordedBy = "",
+  readOnly = false,
   previous,
   next,
   onClose,
@@ -57,25 +58,26 @@ export function EvidenceDrawer({
   onEdit,
   onUndo,
   onJudge,
-  busy,
-  error,
+  busy = false,
+  error = null,
   onReload,
 }: {
   caseId: number;
   versionId: number;
   item: ItemCurrentResponse;
   questions: QuestionResponse[];
-  recordedBy: string;
+  recordedBy?: string;
+  readOnly?: boolean;
   previous: number | null;
   next: number | null;
   onClose: () => void;
   onMove: (id: number) => void;
-  onMatch: (item: ItemCurrentResponse) => void;
-  onEdit: (input: ItemEditRequest) => Promise<boolean>;
-  onUndo: (id: number) => void;
-  onJudge: (input: JudgementInput) => Promise<boolean>;
-  busy: boolean;
-  error: string | null;
+  onMatch?: (item: ItemCurrentResponse) => void;
+  onEdit?: (input: ItemEditRequest) => Promise<boolean>;
+  onUndo?: (id: number) => void;
+  onJudge?: (input: JudgementInput) => Promise<boolean>;
+  busy?: boolean;
+  error?: string | null;
   onReload: () => void;
 }) {
   const { t } = useTranslation();
@@ -250,16 +252,18 @@ export function EvidenceDrawer({
         {item.isInheritCandidate && (
           <Typography>{t("versions.drawer.inherit")}</Typography>
         )}
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={!!item.rowMatch}
-              disabled={busy}
-              onChange={() => onMatch(item)}
-            />
-          }
-          label={t("versions.matchLabel", { row: item.rowCode })}
-        />
+        {!readOnly && onMatch && (
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={!!item.rowMatch}
+                disabled={busy}
+                onChange={() => onMatch(item)}
+              />
+            }
+            label={t("versions.matchLabel", { row: item.rowCode })}
+          />
+        )}
         {item.rowMatch && (
           <Typography variant="caption">
             {t("versions.recorded", {
@@ -274,26 +278,57 @@ export function EvidenceDrawer({
             <Button onClick={onReload}>{t("versions.reload")}</Button>
           </Box>
         )}
-        <EditForm
-          key={item.itemId}
-          itemId={item.itemId}
-          recordedBy={recordedBy}
-          onRecord={onEdit}
+        {!readOnly && onEdit && (
+          <EditForm
+            key={item.itemId}
+            itemId={item.itemId}
+            recordedBy={recordedBy}
+            onRecord={onEdit}
+            busy={busy}
+          />
+        )}
+        <EditHistory
+          history={item.history}
+          onUndo={onUndo}
           busy={busy}
+          readOnly={readOnly}
         />
-        <EditHistory history={item.history} onUndo={onUndo} busy={busy} />
         <Box>
           <Typography variant="h3">{t("versions.drawer.questions")}</Typography>
           {qs.length ? (
-            qs.map((q) => (
-              <QuestionJudgementForm
-                key={q.questionId}
-                question={q}
-                recordedBy={recordedBy}
-                onRecord={onJudge}
-                busy={busy}
-              />
-            ))
+            qs.map((q) =>
+              !readOnly && onJudge ? (
+                <QuestionJudgementForm
+                  key={q.questionId}
+                  question={q}
+                  recordedBy={recordedBy}
+                  onRecord={onJudge}
+                  busy={busy}
+                />
+              ) : (
+                <Box key={q.questionId}>
+                  <Typography>{q.reason}</Typography>
+                  <Typography>
+                    {t(
+                      `versions.question.statuses.${q.latest?.status ?? "open"}`,
+                    )}
+                    {" / "}
+                    {t(
+                      `versions.question.resolutions.${q.latest?.resolution ?? "unresolved"}`,
+                    )}
+                  </Typography>
+                  {q.latest?.note && <Typography>{q.latest.note}</Typography>}
+                  {q.latest && (
+                    <Typography variant="caption">
+                      {t("versions.recorded", {
+                        by: q.latest.recordedBy,
+                        at: q.latest.recordedAt,
+                      })}
+                    </Typography>
+                  )}
+                </Box>
+              ),
+            )
           ) : (
             <Typography>{t("versions.noQuestions")}</Typography>
           )}

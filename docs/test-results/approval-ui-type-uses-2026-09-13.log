@@ -1,0 +1,5 @@
+frontend/src/features/cases/api.ts:16:  CaseListItem,
+frontend/src/features/cases/api.ts:20:export async function listCases(): Promise<CaseListItem[]> {
+frontend/src/features/cases/hooks.ts:11:  CaseListItem,
+frontend/src/features/cases/hooks.ts:23:  return useQuery<CaseListItem[], ApiError>({
+frontend/src/features/cases/__tests__/hooks.test.tsx:9: *   - useCases(): { data: CaseListItem[] | undefined; isLoading: boolean; isError: boolean; error: unknown }

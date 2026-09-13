@@ -1,0 +1,121 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+.........F.......                                                        [100%]
+=================================== FAILURES ===================================
+_______________ test_record_lists_order_by_recorded_time_then_id _______________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7fea828ba2d0>
+
+    async def test_record_lists_order_by_recorded_time_then_id(db_session):
+        from datetime import timedelta
+        from app.models import Bounce, BounceComment
+    
+        seed = await seed_record_version(db_session)
+        vid, item_id = seed.version.id, seed.item.id
+        question = Question(
+            version_id=vid,
+            question_code="Q1",
+            item_id=item_id,
+            target_field="grade",
+            reason="check",
+        )
+        db_session.add(question)
+        await db_session.flush()
+        at = datetime.now(UTC)
+        groups = {
+            key: []
+            for key in (
+                "edits",
+                "confirmations",
+                "judgements",
+                "state_events",
+                "bounces",
+                "unlinked_comments",
+                "sendoff_decisions",
+            )
+        }
+        for offset in (2, 1, 1):
+            actor = record_actor(at=at + timedelta(seconds=offset))
+            records = {
+                "edits": ItemEdit(
+                    version_id=vid,
+                    item_id=item_id,
+                    field="grade",
+                    new_value="L80",
+                    reason="check",
+                    **actor,
+                ),
+                "confirmations": Confirmation(
+                    version_id=vid,
+                    kind="coverage",
+                    undone_at=at + timedelta(seconds=3),
+                    undone_by="undo",
+                    **actor,
+                ),
+                "judgements": QuestionJudgement(
+                    question_id=question.id,
+                    status="judged",
+                    resolution="unresolved",
+                    **actor,
+                ),
+                "state_events": VersionStateEvent(
+                    version_id=vid,
+                    from_state="draft",
+                    to_state="staff_checked",
+                    unresolved_count=1,
+                    **actor,
+                ),
+                "bounces": Bounce(version_id=vid, reason="R1: check", **actor),
+                "unlinked_comments": BounceComment(
+                    version_id=vid, item_id=item_id, comment="check", **actor
+                ),
+                "sendoff_decisions": SendoffDecision(
+                    version_id=vid, decision="undecided", **actor
+                ),
+            }
+            db_session.add_all(list(records.values()))
+            await db_session.flush()
+            for key, record in records.items():
+                groups[key].append(record)
+        linked = []
+        for offset in (2, 1, 1):
+            comment = BounceComment(
+                version_id=vid,
+                item_id=item_id,
+                bounce_id=groups["bounces"][0].id,
+                comment="linked",
+                **record_actor(at=at + timedelta(seconds=offset)),
+            )
+            db_session.add(comment)
+            await db_session.flush()
+            linked.append(comment)
+        await db_session.commit()
+        records = await RecordRepository(db_session).list_records(vid)
+        for key, expected in groups.items():
+            actual = (
+                [row["bounce"] for row in records[key]]
+                if key == "bounces"
+                else records[key]
+            )
+>           assert [row.id for row in actual] == [expected[index].id for index in (1, 2, 0)]
+E           assert [1, 2, 3] == [2, 3, 1]
+E             At index 0 diff: 1 != 2
+E             Full diff:
+E             - [2, 3, 1]
+E             + [1, 2, 3]
+
+tests/integration/test_approval_queries.py:397: AssertionError
+=============================== warnings summary ===============================
+../../../home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_approval_queries.py::test_record_lists_order_by_recorded_time_then_id - assert [1, 2, 3] == [2, 3, 1]
+  At index 0 diff: 1 != 2
+  Full diff:
+  - [2, 3, 1]
+  + [1, 2, 3]
+1 failed, 16 passed, 1 warning in 9.95s
+make[1]: *** [/tmp/approval-checks.mk:10: approval-repository] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

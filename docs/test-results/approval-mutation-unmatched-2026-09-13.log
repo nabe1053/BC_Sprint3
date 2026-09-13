@@ -1,0 +1,21 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+.......F....                                                             [100%]
+=================================== FAILURES ===================================
+_____ test_unmatched_error_includes_ordered_ids_rows_and_missing_coverage ______
+
+    def test_unmatched_error_includes_ordered_ids_rows_and_missing_coverage():
+        with pytest.raises(DraftError) as error:
+            transition(matched=set(), coverage=False)
+>       assert error.value.code == "E_STAFF_CHECK_INCOMPLETE"
+E       AssertionError: assert 'E_COVERAGE_NOT_RECORDED' == 'E_STAFF_CHECK_INCOMPLETE'
+E         - E_STAFF_CHECK_INCOMPLETE
+E         + E_COVERAGE_NOT_RECORDED
+
+tests/unit/test_version_state.py:59: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_version_state.py::test_unmatched_error_includes_ordered_ids_rows_and_missing_coverage - AssertionError: assert 'E_COVERAGE_NOT_RECORDED' == 'E_STAFF_CHECK_INCOMPLETE'
+  - E_STAFF_CHECK_INCOMPLETE
+  + E_COVERAGE_NOT_RECORDED
+1 failed, 11 passed in 0.06s
+make[1]: *** [/tmp/approval-checks.mk:4: approval-state] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

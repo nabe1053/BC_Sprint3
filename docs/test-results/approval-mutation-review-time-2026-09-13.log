@@ -1,0 +1,49 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+.......F.........                                                        [100%]
+=================================== FAILURES ===================================
+_______ test_latest_review_time_survives_bounce_and_corrective_downgrade _______
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x79856630b6b0>
+
+    async def test_latest_review_time_survives_bounce_and_corrective_downgrade(db_session):
+        from app.services.approval_service import ApprovalService
+        from app.services.record_service import RecordService
+        from tests.fixtures.record_data import edit_data
+    
+        seed = await seed_record_version(db_session, state="review_checked")
+        repo = RecordRepository(db_session)
+        previous = list(
+            (
+                await db_session.execute(
+                    select(VersionStateEvent).where(
+                        VersionStateEvent.to_state == "review_checked"
+                    )
+                )
+            ).scalars()
+        )
+        reviewed_at = previous[0].recorded_at
+        await RecordService(repo).edit(seed.version.id, edit_data(item_id=seed.item.id))
+        service = ApprovalService(repo)
+        await service.comment(
+            seed.version.id,
+            {"item_id": seed.item.id, "comment": "再確認", "recorded_by": "人"},
+        )
+        await service.bounce(seed.version.id, {"recorded_by": "人"})
+        material = (await repo.list_versions_with_records(seed.case.id))[0]
+        assert material["latest_state_event"].to_state == "staff_checked"
+        assert material["latest_bounce"] is not None
+>       assert material["latest_review_checked_at"] == reviewed_at
+E       assert datetime.datetime(2026, 9, 12, 23, 31, 18, 781060, tzinfo=datetime.timezone.utc) == datetime.datetime(2026, 9, 12, 23, 31, 18, 750340, tzinfo=datetime.timezone.utc)
+
+tests/integration/test_approval_queries.py:232: AssertionError
+=============================== warnings summary ===============================
+../../../home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_approval_queries.py::test_latest_review_time_survives_bounce_and_corrective_downgrade - assert datetime.datetime(2026, 9, 12, 23, 31, 18, 781060, tzinfo=datetime.timezone.utc) == datetime.datetime(2026, 9, 12, 23, 31, 18, 750340, tzinfo=datetime.timezone.utc)
+1 failed, 16 passed, 1 warning in 11.75s
+make[1]: *** [/tmp/approval-checks.mk:10: approval-repository] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

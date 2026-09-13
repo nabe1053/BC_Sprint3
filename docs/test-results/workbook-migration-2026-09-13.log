@@ -1,0 +1,8 @@
+── alembic upgrade head (octg_db / 開発)
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade approval_records -> export_records, Preserve metadata for exported workbooks.
+── alembic upgrade head (octg_test / テスト)
+INFO  [alembic.runtime.migration] Context impl PostgresqlImpl.
+INFO  [alembic.runtime.migration] Will assume transactional DDL.
+INFO  [alembic.runtime.migration] Running upgrade approval_records -> export_records, Preserve metadata for exported workbooks.

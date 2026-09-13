@@ -1,0 +1,21 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-api.test.ts
+
+PASS src/features/versions/__tests__/approval-api.test.ts
+  ✓ listRecordsの実URL・method・body・成功応答 (3 ms)
+  ✓ recordStateEventの実URL・method・body・成功応答 (1 ms)
+  ✓ recordBounceCommentの実URL・method・body・成功応答 (4 ms)
+  ✓ recordBounceの実URL・method・body・成功応答 (1 ms)
+  ✓ recordSendoffDecisionの実URL・method・body・成功応答 (1 ms)
+  ✓ listRecordsは非2xxをApiErrorで1回だけ返す (1 ms)
+  ✓ recordStateEventは非2xxをApiErrorで1回だけ返す (1 ms)
+  ✓ recordBounceCommentは非2xxをApiErrorで1回だけ返す
+  ✓ recordBounceは非2xxをApiErrorで1回だけ返す (1 ms)
+  ✓ recordSendoffDecisionは非2xxをApiErrorで1回だけ返す
+
+Test Suites: 1 passed, 1 total
+Tests:       10 passed, 10 total
+Snapshots:   0 total
+Time:        0.383 s, estimated 1 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-api.test.ts/i.

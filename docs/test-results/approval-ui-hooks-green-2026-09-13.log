@@ -1,0 +1,28 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-hooks.test.tsx
+
+PASS src/features/versions/__tests__/approval-hooks.test.tsx
+  ✓ transition/201はrecords・版・版一覧だけ再取得 (74 ms)
+  ✓ transition/409はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ transition/404はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ transition/400はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ bounceComment/201はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ bounceComment/409はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ bounceComment/404はrecords・版・版一覧だけ再取得 (56 ms)
+  ✓ bounceComment/400はrecords・版・版一覧だけ再取得 (56 ms)
+  ✓ bounce/201はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ bounce/409はrecords・版・版一覧だけ再取得 (55 ms)
+  ✓ bounce/404はrecords・版・版一覧だけ再取得 (56 ms)
+  ✓ bounce/400はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ sendoff/201はrecords・版・版一覧だけ再取得 (55 ms)
+  ✓ sendoff/409はrecords・版・版一覧だけ再取得 (56 ms)
+  ✓ sendoff/404はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ sendoff/400はrecords・版・版一覧だけ再取得 (55 ms)
+  ✓ 本番Providersでも承認400 POSTは1回、mutation retry設定を優先 (18 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       17 passed, 17 total
+Snapshots:   0 total
+Time:        1.954 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-hooks.test.tsx/i.

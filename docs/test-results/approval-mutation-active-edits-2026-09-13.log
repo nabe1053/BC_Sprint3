@@ -1,0 +1,130 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+.....F...........                                                        [100%]
+=================================== FAILURES ===================================
+_____ test_record_collections_include_cancellations_and_keep_version_scope _____
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x71ccab778c80>
+
+    async def test_record_collections_include_cancellations_and_keep_version_scope(
+        db_session
+    ):
+        seed = await seed_record_version(db_session, state="staff_checked")
+        other = await seed_record_version(db_session)
+        repo = RecordRepository(db_session)
+        vid = seed.version.id
+        at = datetime.now(UTC)
+        question = Question(
+            version_id=vid,
+            question_code="Q1",
+            item_id=seed.item.id,
+            target_field="grade",
+            reason="check",
+        )
+        db_session.add(question)
+        await db_session.flush()
+        edit = ItemEdit(
+            version_id=vid,
+            item_id=seed.item.id,
+            field="grade",
+            new_value="L80",
+            reason="check",
+            undone_at=at,
+            undone_by="undo",
+            **record_actor(),
+        )
+        cancelled = Confirmation(
+            version_id=vid,
+            kind="coverage",
+            undone_at=at,
+            undone_by="undo",
+            **record_actor(),
+        )
+        active = Confirmation(
+            version_id=vid, kind="row_match", item_id=seed.item.id, **record_actor()
+        )
+        judgement = QuestionJudgement(
+            question_id=question.id,
+            status="judged",
+            resolution="unresolved",
+            **record_actor(),
+        )
+        foreign = SendoffDecision(
+            version_id=other.version.id, decision="undecided", **record_actor()
+        )
+        db_session.add_all([edit, cancelled, active, judgement, foreign])
+        await db_session.commit()
+        async with repo.record(vid):
+            comment = await repo.save_bounce_comment(
+                vid, {"item_id": seed.item.id, "comment": "check", **record_actor()}
+            )
+            bounce = await repo.save_bounce(
+                vid, {"reason": "R1: check", **record_actor()}, [comment]
+            )
+            unlinked = await repo.save_bounce_comment(
+                vid, {"item_id": seed.item.id, "comment": "next", **record_actor()}
+            )
+            sendoff = await repo.save_sendoff(
+                vid, {"decision": "hold", "reason": "answer pending", **record_actor()}
+            )
+        records = await repo.list_records(vid)
+        assert set(records) == {
+            "edits",
+            "confirmations",
+            "judgements",
+            "state_events",
+            "bounces",
+            "unlinked_comments",
+            "sendoff_decisions",
+        }
+        assert {row.id for row in records["edits"]} == {edit.id}
+        assert {row.id for row in records["confirmations"]} == {cancelled.id, active.id}
+        assert {row.id for row in records["judgements"]} == {judgement.id}
+        expected = {
+            row.id
+            for row in (
+                await db_session.execute(
+                    select(VersionStateEvent).where(VersionStateEvent.version_id == vid)
+                )
+            ).scalars()
+        }
+        assert {row.id for row in records["state_events"]} == expected
+        assert [
+            (row["bounce"].id, {c.id for c in row["comments"]})
+            for row in records["bounces"]
+        ] == [(bounce.id, {comment.id})]
+        assert {row.id for row in records["unlinked_comments"]} == {unlinked.id}
+        assert {row.id for row in records["sendoff_decisions"]} == {sendoff.id}
+        assert await repo.matched_item_ids(vid) == {seed.item.id}
+        assert await repo.coverage_confirmed(vid) is False
+        assert await repo.item_rows(vid) == {seed.item.id: seed.item.row_code}
+        rows = await repo.list_versions_with_records(seed.case.id)
+        assert len(rows) == 1 and rows[0]["version"].id == vid
+>       assert rows[0]["carry_over"] == CarryOver(0, 1, 1, False, 1)
+E       AssertionError: assert CarryOver(edi...ement_count=1) == CarryOver(edi...ement_count=1)
+E         
+E         Omitting 4 identical items, use -vv to show
+E         Differing attributes:
+E         ['edit_count']
+E         
+E         Drill down into differing attribute edit_count:
+E           edit_count: 1 != 0
+
+tests/integration/test_approval_queries.py:111: AssertionError
+=============================== warnings summary ===============================
+../../../home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_approval_queries.py::test_record_collections_include_cancellations_and_keep_version_scope - AssertionError: assert CarryOver(edi...ement_count=1) == CarryOver(edi...ement_count=1)
+  
+  Omitting 4 identical items, use -vv to show
+  Differing attributes:
+  ['edit_count']
+  
+  Drill down into differing attribute edit_count:
+    edit_count: 1 != 0
+1 failed, 16 passed, 1 warning in 10.77s
+make[1]: *** [/tmp/approval-checks.mk:10: approval-repository] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

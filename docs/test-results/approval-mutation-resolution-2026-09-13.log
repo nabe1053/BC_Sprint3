@@ -1,0 +1,32 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+..........F.                                                             [100%]
+=================================== FAILURES ===================================
+_________ test_unresolved_count_is_latest_resolution_not_judged_status _________
+
+    def test_unresolved_count_is_latest_resolution_not_judged_status():
+        from app.services.version_state import unresolved_count, unresolved_question_ids
+    
+        rows = [
+            {"question": N(id=1), "latest": None},
+            {"question": N(id=2), "latest": N(status="judged", resolution="unresolved")},
+            {"question": N(id=3), "latest": N(status="judged", resolution="resolved")},
+        ]
+>       assert unresolved_question_ids(rows) == {1, 2}
+E       assert {1} == {1, 2}
+E         Extra items in the right set:
+E         2
+E         Full diff:
+E         - {1, 2}
+E         + {1}
+
+tests/unit/test_version_state.py:88: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_version_state.py::test_unresolved_count_is_latest_resolution_not_judged_status - assert {1} == {1, 2}
+  Extra items in the right set:
+  2
+  Full diff:
+  - {1, 2}
+  + {1}
+1 failed, 11 passed in 0.06s
+make[1]: *** [/tmp/approval-checks.mk:4: approval-state] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

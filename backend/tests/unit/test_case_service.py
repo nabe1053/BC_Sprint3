@@ -100,8 +100,10 @@ async def test_case_progress_uses_latest_finalized_version(state, expected):
     repository = N(
         list=AsyncMock(return_value=[case]),
         latest_versions=AsyncMock(
-            return_value={} if state is None else {3: N(id=7, current_state=state)}
+            return_value={}
+            if state is None
+            else {3: N(id=7, current_state=state, latest_sendoff=None)}
         ),
     )
     result = await CaseService(repository).list_cases()
-    assert result == [(case, expected, None if state is None else 7)]
+    assert result == [(case, expected, None if state is None else 7, None)]

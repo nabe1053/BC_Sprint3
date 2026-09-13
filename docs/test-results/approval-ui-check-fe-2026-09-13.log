@@ -1,0 +1,105 @@
+src/features/versions/__tests__/api.test.ts 61ms (unchanged)
+src/features/versions/__tests__/approval-api.test.ts 17ms (unchanged)
+src/features/versions/__tests__/approval-components.test.tsx 69ms
+src/features/versions/__tests__/approval-hooks.test.tsx 22ms
+src/features/versions/__tests__/approval-model.test.ts 22ms (unchanged)
+src/features/versions/__tests__/components.test.tsx 49ms
+src/features/versions/__tests__/hooks.test.tsx 36ms (unchanged)
+src/features/versions/__tests__/inventory-api.test.ts 5ms (unchanged)
+src/features/versions/__tests__/inventory-components.test.tsx 63ms (unchanged)
+src/features/versions/__tests__/inventory-hooks.test.tsx 15ms (unchanged)
+src/features/versions/__tests__/inventory-model.test.ts 8ms (unchanged)
+src/features/versions/__tests__/model.test.ts 8ms (unchanged)
+src/features/versions/api.ts 7ms (unchanged)
+src/features/versions/components/ApprovalError.tsx 7ms (unchanged)
+src/features/versions/components/ApprovalFilters.tsx 3ms (unchanged)
+src/features/versions/components/ApprovalListsDrawer.tsx 16ms (unchanged)
+src/features/versions/components/ApprovalPage.tsx 17ms (unchanged)
+src/features/versions/components/ApprovalSummaryCard.tsx 7ms (unchanged)
+src/features/versions/components/ApprovalTable.tsx 14ms (unchanged)
+src/features/versions/components/BounceBanner.tsx 3ms (unchanged)
+src/features/versions/components/BounceCommentCell.tsx 3ms (unchanged)
+src/features/versions/components/CoverageRecordPanel.tsx 8ms (unchanged)
+src/features/versions/components/EditForm.tsx 10ms (unchanged)
+src/features/versions/components/EditHistory.tsx 5ms (unchanged)
+src/features/versions/components/EvidenceDrawer.tsx 17ms (unchanged)
+src/features/versions/components/InventoryEntriesTable.tsx 5ms (unchanged)
+src/features/versions/components/InventoryItemsTable.tsx 6ms (unchanged)
+src/features/versions/components/InventoryPage.tsx 8ms (unchanged)
+src/features/versions/components/InventoryScopePanel.tsx 3ms (unchanged)
+src/features/versions/components/ItemFilters.tsx 6ms (unchanged)
+src/features/versions/components/ItemListPage.tsx 16ms (unchanged)
+src/features/versions/components/ItemTable.tsx 12ms (unchanged)
+src/features/versions/components/ItemValue.tsx 3ms (unchanged)
+src/features/versions/components/QuestionJudgementForm.tsx 6ms (unchanged)
+src/features/versions/components/ReviewCheckPanel.tsx 4ms (unchanged)
+src/features/versions/components/SendoffPanel.tsx 8ms (unchanged)
+src/features/versions/components/StaffCheckAction.tsx 5ms (unchanged)
+src/features/versions/components/VersionHistory.tsx 7ms (unchanged)
+src/features/versions/components/VersionSummary.tsx 7ms (unchanged)
+src/features/versions/hooks.ts 9ms (unchanged)
+src/features/versions/index.ts 1ms (unchanged)
+src/features/versions/model.ts 24ms (unchanged)
+src/features/versions/testing/fixtures.ts 9ms (unchanged)
+src/features/cases/components/CaseListPage.tsx 14ms (unchanged)
+src/features/cases/components/__tests__/CaseListPage.test.tsx 19ms (unchanged)
+src/shared/i18n/ja.json 21ms (unchanged)
+src/app/__tests__/case-routes.test.tsx 16ms
+src/app/(portal)/cases/[caseId]/versions/[versionId]/approval/page.tsx 2ms (unchanged)
+OpenAPI schema exported to: openapi.json
+
+> training-sprint3-frontend@0.1.0 orval
+> orval
+
+🍻 orval v8.30.0 - A swagger client generator for typescript
+api Cleaning output folder
+🎉 api - Your OpenAPI spec has been converted into ready to use orval!
+
+> training-sprint3-frontend@0.1.0 typecheck
+> tsc --noEmit
+
+
+> training-sprint3-frontend@0.1.0 lint
+> eslint .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests
+
+PASS src/features/documents/__tests__/hooks.test.tsx (5.27 s)
+PASS src/features/cases/__tests__/hooks.test.tsx (5.365 s)
+PASS src/features/cases/components/__tests__/CaseMetadata.test.tsx (7.777 s)
+PASS src/features/versions/__tests__/inventory-hooks.test.tsx (8.025 s)
+PASS src/features/versions/__tests__/hooks.test.tsx (8.386 s)
+PASS src/features/versions/__tests__/inventory-model.test.ts
+PASS src/features/documents/__tests__/api.test.ts
+PASS src/app/__tests__/providers.test.tsx (7.788 s)
+PASS src/features/cases/__tests__/api.test.ts
+PASS src/features/versions/__tests__/model.test.ts
+PASS src/features/agent-runs/__tests__/hooks.test.tsx
+PASS src/app/__tests__/case-routes.test.tsx
+PASS src/shared/api/__tests__/base-url.test.ts
+PASS src/features/versions/__tests__/inventory-api.test.ts
+PASS src/features/versions/__tests__/api.test.ts
+PASS src/features/agent-runs/__tests__/api.test.ts
+PASS src/shared/api/__tests__/unwrap.test.ts
+PASS src/features/versions/__tests__/approval-model.test.ts
+PASS src/app/__tests__/screen-theme.test.tsx (9.719 s)
+PASS src/features/versions/__tests__/approval-api.test.ts
+PASS src/features/documents/components/__tests__/IntakeRecovery.test.tsx (10.75 s)
+PASS src/features/versions/__tests__/approval-hooks.test.tsx (5.425 s)
+PASS src/features/documents/components/__tests__/IntakePage.test.tsx (13.594 s)
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx (9.816 s)
+PASS src/features/versions/__tests__/inventory-components.test.tsx (15.378 s)
+PASS src/features/agent-runs/components/__tests__/AgentRunPanel.test.tsx (16.507 s)
+PASS src/features/versions/__tests__/approval-components.test.tsx (21.053 s)
+PASS src/features/versions/__tests__/components.test.tsx (26.021 s)
+
+Test Suites: 28 passed, 28 total
+Tests:       402 passed, 402 total
+Snapshots:   0 total
+Time:        29.217 s
+Ran all test suites.
+✅ check-fe: frontend green

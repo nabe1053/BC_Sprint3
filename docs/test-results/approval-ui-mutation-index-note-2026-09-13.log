@@ -1,0 +1,168 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-components.test.tsx
+
+FAIL src/features/versions/__tests__/approval-components.test.tsx (5.098 s)
+  ✕ 索引nullの変更・判断事項に解決済み確認の理由と判断内容を併記 (81 ms)
+  ✕ 索引4の変更・判断事項に解決済み確認の理由と判断内容を併記 (22 ms)
+  ✓ h1・primaryは1つ、7要約・メタ・未解決注記・10列を表示する (196 ms)
+  ✓ draftでは確認/差し戻しを無効にして理由を示す (174 ms)
+  ✓ review_checkedでは確認/差し戻しを無効にして理由を示す (164 ms)
+  ✓ 空名ではPOSTせず、記録後も留まり評価確認と送付の区別をstatus表示 (320 ms)
+  ✓ 差し戻しの未紐付け0件はPOSTせず、成功時はItem Listへ戻る (304 ms)
+  ✓ 行コメントは明示記録だけ送信し、成功時だけ入力を空にする (286 ms)
+  ✓ 送付は判断者と保留理由を検査し未判断空理由をnullで送る (416 ms)
+  ✓ 行の索引・全行索引・根拠は排他、閲覧専用には訂正/取消/判断フォームなし (362 ms)
+  ✓ ボタン/入力上のclickやEnterは行索引を開かない (234 ms)
+  ✓ 空/読込/404/取得失敗/版一覧に該当なしを明示する (99 ms)
+  ✓ 409の表示は行IDと網羅性だけ、内部ID・生本文を出さない (215 ms)
+  ✓ readOnlyは操作コールバックが渡されても訂正・取消・判断・照合を出さない (51 ms)
+  ✓ 絞り込み全行でも索引の全体件数は変わらない (250 ms)
+  ✓ 絞り込み変更・判断事項のある行でも索引の全体件数は変わらない (229 ms)
+  ✓ 絞り込み訂正ありでも索引の全体件数は変わらない (264 ms)
+  ✓ 絞り込み未解決のみでも索引の全体件数は変わらない (242 ms)
+  ✓ 絞り込み差し戻しコメントありでも索引の全体件数は変わらない (253 ms)
+  ✓ API導出の差し戻し中・再確認と現在の送付判断を表示する (66 ms)
+
+  ● 索引nullの変更・判断事項に解決済み確認の理由と判断内容を併記
+
+    TestingLibraryElementError: Unable to find an element with the text: 規格の記載が二通り / 客先がL80を指定. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<div[39m
+      [33mclass[39m=[32m"MuiBox-root css-0"[39m
+    [36m>[39m
+      [36m<h3[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"[39m
+      [36m>[39m
+        [0m変更・判断事項（1 行）[0m
+      [36m</h3>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"MuiBox-root css-el8wl9"[39m
+      [36m>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+        [36m>[39m
+          [0mR1[0m
+        [36m</p>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m択一 G1[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m数量TBA[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m継承候補[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m担当者訂正 1 件[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m担当者判断 判断済み／解決[0m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+        [36m>[39m
+          [0m規格の記載が二通り[0m
+        [36m</p>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+
+      87 |     const changes = within(heading.parentElement!);
+      88 |     expect(
+    > 89 |       changes.getByText("規格の記載が二通り / 客先がL80を指定"),
+         |               ^
+      90 |     ).toBeVisible();
+      91 |     expect(
+      92 |       within(screen.getByRole("dialog")).queryByRole("textbox"),
+
+      at Object.getElementError (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:37:19)
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at getByText (src/features/versions/__tests__/approval-components.test.tsx:89:15)
+
+  ● 索引4の変更・判断事項に解決済み確認の理由と判断内容を併記
+
+    TestingLibraryElementError: Unable to find an element with the text: 規格の記載が二通り / 客先がL80を指定. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<div[39m
+      [33mclass[39m=[32m"MuiBox-root css-0"[39m
+    [36m>[39m
+      [36m<h3[39m
+        [33mclass[39m=[32m"MuiTypography-root MuiTypography-h3 css-gepadz-MuiTypography-root"[39m
+      [36m>[39m
+        [0m変更・判断事項（1 行）[0m
+      [36m</h3>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"MuiBox-root css-el8wl9"[39m
+      [36m>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+        [36m>[39m
+          [0mR1[0m
+        [36m</p>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m択一 G1[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m数量TBA[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m継承候補[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m担当者訂正 1 件[0m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+        [36m>[39m
+          [0m担当者判断 判断済み／解決[0m
+        [36m</div>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"MuiTypography-root MuiTypography-body2 css-e784if-MuiTypography-root"[39m
+        [36m>[39m
+          [0m規格の記載が二通り[0m
+        [36m</p>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+
+      87 |     const changes = within(heading.parentElement!);
+      88 |     expect(
+    > 89 |       changes.getByText("規格の記載が二通り / 客先がL80を指定"),
+         |               ^
+      90 |     ).toBeVisible();
+      91 |     expect(
+      92 |       within(screen.getByRole("dialog")).queryByRole("textbox"),
+
+      at Object.getElementError (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/config.js:37:19)
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+      at ../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+      at getByText (src/features/versions/__tests__/approval-components.test.tsx:89:15)
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 18 passed, 20 total
+Snapshots:   0 total
+Time:        5.307 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-components.test.tsx/i.
+make: *** [/tmp/approval-ui-checks.mk:8: approval-ui-components] Error 1

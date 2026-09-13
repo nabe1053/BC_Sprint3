@@ -41,6 +41,7 @@ const sampleCase = {
   createdAt: "2026-09-01T00:00:00+09:00",
   progressStatus: "draft_review" as const,
   latestVersionId: 1,
+  latestSendoff: null,
 };
 
 function setUseCases(overrides: Partial<ReturnType<typeof useCases>>) {
@@ -253,4 +254,16 @@ it("最新版がnullなら案件を開くリンクを出さず投入画面へ案
     "href",
     "/cases/1/intake",
   );
+});
+
+it.each([
+  ["undecided", "未判断"],
+  ["hold", "保留"],
+  ["approved", "承認"],
+  [null, "—"],
+] as const)("G5送付可否%sを独立列に表示", (latestSendoff, label) => {
+  setUseCases({ data: [{ ...sampleCase, latestSendoff }] });
+  renderWithProviders(<CaseListPage />);
+  const row = screen.getByRole("row", { name: /S04/ });
+  expect(within(row).getAllByRole("cell")[4]).toHaveTextContent(label);
 });

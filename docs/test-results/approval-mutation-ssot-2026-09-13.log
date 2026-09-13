@@ -1,0 +1,72 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+.........F                                                               [100%]
+=================================== FAILURES ===================================
+_________ test_current_state_has_only_initialization_and_event_writers _________
+
+    def test_current_state_has_only_initialization_and_event_writers():
+        import ast
+    
+        writers = []
+        for path in sorted(APP_DIR.rglob("*.py")):
+            tree = ast.parse(path.read_text())
+            parents = {
+                child: node
+                for node in ast.walk(tree)
+                for child in ast.iter_child_nodes(node)
+            }
+            for node in ast.walk(tree):
+                is_write = (
+                    isinstance(node, ast.Attribute)
+                    and node.attr == "current_state"
+                    and isinstance(node.ctx, ast.Store)
+                )
+                is_setattr = (
+                    isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Name)
+                    and node.func.id == "setattr"
+                    and len(node.args) >= 2
+                    and isinstance(node.args[1], ast.Constant)
+                    and node.args[1].value == "current_state"
+                )
+                if not (is_write or is_setattr):
+                    continue
+                owner = parents.get(node)
+                while owner is not None and not isinstance(
+                    owner, (ast.FunctionDef, ast.AsyncFunctionDef)
+                ):
+                    owner = parents.get(owner)
+                writers.append(
+                    (str(path.relative_to(APP_DIR)), owner.name if owner else None)
+                )
+>       assert sorted(writers) == [
+            ("repositories/draft_repository.py", "complete"),
+            ("repositories/record_repository.py", "save_state_event"),
+        ]
+E       AssertionError: assert [('repositori...xtra_writer')] == [('repositori...state_event')]
+E         Left contains one more item: ('services/approval_service.py', 'extra_writer')
+E         Full diff:
+E           [
+E            ('repositories/draft_repository.py',
+E             'complete'),
+E            ('repositories/record_repository.py',
+E             'save_state_event'),
+E         +  ('services/approval_service.py',
+E         +   'extra_writer'),
+E           ]
+
+tests/unit/test_single_source_of_truth.py:240: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_single_source_of_truth.py::test_current_state_has_only_initialization_and_event_writers - AssertionError: assert [('repositori...xtra_writer')] == [('repositori...state_event')]
+  Left contains one more item: ('services/approval_service.py', 'extra_writer')
+  Full diff:
+    [
+     ('repositories/draft_repository.py',
+      'complete'),
+     ('repositories/record_repository.py',
+      'save_state_event'),
+  +  ('services/approval_service.py',
+  +   'extra_writer'),
+    ]
+1 failed, 9 passed in 0.45s
+make[1]: *** [/tmp/approval-checks.mk:14: approval-ssot] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

@@ -1,0 +1,175 @@
+                                          Table "public.version_state_events"
+      Column      |           Type           | Collation | Nullable |                     Default                      
+------------------+--------------------------+-----------+----------+--------------------------------------------------
+ id               | bigint                   |           | not null | nextval('version_state_events_id_seq'::regclass)
+ created_at       | timestamp with time zone |           | not null | now()
+ recorded_by      | text                     |           | not null | 
+ recorded_at      | timestamp with time zone |           | not null | 
+ version_id       | bigint                   |           | not null | 
+ from_state       | text                     |           | not null | 
+ to_state         | text                     |           | not null | 
+ unresolved_count | integer                  |           | not null | 
+Indexes:
+    "version_state_events_pkey" PRIMARY KEY, btree (id)
+    "ix_version_state_events_version_id" btree (version_id)
+Check constraints:
+    "ck_version_state_events_from_state" CHECK (from_state = ANY (ARRAY['draft'::text, 'staff_checked'::text, 'review_checked'::text]))
+    "ck_version_state_events_recorder" CHECK (TRIM(BOTH FROM recorded_by) <> ''::text)
+    "ck_version_state_events_to_state" CHECK (to_state = ANY (ARRAY['staff_checked'::text, 'review_checked'::text]))
+    "ck_version_state_events_transition" CHECK (from_state <> to_state)
+Foreign-key constraints:
+    "fk_version_state_events_version" FOREIGN KEY (version_id) REFERENCES versions(id)
+
+                                       Table "public.bounces"
+   Column    |           Type           | Collation | Nullable |               Default               
+-------------+--------------------------+-----------+----------+-------------------------------------
+ id          | bigint                   |           | not null | nextval('bounces_id_seq'::regclass)
+ created_at  | timestamp with time zone |           | not null | now()
+ recorded_by | text                     |           | not null | 
+ recorded_at | timestamp with time zone |           | not null | 
+ version_id  | bigint                   |           | not null | 
+ reason      | text                     |           | not null | 
+Indexes:
+    "bounces_pkey" PRIMARY KEY, btree (id)
+    "ix_bounces_version_id" btree (version_id)
+Check constraints:
+    "ck_bounces_reason" CHECK (TRIM(BOTH FROM reason) <> ''::text)
+    "ck_bounces_recorder" CHECK (TRIM(BOTH FROM recorded_by) <> ''::text)
+Foreign-key constraints:
+    "fk_bounces_version" FOREIGN KEY (version_id) REFERENCES versions(id)
+Referenced by:
+    TABLE "bounce_comments" CONSTRAINT "fk_bounce_comments_bounce" FOREIGN KEY (bounce_id) REFERENCES bounces(id)
+
+                                       Table "public.bounce_comments"
+   Column    |           Type           | Collation | Nullable |                   Default                   
+-------------+--------------------------+-----------+----------+---------------------------------------------
+ id          | bigint                   |           | not null | nextval('bounce_comments_id_seq'::regclass)
+ created_at  | timestamp with time zone |           | not null | now()
+ recorded_by | text                     |           | not null | 
+ recorded_at | timestamp with time zone |           | not null | 
+ version_id  | bigint                   |           | not null | 
+ item_id     | bigint                   |           | not null | 
+ bounce_id   | bigint                   |           |          | 
+ comment     | text                     |           | not null | 
+Indexes:
+    "bounce_comments_pkey" PRIMARY KEY, btree (id)
+    "ix_bounce_comments_bounce_id" btree (bounce_id)
+    "ix_bounce_comments_item_id" btree (item_id)
+    "ix_bounce_comments_version_id" btree (version_id)
+Check constraints:
+    "ck_bounce_comments_comment" CHECK (TRIM(BOTH FROM comment) <> ''::text)
+    "ck_bounce_comments_recorder" CHECK (TRIM(BOTH FROM recorded_by) <> ''::text)
+Foreign-key constraints:
+    "fk_bounce_comments_bounce" FOREIGN KEY (bounce_id) REFERENCES bounces(id)
+    "fk_bounce_comments_item" FOREIGN KEY (item_id) REFERENCES items(id)
+    "fk_bounce_comments_version" FOREIGN KEY (version_id) REFERENCES versions(id)
+    "fk_bounce_comments_version_item" FOREIGN KEY (version_id, item_id) REFERENCES items(version_id, id)
+
+                                       Table "public.sendoff_decisions"
+   Column    |           Type           | Collation | Nullable |                    Default                    
+-------------+--------------------------+-----------+----------+-----------------------------------------------
+ id          | bigint                   |           | not null | nextval('sendoff_decisions_id_seq'::regclass)
+ created_at  | timestamp with time zone |           | not null | now()
+ recorded_by | text                     |           | not null | 
+ recorded_at | timestamp with time zone |           | not null | 
+ version_id  | bigint                   |           | not null | 
+ decision    | text                     |           | not null | 
+ reason      | text                     |           |          | 
+Indexes:
+    "sendoff_decisions_pkey" PRIMARY KEY, btree (id)
+    "ix_sendoff_decisions_version_id" btree (version_id)
+Check constraints:
+    "ck_sendoff_decisions_decision" CHECK (decision = ANY (ARRAY['undecided'::text, 'hold'::text, 'approved'::text]))
+    "ck_sendoff_decisions_reason" CHECK (decision = 'undecided'::text OR reason IS NOT NULL AND TRIM(BOTH FROM reason) <> ''::text)
+    "ck_sendoff_decisions_recorder" CHECK (TRIM(BOTH FROM recorded_by) <> ''::text)
+Foreign-key constraints:
+    "fk_sendoff_decisions_version" FOREIGN KEY (version_id) REFERENCES versions(id)
+
+                                          Table "public.version_state_events"
+      Column      |           Type           | Collation | Nullable |                     Default                      
+------------------+--------------------------+-----------+----------+--------------------------------------------------
+ id               | bigint                   |           | not null | nextval('version_state_events_id_seq'::regclass)
+ created_at       | timestamp with time zone |           | not null | now()
+ recorded_by      | text                     |           | not null | 
+ recorded_at      | timestamp with time zone |           | not null | 
+ version_id       | bigint                   |           | not null | 
+ from_state       | text                     |           | not null | 
+ to_state         | text                     |           | not null | 
+ unresolved_count | integer                  |           | not null | 
+Indexes:
+    "version_state_events_pkey" PRIMARY KEY, btree (id)
+    "ix_version_state_events_version_id" btree (version_id)
+Check constraints:
+    "ck_version_state_events_from_state" CHECK (from_state = ANY (ARRAY['draft'::text, 'staff_checked'::text, 'review_checked'::text]))
+    "ck_version_state_events_recorder" CHECK (TRIM(BOTH FROM recorded_by) <> ''::text)
+    "ck_version_state_events_to_state" CHECK (to_state = ANY (ARRAY['staff_checked'::text, 'review_checked'::text]))
+    "ck_version_state_events_transition" CHECK (from_state <> to_state)
+Foreign-key constraints:
+    "fk_version_state_events_version" FOREIGN KEY (version_id) REFERENCES versions(id)
+
+                                       Table "public.bounces"
+   Column    |           Type           | Collation | Nullable |               Default               
+-------------+--------------------------+-----------+----------+-------------------------------------
+ id          | bigint                   |           | not null | nextval('bounces_id_seq'::regclass)
+ created_at  | timestamp with time zone |           | not null | now()
+ recorded_by | text                     |           | not null | 
+ recorded_at | timestamp with time zone |           | not null | 
+ version_id  | bigint                   |           | not null | 
+ reason      | text                     |           | not null | 
+Indexes:
+    "bounces_pkey" PRIMARY KEY, btree (id)
+    "ix_bounces_version_id" btree (version_id)
+Check constraints:
+    "ck_bounces_reason" CHECK (TRIM(BOTH FROM reason) <> ''::text)
+    "ck_bounces_recorder" CHECK (TRIM(BOTH FROM recorded_by) <> ''::text)
+Foreign-key constraints:
+    "fk_bounces_version" FOREIGN KEY (version_id) REFERENCES versions(id)
+Referenced by:
+    TABLE "bounce_comments" CONSTRAINT "fk_bounce_comments_bounce" FOREIGN KEY (bounce_id) REFERENCES bounces(id)
+
+                                       Table "public.bounce_comments"
+   Column    |           Type           | Collation | Nullable |                   Default                   
+-------------+--------------------------+-----------+----------+---------------------------------------------
+ id          | bigint                   |           | not null | nextval('bounce_comments_id_seq'::regclass)
+ created_at  | timestamp with time zone |           | not null | now()
+ recorded_by | text                     |           | not null | 
+ recorded_at | timestamp with time zone |           | not null | 
+ version_id  | bigint                   |           | not null | 
+ item_id     | bigint                   |           | not null | 
+ bounce_id   | bigint                   |           |          | 
+ comment     | text                     |           | not null | 
+Indexes:
+    "bounce_comments_pkey" PRIMARY KEY, btree (id)
+    "ix_bounce_comments_bounce_id" btree (bounce_id)
+    "ix_bounce_comments_item_id" btree (item_id)
+    "ix_bounce_comments_version_id" btree (version_id)
+Check constraints:
+    "ck_bounce_comments_comment" CHECK (TRIM(BOTH FROM comment) <> ''::text)
+    "ck_bounce_comments_recorder" CHECK (TRIM(BOTH FROM recorded_by) <> ''::text)
+Foreign-key constraints:
+    "fk_bounce_comments_bounce" FOREIGN KEY (bounce_id) REFERENCES bounces(id)
+    "fk_bounce_comments_item" FOREIGN KEY (item_id) REFERENCES items(id)
+    "fk_bounce_comments_version" FOREIGN KEY (version_id) REFERENCES versions(id)
+    "fk_bounce_comments_version_item" FOREIGN KEY (version_id, item_id) REFERENCES items(version_id, id)
+
+                                       Table "public.sendoff_decisions"
+   Column    |           Type           | Collation | Nullable |                    Default                    
+-------------+--------------------------+-----------+----------+-----------------------------------------------
+ id          | bigint                   |           | not null | nextval('sendoff_decisions_id_seq'::regclass)
+ created_at  | timestamp with time zone |           | not null | now()
+ recorded_by | text                     |           | not null | 
+ recorded_at | timestamp with time zone |           | not null | 
+ version_id  | bigint                   |           | not null | 
+ decision    | text                     |           | not null | 
+ reason      | text                     |           |          | 
+Indexes:
+    "sendoff_decisions_pkey" PRIMARY KEY, btree (id)
+    "ix_sendoff_decisions_version_id" btree (version_id)
+Check constraints:
+    "ck_sendoff_decisions_decision" CHECK (decision = ANY (ARRAY['undecided'::text, 'hold'::text, 'approved'::text]))
+    "ck_sendoff_decisions_reason" CHECK (decision = 'undecided'::text OR reason IS NOT NULL AND TRIM(BOTH FROM reason) <> ''::text)
+    "ck_sendoff_decisions_recorder" CHECK (TRIM(BOTH FROM recorded_by) <> ''::text)
+Foreign-key constraints:
+    "fk_sendoff_decisions_version" FOREIGN KEY (version_id) REFERENCES versions(id)
+
+approval_records (head)

@@ -1,0 +1,222 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-components.test.tsx
+
+FAIL src/features/versions/__tests__/approval-components.test.tsx
+  ✓ h1・primaryは1つ、7要約・メタ・未解決注記・10列を表示する (254 ms)
+  ✓ draftでは確認/差し戻しを無効にして理由を示す (173 ms)
+  ✓ review_checkedでは確認/差し戻しを無効にして理由を示す (177 ms)
+  ✓ 空名ではPOSTせず、記録後も留まり評価確認と送付の区別をstatus表示 (354 ms)
+  ✓ 差し戻しの未紐付け0件はPOSTせず、成功時はItem Listへ戻る (309 ms)
+  ✕ 行コメントは明示記録だけ送信し、成功時だけ入力を空にする (1245 ms)
+  ✓ 送付は判断者と保留理由を検査し未判断空理由をnullで送る (459 ms)
+  ✓ 行の索引・全行索引・根拠は排他、閲覧専用には訂正/取消/判断フォームなし (467 ms)
+  ✕ ボタン/入力上のclickやEnterは行索引を開かない (244 ms)
+  ✓ 空/読込/404/取得失敗/版一覧に該当なしを明示する (104 ms)
+  ✓ 409の表示は行IDと網羅性だけ、内部ID・生本文を出さない (236 ms)
+
+  ● 行コメントは明示記録だけ送信し、成功時だけ入力を空にする
+
+    expect(jest.fn()).toHaveBeenCalledWith(...expected)
+
+    Expected: {"comment": "原資料を確認", "itemId": 4, "recordedBy": "上司"}
+
+    Number of calls: 0
+
+    Ignored nodes: comments, script, style
+    [36m<html>[39m
+      [36m<head />[39m
+      [36m<body>[39m
+        [36m<div>[39m
+          [36m<main[39m
+            [33mclass[39m=[32m"MuiBox-root css-146mbm9"[39m
+          [36m>[39m
+            [36m<header[39m
+              [33mclass[39m=[32m"MuiBox-root css-4vnk0z"[39m
+            [36m>[39m
+              [36m<div[39m
+                [33mclass[39m=[32m"MuiBox-root css-0"[39m
+              [36m>[39m
+                [36m<h1[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-h1 css-o2w69a-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m引合書承認[0m
+                [36m</h1>[39m
+                [36m<p[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+                [36m>[39m
+                  [0m担当者が確定した Item List を、修正と判断がわかる状態で確認し、承認または差し戻しを記録します。[0m
+                [36m</p>[39m
+              [36m</div>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+                [33mhref[39m=[32m"/cases/8/versions/9"[39m
+                [33mtabindex[39m=[32m"0"[39m
+              [36m>[39m
+                [0mItem List へ[0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+                [36m/>[39m
+              [36m</a>[39m
+            [36m</header>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-1c0eigi"[39m
+            [36m>[39m
+              [36m<section[39m
+                [33maria-labelledby[39m=[32m"approval-summary-title"[39m
+                [33mclass[39m=[32m"MuiPaper-root MuiPaper-outlined MuiPaper-rounded css-1ji4k4y-MuiPaper-root"[39m
+              [36m>[39m
+                [36m<h2[39m
+                  [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+                  [33mid[39m=[32m"approval-summary-title"[39m
+                [36m>[39m
+                  [0m状態の要約 — 担当者の確認結果[0m
+                [36m</h2>[39m
+                [36m<dl[39m
+                  [33mclass[39m=[32m"MuiBox-root css-1nbwj0x"[39m
+                [36m>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"MuiBox-root css-0"[39m
+                  [36m>[39m
+                    [36m<dt[39m
+                      [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                    [36m>[39m
+                      [0m評価状態[0m
+                    [36m</dt>[39m
+                    [36m<dd[39m
+                      [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-doysvl-MuiTypography-root"[39m
+                    [36m>[39m
+                      [0m担当者確認済み[0m
+                    [36m</dd>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"MuiBox-root css-0"[39m
+                  [36m>[39m
+                    [36m<dt[39m
+                      [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                    [36m>[39m
+                      [0m送付可否[0m
+                    [36m</dt>[39m
+                    [36m<dd[39m
+                      [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-doysvl-MuiTypography-root"[39m
+                    [36m>[39m
+                      [0m未判断[0m
+                    [36m</dd>[39m
+                    [36m<span[39m
+                      [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                    [36m>[39m
+                      [0m記録なし[0m
+                    [36m</span>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"MuiBox-root css-0"[39m
+                  [36m>[39m
+                    [36m<dt[39m
+                      [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                    [36m>[39m
+                      [0m一致確認[0m
+                    [36m</dt>[39m
+                    [36m<dd[39m
+                      [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-52iq2z-MuiTypography-root"[39m
+                    [36m>[39m
+                      [0m1 / 2[0m
+                    [36m</dd>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"MuiBox-root css-0"[39m
+                  [36m>[39m
+                    [36m<dt[39m
+                      [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                    [36m>[39m
+                      [0m網羅性確認[0m
+                    [36m</dt>[39m
+                    [36m<dd[39m
+                      [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-yjrgf0-MuiTypography-root"[39m
+                    [36m>[39m
+                      [0m済[0m
+                    [36m</dd>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"MuiBox-root css-0"[39m
+                  [36m>[39m
+                    [36m<dt[39m
+                      [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                    [36m>[39m
+                      [0m訂正[0m
+                    [36m</dt>[39m
+                    [36m<dd[39m
+                      [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-doysvl-MuiTypography-root"[39m
+                    [36m>[39m
+                      [0m1[0m
+                    [36m</dd>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"MuiBox-root css-0"[39m
+                  [36m>[39m
+                    [36m<dt[39m
+                      [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                    [36m>[39m
+                      [0m未解決[0m
+                    [36m</dt>[39m
+                    [36m<dd[39m
+                      [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-52iq2z-MuiTypography-root"[39m
+                    [36m>[39m
+                      [0m2[0m
+                    [36m</dd>[39m
+                  [36m</div>[39m
+                  [36m<div[39m
+                    [33mclass[39m=[32m"MuiBox-root css-0"[39m
+                  [36m>[39m
+                    [36m<dt[39m
+                      [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+                    [36m>[39m
+                      [0m差し戻しコメント[0m
+                    [36m</dt>[39m
+                    [36m<dd[39m
+                      [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-52iq2z-MuiTypography-root"[39m
+                    [36m>[39m
+                      [0m1[0m
+                    [36m</dd>[39m
+                  [36m</div>[39m
+                [36m</dl>[39m
+           ...
+
+      55 |  fireEvent.click(within(row).getByRole('button',{name:'記録'}));expect(bounceComment).not.toHaveBeenCalled();
+      56 |  fireEvent.change(input,{target:{value:' 原資料を確認 '}});fireEvent.blur(input);expect(bounceComment).not.toHaveBeenCalled();
+    > 57 |  fireEvent.click(within(row).getByRole('button',{name:'記録'}));await waitFor(()=>expect(bounceComment).toHaveBeenCalledWith({itemId:4,comment:'原資料を確認',recordedBy:'上司'}));await waitFor(()=>expect(input).toHaveValue(''));expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+         |                                                                                                       ^
+      58 | });
+      59 | it('送付は判断者と保留理由を検査し未判断空理由をnullで送る',async()=>{
+      60 |  const user=userEvent.setup();render();const panel=screen.getByRole('region',{name:/② 送付可否/});
+
+      at toHaveBeenCalledWith (src/features/versions/__tests__/approval-components.test.tsx:57:103)
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/dom/dist/wait-for.js:124:77)
+      at checkRealTimersCallback (node_modules/@testing-library/dom/dist/wait-for.js:118:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:520:19)
+
+  ● ボタン/入力上のclickやEnterは行索引を開かない
+
+    expect(element).toHaveAccessibleName()
+
+    Expected element to have accessible name:
+      /原表記/
+    Received:
+      行 R1 · Casing
+
+      77 | it('ボタン/入力上のclickやEnterは行索引を開かない',()=>{
+      78 |  render();const row=screen.getByRole('row',{name:'行 R1 の変更・判断事項と未解決事項を開く'}),input=within(row).getByRole('textbox');fireEvent.click(input);fireEvent.keyDown(input,{key:'Enter'});expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    > 79 |  fireEvent.click(within(row).getByRole('button',{name:'根拠'}));expect(screen.getByRole('dialog')).toHaveAccessibleName(/原表記/);
+         |                                                                                                  ^
+      80 | });
+      81 | it('空/読込/404/取得失敗/版一覧に該当なしを明示する',()=>{
+      82 |  mock.useVersion.mockReturnValue({...query(undefined),isLoading:true} as never);const view=render();expect(screen.getByText('読み込み中...')).toBeVisible();
+
+      at Object.toHaveAccessibleName (src/features/versions/__tests__/approval-components.test.tsx:79:98)
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 9 passed, 11 total
+Snapshots:   0 total
+Time:        4.998 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-components.test.tsx/i.
+make: *** [/tmp/approval-ui-checks.mk:8: approval-ui-components] Error 1

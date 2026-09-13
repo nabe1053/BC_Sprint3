@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from app.api.errors import ApiError, api_error_handler
 from app.domain.draft_errors import DraftError
 from app.domain.draft_types import ItemInput
-from app.domain.record_types import CurrentItem
+from app.domain.record_types import CurrentItem, CarryOver
 from tests.fixtures.draft_data import item_data
 
 AT = datetime(2026, 9, 13, tzinfo=UTC)
@@ -27,7 +27,7 @@ EDIT = {
 
 @pytest.fixture
 async def record_http():
-    from app.api.dependencies import get_record_service
+    from app.api.dependencies import get_record_service, get_approval_service
     from app.api.ui.router import router
     from app.api.agent.router import router as agent_router
     from app.core.dependencies import get_case_service
@@ -163,15 +163,32 @@ async def record_http():
                     ),
                     "draft_review",
                     1,
+                    None,
                 )
             ]
         )
+    )
+    service.list_versions_with_records = AsyncMock(
+        return_value=[
+            {
+                "version": version,
+                "carry_over": CarryOver(0, 0, 0, False, 0),
+                "unresolved_count": 0,
+                "elapsed_sec": None,
+                "latest_state_event": None,
+                "latest_bounce": None,
+                "latest_sendoff_decision": None,
+                "bounced": False,
+                "needs_recheck": False,
+            }
+        ]
     )
     app = FastAPI()
     app.add_exception_handler(ApiError, api_error_handler)
     app.include_router(router, prefix="/api/v1")
     app.include_router(agent_router, prefix="/api/v1")
     app.dependency_overrides[get_record_service] = lambda: service
+    app.dependency_overrides[get_approval_service] = lambda: service
     app.dependency_overrides[get_case_service] = lambda: cases
     async with httpx.AsyncClient(
         transport=httpx.ASGITransport(app=app), base_url="http://test"
@@ -321,7 +338,8 @@ async def test_version_summary_list_evidence_and_case_navigation(record_http):
     assert (
         response.status_code == 200 and response.json()["versions"][0]["versionId"] == 1
     )
-    service.list_versions.assert_awaited_once_with(2)
+    service.list_versions_with_records.assert_awaited_once_with(2)
+    service.list_versions.assert_not_awaited()
     response = await client.get("/api/v1/ui/versions/1")
     assert response.status_code == 200 and response.json()["caseHeader"] is None
     assert response.json()["counts"]["editedItemCount"] == 0

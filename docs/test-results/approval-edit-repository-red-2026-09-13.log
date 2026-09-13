@@ -1,0 +1,67 @@
+.....F.....F                                                             [100%]
+=================================== FAILURES ===================================
+_______ test_latest_review_time_survives_bounce_and_corrective_downgrade _______
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x76ca12065f40>
+
+    async def test_latest_review_time_survives_bounce_and_corrective_downgrade(db_session):
+        from app.services.approval_service import ApprovalService
+        from app.services.record_service import RecordService
+        from tests.fixtures.record_data import edit_data
+        seed = await seed_record_version(db_session, state="review_checked")
+        repo = RecordRepository(db_session)
+        previous = list((await db_session.execute(select(VersionStateEvent).where(VersionStateEvent.to_state == "review_checked"))).scalars())
+        reviewed_at = previous[0].recorded_at
+        await RecordService(repo).edit(seed.version.id, edit_data(item_id=seed.item.id))
+        service = ApprovalService(repo)
+        await service.comment(seed.version.id, {"item_id": seed.item.id, "comment": "再確認", "recorded_by": "人"})
+>       await service.bounce(seed.version.id, {"recorded_by": "人"})
+
+tests/integration/test_approval_queries.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+app/services/approval_service.py:50: in bounce
+    require(version.current_state == "staff_checked", "E_STATE_ORDER", "状態遷移の順序を確認してください")
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+condition = False, code = 'E_STATE_ORDER', message = '状態遷移の順序を確認してください'
+
+    def require(
+        condition, code="E_NOT_FOUND", message="対象が存在しないか、案件・版が一致しません"
+    ):
+        if not condition:
+>           raise DraftError(code, message)
+E           app.domain.draft_errors.DraftError: 状態遷移の順序を確認してください
+
+app/repositories/draft_repository.py:29: DraftError
+__________ test_review_edit_commits_one_event_with_the_edit_timestamp __________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x76ca11184350>
+
+    async def test_review_edit_commits_one_event_with_the_edit_timestamp(db_session):
+        from app.models import VersionStateEvent, Version
+        from app.repositories.record_repository import RecordRepository
+        from app.services.record_service import RecordService
+        seed = await seed_record_version(db_session, state="review_checked")
+        version_id = seed.version.id
+        before = {row.id for row in (await db_session.execute(select(VersionStateEvent))).scalars()}
+        service = RecordService(RecordRepository(db_session))
+        edits = await service.edit(version_id, edit_data(item_id=seed.item.id, recorded_by="訂正者"))
+        events = list((await db_session.execute(select(VersionStateEvent))).scalars())
+        added = [row for row in events if row.id not in before]
+>       assert len(added) == 1
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests/integration/test_record_repository.py:191: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_approval_queries.py::test_latest_review_time_survives_bounce_and_corrective_downgrade - app.domain.draft_errors.DraftError: 状態遷移の順序を確認してください
+FAILED tests/integration/test_record_repository.py::test_review_edit_commits_one_event_with_the_edit_timestamp - assert 0 == 1
+ +  where 0 = len([])
+2 failed, 10 passed, 1 warning in 4.60s
+make: *** [/tmp/approval-checks.mk:10: approval-repository] Error 1

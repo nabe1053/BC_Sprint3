@@ -1,0 +1,136 @@
+............FFFFFFFFFF...............F                                   [100%]
+=================================== FAILURES ===================================
+_____ test_bounced_compares_latest_bounce_and_last_review[None-None-False] _____
+
+bounce_at = None, review_at = None, expected = False
+
+    @pytest.mark.parametrize("bounce_at,review_at,expected", [(None,None,False),(None,2,False),(2,None,True),(1,2,False),(2,1,True),(2,2,False)])
+    def test_bounced_compares_latest_bounce_and_last_review(bounce_at,review_at,expected):
+>       from app.services.version_state import bounced
+E       ImportError: cannot import name 'bounced' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+
+tests/unit/test_version_state.py:110: ImportError
+______ test_bounced_compares_latest_bounce_and_last_review[None-2-False] _______
+
+bounce_at = None, review_at = 2, expected = False
+
+    @pytest.mark.parametrize("bounce_at,review_at,expected", [(None,None,False),(None,2,False),(2,None,True),(1,2,False),(2,1,True),(2,2,False)])
+    def test_bounced_compares_latest_bounce_and_last_review(bounce_at,review_at,expected):
+>       from app.services.version_state import bounced
+E       ImportError: cannot import name 'bounced' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+
+tests/unit/test_version_state.py:110: ImportError
+_______ test_bounced_compares_latest_bounce_and_last_review[2-None-True] _______
+
+bounce_at = 2, review_at = None, expected = True
+
+    @pytest.mark.parametrize("bounce_at,review_at,expected", [(None,None,False),(None,2,False),(2,None,True),(1,2,False),(2,1,True),(2,2,False)])
+    def test_bounced_compares_latest_bounce_and_last_review(bounce_at,review_at,expected):
+>       from app.services.version_state import bounced
+E       ImportError: cannot import name 'bounced' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+
+tests/unit/test_version_state.py:110: ImportError
+________ test_bounced_compares_latest_bounce_and_last_review[1-2-False] ________
+
+bounce_at = 1, review_at = 2, expected = False
+
+    @pytest.mark.parametrize("bounce_at,review_at,expected", [(None,None,False),(None,2,False),(2,None,True),(1,2,False),(2,1,True),(2,2,False)])
+    def test_bounced_compares_latest_bounce_and_last_review(bounce_at,review_at,expected):
+>       from app.services.version_state import bounced
+E       ImportError: cannot import name 'bounced' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+
+tests/unit/test_version_state.py:110: ImportError
+________ test_bounced_compares_latest_bounce_and_last_review[2-1-True] _________
+
+bounce_at = 2, review_at = 1, expected = True
+
+    @pytest.mark.parametrize("bounce_at,review_at,expected", [(None,None,False),(None,2,False),(2,None,True),(1,2,False),(2,1,True),(2,2,False)])
+    def test_bounced_compares_latest_bounce_and_last_review(bounce_at,review_at,expected):
+>       from app.services.version_state import bounced
+E       ImportError: cannot import name 'bounced' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+
+tests/unit/test_version_state.py:110: ImportError
+________ test_bounced_compares_latest_bounce_and_last_review[2-2-False] ________
+
+bounce_at = 2, review_at = 2, expected = False
+
+    @pytest.mark.parametrize("bounce_at,review_at,expected", [(None,None,False),(None,2,False),(2,None,True),(1,2,False),(2,1,True),(2,2,False)])
+    def test_bounced_compares_latest_bounce_and_last_review(bounce_at,review_at,expected):
+>       from app.services.version_state import bounced
+E       ImportError: cannot import name 'bounced' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+
+tests/unit/test_version_state.py:110: ImportError
+________ test_needs_recheck_requires_corrective_transition[None-False] _________
+
+event = None, expected = False
+
+    @pytest.mark.parametrize("event,expected", [(None,False),(N(from_state="draft",to_state="staff_checked"),False),(N(from_state="staff_checked",to_state="review_checked"),False),(N(from_state="review_checked",to_state="staff_checked"),True)])
+    def test_needs_recheck_requires_corrective_transition(event,expected):
+>       from app.services.version_state import needs_recheck
+E       ImportError: cannot import name 'needs_recheck' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+
+tests/unit/test_version_state.py:116: ImportError
+_______ test_needs_recheck_requires_corrective_transition[event1-False] ________
+
+event = namespace(from_state='draft', to_state='staff_checked')
+expected = False
+
+    @pytest.mark.parametrize("event,expected", [(None,False),(N(from_state="draft",to_state="staff_checked"),False),(N(from_state="staff_checked",to_state="review_checked"),False),(N(from_state="review_checked",to_state="staff_checked"),True)])
+    def test_needs_recheck_requires_corrective_transition(event,expected):
+>       from app.services.version_state import needs_recheck
+E       ImportError: cannot import name 'needs_recheck' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+
+tests/unit/test_version_state.py:116: ImportError
+_______ test_needs_recheck_requires_corrective_transition[event2-False] ________
+
+event = namespace(from_state='staff_checked', to_state='review_checked')
+expected = False
+
+    @pytest.mark.parametrize("event,expected", [(None,False),(N(from_state="draft",to_state="staff_checked"),False),(N(from_state="staff_checked",to_state="review_checked"),False),(N(from_state="review_checked",to_state="staff_checked"),True)])
+    def test_needs_recheck_requires_corrective_transition(event,expected):
+>       from app.services.version_state import needs_recheck
+E       ImportError: cannot import name 'needs_recheck' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+
+tests/unit/test_version_state.py:116: ImportError
+________ test_needs_recheck_requires_corrective_transition[event3-True] ________
+
+event = namespace(from_state='review_checked', to_state='staff_checked')
+expected = True
+
+    @pytest.mark.parametrize("event,expected", [(None,False),(N(from_state="draft",to_state="staff_checked"),False),(N(from_state="staff_checked",to_state="review_checked"),False),(N(from_state="review_checked",to_state="staff_checked"),True)])
+    def test_needs_recheck_requires_corrective_transition(event,expected):
+>       from app.services.version_state import needs_recheck
+E       ImportError: cannot import name 'needs_recheck' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+
+tests/unit/test_version_state.py:116: ImportError
+_____ test_version_list_derives_flags_without_mutating_repository_material _____
+
+repository = namespace(version=namespace(id=7, current_state='draft'), active=[], record=<function repository.<locals>.record at 0x...51394224'>, list_records=<AsyncMock id='135269751405408'>, list_versions_with_records=<AsyncMock id='135269751403008'>)
+
+    async def test_version_list_derives_flags_without_mutating_repository_material(repository):
+        from app.services.approval_service import ApprovalService
+        rows = [
+            {"latest_bounce": N(recorded_at=2), "latest_review_checked_at": 1, "latest_state_event": N(from_state="review_checked", to_state="staff_checked")},
+            {"latest_bounce": N(recorded_at=1), "latest_review_checked_at": 2, "latest_state_event": N(from_state="staff_checked", to_state="review_checked")},
+            {"latest_bounce": None, "latest_review_checked_at": None, "latest_state_event": None},
+        ]
+        repository.list_versions_with_records.return_value = rows
+        result = await ApprovalService(repository).list_versions_with_records(4)
+>       assert [(row["bounced"],row["needs_recheck"]) for row in result] == [(True,True),(False,False),(False,False)]
+E       KeyError: 'bounced'
+
+tests/unit/test_approval_service.py:196: KeyError
+=========================== short test summary info ============================
+FAILED tests/unit/test_version_state.py::test_bounced_compares_latest_bounce_and_last_review[None-None-False] - ImportError: cannot import name 'bounced' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+FAILED tests/unit/test_version_state.py::test_bounced_compares_latest_bounce_and_last_review[None-2-False] - ImportError: cannot import name 'bounced' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+FAILED tests/unit/test_version_state.py::test_bounced_compares_latest_bounce_and_last_review[2-None-True] - ImportError: cannot import name 'bounced' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+FAILED tests/unit/test_version_state.py::test_bounced_compares_latest_bounce_and_last_review[1-2-False] - ImportError: cannot import name 'bounced' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+FAILED tests/unit/test_version_state.py::test_bounced_compares_latest_bounce_and_last_review[2-1-True] - ImportError: cannot import name 'bounced' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+FAILED tests/unit/test_version_state.py::test_bounced_compares_latest_bounce_and_last_review[2-2-False] - ImportError: cannot import name 'bounced' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+FAILED tests/unit/test_version_state.py::test_needs_recheck_requires_corrective_transition[None-False] - ImportError: cannot import name 'needs_recheck' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+FAILED tests/unit/test_version_state.py::test_needs_recheck_requires_corrective_transition[event1-False] - ImportError: cannot import name 'needs_recheck' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+FAILED tests/unit/test_version_state.py::test_needs_recheck_requires_corrective_transition[event2-False] - ImportError: cannot import name 'needs_recheck' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+FAILED tests/unit/test_version_state.py::test_needs_recheck_requires_corrective_transition[event3-True] - ImportError: cannot import name 'needs_recheck' from 'app.services.version_state' (/home/takahiro/Documents/BC_Sprint3/backend/app/services/version_state.py)
+FAILED tests/unit/test_approval_service.py::test_version_list_derives_flags_without_mutating_repository_material - KeyError: 'bounced'
+11 failed, 27 passed in 0.17s
+make: *** [/tmp/approval-api-checks.mk:4: approval-api-state] Error 1

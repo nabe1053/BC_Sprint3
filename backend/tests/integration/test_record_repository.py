@@ -175,3 +175,73 @@ async def test_version_lock_serializes_current_old_value_across_sessions(db_sess
                 raise
         rows = await asyncio.wait_for(task, timeout=2)
     assert rows[0].old_value == "L80" and rows[0].new_value == "N80"
+
+
+async def test_review_edit_commits_one_event_with_the_edit_timestamp(db_session):
+    from app.models import VersionStateEvent, Version
+    from app.repositories.record_repository import RecordRepository
+    from app.services.record_service import RecordService
+
+    seed = await seed_record_version(db_session, state="review_checked")
+    version_id = seed.version.id
+    before = {
+        row.id
+        for row in (await db_session.execute(select(VersionStateEvent))).scalars()
+    }
+    service = RecordService(RecordRepository(db_session))
+    edits = await service.edit(
+        version_id, edit_data(item_id=seed.item.id, recorded_by="訂正者")
+    )
+    events = list((await db_session.execute(select(VersionStateEvent))).scalars())
+    added = [row for row in events if row.id not in before]
+    assert len(added) == 1
+    event = added[0]
+    assert {row.id for row in events} == before | {event.id}
+    assert (
+        event.from_state,
+        event.to_state,
+        event.recorded_by,
+        event.unresolved_count,
+    ) == ("review_checked", "staff_checked", "訂正者", 0)
+    assert event.recorded_at == edits[0].recorded_at
+    assert (
+        await db_session.get(Version, version_id, populate_existing=True)
+    ).current_state == "staff_checked"
+    await service.undo_edit(version_id, edits[0].id, {"recorded_by": "取消者"})
+    assert {
+        row.id
+        for row in (await db_session.execute(select(VersionStateEvent))).scalars()
+    } == before | {event.id}
+
+
+async def test_edit_and_state_event_rollback_when_event_save_fails(
+    db_session, monkeypatch
+):
+    from app.models import VersionStateEvent, Version
+    from app.repositories.record_repository import RecordRepository
+    from app.services.record_service import RecordService
+
+    seed = await seed_record_version(db_session, state="review_checked")
+    vid, item_id = seed.version.id, seed.item.id
+    repo = RecordRepository(db_session)
+    before = {
+        row.id
+        for row in (await db_session.execute(select(VersionStateEvent))).scalars()
+    }
+    save = repo.save_state_event
+
+    async def fail(*args, **kwargs):
+        await save(*args, **kwargs)
+        raise RuntimeError("after event flush")
+
+    monkeypatch.setattr(repo, "save_state_event", fail)
+    with pytest.raises(RuntimeError):
+        await RecordService(repo).edit(vid, edit_data(item_id=item_id))
+    assert list((await db_session.execute(select(ItemEdit))).scalars()) == []
+    assert {
+        row.id
+        for row in (await db_session.execute(select(VersionStateEvent))).scalars()
+    } == before
+    assert (
+        await db_session.get(Version, vid, populate_existing=True)
+    ).current_state == "review_checked"

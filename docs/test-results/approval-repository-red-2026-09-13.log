@@ -1,0 +1,95 @@
+FFFFF.....                                                               [100%]
+=================================== FAILURES ===================================
+___________ test_event_and_cached_state_commit_or_rollback_together ____________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7385dd2fa180>
+
+    async def test_event_and_cached_state_commit_or_rollback_together(db_session):
+        seed=await seed_record_version(db_session)
+        version_id=seed.version.id
+        repo=RecordRepository(db_session)
+        with pytest.raises(RuntimeError):
+            async with repo.record(version_id) as version:
+>               assert version.id==version_id
+E               AttributeError: 'NoneType' object has no attribute 'id'
+
+tests/integration/test_approval_repository.py:19: AttributeError
+___________ test_two_sessions_block_then_reject_repeated_transition ____________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7385dcb38590>
+
+    async def test_two_sessions_block_then_reject_repeated_transition(db_session):
+>       from app.services.approval_service import ApprovalService
+E       ModuleNotFoundError: No module named 'app.services.approval_service'
+
+tests/integration/test_approval_repository.py:31: ModuleNotFoundError
+_______ test_bounce_links_comments_once_without_changing_state_or_events _______
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7385dcaabaa0>
+
+    async def test_bounce_links_comments_once_without_changing_state_or_events(db_session):
+        seed=await seed_record_version(db_session,state="staff_checked")
+        repo=RecordRepository(db_session);version_id=seed.version.id
+        before={row.id for row in (await db_session.execute(select(VersionStateEvent))).scalars()}
+        async with repo.record(version_id):
+>           old=await repo.save_bounce_comment(version_id,{"item_id":seed.item.id,"comment":"first",**record_actor()})
+E           AttributeError: 'RecordRepository' object has no attribute 'save_bounce_comment'
+
+tests/integration/test_approval_repository.py:76: AttributeError
+_____ test_record_collections_include_cancellations_and_keep_version_scope _____
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7385dcaab050>
+
+    async def test_record_collections_include_cancellations_and_keep_version_scope(db_session):
+        seed=await seed_record_version(db_session,state="staff_checked")
+        other=await seed_record_version(db_session)
+        repo=RecordRepository(db_session);vid=seed.version.id;at=datetime.now(UTC)
+        question=Question(version_id=vid,question_code="Q1",item_id=seed.item.id,target_field="grade",reason="check")
+        db_session.add(question);await db_session.flush()
+        edit=ItemEdit(version_id=vid,item_id=seed.item.id,field="grade",new_value="L80",reason="check",undone_at=at,undone_by="undo",**record_actor())
+        cancelled=Confirmation(version_id=vid,kind="coverage",undone_at=at,undone_by="undo",**record_actor())
+        active=Confirmation(version_id=vid,kind="row_match",item_id=seed.item.id,**record_actor())
+        judgement=QuestionJudgement(question_id=question.id,status="judged",resolution="unresolved",**record_actor())
+        foreign=SendoffDecision(version_id=other.version.id,decision="undecided",**record_actor())
+        db_session.add_all([edit,cancelled,active,judgement,foreign]);await db_session.commit()
+        async with repo.record(vid):
+>           comment=await repo.save_bounce_comment(vid,{"item_id":seed.item.id,"comment":"check",**record_actor()})
+E           AttributeError: 'RecordRepository' object has no attribute 'save_bounce_comment'
+
+tests/integration/test_approval_queries.py:23: AttributeError
+_______ test_query_count_is_constant_and_latest_records_use_time_then_id _______
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7385dcb03f50>
+
+    async def test_query_count_is_constant_and_latest_records_use_time_then_id(db_session):
+        from app.models import Version, Item
+        from app.domain.draft_types import ItemInput
+        from tests.fixtures.draft_data import item_data
+        seed=await seed_record_version(db_session)
+        repo=RecordRepository(db_session)
+        # Warm case lookup so the identity map has identical state at both measurements.
+        await repo.list_versions(seed.case.id)
+        def statements():
+            result=[]
+            def observe(conn,cursor,statement,parameters,context,executemany):
+                if statement.lstrip().upper().startswith("SELECT"): result.append(statement)
+            return result,observe
+        first,observe=statements();event.listen(db_session.bind.sync_engine,"before_cursor_execute",observe)
+>       try: one=await repo.list_versions_with_records(seed.case.id)
+E       AttributeError: 'RecordRepository' object has no attribute 'list_versions_with_records'
+
+tests/integration/test_approval_queries.py:63: AttributeError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_approval_repository.py::test_event_and_cached_state_commit_or_rollback_together - AttributeError: 'NoneType' object has no attribute 'id'
+FAILED tests/integration/test_approval_repository.py::test_two_sessions_block_then_reject_repeated_transition - ModuleNotFoundError: No module named 'app.services.approval_service'
+FAILED tests/integration/test_approval_repository.py::test_bounce_links_comments_once_without_changing_state_or_events - AttributeError: 'RecordRepository' object has no attribute 'save_bounce_comment'
+FAILED tests/integration/test_approval_queries.py::test_record_collections_include_cancellations_and_keep_version_scope - AttributeError: 'RecordRepository' object has no attribute 'save_bounce_comment'
+FAILED tests/integration/test_approval_queries.py::test_query_count_is_constant_and_latest_records_use_time_then_id - AttributeError: 'RecordRepository' object has no attribute 'list_versions_with_records'
+5 failed, 5 passed, 1 warning in 3.26s
+make: *** [/tmp/approval-checks.mk:10: approval-repository] Error 1

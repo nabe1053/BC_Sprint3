@@ -1,0 +1,185 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-refresh.test.tsx
+
+FAIL src/features/versions/__tests__/approval-refresh.test.tsx
+  ✕ 評価確認済み版の訂正POST後、同一画面で版一覧を再取得して再確認バナーを出す (1993 ms)
+
+  ● 評価確認済み版の訂正POST後、同一画面で版一覧を再取得して再確認バナーを出す
+
+    Unable to find an element with the text: /再確認が必要/. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+    Ignored nodes: comments, script, style
+    [36m<body[39m
+      [33mstyle[39m=[32m"padding-right: 1024px; overflow: hidden;"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33maria-hidden[39m=[32m"true"[39m
+      [36m>[39m
+        [36m<main[39m
+          [33mclass[39m=[32m"MuiBox-root css-146mbm9"[39m
+        [36m>[39m
+          [36m<header[39m
+            [33mclass[39m=[32m"MuiBox-root css-4vnk0z"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<h1[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h1 css-o2w69a-MuiTypography-root"[39m
+              [36m>[39m
+                [0mItem List 確認[0m
+              [36m</h1>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m原資料と明細を照合し、訂正・確認・判断を記録します。[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+                [33mhref[39m=[32m"/cases/8/versions/9/approval"[39m
+                [33mtabindex[39m=[32m"0"[39m
+              [36m>[39m
+                [0m引合書承認へ[0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+                [36m/>[39m
+              [36m</a>[39m
+            [36m</div>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mhref[39m=[32m"/cases"[39m
+              [33mtabindex[39m=[32m"0"[39m
+            [36m>[39m
+              [0m案件一覧へ[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</a>[39m
+          [36m</header>[39m
+          [36m<details[39m
+            [33mclass[39m=[32m"MuiBox-root css-0"[39m
+          [36m>[39m
+            [36m<summary[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m版の履歴[0m
+            [36m</summary>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-w4ns3s"[39m
+            [36m>[39m
+              [36m<a[39m
+                [33maria-current[39m=[32m"page"[39m
+                [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+                [33mhref[39m=[32m"/cases/8/versions/9"[39m
+                [33mtabindex[39m=[32m"0"[39m
+              [36m>[39m
+                [0m版 1 を開く[0m
+                [36m<span[39m
+                  [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+                [36m/>[39m
+              [36m</a>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m2026-09-13T01:00:00Z[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m評価確認済み[0m
+              [36m</p>[39m
+              [36m<p[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m表示中[0m
+              [36m</p>[39m
+            [36m</div>[39m
+            [36m<a[39m
+              [33mclass[39m=[32m"MuiButtonBase-root MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary MuiButton-root MuiButton-text MuiButton-textPrimary MuiButton-sizeMedium MuiButton-textSizeMedium MuiButton-colorPrimary css-1e6y48t-MuiButtonBase-root-MuiButton-root"[39m
+              [33mhref[39m=[32m"/cases/8/intake"[39m
+              [33mtabindex[39m=[32m"0"[39m
+            [36m>[39m
+              [0m資料投入画面へ[0m
+              [36m<span[39m
+                [33mclass[39m=[32m"MuiTouchRipple-root css-8je8zh-MuiTouchRipple-root"[39m
+              [36m/>[39m
+            [36m</a>[39m
+          [36m</details>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiBox-root css-1dqpc7h"[39m
+          [36m>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m版 1[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m担当者確認済み[0m
+            [36m</p>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m一部未完了の版です。抽出内容を確認してください。[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<div[39m
+            [33mclass[39m=[32m"MuiPaper-root MuiPaper-outlined MuiPaper-rounded css-j46zze-MuiPaper-root"[39m
+          [36m>[39m
+            [36m<h2[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1sra7t5-MuiTypography-root"[39m
+            [36m>[39m
+              [0m案件情報[0m
+            [36m</h2>[39m
+            [36m<p[39m
+              [33mclass[39m=[32m"MuiTypography-root MuiTypography-body1 css-ahj2mt-MuiTypography-root"[39m
+            [36m>[39m
+              [0m案件情報なし[0m
+            [36m</p>[39m
+          [36m</div>[39m
+          [36m<dl[39m
+            [33mclass[39m=[32m"MuiBox-root css-1nbwj0x"[39m
+          [36m>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<dt[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-caption css-1sn4lm3-MuiTypography-root"[39m
+              [36m>[39m
+                [0m明細[0m
+              [36m</dt>[39m
+              [36m<dd[39m
+                [33mclass[39m=[32m"MuiTypography-root MuiTypography-h2 css-1ruo0tt-MuiTypography-root"[39m
+              [36m>[39m
+                [0m2[0m
+              [36m</dd>[39m
+            [36m</div>[39m
+            [36m<div[39m
+              [33mclass[39m=[32m"MuiBox-root css-0"[39m
+            [36m>[39m
+              [36m<dt[39m
+               ...
+
+      84 |       within(drawer).getByRole("button", { name: "訂正を記録" }),
+      85 |     );
+    > 86 |     await waitFor(() => expect(screen.getByText(/再確認が必要/)).toBeVisible());
+         |                  ^
+      87 |     const posts = request.mock.calls.filter(
+      88 |       ([, options]) => options?.method === "POST",
+      89 |     );
+
+      at waitForWrapper (../../../home/takahiro/Documents/BC_Sprint3/frontend/node_modules/@testing-library/dom/dist/wait-for.js:163:27)
+      at Object.<anonymous> (src/features/versions/__tests__/approval-refresh.test.tsx:86:18)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 1 total
+Snapshots:   0 total
+Time:        2.952 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-refresh.test.tsx/i.
+make: *** [/tmp/approval-ui-checks.mk:21: approval-ui-refresh] Error 1

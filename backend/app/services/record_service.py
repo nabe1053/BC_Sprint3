@@ -13,9 +13,11 @@ from app.domain.record_types import (
     JudgementInput,
     STATE_FIELDS,
     UndoInput,
+    unresolved_question_ids,
 )
 from app.repositories.draft_repository import require
 from app.services.item_current_values import apply_edits
+from app.services.version_state import unresolved_count
 
 
 def parse_input(schema, data):
@@ -36,7 +38,7 @@ class RecordService:
     async def edit(self, version_id, data):
         data = parse_input(ItemEditInput, data)
         repo = self.repository
-        async with repo.record(version_id):
+        async with repo.record(version_id) as version:
             item = await repo.item(version_id, data.item_id)
             current = apply_edits(
                 item, await repo.edits(version_id, data.item_id)
@@ -97,7 +99,19 @@ class RecordService:
                 raise DraftError(
                     "E_STATE_VALUE_CONFLICT", "値と状態が一致しません"
                 ) from exc
-            return await repo.save_edits(version_id, rows)
+            saved = await repo.save_edits(version_id, rows)
+            if version.current_state == "review_checked":
+                await repo.save_state_event(
+                    version,
+                    from_state="review_checked",
+                    to_state="staff_checked",
+                    recorded_by=data.recorded_by,
+                    recorded_at=at,
+                    unresolved_count=unresolved_count(
+                        await repo.list_questions_with_latest(version_id)
+                    ),
+                )
+            return saved
 
     async def _undo(self, version_id, record_id, data, getter):
         async with self.repository.record(version_id):
@@ -184,11 +198,8 @@ class RecordService:
             "tba_item_ids": {
                 item.values["id"] for item in items if item.values["qty_state"] == "tba"
             },
-            "unresolved_question_ids": {
-                row["question"].id
-                for row in data["questions"]
-                if row["latest"] is None or row["latest"].resolution == "unresolved"
-            },
+            "unresolved_question_ids": unresolved_question_ids(data["questions"]),
+            "unresolved_count": unresolved_count(data["questions"]),
             "choice_groups": {},
             "edit_count": len(active_edits),
             "coverage_confirmed": any(
@@ -206,7 +217,6 @@ class RecordService:
             ("edited_item_count", "edited_item_ids"),
             ("question_item_count", "question_item_ids"),
             ("tba_item_count", "tba_item_ids"),
-            ("unresolved_count", "unresolved_question_ids"),
             ("choice_group_count", "choice_groups"),
         ):
             result[count] = len(result[ids])

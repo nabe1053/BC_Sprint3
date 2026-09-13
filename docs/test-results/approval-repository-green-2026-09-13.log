@@ -1,0 +1,21 @@
+.F........                                                               [100%]
+=================================== FAILURES ===================================
+___________ test_two_sessions_block_then_reject_repeated_transition ____________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x6ffe9030f380>
+
+    async def test_two_sessions_block_then_reject_repeated_transition(db_session):
+>       from app.services.approval_service import ApprovalService
+E       ModuleNotFoundError: No module named 'app.services.approval_service'
+
+tests/integration/test_approval_repository.py:31: ModuleNotFoundError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_approval_repository.py::test_two_sessions_block_then_reject_repeated_transition - ModuleNotFoundError: No module named 'app.services.approval_service'
+1 failed, 9 passed, 1 warning in 3.19s
+make: *** [/tmp/approval-checks.mk:10: approval-repository] Error 1

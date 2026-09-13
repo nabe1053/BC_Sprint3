@@ -150,6 +150,14 @@
   レビュー済みとしない）/ **品質ゲート `make check` と commit＝フェーズ C**（pathspec 限定・`git add -A` 禁止・LN-038/CV-023）/ **§7 は Codex 自身のキュー**（更新待ちをしない）。
   指示書が無いスライス（T-602・T-603 以降）は §0c の構成で**実装前に決定表つきで書く**。研修者に上げるのは設計判断・破壊的操作・D05・スコープ変更・BLOCKED 化・秘密情報の 6 つ（§0e）。
   影響範囲: CLAUDE.md 憲法1/6/7・決定事項6、`.claude/rules/memory-protocol.md`、`docs/reviews/CODEX-INSTRUCTIONS.md` §0〜§0e・§6b・§7。
+- [AD-033] **T-603（G6 FE）の 15 決定**（指示書 `docs/t603-instructions.md` §0 が正）。要点: ①新 feature を作らず `features/versions/` に追加
+  ③`Content-Disposition` の filename 取り出しは純粋関数 `parseExportFileName`（既定名へ落ちたことを `fromHeader` で区別）④Blob 保存は component 内（`shared/lib` は副作用なしのため置かない）
+  ⑤`retry:false`＋実行中 disabled（**再 POST は別の出力レコードを作る**）⑥出力履歴 #39 は表示中の版のみ 1 クエリ・`integrity` はラベル文字・`storagePath`/`contentHash` は画面に出さない
+  ⑦`#22` に `elapsedSec` を追加（材料は `agent_runs.elapsed_sec` を `version_id` で結線。版数に依らない 1 回の SELECT。未記録は `null`）⑨再実行は既存 `AgentRunPanel` を index 経由で再利用
+  ⑩出力ボタンは outlined（primary は「担当者確認済みにする」1 つ）⑬`#40` は UI で未使用。影響範囲: `05-api-ipo.md` #22・`03-spec.md`:168 に書き戻し済み。
+- [AD-034] **共有 `AgentRunPanel` に `emphasis?: "primary" | "secondary"` を追加**（既定 primary で SCR-02 は不変）。理由: 03-spec が版の履歴パネルに再実行ボタンを求める一方、
+  そのまま置くと design-guidelines「primary（塗り）は 1 画面 1 つ」に反し、既存テストが実際に RED になった / 影響範囲: SCR-03 からは `emphasis="secondary"`。起動ロジック・ガードレール・二重起動防止は不変。
+
 ## 2. 確立した規約・パターン
 
 - [CV-001] **reader（資料読取部品）の契約**: ①読取4区分は「読めた単位が1つ以上あるか」で決める
@@ -245,12 +253,12 @@
 | T-401 | G4 照合集計（BE。保存は T-201・記録は T-301 済） | web | T-201 | DONE | 1回目 RV-040: **DONE**（P3 4 は記録のみ・TODO-031） | 2026-09-13 |
 | T-402 | G4 照合 API #27（UI GET）＋#19 同パス整理（API） | web | T-401 | DONE | 1回目 RV-042: **DONE**（P3 4 は記録のみ・TODO-033） | 2026-09-13 |
 | T-403 | G4 SCR-05 網羅性照合（FE） | web | T-402 | DONE | 2回目 RV-044: **DONE**（P3 5 は記録のみ・TODO-035）。**G4 完了** | 2026-09-13 |
-| T-501 | G5 状態遷移・差し戻し・送付可否の記録（BE） | web | T-301 | REVIEWING | 実装完了・handoff 受領（BE 694 passed の主張）。**レビュー未実施**（AD-032 で Codex のフレッシュセッションが実施） | 2026-09-14 |
-| T-502 | G5 承認・状態 API #1,#22,28,34-37（API） | web | T-501 | PLANNED | 指示書 `docs/t502-instructions.md`（AD-029）。T-501 DONE 後に §7 で投入 | 2026-09-13 |
-| T-503 | G5 SCR-06 引合書承認＋SCR-03/01 の G5 追加（FE） | web | T-502 | PLANNED | 指示書 `docs/t503-instructions.md`（AD-031）。T-502 DONE 後に §7 で投入 | 2026-09-13 |
-| T-601 | G6 .xlsx 5シート生成（BE） | web | T-501 | PLANNED | 指示書 `docs/t601-instructions.md`（AD-030）。T-502 の後に §7 で投入 | 2026-09-13 |
-| T-602 | G6 出力 API #38,39,40（API） | web | T-601 | PLANNED | - | 2026-09-11 |
-| T-603 | G6 出力ボタン・版の履歴（FE・SCR-03 内） | web | T-602 | PLANNED | - | 2026-09-11 |
+| T-501 | G5 状態遷移・差し戻し・送付可否の記録（BE） | web | T-301 | DONE | Codex フレッシュセッションの独立レビューで P1/P2/P3 各 0・DONE 可（`docs/t501-handoff.md`） | 2026-09-13 |
+| T-502 | G5 承認・状態 API #1,#22,28,34-37（API） | web | T-501 | DONE | 独立レビュー DONE 可（`docs/t502-handoff.md`）。AD-029 の 16 決定を反映 | 2026-09-13 |
+| T-503 | G5 SCR-06 引合書承認＋SCR-03/01 の G5 追加（FE） | web | T-502 | DONE | 独立レビュー第3回で P1/P2/P3 各 0・DONE 可（`docs/t503-handoff.md`）。**G5 完了** | 2026-09-13 |
+| T-601 | G6 .xlsx 5シート生成（BE） | web | T-501 | DONE | 独立レビュー DONE 可（`docs/t601-handoff.md`）。AD-030 の 21 決定を反映 | 2026-09-13 |
+| T-602 | G6 出力 API #38,39,40（API） | web | T-601 | DONE | reviewer サブエージェント 1回目 RV-045: **P1 0・DONE 可**（P2-1 は並行作業由来・P3 3 は記録のみ・TODO-043） | 2026-09-13 |
+| T-603 | G6 出力ボタン・版の履歴（FE・SCR-03 内）＋ #22 `elapsedSec` 追補 | web | T-602 | DONE | 3回目 RV-048: **DONE 可**（P1/P2 0・P3 2 は記録のみ・TODO-046）。**G6 完了 ＝ Phase 2 初版完成** | 2026-09-13 |
 
 > **実施順（AD-011）**: T-201・T-202 クローズ → C-1 → **T-203 → T-204 → ミニ評価** →
 > G3（T-301〜303）・G4（T-401〜403）は並行可 → G5 → G6。
@@ -264,6 +272,8 @@
 
 > **G2 ミニ評価（⑤）合格・2026-09-12**: UI API 経由で実ジョブを通し、正常系 `completed`（明細 3・確認事項 2・違反 0・トレース漏洩 0・換算なし）と
 > 対応範囲外 `failed/local_dummy_unsupported`（捏造なし）を確認。記録: `docs/evaluations/g2-mini-eval-2026-09-12.md`。Phase 3 本評価は D05 承認後。
+
+> **Phase 2（初版）完成・2026-09-13**: G1〜G6 の全スライス（T-101〜T-603）が DONE。残りは C-3（記録のみ P3 のまとめ）と Phase 3 の AE04〜AE07。
 
 > 人が読む説明版: `docs/tickets.md`（グループ・完了の目安つき）。本表が進捗の正。
 
@@ -489,6 +499,32 @@
 - [RV-044] T-403 R-2（同一 reviewer 独立・2026-09-13）: RV-043 **P2-1 / P3-1 をクローズ**（notice をモック原文どおり lead＋body の 2 文に復元・強調は `tokens.typography.weight.bold` のみ・
   文体を敬体に統一）。既存 assert は削除せず期待更新、`make check-fe` 24 suites / **327 PASS**・design-lint 0 を再現。**DONE**。新規 P3-5（追加ケースのみ `test(`＋英語名。他は `it(`＋日本語）→ TODO-035 ⑤。
 
+
+- [RV-045] T-602（reviewer サブエージェント・独立・2026-09-13）: **P1 0 件 → DONE 可**。現物確認: endpoint→Service→Repository の一方向（Repository 直叩き・生 SQL なし）/
+  #38 は `ExportResult.content` をそのまま返す（再読込・再生成なし）/ 非空 body は Service 未呼出しで 400 / `E_VERSION_NOT_FINALIZED`→409 は `errors.py` の表 1 箇所 /
+  パス境界（AGENT POST `/evidence` あり・UI GET `/evidence` あり・逆経路なし・`/agent/**/exports` なし）/ mutator の JSON 経路は変更前と等価 / 生成物に手編集なし。
+  P2-1 は**同一ツリーで T-603 を並行実装していたため `make check` が再現できない**という手続き上の指摘（T-602 のコード起因ではない。T-603 完了後に再現して解消）。
+  P3: ①非空 body を全量バッファしてから 400（ヘッダ先読みで弾ける）②同一ファイル内に射影イディオム 2 種（`model_validate` と `record_response`）③`Content-Disposition` の
+  ASCII 安全性が T-601 のドメイン関数にしか無く API 層に境界テストが無い → TODO-043。
+
+
+- [RV-046] T-603（reviewer サブエージェント・独立・1回目・2026-09-13）: **P1 0 / P2 7 / P3 7**。裏取り済み: `elapsedSec` は N+1 なし（SELECT 数一定テストを実行）・Decimal 非丸め・
+  `emphasis` 既定 primary で SCR-02 不変・design-lint 0。対応: P2-1（未解決注記の未実装）→実装 / P2-4（二重出力が `isPending` 依存・同一版のボタン 2 つ）→版ごとの `mutationKey`＋`useIsMutating`＋ref ロック /
+  P2-5（履歴読取の失敗に POST 用文言）→専用キー / P2-6（`retry:false` が既定に隠れて変異検知できない）→既定 retry 有効のクライアントで検証 / P2-7（見出し右ボタンが未固定）→画面テスト追加 /
+  P2-8（03-spec:199 の送付可否併記が欠落）→併記。**P2-3 は事実誤認**（当該テストは T-503 で既に単体描画。T-603 の差分は mock 追加のみ）。
+  **P2-2（未生成 ⑪ が `loadError` に畳まれる）は未対応** — 03-spec:237 と T-503 の既存契約が両立せず設計判断のため TODO-044。P3 は 5 件対応・2 件記録（TODO-045）。
+
+
+- [RV-047] T-603（reviewer サブエージェント・独立・2回目・2026-09-13）: **P1 0 / P2 1 / P3 5**。1 回目の対応はすべて妥当と確認（レビュアーが `retry:false` と `mutationKey` の**変異を実際に試して**効いていることを検証）。
+  P2-3 を「事実誤認」として据え置いた判断・P2-2 を TODO-044 へ上げた判断も妥当と追認。
+  残 P2 = **二重出力の防止機構にテストが無い**（`../hooks` を丸ごと mock していて `mutationKey`/`useIsMutating`/`lock` が一度も実行されていなかった）→ `export-wiring.test.tsx` を新設し変異検知まで確認。
+  P3 5 件（`notGenerated` の到達不能・`unresolvedAtExport` 未使用・版一覧行の列ラベル・`revokeObjectURL` の同期実行・`elapsed_sec` の重複行仮定）はすべて対応。
+
+
+- [RV-048] T-603（reviewer サブエージェント・独立・3回目・2026-09-13）: **P1 0 / P2 0 → DONE 可**。レビュアーが `mutationKey` の変異を自分で実行して `export-wiring.test.tsx` が落ちることを確認（復元も byte 一致で検証）。
+  P3 対応 5 件・退行なし（既存テストの削除行は T-501/502/503 由来、BE 側はむしろ強化）・`make check` BE 817 / FE 446・35 suites を再現・design-lint 0・03-spec SCR-03 の要素（:178・:193-:201・:215-:217）を全て実装済みと確認。
+  新規 P3 2 件: ①`export-wiring.test.tsx` の 2 本目（別版の分離）は変異で落ちない弱い検査 ②`useExports` が `<details>` の開閉と無関係に初回描画で発火する（TODO-045 の直接原因）→ TODO-046。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -648,6 +684,29 @@
 - [LN-060] **チェックを足すと設定の腐敗が見つかる。**prettier --check をゲートに載せた途端、未整形 126 ファイルと orval の読まれないオプション（`prettier: true`）が芋づるで露見した。
   「人の規律」に頼っていた領域にゲートを足すときは、周辺設定の不備も同時に出ることを見込む。
 
+
+- [LN-061] **契約に必須フィールドを 1 つ足すと、unit・integration・FE fixture の 4 箇所が同時に RED になる。**これは契約が効いている証拠であり、
+  optional に弱めて回避しない（T-603 の `elapsedSec`。T-502 の `latestSendoff` と同型の事象）。
+- [LN-062] **画面に読取を 1 本足すと、実 fetch をスタブする結合テストが「Unexpected request」で落ちる。**スタブの網羅は画面の読取一覧と対応させる
+  （T-603 で `approval-refresh.test.tsx` が `/versions/9/exports` で落ちた）。
+- [LN-063] **jest の既定 5000ms に依存しない。**単独では 2 秒台のテストが全体並列実行では 13 秒かかって落ちる。重い結合コンポーネントテストは明示 timeout を持たせる
+  （T-602 レビューの P3 指摘 → T-603 で `approval-refresh.test.tsx` に 30000 を付与）。
+- [LN-064] **同一ツリーでスライスを並行させると、レビュアーが `make check` を再現できない。**実行のたびにテスト収集対象が変わる。
+  memory-protocol の「転記中は他スライスを走らせない」は**レビュー中も同じ**（RV-045 P2-1 の昇格候補）。
+
+
+- [LN-065] **テスト用 QueryClient の既定が、本番コードのオプションを覆い隠す。**`createTestQueryClient` が `mutations.retry:false` を既定にしているため、
+  `useMutation({retry:false})` を消しても検知できなかった（RV-046 P2-6）。既定と重なるオプションは、**既定を変えたクライアント**で検証する。
+- [LN-066] **同じ操作のボタンを画面に 2 つ置くと、コンポーネント内 state だけでは二重実行を防げない。**`isPending` はインスタンスごとに別物。
+  対象 ID をキーにした `mutationKey` ＋ `useIsMutating` で**進行中を共有**する（T-603 の出力ボタン）。
+- [LN-067] **レビュー指摘は現物で裏を取ってから直す。**RV-046 P2-3「既存テストが弱まった」は `git diff` で見ると T-503 由来で、T-603 の差分ではなかった。
+  指摘どおりに「直す」と、無関係な既存契約を壊す。
+
+
+- [LN-068] **hooks を丸ごと mock した component テストは、hooks 側の防御機構の検査にならない。**`mutationKey` / `useIsMutating` / `retry` は mock に潰され、外しても green のまま通る。
+  防御機構を入れたら「mock を外した配線テスト」を 1 本添え、**変異で落ちること**まで確認する（RV-046 P2-6 と RV-047 P2 で 2 回連続 → §2 昇格候補）。
+- [LN-069] **i18n にキーを足したら使用箇所も同時に固定する。**未使用キー（dead key）が 3 回出た。未使用キー検出は Env フェーズ（`/r2b-env-sprint3`）の候補。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
@@ -760,3 +819,11 @@
 - [T-202 着手 2026-09-12] ユーザーがT-201の全体回帰保留を維持したままT-202への着手を明示指示。依存DONEの通常ルールに対する今回の指示としてT-202を開始。全体回帰・既存設定読込・別テストDB初期化は保留を継続。G1 FEの編集中ファイルを保全する。
 
 - [T-202 引き継ぎ 2026-09-12] API #12-21（#20共通）と永続ジョブ管理を実装、独立レビュー済。T-203未接続のローカルworkerはagent_implementation_pendingとしてfailed終端する。通常設定読込・実DBへのmigration適用・現行規則設定・実案件起動・コミット/プッシュは未実施。全体回帰とG1側型エラーは保留。
+
+- [TODO-043] RV-045（T-602）P3 3 件は記録のみ: ①非空 body の全量バッファ ②射影イディオムの二重化 ③`Content-Disposition` の ASCII 安全性の境界テスト不足。C-3 でまとめて判断する。
+
+- [TODO-044] **研修者判断**: 03-spec:237「未生成は出力ボタンを無効化し版の履歴に『未生成。…』」と、T-503 の既存契約「版一覧に現在版が無い場合は**取得失敗**として操作を出さない」が両立しない
+  （SCR-03 のルートは AD-024 ① で `versionId` を含むため、確定版 0 件の状態は実質 404 に畳まれる）。どちらを正とするか。T-603 は T-503 の契約を優先し表示を変えていない（RV-046 P2-2 未対応）。
+- [TODO-045] RV-046 の記録のみ P3 2 件: ①`approval-refresh.test.tsx` の `timeout 30000` は遅さのマスク（原因は画面の読取本数増。LN-063 と同根）②`integrityLabelKey(integrity: string)` を生成 union 型で受ける。C-3 で判断。
+
+- [TODO-046] RV-048 の記録のみ P3 2 件: ①`export-wiring.test.tsx` 2 本目（別版の分離）を変異で落ちる形にする ②`useExports` を `<details>` の開閉に連動させる（TODO-045 の遅さの直接原因）。C-3 で判断。

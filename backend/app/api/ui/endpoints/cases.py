@@ -61,8 +61,9 @@ async def list_cases(
             created_at=case.created_at,
             progress_status=progress_status,
             latest_version_id=latest_version_id,
+            latest_sendoff=latest_sendoff,
         )
-        for case, progress_status, latest_version_id in pairs
+        for case, progress_status, latest_version_id, latest_sendoff in pairs
     ]
     return CaseListResponse(cases=items)
 

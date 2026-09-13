@@ -1,0 +1,35 @@
+.....F......                                                             [100%]
+=================================== FAILURES ===================================
+_______ test_latest_review_time_survives_bounce_and_corrective_downgrade _______
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x76ffd831f260>
+
+    async def test_latest_review_time_survives_bounce_and_corrective_downgrade(db_session):
+        from app.services.approval_service import ApprovalService
+        from app.services.record_service import RecordService
+        from tests.fixtures.record_data import edit_data
+        seed = await seed_record_version(db_session, state="review_checked")
+        repo = RecordRepository(db_session)
+        previous = list((await db_session.execute(select(VersionStateEvent).where(VersionStateEvent.to_state == "review_checked"))).scalars())
+        reviewed_at = previous[0].recorded_at
+        await RecordService(repo).edit(seed.version.id, edit_data(item_id=seed.item.id))
+        service = ApprovalService(repo)
+        await service.comment(seed.version.id, {"item_id": seed.item.id, "comment": "再確認", "recorded_by": "人"})
+        await service.bounce(seed.version.id, {"recorded_by": "人"})
+        material = (await repo.list_versions_with_records(seed.case.id))[0]
+        assert material["latest_state_event"].to_state == "staff_checked"
+        assert material["latest_bounce"] is not None
+>       assert material["latest_review_checked_at"] == reviewed_at
+E       KeyError: 'latest_review_checked_at'
+
+tests/integration/test_approval_queries.py:101: KeyError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_approval_queries.py::test_latest_review_time_survives_bounce_and_corrective_downgrade - KeyError: 'latest_review_checked_at'
+1 failed, 11 passed, 1 warning in 4.36s
+make: *** [/tmp/approval-checks.mk:10: approval-repository] Error 1

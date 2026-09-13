@@ -1,0 +1,79 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-components.test.tsx
+
+PASS src/features/versions/__tests__/approval-components.test.tsx (5.194 s)
+  ✓ h1・primaryは1つ、7要約・メタ・未解決注記・10列を表示する (279 ms)
+  ✓ draftでは確認/差し戻しを無効にして理由を示す (167 ms)
+  ✓ review_checkedでは確認/差し戻しを無効にして理由を示す (162 ms)
+  ✓ 空名ではPOSTせず、記録後も留まり評価確認と送付の区別をstatus表示 (331 ms)
+  ✓ 差し戻しの未紐付け0件はPOSTせず、成功時はItem Listへ戻る (273 ms)
+  ✓ 行コメントは明示記録だけ送信し、成功時だけ入力を空にする (272 ms)
+  ✓ 送付は判断者と保留理由を検査し未判断空理由をnullで送る (447 ms)
+  ✓ 行の索引・全行索引・根拠は排他、閲覧専用には訂正/取消/判断フォームなし (485 ms)
+  ✓ ボタン/入力上のclickやEnterは行索引を開かない (234 ms)
+  ✓ 空/読込/404/取得失敗/版一覧に該当なしを明示する (93 ms)
+  ✓ 409の表示は行IDと網羅性だけ、内部ID・生本文を出さない (242 ms)
+  ✓ readOnlyは操作コールバックが渡されても訂正・取消・判断・照合を出さない (50 ms)
+  ✓ 絞り込み全行でも索引の全体件数は変わらない (233 ms)
+  ✓ 絞り込み変更・判断事項のある行でも索引の全体件数は変わらない (281 ms)
+  ✓ 絞り込み訂正ありでも索引の全体件数は変わらない (351 ms)
+  ✓ 絞り込み未解決のみでも索引の全体件数は変わらない (258 ms)
+  ✓ 絞り込み差し戻しコメントありでも索引の全体件数は変わらない (265 ms)
+  ✓ API導出の差し戻し中・再確認と現在の送付判断を表示する (65 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       18 passed, 18 total
+Snapshots:   0 total
+Time:        5.438 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-components.test.tsx/i.
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/components.test.tsx src/features/cases/components/__tests__/CaseListPage.test.tsx
+
+PASS src/features/versions/__tests__/components.test.tsx (8.903 s)
+PASS src/features/cases/components/__tests__/CaseListPage.test.tsx
+
+Test Suites: 2 passed, 2 total
+Tests:       54 passed, 54 total
+Snapshots:   0 total
+Time:        11.026 s, estimated 12 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/components.test.tsx|src\/features\/cases\/components\/__tests__\/CaseListPage.test.tsx/i.
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/app/__tests__/case-routes.test.tsx
+
+PASS src/app/__tests__/case-routes.test.tsx
+  ✓ トップはcasesへリダイレクトする (2 ms)
+  ✓ 案件一覧は公開featureを表示する (22 ms)
+  ✓ 投入ルートは正整数caseIdを画面へ渡す (3 ms)
+  ✓ 不正caseId 0 はnotFound (5 ms)
+  ✓ 不正caseId -1 はnotFound (1 ms)
+  ✓ 不正caseId 1.5 はnotFound
+  ✓ 不正caseId abc はnotFound
+  ✓ 不正caseId 9007199254740992 はnotFound
+  ✓ 版ルートは正整数の案件と版を公開featureへ渡す (4 ms)
+  ✓ 版ルートは不正ID 0 をどちらのパラメータでも拒否する (1 ms)
+  ✓ 版ルートは不正ID -1 をどちらのパラメータでも拒否する (4 ms)
+  ✓ 版ルートは不正ID 1.5 をどちらのパラメータでも拒否する (1 ms)
+  ✓ 版ルートは不正ID abc をどちらのパラメータでも拒否する (1 ms)
+  ✓ 版ルートは不正ID 9007199254740992 をどちらのパラメータでも拒否する
+  ✓ 照合ルートは正整数の案件・版を公開featureへ渡す (3 ms)
+  ✓ 照合ルートは不正ID 0を双方で拒否 (1 ms)
+  ✓ 照合ルートは不正ID -1を双方で拒否
+  ✓ 照合ルートは不正ID 1.5を双方で拒否 (1 ms)
+  ✓ 照合ルートは不正ID abcを双方で拒否
+  ✓ 照合ルートは不正ID 9007199254740992を双方で拒否
+  ✓ 承認ルートは正整数の案件と版を公開featureへ渡す (4 ms)
+  ✓ 承認ルートは不正ID0を双方で拒否 (1 ms)
+  ✓ 承認ルートは不正ID-1を双方で拒否
+  ✓ 承認ルートは不正ID1.5を双方で拒否
+  ✓ 承認ルートは不正IDabcを双方で拒否
+  ✓ 承認ルートは不正ID9007199254740992を双方で拒否 (1 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       26 passed, 26 total
+Snapshots:   0 total
+Time:        0.581 s, estimated 1 s
+Ran all test suites matching /src\/app\/__tests__\/case-routes.test.tsx/i.
+✓ design-lint: 違反なし

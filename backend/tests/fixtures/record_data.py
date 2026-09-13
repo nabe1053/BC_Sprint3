@@ -36,10 +36,10 @@ def edit(**changes):
     )
 
 
-async def seed_record_version(session, finalized=True):
+async def seed_record_version(session, finalized=True, state="draft"):
     from uuid import uuid4
     from app.domain.draft_types import ItemInput
-    from app.models import Case, RuleSet, Version, Item
+    from app.models import Case, RuleSet, Version, Item, VersionStateEvent
 
     key = str(uuid4())
     case = Case(case_code=key)
@@ -50,7 +50,7 @@ async def seed_record_version(session, finalized=True):
         case_id=case.id,
         rule_set_id=rule.id,
         version_no=1,
-        current_state="draft",
+        current_state=state,
         is_complete=True,
         finalized_at=datetime.now(UTC) if finalized else None,
     )
@@ -61,6 +61,29 @@ async def seed_record_version(session, finalized=True):
         **ItemInput.model_validate(item_data()).model_dump(exclude={"ends"}),
     )
     session.add(item)
+    at = datetime.now(UTC)
+    if state != "draft":
+        session.add(
+            VersionStateEvent(
+                version_id=version.id,
+                from_state="draft",
+                to_state="staff_checked",
+                recorded_by="fixture",
+                recorded_at=at,
+                unresolved_count=0,
+            )
+        )
+    if state == "review_checked":
+        session.add(
+            VersionStateEvent(
+                version_id=version.id,
+                from_state="staff_checked",
+                to_state="review_checked",
+                recorded_by="fixture",
+                recorded_at=at,
+                unresolved_count=0,
+            )
+        )
     await session.commit()
     return N(case=case, rule=rule, version=version, item=item)
 
@@ -85,3 +108,15 @@ def carryover_record(table, version_id, item_id, question_id, undone):
     return QuestionJudgement(
         question_id=question_id, status="judged", resolution="unresolved", **actor
     )
+
+
+def record_actor(by="person", at=None):
+    return {"recorded_by": by, "recorded_at": at or datetime.now(UTC)}
+
+
+def approval_questions():
+    return [
+        {"question": N(id=1), "latest": None},
+        {"question": N(id=2), "latest": N(status="judged", resolution="unresolved")},
+        {"question": N(id=3), "latest": N(status="judged", resolution="resolved")},
+    ]

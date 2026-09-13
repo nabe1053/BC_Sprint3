@@ -1,0 +1,61 @@
+make[1]: Entering directory '/home/takahiro/Documents/BC_Sprint3'
+................F..                                                      [100%]
+=================================== FAILURES ===================================
+_ test_approval_input_codes_and_recorder_precedence[SendoffInput-data6-E_SENDOFF_REASON_REQUIRED] _
+
+schema = 'SendoffInput', data = {'decision': 'hold', 'recorded_by': 'person'}
+code = 'E_SENDOFF_REASON_REQUIRED'
+
+    @pytest.mark.parametrize(
+        "schema,data,code",
+        [
+            (
+                "StateEventInput",
+                {"recorded_by": " ", "to_state": "draft"},
+                "E_RECORDER_REQUIRED",
+            ),
+            (
+                "StateEventInput",
+                {"recorded_by": "person", "to_state": "draft"},
+                "E_STATE_ROLLBACK_FORBIDDEN",
+            ),
+            (
+                "BounceCommentInput",
+                {"recorded_by": " ", "item_id": 1, "comment": "text"},
+                "E_RECORDER_REQUIRED",
+            ),
+            (
+                "BounceCommentInput",
+                {"recorded_by": "person", "item_id": 1, "comment": " \t"},
+                "E_COMMENT_REQUIRED",
+            ),
+            ("BounceInput", {"recorded_by": " "}, "E_RECORDER_REQUIRED"),
+            (
+                "SendoffInput",
+                {"recorded_by": " ", "decision": "hold"},
+                "E_RECORDER_REQUIRED",
+            ),
+            (
+                "SendoffInput",
+                {"recorded_by": "person", "decision": "hold"},
+                "E_SENDOFF_REASON_REQUIRED",
+            ),
+            (
+                "SendoffInput",
+                {"recorded_by": "person", "decision": "approved", "reason": " "},
+                "E_SENDOFF_REASON_REQUIRED",
+            ),
+        ],
+    )
+    def test_approval_input_codes_and_recorder_precedence(schema, data, code):
+        from app.domain import record_types
+    
+>       with pytest.raises(ValidationError) as error:
+E       Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+
+tests/unit/test_record_inputs.py:120: Failed
+=========================== short test summary info ============================
+FAILED tests/unit/test_record_inputs.py::test_approval_input_codes_and_recorder_precedence[SendoffInput-data6-E_SENDOFF_REASON_REQUIRED] - Failed: DID NOT RAISE <class 'pydantic_core._pydantic_core.ValidationError'>
+1 failed, 18 passed in 0.07s
+make[1]: *** [/tmp/approval-checks.mk:2: approval-inputs] Error 1
+make[1]: Leaving directory '/home/takahiro/Documents/BC_Sprint3'

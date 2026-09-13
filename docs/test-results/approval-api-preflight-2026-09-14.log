@@ -1,0 +1,111 @@
+2 files reformatted, 183 files left unchanged
+.....................................                                    [100%]
+=============================== warnings summary ===============================
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[state-events-payload0-422-E_STATE_ROLLBACK_FORBIDDEN]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounces-payload8-400-E_REQUEST_INVALID]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'recordedBy' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[state-events-payload0-422-E_STATE_ROLLBACK_FORBIDDEN]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounces-payload8-400-E_REQUEST_INVALID]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'recordedBy' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[state-events-payload0-422-E_STATE_ROLLBACK_FORBIDDEN]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounces-payload8-400-E_REQUEST_INVALID]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'recordedBy' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[state-events-payload0-422-E_STATE_ROLLBACK_FORBIDDEN]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'toState' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[state-events-payload0-422-E_STATE_ROLLBACK_FORBIDDEN]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'toState' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[state-events-payload0-422-E_STATE_ROLLBACK_FORBIDDEN]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'toState' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'itemId' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'itemId' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'itemId' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'comment' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'comment' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[bounce-comments-payload3-400-E_COMMENT_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'comment' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'decision' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'decision' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'decision' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'alias' attribute with value 'reason' was provided to the `Field()` function, which has no effect in the context it was used. 'alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'validation_alias' attribute with value 'reason' was provided to the `Field()` function, which has no effect in the context it was used. 'validation_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+tests/unit/test_approval_api.py::test_invalid_input_never_calls_service[sendoff-decisions-payload4-400-E_SENDOFF_REASON_REQUIRED]
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/pydantic/_internal/_generate_schema.py:2274: UnsupportedFieldAttributeWarning: The 'serialization_alias' attribute with value 'reason' was provided to the `Field()` function, which has no effect in the context it was used. 'serialization_alias' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+37 passed, 27 warnings in 2.13s
+state-status: detected 2 failed, 35 passed, 27 warnings in 2.42s
+recheck-from: detected 1 failed, 37 passed in 0.14s
+bounce-order: detected 3 failed, 35 passed in 0.11s
+sendoff-order: detected 1 failed, 2 passed, 34 warnings in 1.25s
+OpenAPI schema exported to: openapi.json
+
+> training-sprint3-frontend@0.1.0 orval
+> orval
+
+🍻 orval v8.30.0 - A swagger client generator for typescript
+api Cleaning output folder
+🎉 api - Your OpenAPI spec has been converted into ready to use orval!
+
+> training-sprint3-frontend@0.1.0 typecheck
+> tsc --noEmit
+
+src/features/cases/__tests__/hooks.test.tsx(56,40): error TS2741: Property 'latestSendoff' is missing in type '{ caseId: number; caseCode: string; customerName: string; title: string; createdAt: string; progressStatus: "intake"; latestVersionId: null; }' but required in type 'CaseListItem'.
+src/features/cases/__tests__/hooks.test.tsx(81,31): error TS2741: Property 'latestSendoff' is missing in type '{ caseId: number; caseCode: string; customerName: string; title: string; createdAt: string; progressStatus: "intake"; latestVersionId: null; }' but required in type 'CaseListItem'.
+src/features/cases/components/__tests__/CaseListPage.test.tsx(113,26): error TS2741: Property 'latestSendoff' is missing in type '{ caseId: number; caseCode: string; customerName: string; title: string; createdAt: string; progressStatus: "draft_review"; latestVersionId: number; }' but required in type 'CaseListItem'.
+src/features/cases/components/__tests__/CaseListPage.test.tsx(120,26): error TS2741: Property 'latestSendoff' is missing in type '{ caseId: number; caseCode: string; customerName: string; title: string; createdAt: string; progressStatus: "draft_review"; latestVersionId: number; }' but required in type 'CaseListItem'.
+src/features/cases/components/__tests__/CaseListPage.test.tsx(134,26): error TS2741: Property 'latestSendoff' is missing in type '{ caseId: number; caseCode: string; customerName: string; title: string; createdAt: string; progressStatus: "draft_review"; latestVersionId: number; }' but required in type 'CaseListItem'.
+src/features/cases/components/__tests__/CaseListPage.test.tsx(143,26): error TS2741: Property 'latestSendoff' is missing in type '{ caseId: number; caseCode: string; customerName: string; title: string; createdAt: string; progressStatus: "draft_review"; latestVersionId: number; }' but required in type 'CaseListItem'.
+src/features/cases/components/__tests__/CaseListPage.test.tsx(205,24): error TS2741: Property 'latestSendoff' is missing in type '{ caseId: number; caseCode: string; customerName: string; title: string; createdAt: string; progressStatus: "draft_review"; latestVersionId: number; }' but required in type 'CaseListItem'.
+src/features/cases/components/__tests__/CaseListPage.test.tsx(245,12): error TS2741: Property 'latestSendoff' is missing in type '{ latestVersionId: null; progressStatus: "intake"; caseId: number; caseCode: string; customerName: string; title: string; createdAt: string; }' but required in type 'CaseListItem'.
+make: *** [Makefile:69: fe-type] Error 2

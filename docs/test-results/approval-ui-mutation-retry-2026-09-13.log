@@ -1,0 +1,46 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-hooks.test.tsx
+
+FAIL src/features/versions/__tests__/approval-hooks.test.tsx
+  ✓ transition/201はrecords・版・版一覧だけ再取得 (78 ms)
+  ✓ transition/409はrecords・版・版一覧だけ再取得 (61 ms)
+  ✓ transition/404はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ transition/400はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ bounceComment/201はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ bounceComment/409はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ bounceComment/404はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ bounceComment/400はrecords・版・版一覧だけ再取得 (57 ms)
+  ✓ bounce/201はrecords・版・版一覧だけ再取得 (58 ms)
+  ✓ bounce/409はrecords・版・版一覧だけ再取得 (56 ms)
+  ✓ bounce/404はrecords・版・版一覧だけ再取得 (56 ms)
+  ✓ bounce/400はrecords・版・版一覧だけ再取得 (55 ms)
+  ✓ sendoff/201はrecords・版・版一覧だけ再取得 (56 ms)
+  ✓ sendoff/409はrecords・版・版一覧だけ再取得 (56 ms)
+  ✓ sendoff/404はrecords・版・版一覧だけ再取得 (55 ms)
+  ✓ sendoff/400はrecords・版・版一覧だけ再取得 (58 ms)
+  ✕ 本番Providersでも承認400 POSTは1回、mutation retry設定を優先 (19 ms)
+
+  ● 本番Providersでも承認400 POSTは1回、mutation retry設定を優先
+
+    expect(jest.fn()).toHaveBeenCalledTimes(expected)
+
+    Expected number of calls: 1
+    Received number of calls: 2
+
+      144 |       ).rejects.toMatchObject({ code: "E_RECORDER_REQUIRED" });
+      145 |     });
+    > 146 |     expect(request).toHaveBeenCalledTimes(1);
+          |                     ^
+      147 |   } finally {
+      148 |     global.fetch = original;
+      149 |   }
+
+      at Object.toHaveBeenCalledTimes (src/features/versions/__tests__/approval-hooks.test.tsx:146:21)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 16 passed, 17 total
+Snapshots:   0 total
+Time:        2.076 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-hooks.test.tsx/i.
+make: *** [/tmp/approval-ui-checks.mk:6: approval-ui-hooks] Error 1

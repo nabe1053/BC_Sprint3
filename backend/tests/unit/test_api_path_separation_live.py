@@ -10,6 +10,14 @@ def test_all_version_and_record_routes_exist_under_ui():
         for method in getattr(route, "methods", [])
     }
     expected = {
+        ("POST", "/versions/{versionId}/exports"),
+        ("GET", "/versions/{versionId}/exports"),
+        ("GET", "/versions/{versionId}/evidence"),
+        ("GET", "/versions/{versionId}/records"),
+        ("POST", "/versions/{versionId}/state-events"),
+        ("POST", "/versions/{versionId}/bounce-comments"),
+        ("POST", "/versions/{versionId}/bounces"),
+        ("POST", "/versions/{versionId}/sendoff-decisions"),
         ("GET", "/cases/{caseId}/versions"),
         ("GET", "/versions/{versionId}"),
         ("GET", "/versions/{versionId}/items"),
@@ -36,3 +44,18 @@ def test_inventory_path_is_method_split_between_agent_and_ui():
     assert ("GET", "/api/v1/agent/versions/{versionId}/inventory") not in paths
     assert ("POST", "/api/v1/ui/versions/{versionId}/inventory") not in paths
     assert ("POST", "/api/v1/agent/versions/{versionId}/inventory") in paths
+
+
+def test_bulk_evidence_and_exports_preserve_method_boundary():
+    from app.main import app
+
+    paths = {
+        (method, route.path)
+        for route in app.routes
+        for method in getattr(route, "methods", [])
+    }
+    assert ("POST", "/api/v1/agent/versions/{versionId}/evidence") in paths
+    assert ("GET", "/api/v1/agent/versions/{versionId}/evidence") not in paths
+    assert ("POST", "/api/v1/ui/versions/{versionId}/evidence") not in paths
+    assert not any(path.endswith("/exports") and "/agent/" in path for _, path in paths)
+    assert ("GET", "/api/v1/ui/versions/{versionId}/evidence") in paths

@@ -6,17 +6,43 @@ from pydantic import Field
 from app.api.schemas_base import CamelModel
 from app.api.ui.schemas.records import ItemEditRecord, JudgementRecord
 
+from app.domain.record_types import VersionState
+from app.api.ui.schemas.approvals import (
+    StateEventRecord,
+    BounceRecord,
+    SendoffDecisionRecord,
+)
+
+
 ValueState = Literal["stated", "tba", "not_stated", "not_applicable"]
-VersionState = Literal["draft", "staff_checked", "review_checked"]
+
+
+class CarryOverResponse(CamelModel):
+    edit_count: int = Field(ge=0)
+    row_match_confirmed: int = Field(ge=0)
+    row_match_total: int = Field(ge=0)
+    coverage_recorded: bool
+    judgement_count: int = Field(ge=0)
 
 
 class VersionListItem(CamelModel):
+    """latest_bounce.comments is empty: per-line comments belong to #28 history."""
+
     version_id: int
     version_no: int
     current_state: VersionState
     finalized_at: datetime
     is_complete: bool
     created_at: datetime
+    unresolved_count: int = Field(ge=0)
+    carry_over: CarryOverResponse
+    latest_state_event: StateEventRecord | None
+    latest_bounce: BounceRecord | None
+    latest_sendoff: SendoffDecisionRecord | None
+    bounced: bool
+    needs_recheck: bool
+    # N06: 起動から作成案確定までの経過秒。run が無い版は None（未記録）。
+    elapsed_sec: Decimal | None
 
 
 class VersionsResponse(CamelModel):

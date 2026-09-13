@@ -177,7 +177,22 @@ export function CaseListPage() {
                   <TableCell>
                     {t(`cases.list.states.${item.progressStatus}`)}
                   </TableCell>
-                  <TableCell>{t("common.notAvailable")}</TableCell>
+                  <TableCell>
+                    <Typography
+                      sx={{
+                        color:
+                          item.latestSendoff === "approved"
+                            ? tokens.colors.ok.main
+                            : item.latestSendoff === "hold"
+                              ? tokens.colors.warn.main
+                              : tokens.colors.text,
+                      }}
+                    >
+                      {item.latestSendoff
+                        ? t(`cases.list.sendoffState.${item.latestSendoff}`)
+                        : t("common.notAvailable")}
+                    </Typography>
+                  </TableCell>
                   <TableCell>
                     <Button
                       component={Link}

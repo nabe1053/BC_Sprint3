@@ -1,0 +1,41 @@
+.......F                                                                 [100%]
+=================================== FAILURES ===================================
+_________ test_snapshot_refreshes_cancelled_records_in_reused_session __________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7c877ea23fb0>
+
+    async def test_snapshot_refreshes_cancelled_records_in_reused_session(db_session):
+        from app.repositories.export_repository import ExportRepository
+        from app.repositories.record_repository import RecordRepository
+        from app.services.record_service import RecordService
+    
+        seed = await seed_export_version(db_session)
+        vid, eid = seed.version.id, seed.edit.id
+        repo = ExportRepository(db_session)
+        async with repo.lock_version(vid):
+            first = await repo.snapshot(vid)
+        assert first.items[0].values["grade"] == "L80"
+        async with TestSessionLocal() as other:
+            await RecordService(RecordRepository(other)).undo_edit(
+                vid, eid, {"recorded_by": "取消者"}
+            )
+        async with repo.lock_version(vid):
+            second = await repo.snapshot(vid)
+>       assert second.items[0].values["grade"] == "K55" and second.items[0].edit_count == 0
+E       AssertionError: assert ('L80' == 'K55'
+E         - K55
+E         + L80)
+
+tests/integration/test_export_repository.py:220: AssertionError
+=============================== warnings summary ===============================
+../../../home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_export_repository.py::test_snapshot_refreshes_cancelled_records_in_reused_session - AssertionError: assert ('L80' == 'K55'
+  - K55
+  + L80)
+1 failed, 7 passed, 1 warning in 3.31s
+make: *** [/tmp/workbook-checks.mk:8: workbook-repository] Error 1

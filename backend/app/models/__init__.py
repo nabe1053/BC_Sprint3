@@ -4,6 +4,13 @@ Foundation（Slice 0-3）で作るのは9テーブルのみ（CLAUDE.md 指示�
 残り（C層の他テーブル・D層の人の記録）は build-loop のスライスで積み上げる。
 """
 
+from app.models.approvals import (
+    VersionStateEvent,
+    Bounce,
+    BounceComment,
+    SendoffDecision,
+)
+from app.models.exports import Export
 from app.models.agent_runs import AgentRun, AgentRunStep
 from app.models.base import TimestampedBase
 from app.models.cases import Case
@@ -47,3 +54,8 @@ __all__ += [
     "InventoryEntry",
     "InventoryLink",
 ]
+
+__all__ += ["VersionStateEvent", "Bounce", "BounceComment", "SendoffDecision"]
+
+
+__all__ += ["Export"]

@@ -206,3 +206,125 @@ export const inventory: import("@/shared/api/generated/model").InventoryResponse
       },
     ],
   };
+
+export function approvalData() {
+  const approvalEdit: ItemEditRecord = {
+    ...edit,
+    field: "grade",
+    oldValue: "K55",
+    oldState: "stated",
+    newValue: "L80",
+    newState: "stated",
+  };
+  const at = "2026-09-13T01:00:00Z";
+  const records: import("@/shared/api/generated/model").RecordsResponse = {
+    edits: [approvalEdit],
+    confirmations: [
+      {
+        confirmationId: 30,
+        kind: "coverage",
+        itemId: null,
+        recordedBy: "網羅担当",
+        recordedAt: at,
+        undoneAt: null,
+        undoneBy: null,
+      },
+    ],
+    judgements: [
+      {
+        judgementId: 40,
+        questionId: 5,
+        status: "judged",
+        resolution: "unresolved",
+        note: "客先回答待ち",
+        recordedBy: "担当",
+        recordedAt: at,
+      },
+    ],
+    stateEvents: [
+      {
+        stateEventId: 50,
+        fromState: "draft",
+        toState: "staff_checked",
+        recordedBy: "担当",
+        recordedAt: at,
+        unresolvedCount: 2,
+      },
+    ],
+    bounces: [],
+    unlinkedComments: [
+      {
+        bounceCommentId: 60,
+        itemId: 4,
+        bounceId: null,
+        comment: "<b>https://example.test</b>",
+        recordedBy: "上司",
+        recordedAt: at,
+      },
+    ],
+    sendoffDecisions: [],
+  };
+  const listItem: import("@/shared/api/generated/model").VersionListItem = {
+    versionId: 9,
+    versionNo: 1,
+    currentState: "staff_checked",
+    finalizedAt: at,
+    isComplete: false,
+    elapsedSec: "631.5",
+    createdAt: at,
+    unresolvedCount: 2,
+    carryOver: {
+      editCount: 1,
+      rowMatchConfirmed: 1,
+      rowMatchTotal: 2,
+      coverageRecorded: true,
+      judgementCount: 1,
+    },
+    latestStateEvent: records.stateEvents[0],
+    latestBounce: null,
+    latestSendoff: null,
+    bounced: false,
+    needsRecheck: false,
+  };
+  return {
+    records,
+    listItem,
+    version: {
+      ...version,
+      currentState: "staff_checked",
+      coverageConfirmed: true,
+      counts: { ...version.counts, editCount: 1 },
+    } as VersionResponse,
+    items: [
+      {
+        ...item,
+        groupCode: "G1",
+        grade: "L80",
+        isInheritCandidate: true,
+        history: [approvalEdit],
+        rowMatch: { confirmationId: 31, recordedBy: "担当", recordedAt: at },
+      },
+      {
+        ...item,
+        itemId: 6,
+        rowCode: "R2",
+        seq: 2,
+        qtyState: "numeric",
+        qtyValue: "150",
+        qtyUnit: "MT",
+        qtyRaw: "150 MT",
+      },
+    ] as ItemCurrentResponse[],
+    questions: [
+      { ...question, latest: records.judgements[0] },
+      {
+        ...question,
+        questionId: 7,
+        questionCode: "Q2",
+        itemId: null,
+        reason: "案件の納期を照会",
+        latest: null,
+      },
+    ] as QuestionResponse[],
+  };
+}

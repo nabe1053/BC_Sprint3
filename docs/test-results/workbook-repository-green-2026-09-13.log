@@ -1,0 +1,50 @@
+.....F                                                                   [100%]
+=================================== FAILURES ===================================
+_______________ test_human_edit_waits_for_export_snapshot_commit _______________
+
+db_session = <sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7f0aba438d40>
+
+    async def test_human_edit_waits_for_export_snapshot_commit(db_session):
+        from app.repositories.export_repository import ExportRepository
+        from app.repositories.record_repository import RecordRepository
+        from app.services.record_service import RecordService
+        from tests.fixtures.record_data import edit_data
+        seed = await seed_export_version(db_session)
+        vid, item_id = seed.version.id, seed.item.id
+        async with TestSessionLocal() as first, TestSessionLocal() as second:
+            second_pid = (await second.execute(text('SELECT pg_backend_pid()'))).scalar_one()
+            repo = ExportRepository(first)
+            task = None
+            try:
+                async with repo.lock_version(vid):
+                    before = await repo.snapshot(vid)
+                    task = asyncio.create_task(RecordService(RecordRepository(second)).edit(vid,edit_data(item_id=item_id,new_value='P110')))
+                    blocked = False
+                    for _ in range(100):
+                        blocked = (await db_session.execute(text('SELECT cardinality(pg_blocking_pids(:pid)) > 0'), {'pid':second_pid})).scalar_one()
+                        if blocked:
+                            break
+                        await asyncio.sleep(0.02)
+                    assert blocked and not task.done()
+                    assert before.items[0].values['grade'] == 'L80'
+                await asyncio.wait_for(task, 5)
+                async with repo.lock_version(vid):
+                    after = await repo.snapshot(vid)
+>               assert after.items[0].values['grade'] == 'P110'
+E               AssertionError: assert 'L80' == 'P110'
+E                 - P110
+E                 + L80
+
+tests/integration/test_export_repository.py:114: AssertionError
+=============================== warnings summary ===============================
+.venv/lib/python3.12/site-packages/starlette/testclient.py:40
+  /home/takahiro/Documents/BC_Sprint3/backend/.venv/lib/python3.12/site-packages/starlette/testclient.py:40: DeprecationWarning: The anyio.abc.BlockingPortal alias is deprecated, use anyio.from_thread.BlockingPortal instead.
+    _PortalFactoryType = typing.Callable[[], typing.ContextManager[anyio.abc.BlockingPortal]]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/integration/test_export_repository.py::test_human_edit_waits_for_export_snapshot_commit - AssertionError: assert 'L80' == 'P110'
+  - P110
+  + L80
+1 failed, 5 passed, 1 warning in 2.45s
+make: *** [/tmp/workbook-checks.mk:8: workbook-repository] Error 1

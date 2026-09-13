@@ -1,0 +1,49 @@
+
+> training-sprint3-frontend@0.1.0 test
+> jest --passWithNoTests --runInBand src/features/versions/__tests__/approval-components.test.tsx
+
+FAIL src/features/versions/__tests__/approval-components.test.tsx
+  ✓ h1・primaryは1つ、7要約・メタ・未解決注記・10列を表示する (265 ms)
+  ✓ draftでは確認/差し戻しを無効にして理由を示す (183 ms)
+  ✓ review_checkedでは確認/差し戻しを無効にして理由を示す (159 ms)
+  ✓ 空名ではPOSTせず、記録後も留まり評価確認と送付の区別をstatus表示 (312 ms)
+  ✓ 差し戻しの未紐付け0件はPOSTせず、成功時はItem Listへ戻る (265 ms)
+  ✕ 行コメントは明示記録だけ送信し、成功時だけ入力を空にする (162 ms)
+  ✓ 送付は判断者と保留理由を検査し未判断空理由をnullで送る (436 ms)
+  ✓ 行の索引・全行索引・根拠は排他、閲覧専用には訂正/取消/判断フォームなし (432 ms)
+  ✓ ボタン/入力上のclickやEnterは行索引を開かない (216 ms)
+  ✓ 空/読込/404/取得失敗/版一覧に該当なしを明示する (92 ms)
+  ✓ 409の表示は行IDと網羅性だけ、内部ID・生本文を出さない (239 ms)
+  ✓ readOnlyは操作コールバックが渡されても訂正・取消・判断・照合を出さない (54 ms)
+  ✓ 絞り込み全行でも索引の全体件数は変わらない (248 ms)
+  ✓ 絞り込み変更・判断事項のある行でも索引の全体件数は変わらない (231 ms)
+  ✓ 絞り込み訂正ありでも索引の全体件数は変わらない (244 ms)
+  ✓ 絞り込み未解決のみでも索引の全体件数は変わらない (253 ms)
+  ✓ 絞り込み差し戻しコメントありでも索引の全体件数は変わらない (264 ms)
+  ✓ API導出の差し戻し中・再確認と現在の送付判断を表示する (73 ms)
+
+  ● 行コメントは明示記録だけ送信し、成功時だけ入力を空にする
+
+    expect(element).toHaveAttribute("aria-invalid", "true") // element.getAttribute("aria-invalid") === "true"
+
+    Expected the element to have attribute:
+      aria-invalid="true"
+    Received:
+      aria-invalid="false"
+
+      154 |     "行コメントを入力してから記録してください。空のコメントは記録できません。",
+      155 |   );
+    > 156 |   expect(input).toHaveAttribute("aria-invalid","true");
+          |                 ^
+      157 |   fireEvent.change(input, { target: { value: " 原資料を確認 " } });
+      158 |   fireEvent.blur(input);
+      159 |   expect(bounceComment).not.toHaveBeenCalled();
+
+      at Object.toHaveAttribute (src/features/versions/__tests__/approval-components.test.tsx:156:17)
+
+Test Suites: 1 failed, 1 total
+Tests:       1 failed, 17 passed, 18 total
+Snapshots:   0 total
+Time:        5.072 s, estimated 22 s
+Ran all test suites matching /src\/features\/versions\/__tests__\/approval-components.test.tsx/i.
+make: *** [/tmp/approval-ui-checks.mk:8: approval-ui-components] Error 1

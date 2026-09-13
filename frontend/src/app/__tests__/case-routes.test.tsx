@@ -1,3 +1,4 @@
+import Approval from "../(portal)/cases/[caseId]/versions/[versionId]/approval/page";
 import InventoryReview from "../(portal)/cases/[caseId]/versions/[versionId]/inventory/page";
 import Home from "../page";
 import Cases from "../(portal)/cases/page";
@@ -43,6 +44,17 @@ it.each(["0", "-1", "1.5", "abc", "9007199254740992"])(
 );
 
 jest.mock("@/features/versions", () => ({
+  ApprovalPage: ({
+    caseId,
+    versionId,
+  }: {
+    caseId: number;
+    versionId: number;
+  }) => (
+    <div>
+      approval case {caseId} version {versionId}
+    </div>
+  ),
   InventoryPage: ({
     caseId,
     versionId,
@@ -106,6 +118,26 @@ it.each(["0", "-1", "1.5", "abc", "9007199254740992"])(
       InventoryReview({
         params: Promise.resolve({ caseId: "8", versionId: bad }),
       }),
+    ).rejects.toThrow("not found");
+  },
+);
+
+it("承認ルートは正整数の案件と版を公開featureへ渡す", async () => {
+  renderWithProviders(
+    await Approval({
+      params: Promise.resolve({ caseId: "8", versionId: "9" }),
+    }),
+  );
+  expect(screen.getByText("approval case 8 version 9")).toBeInTheDocument();
+});
+it.each(["0", "-1", "1.5", "abc", "9007199254740992"])(
+  "承認ルートは不正ID%sを双方で拒否",
+  async (bad) => {
+    await expect(
+      Approval({ params: Promise.resolve({ caseId: bad, versionId: "9" }) }),
+    ).rejects.toThrow("not found");
+    await expect(
+      Approval({ params: Promise.resolve({ caseId: "8", versionId: bad }) }),
     ).rejects.toThrow("not found");
   },
 );

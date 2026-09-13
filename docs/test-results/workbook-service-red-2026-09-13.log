@@ -1,0 +1,163 @@
+FFFFFFFF...F                                                             [100%]
+=================================== FAILURES ===================================
+____ test_export_locks_stamps_saves_exact_bytes_and_metadata[False-0-True] _____
+
+count = 0, initial = True, sendoff = False
+
+    @pytest.mark.parametrize('count,initial', [(0,True),(1,False)])
+    @pytest.mark.parametrize('sendoff', [False,True])
+    async def test_export_locks_stamps_saves_exact_bytes_and_metadata(count, initial, sendoff):
+        from openpyxl import load_workbook
+        from io import BytesIO
+        from app.domain.export_types import SHEET_NAMES, format_ts
+>       service,repo,storage,data,order=setup_service(count=count,with_sendoff=sendoff)
+
+tests/unit/test_export_service.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def setup_service(*, count=0, commit_error=False, with_sendoff=True):
+>       from app.services.export_service import ExportService
+E       ModuleNotFoundError: No module named 'app.services.export_service'
+
+tests/unit/test_export_service.py:15: ModuleNotFoundError
+____ test_export_locks_stamps_saves_exact_bytes_and_metadata[False-1-False] ____
+
+count = 1, initial = False, sendoff = False
+
+    @pytest.mark.parametrize('count,initial', [(0,True),(1,False)])
+    @pytest.mark.parametrize('sendoff', [False,True])
+    async def test_export_locks_stamps_saves_exact_bytes_and_metadata(count, initial, sendoff):
+        from openpyxl import load_workbook
+        from io import BytesIO
+        from app.domain.export_types import SHEET_NAMES, format_ts
+>       service,repo,storage,data,order=setup_service(count=count,with_sendoff=sendoff)
+
+tests/unit/test_export_service.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def setup_service(*, count=0, commit_error=False, with_sendoff=True):
+>       from app.services.export_service import ExportService
+E       ModuleNotFoundError: No module named 'app.services.export_service'
+
+tests/unit/test_export_service.py:15: ModuleNotFoundError
+_____ test_export_locks_stamps_saves_exact_bytes_and_metadata[True-0-True] _____
+
+count = 0, initial = True, sendoff = True
+
+    @pytest.mark.parametrize('count,initial', [(0,True),(1,False)])
+    @pytest.mark.parametrize('sendoff', [False,True])
+    async def test_export_locks_stamps_saves_exact_bytes_and_metadata(count, initial, sendoff):
+        from openpyxl import load_workbook
+        from io import BytesIO
+        from app.domain.export_types import SHEET_NAMES, format_ts
+>       service,repo,storage,data,order=setup_service(count=count,with_sendoff=sendoff)
+
+tests/unit/test_export_service.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def setup_service(*, count=0, commit_error=False, with_sendoff=True):
+>       from app.services.export_service import ExportService
+E       ModuleNotFoundError: No module named 'app.services.export_service'
+
+tests/unit/test_export_service.py:15: ModuleNotFoundError
+____ test_export_locks_stamps_saves_exact_bytes_and_metadata[True-1-False] _____
+
+count = 1, initial = False, sendoff = True
+
+    @pytest.mark.parametrize('count,initial', [(0,True),(1,False)])
+    @pytest.mark.parametrize('sendoff', [False,True])
+    async def test_export_locks_stamps_saves_exact_bytes_and_metadata(count, initial, sendoff):
+        from openpyxl import load_workbook
+        from io import BytesIO
+        from app.domain.export_types import SHEET_NAMES, format_ts
+>       service,repo,storage,data,order=setup_service(count=count,with_sendoff=sendoff)
+
+tests/unit/test_export_service.py:49: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def setup_service(*, count=0, commit_error=False, with_sendoff=True):
+>       from app.services.export_service import ExportService
+E       ModuleNotFoundError: No module named 'app.services.export_service'
+
+tests/unit/test_export_service.py:15: ModuleNotFoundError
+_____ test_insert_or_commit_failure_removes_saved_file_and_reraises[False] _____
+
+commit_error = False
+
+    @pytest.mark.parametrize('commit_error', [False,True])
+    async def test_insert_or_commit_failure_removes_saved_file_and_reraises(commit_error):
+>       service,repo,storage,data,_=setup_service(commit_error=commit_error)
+
+tests/unit/test_export_service.py:71: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def setup_service(*, count=0, commit_error=False, with_sendoff=True):
+>       from app.services.export_service import ExportService
+E       ModuleNotFoundError: No module named 'app.services.export_service'
+
+tests/unit/test_export_service.py:15: ModuleNotFoundError
+_____ test_insert_or_commit_failure_removes_saved_file_and_reraises[True] ______
+
+commit_error = True
+
+    @pytest.mark.parametrize('commit_error', [False,True])
+    async def test_insert_or_commit_failure_removes_saved_file_and_reraises(commit_error):
+>       service,repo,storage,data,_=setup_service(commit_error=commit_error)
+
+tests/unit/test_export_service.py:71: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def setup_service(*, count=0, commit_error=False, with_sendoff=True):
+>       from app.services.export_service import ExportService
+E       ModuleNotFoundError: No module named 'app.services.export_service'
+
+tests/unit/test_export_service.py:15: ModuleNotFoundError
+___________ test_cleanup_failure_does_not_mask_original_or_log_paths ___________
+
+caplog = <_pytest.logging.LogCaptureFixture object at 0x7aeca23f2b70>
+
+    async def test_cleanup_failure_does_not_mask_original_or_log_paths(caplog):
+>       service,repo,storage,data,_=setup_service()
+
+tests/unit/test_export_service.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def setup_service(*, count=0, commit_error=False, with_sendoff=True):
+>       from app.services.export_service import ExportService
+E       ModuleNotFoundError: No module named 'app.services.export_service'
+
+tests/unit/test_export_service.py:15: ModuleNotFoundError
+________ test_integrity_reads_real_saved_bytes_and_rejects_outside_root ________
+
+tmp_path = PosixPath('/tmp/pytest-of-takahiro/pytest-157/test_integrity_reads_real_save0')
+
+    async def test_integrity_reads_real_saved_bytes_and_rejects_outside_root(tmp_path):
+>       from app.services.export_service import ExportService
+E       ModuleNotFoundError: No module named 'app.services.export_service'
+
+tests/unit/test_export_service.py:89: ModuleNotFoundError
+__________________ test_export_root_and_validated_read_remove __________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7aeca23d0170>
+tmp_path = PosixPath('/tmp/pytest-of-takahiro/pytest-157/test_export_root_and_validated0')
+
+    def test_export_root_and_validated_read_remove(monkeypatch, tmp_path):
+        from pathlib import Path
+        from uuid import UUID
+        from app.core.config import settings
+>       monkeypatch.setattr(settings, 'EXPORT_ROOT', str(tmp_path/'exports'))
+E       AttributeError: <Settings configuration redacted>, AGENT_MODE='local_dummy', DOCUMENTS_ROOT='../references', STORAGE_ROOT='storage', MAX_DOCUMENTS_PER_CASE=50, MAX_FILE_SIZE_MB=20, MAX_PDF_PAGES=200, MAX_XLSX_SHEETS=50) has no attribute 'EXPORT_ROOT'
+
+tests/unit/test_document_storage.py:50: AttributeError
+=========================== short test summary info ============================
+FAILED tests/unit/test_export_service.py::test_export_locks_stamps_saves_exact_bytes_and_metadata[False-0-True] - ModuleNotFoundError: No module named 'app.services.export_service'
+FAILED tests/unit/test_export_service.py::test_export_locks_stamps_saves_exact_bytes_and_metadata[False-1-False] - ModuleNotFoundError: No module named 'app.services.export_service'
+FAILED tests/unit/test_export_service.py::test_export_locks_stamps_saves_exact_bytes_and_metadata[True-0-True] - ModuleNotFoundError: No module named 'app.services.export_service'
+FAILED tests/unit/test_export_service.py::test_export_locks_stamps_saves_exact_bytes_and_metadata[True-1-False] - ModuleNotFoundError: No module named 'app.services.export_service'
+FAILED tests/unit/test_export_service.py::test_insert_or_commit_failure_removes_saved_file_and_reraises[False] - ModuleNotFoundError: No module named 'app.services.export_service'
+FAILED tests/unit/test_export_service.py::test_insert_or_commit_failure_removes_saved_file_and_reraises[True] - ModuleNotFoundError: No module named 'app.services.export_service'
+FAILED tests/unit/test_export_service.py::test_cleanup_failure_does_not_mask_original_or_log_paths - ModuleNotFoundError: No module named 'app.services.export_service'
+FAILED tests/unit/test_export_service.py::test_integrity_reads_real_saved_bytes_and_rejects_outside_root - ModuleNotFoundError: No module named 'app.services.export_service'
+FAILED tests/unit/test_document_storage.py::test_export_root_and_validated_read_remove - AttributeError: <Settings configuration redacted>, AGENT_MODE='local_dummy', DOCUMENTS_ROOT='../references', STORAGE_ROOT='storage', MAX_DOCUMENTS_PER_CASE=50, MAX_FILE_SIZE_MB=20, MAX_PDF_PAGES=200, MAX_XLSX_SHEETS=50) has no attribute 'EXPORT_ROOT'
+9 failed, 3 passed in 0.13s
+make: *** [/tmp/workbook-checks.mk:10: workbook-service] Error 1
