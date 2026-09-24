@@ -400,11 +400,19 @@ class AgentToolGateway:
             yield repository
             check_open(closed)
 
-    async def fail_step(self, context, step_id, code, closed):
+    async def fail_step(self, context, step_id, code, closed, errors=None):
         check_open(closed)
         async with self.sessions() as session, session.begin():
             repository = await self.locked(session, context)
             step = await session.get(AgentRunStep, step_id)
             require(step is not None and step.agent_run_id == context.run_id)
             repository.event(step, repository.run.stage, "error", code=code)
+            if errors:
+                step.trace_event = {
+                    **step.trace_event,
+                    "observation": {
+                        **step.trace_event["observation"],
+                        "errors": errors,
+                    },
+                }
             check_open(closed)

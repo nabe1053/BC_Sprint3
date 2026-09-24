@@ -236,7 +236,7 @@ sample-10（GulfTex／.eml のスレッド。最新本文で item 1 の数量が
 
 - RunDispatcherへローカルworkerを注入する。外部queryは使用せず、13ツールの実処理をservice/repositoryへ接続する。PreToolUse hookを呼出し境界で必須にし、登録外ツール・読取系ツールのスカラ引数にある外部URL・案件/版/規則の逸脱を拒否する。記録系ツールのquote/excerpt/reason/*_raw等の原文はURLを含めて保存できる。pingは通常登録しない。
 - 同一版→runの順で行ロックを取得する。各呼出しの開始stepを先にcommitし、成功stepと成果物を同じトランザクションでcommitする。複数読取範囲は同じ呼出しをparent_step_idで結ぶ。email:(role,seq)重複は読取失敗とし、成功走査を捏造しない。
-- trace_eventのinputはスコープID、decisionはreading/extracting/self_checking、tool_useは許可名/引数ハッシュ、observationは結果状態/件数の安全なメタデータとする。生の判断文・資料本文・例外メッセージは記録しない。DB確定イベントを既存RunTraceStoreで終了時にJSONLへ反映する。
+- trace_eventのinputはスコープID、decisionはreading/extracting/self_checking、tool_useは許可名/引数ハッシュ、observationは結果状態/件数の安全なメタデータとする。生の判断文・資料本文・例外メッセージは記録しない。DB確定イベントを既存RunTraceStoreで終了時にJSONLへ反映する。（2026-09-24 追記・F-1）引数検証の失敗は observation.errors に位置と固定型だけを残し、打ち切りの内訳は job_finish.stopDetail に残す（④ 941-945 の補足）。
 - D05のダミー判断は評価用の明示形式に限定する。ローカル本文中の `No.1 | Kind: casing | Qty: 150 MT` のような1行明細を読み、原値・状態・根拠とインベントリを登録して検証・確定する。曖昧な自然文、未対応の表/注記/メール更新解釈は正常完了とせず、ローカルダミー未対応として停止する。S01〜S10の抽出精度評価は実モデル未接続の段階では未達とする。
 - 内側期限・無応答期限・ターン上限・同一呼出し反復・同一違反反復を区別して終端する。キャンセルされたworkerは共有の実行閉鎖状態を確認し、以後のツール開始と成果物commitを行わない。正常完了にはfinalize_draft成功が必要。
 - 正常完了以外はジョブの終了コールバックで未走査範囲を `not_scanned` として記録し、既存の検証結果が無ければ停止時の機械判定を保存する。これはツール追加ではなく `job_interrupted` 管理イベントであり、終了保存の再試行時に重複させない。ローカル実装識別子もdefinition.pyに集約してrunへ保存する。

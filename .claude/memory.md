@@ -259,6 +259,7 @@
 | T-601 | G6 .xlsx 5シート生成（BE） | web | T-501 | DONE | 独立レビュー DONE 可（`docs/t601-handoff.md`）。AD-030 の 21 決定を反映 | 2026-09-13 |
 | T-602 | G6 出力 API #38,39,40（API） | web | T-601 | DONE | reviewer サブエージェント 1回目 RV-045: **P1 0・DONE 可**（P2-1 は並行作業由来・P3 3 は記録のみ・TODO-043） | 2026-09-13 |
 | T-603 | G6 出力ボタン・版の履歴（FE・SCR-03 内）＋ #22 `elapsedSec` 追補 | web | T-602 | DONE | 3回目 RV-048: **DONE 可**（P1/P2 0・P3 2 は記録のみ・TODO-046）。**G6 完了 ＝ Phase 2 初版完成** | 2026-09-13 |
+| F-1 | 改修: propose_items の引数契約とモデルの食い違い解消（数値 Schema・ツール説明・違反の全件返却・失敗内訳のトレース） | agent | T-203, T-205 | DONE | 2回目 RV-050: **DONE 可**（P1/P2 0・P3 は TODO-047）。指示書 `docs/f1-instructions.md`・`docs/f1-handoff.md` | 2026-09-24 |
 
 > **実施順（AD-011）**: T-201・T-202 クローズ → C-1 → **T-203 → T-204 → ミニ評価** →
 > G3（T-301〜303）・G4（T-401〜403）は並行可 → G5 → G6。
@@ -524,6 +525,8 @@
 - [RV-048] T-603（reviewer サブエージェント・独立・3回目・2026-09-13）: **P1 0 / P2 0 → DONE 可**。レビュアーが `mutationKey` の変異を自分で実行して `export-wiring.test.tsx` が落ちることを確認（復元も byte 一致で検証）。
   P3 対応 5 件・退行なし（既存テストの削除行は T-501/502/503 由来、BE 側はむしろ強化）・`make check` BE 817 / FE 446・35 suites を再現・design-lint 0・03-spec SCR-03 の要素（:178・:193-:201・:215-:217）を全て実装済みと確認。
   新規 P3 2 件: ①`export-wiring.test.tsx` の 2 本目（別版の分離）は変異で落ちない弱い検査 ②`useExports` が `<details>` の開閉と無関係に初回描画で発火する（TODO-045 の直接原因）→ TODO-046。
+- [RV-049] F-1 1回目（reviewer サブエージェント）: P2 1。状態と値のヒント文とツール説明が「stated なら値が必要」の片方向だけで、`dueState=tba`＋`dueRaw` を渡すと LLM を stated へ誘導する → 両方向の文に修正し、逆方向のテストを追加。P3 5（「全件返す」が不正確 → 修正。残りは TODO-047）
+- [RV-050] F-1 2回目: P1/P2 0・**DONE 可**。新しい P3 1（ヒント文が単位に触れない。実装も拒否しないので誤りではない → TODO-047）
 
 ## 5. 学び・ハマりどころ（再発防止）
 
@@ -706,6 +709,8 @@
 - [LN-068] **hooks を丸ごと mock した component テストは、hooks 側の防御機構の検査にならない。**`mutationKey` / `useIsMutating` / `retry` は mock に潰され、外しても green のまま通る。
   防御機構を入れたら「mock を外した配線テスト」を 1 本添え、**変異で落ちること**まで確認する（RV-046 P2-6 と RV-047 P2 で 2 回連続 → §2 昇格候補）。
 - [LN-069] **i18n にキーを足したら使用箇所も同時に固定する。**未使用キー（dead key）が 3 回出た。未使用キー検出は Env フェーズ（`/r2b-env-sprint3`）の候補。
+- [LN-070] 実モデル実行の失敗原因は、トレース（引数ハッシュのみ）では追えない。SDK のセッション記録 `~/.claude/projects/-tmp-agent-run-<id>/*.jsonl` に、実際の tool_use 引数とツールの応答が残る（F-1 はここから特定した）。F-1 以降、検証失敗の path と type はトレースの observation.errors に残る
+- [LN-071] ツールの JSON Schema は LLM への契約そのもの。バリデータが拒否する形（例: Decimal に対する JSON number）を Schema が許すと、LLM は何度でも踏む。state と値の規則は両方向で書く（F-1・RV-049）
 
 ## 6. 未解決 / BLOCKED / TODO
 
@@ -827,3 +832,7 @@
 - [TODO-045] RV-046 の記録のみ P3 2 件: ①`approval-refresh.test.tsx` の `timeout 30000` は遅さのマスク（原因は画面の読取本数増。LN-063 と同根）②`integrityLabelKey(integrity: string)` を生成 union 型で受ける。C-3 で判断。
 
 - [TODO-046] RV-048 の記録のみ P3 2 件: ①`export-wiring.test.tsx` 2 本目（別版の分離）を変異で落ちる形にする ②`useExports` を `<details>` の開閉に連動させる（TODO-045 の遅さの直接原因）。C-3 で判断。
+
+- [TODO-047] F-1 の記録のみ P3（RV-049/050）: ①trace の path に extra_forbidden の未知キー名が入り得る（伏せるか 04-db に許容と明記）②20 件で切ったことが残らない（`errorsTotal`）③UI API の `details.errors[].path` が `rows.0` から `rows.0.qtyState` 等に変わったが API テストで固定していない（code は不変）④B のテストは語句の有無だけを見ている ⑤ヒント文が単位に触れない。C-3 で判断。
+- [TODO-048] **研修者判断**: 3 回規則（`REPEATED_CALL_LIMIT`）を `(ツール名, code)` の単位で数えるため、中身の違う E_REQUEST_INVALID でも 3 回で `tool_rejected` になる（agent-plan.md:243「同一ツール×同一エラーコード」どおり）。エラーの中身まで比較するかは設計変更（F-1 決定 E）。
+- [TODO-049] **研修者判断**: `backend/.env` が `AGENT_MODE=claude` のままだと `test_run_regressions.py::test_definition_defaults_reach_reserved_run` が落ち、`make check` が赤になる（テストが .env に依存）。F-1 のゲートは `AGENT_MODE=local_dummy make check` で実行した。あわせて sample-10（AE02）の実モデル再評価も、外部送信の確認待ち。

@@ -558,3 +558,54 @@ async def test_sdk_permission_denial_is_one_sanitized_management_event(
         "synthetic-private-input"
         not in (tmp_path / f"{context.run_id}.jsonl").read_text()
     )
+
+
+async def test_validation_failure_trace_keeps_paths_types_and_stop_detail(
+    db_session, tool_run, tmp_path
+):
+    # F-1 D: a rejected call and tool_rejected must be diagnosable from JSONL alone.
+    import json
+    from app.repositories.run_trace_store import RunTraceStore
+    from tests.fixtures.draft_data import item
+
+    context, _, gateway = tool_run
+    row = item() | {"odState": "stated", "kindRaw": "synthetic-source-row"}
+    reply = await ToolExecutor(context, gateway).call("propose_items", {"rows": [row]})
+    assert reply.is_error
+    repository = RunRepository(
+        db_session, file_size=lambda d: 1, trace=RunTraceStore(tmp_path)
+    )
+    await repository.finish(context.run_id, RunResult("failed", 1, "tool_rejected"))
+    stored = [
+        json.loads(line)
+        for line in (tmp_path / f"{context.run_id}.jsonl").read_text().splitlines()
+    ]
+    failed = next(e for e in stored if e["tool"] == "propose_items")
+    assert failed["observation"] == {
+        "status": "error",
+        "count": 0,
+        "code": "E_REQUEST_INVALID",
+        "errors": [{"path": "rows.0.odState", "type": "E_STATE_VALUE_CONFLICT"}],
+    }
+    finish = next(e for e in stored if e["tool"] == "job_finish")
+    assert finish["stopReason"] == "failed"
+    assert finish["stopDetail"] == "tool_rejected"
+    assert "synthetic-source" not in json.dumps(stored)
+
+
+async def test_completed_or_undetailed_finish_has_null_stop_detail(
+    db_session, tool_run, tmp_path
+):
+    import json
+    from app.repositories.run_trace_store import RunTraceStore
+
+    context, _, _ = tool_run
+    repository = RunRepository(
+        db_session, file_size=lambda d: 1, trace=RunTraceStore(tmp_path)
+    )
+    await repository.finish(context.run_id, RunResult("max_turns", 3))
+    stored = [
+        json.loads(line)
+        for line in (tmp_path / f"{context.run_id}.jsonl").read_text().splitlines()
+    ]
+    assert next(e for e in stored if e["tool"] == "job_finish")["stopDetail"] is None

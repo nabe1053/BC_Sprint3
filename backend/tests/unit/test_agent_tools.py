@@ -51,3 +51,14 @@ def test_no_forbidden_tools_registered() -> None:
 def test_allowed_tool_names_are_namespaced() -> None:
     for name in tools.ALLOWED_TOOL_NAMES:
         assert name.startswith("mcp__app__")
+
+
+def test_propose_items_description_states_the_value_contract() -> None:
+    # B: the model only sees this text; the state/value rules must be in it.
+    from app.domain.agent_types import TOOL_ARGUMENTS
+
+    description = TOOL_ARGUMENTS["propose_items"].__doc__ or ""
+    for term in ("stated", "odValue", "rangeClass", "lengthState", "gradeRaw"):
+        assert term in description
+    assert "文字列" in description  # decimals are strings, not JSON floats
+    assert "stated 以外では" in description  # both directions of the state rule

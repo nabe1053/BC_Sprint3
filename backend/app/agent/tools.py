@@ -24,6 +24,19 @@ def digest_args(arguments):
     ).hexdigest()
 
 
+TRACE_ERROR_LIMIT = 20
+
+
+def trace_errors(exc):
+    """Argument paths and fixed types only: no messages or input values (agent-plan)."""
+    return [
+        {"path": ".".join(str(part) for part in error["loc"]), "type": error["type"]}
+        for error in exc.errors(
+            include_input=False, include_context=False, include_url=False
+        )[:TRACE_ERROR_LIMIT]
+    ]
+
+
 def tool_stage(name):
     if name in (
         "list_case_documents",
@@ -159,9 +172,18 @@ class ToolExecutor:
                 )
             if step_id is not None:
                 try:
-                    await self.gateway.fail_step(
-                        self.context, step_id, code, self.closed
-                    )
+                    if isinstance(exc, ValidationError):
+                        await self.gateway.fail_step(
+                            self.context,
+                            step_id,
+                            code,
+                            self.closed,
+                            errors=trace_errors(exc),
+                        )
+                    else:
+                        await self.gateway.fail_step(
+                            self.context, step_id, code, self.closed
+                        )
                 except asyncio.CancelledError:
                     raise
                 except Exception as failure:

@@ -86,9 +86,15 @@ async def test_invalid_inventory_reply_has_field_messages_but_never_input_values
     assert all(set(error) == {"loc", "msg"} for error in payload["errors"])
     assert "synthetic-private-source" not in json.dumps(result)
     assert "invalid-synthetic-source" not in json.dumps(result)
-    gateway.fail_step.assert_awaited_once_with(
-        context, 1, "E_REQUEST_INVALID", executor.closed
-    )
+    gateway.fail_step.assert_awaited_once()
+    failure = gateway.fail_step.await_args
+    assert failure.args == (context, 1, "E_REQUEST_INVALID", executor.closed)
+    assert [e["path"] for e in failure.kwargs["errors"]] == [
+        ".".join(str(part) for part in loc)
+    ]
+    assert all(set(e) == {"path", "type"} for e in failure.kwargs["errors"])
+    assert "synthetic-private-source" not in str(failure)
+    assert "invalid-synthetic-source" not in str(failure)
 
 
 async def test_scope_failure_returns_only_fixed_code(context):
@@ -499,3 +505,44 @@ async def test_guardrail_reasons_are_distinct_without_source_text(
     assert gateway.fail_step.await_args.args[2] == code
     assert "example.invalid" not in str(gateway.fail_step.await_args)
     gateway.repo.record_result.assert_not_awaited()
+
+
+async def test_item_validation_failure_records_every_path_and_type_only(context):
+    # D: the trace must show which fields failed, without values or messages.
+    from tests.fixtures.draft_data import item
+
+    gateway = Gateway()
+    row = item() | {
+        "odState": "stated",
+        "weightValue": 72.5,
+        "weightUnit": "lb/ft",
+        "rangeClass": "R3",
+        "kindRaw": "synthetic-private-source",
+    }
+    reply = await ToolExecutor(context, gateway).call("propose_items", {"rows": [row]})
+    assert reply.is_error and reply.data["code"] == "E_REQUEST_INVALID"
+    failure = gateway.fail_step.await_args
+    assert failure.kwargs["errors"] == [
+        {"path": "rows.0.weightValue", "type": "value_error"},
+    ]
+    row.pop("weightValue"), row.pop("weightUnit")
+    gateway = Gateway()
+    reply = await ToolExecutor(context, gateway).call("propose_items", {"rows": [row]})
+    assert gateway.fail_step.await_args.kwargs["errors"] == [
+        {"path": "rows.0.odState", "type": "E_STATE_VALUE_CONFLICT"},
+        {"path": "rows.0.lengthState", "type": "E_STATE_VALUE_CONFLICT"},
+    ]
+    assert "synthetic-private-source" not in str(gateway.fail_step.await_args)
+    assert [e["loc"] for e in reply.data["errors"]] == [
+        ["rows", 0, "odState"],
+        ["rows", 0, "lengthState"],
+    ]
+
+
+async def test_validation_errors_recorded_in_trace_are_capped(context):
+    from tests.fixtures.draft_data import item
+
+    gateway = Gateway()
+    rows = [item() | {"seq": i + 1, "odState": "stated"} for i in range(30)]
+    await ToolExecutor(context, gateway).call("propose_items", {"rows": rows})
+    assert len(gateway.fail_step.await_args.kwargs["errors"]) == 20

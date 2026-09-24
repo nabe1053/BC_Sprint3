@@ -10,6 +10,7 @@ from pydantic import (
     Field,
     model_validator,
     ValidationError,
+    WithJsonSchema,
 )
 from pydantic_core import PydanticCustomError
 from pydantic.alias_generators import to_camel
@@ -27,7 +28,20 @@ def exact_decimal(value):
     return result
 
 
-Number = Annotated[Decimal, BeforeValidator(exact_decimal)]
+# The schema must advertise only what exact_decimal accepts: JSON floats are rejected.
+Number = Annotated[
+    Decimal,
+    BeforeValidator(exact_decimal),
+    WithJsonSchema(
+        {
+            "anyOf": [
+                {"type": "string", "pattern": r"^[+-]?(\d+\.?\d*|\.\d+)$"},
+                {"type": "integer"},
+            ],
+            "description": '10進数の文字列（例 "13.375"）または整数。小数を JSON の数値で渡さない',
+        }
+    ),
+]
 State = Literal["stated", "tba", "not_stated", "not_applicable"]
 Nonblank = Annotated[str, Field(min_length=1)]
 
@@ -40,7 +54,7 @@ class Input(BaseModel):
     @classmethod
     def business_field_errors(cls, data, handler):
         try:
-            return handler(data)
+            result = handler(data)
         except ValidationError as exc:
             errors = exc.errors(include_url=False)
             for error in errors:
@@ -64,6 +78,25 @@ class Input(BaseModel):
                 if code and error["type"] != "extra_forbidden":
                     error["type"] = PydanticCustomError(code, code)
             raise ValidationError.from_exception_data(cls.__name__, errors) from None
+        # Report every cross-field violation at once so one retry can fix them all.
+        violations = result.consistency_errors()
+        if violations:
+            raise ValidationError.from_exception_data(
+                cls.__name__,
+                [
+                    {
+                        "type": PydanticCustomError(code, message),
+                        "loc": (cls.model_fields[field].alias or field,),
+                        "input": data,
+                    }
+                    for field, code, message in violations
+                ],
+            )
+        return result
+
+    def consistency_errors(self) -> list[tuple[str, str, str]]:
+        """(field, code, fixed message) in check order; messages never echo input."""
+        return []
 
     model_config = ConfigDict(
         extra="forbid",
@@ -89,6 +122,29 @@ class EndInput(Input):
         if self.od_value is not None and not self.od_unit:
             raise PydanticCustomError("E_UNIT_REQUIRED", "E_UNIT_REQUIRED")
         return self
+
+
+def _state_hint(state, value, detail=""):
+    # Both directions: a value with tba/not_stated must not be "fixed" to stated.
+    return (
+        f"{state}=stated なら {value}{detail} が必要。"
+        f"{state} が tba / not_stated / not_applicable なら {value} を渡さない"
+    )
+
+
+STATE_VALUE_HINTS = {
+    "od": _state_hint("odState", "odValue", "（odUnit つき）"),
+    "wall": _state_hint("wallState", "wallValue", "（wallUnit つき）"),
+    "weight": _state_hint("weightState", "weightValue", "（weightUnit つき）"),
+    "grade": _state_hint("gradeState", "grade", "（gradeRaw とは別の正規化値）"),
+    "connection": _state_hint(
+        "connectionState", "connection", "（connectionRaw とは別の正規化値）"
+    ),
+    "length": "rangeClass か lengthValue（lengthUnit つき）を渡すなら lengthState=stated。"
+    "lengthState が tba / not_stated / not_applicable なら rangeClass も lengthValue も渡さない",
+    "due": _state_hint("dueState", "dueRaw"),
+    "place": _state_hint("placeState", "placeRaw"),
+}
 
 
 class ItemInput(Input):
@@ -163,17 +219,37 @@ class ItemInput(Input):
     is_inherit_candidate: bool = False
     ends: list[EndInput] = Field(default_factory=list)
 
-    @model_validator(mode="after")
-    def consistent_values(self):
+    def consistency_errors(self):
+        errors = []
         numeric = self.qty_state == "numeric"
         if numeric != (self.qty_value is not None):
-            raise PydanticCustomError("E_QTY_STATE_INVALID", "E_QTY_STATE_INVALID")
+            errors.append(
+                (
+                    "qty_state",
+                    "E_QTY_STATE_INVALID",
+                    "E_QTY_STATE_INVALID: qtyState=numeric のときだけ qtyValue を渡す。"
+                    "tba / not_stated / not_applicable では qtyValue を省略する",
+                )
+            )
         if numeric and not self.qty_unit:
-            raise PydanticCustomError("E_QTY_UNIT_REQUIRED", "E_QTY_UNIT_REQUIRED")
+            errors.append(
+                (
+                    "qty_unit",
+                    "E_QTY_UNIT_REQUIRED",
+                    "E_QTY_UNIT_REQUIRED: qtyValue には qtyUnit（原文の単位）が必要",
+                )
+            )
         for field in ("od", "wall", "weight", "length"):
             value = getattr(self, field + "_value")
             if value is not None and not getattr(self, field + "_unit"):
-                raise PydanticCustomError("E_UNIT_REQUIRED", "E_UNIT_REQUIRED")
+                errors.append(
+                    (
+                        field + "_unit",
+                        "E_UNIT_REQUIRED",
+                        f"E_UNIT_REQUIRED: {to_camel(field)}Value には "
+                        f"{to_camel(field)}Unit が必要",
+                    )
+                )
         values = dict(
             od=self.od_value,
             wall=self.wall_value,
@@ -188,16 +264,26 @@ class ItemInput(Input):
         )
         for field, value in values.items():
             if (getattr(self, field + "_state") == "stated") != (value is not None):
-                raise PydanticCustomError(
-                    "E_STATE_VALUE_CONFLICT",
-                    "E_STATE_VALUE_CONFLICT: {field}",
-                    {"field": field},
+                errors.append(
+                    (
+                        field + "_state",
+                        "E_STATE_VALUE_CONFLICT",
+                        "E_STATE_VALUE_CONFLICT: " + STATE_VALUE_HINTS[field],
+                    )
                 )
         if self.candidate_label and not self.group_code:
-            raise PydanticCustomError("E_GROUP_REQUIRED", "E_GROUP_REQUIRED")
+            errors.append(
+                (
+                    "group_code",
+                    "E_GROUP_REQUIRED",
+                    "E_GROUP_REQUIRED: candidateLabel には groupCode が必要",
+                )
+            )
         if len({end.side for end in self.ends}) != len(self.ends):
-            raise ValueError("Duplicate end side")
-        return self
+            errors.append(
+                ("ends", "E_REQUEST_INVALID", "E_REQUEST_INVALID: ends の side が重複")
+            )
+        return errors
 
 
 class HeaderInput(Input):

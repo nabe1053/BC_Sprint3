@@ -125,3 +125,66 @@ def test_evidence_has_no_conversion_input():
 def test_invalid_decimal_types_become_validation_errors(value):
     with pytest.raises(ValidationError):
         ItemInput(**(item_data() | {"qty_value": value}))
+
+
+def test_number_schema_matches_validator_and_excludes_json_floats():
+    # A: the advertised schema must not accept what the validator rejects.
+    schema = ItemInput.model_json_schema()["properties"]["odValue"]
+
+    def walk(node):
+        yield node
+        for child in node.get("anyOf", []):
+            yield from walk(child)
+
+    nodes = list(walk(schema))
+    types = {node["type"] for node in nodes if "type" in node}
+    assert types == {"string", "integer", "null"}
+    assert any("文字列" in node.get("description", "") for node in nodes)
+    with pytest.raises(ValidationError):
+        ItemInput(**(item_data() | {"od_value": 13.375}))
+    assert ItemInput(**(item_data() | {"od_value": 13})).od_value == Decimal("13")
+
+
+def test_all_consistency_violations_are_reported_in_check_order():
+    # C: one call must surface every conflict so the caller can fix them at once.
+    data = item_data() | dict(
+        od_value=None,
+        grade=None,
+        range_class="R3",
+        length_state="not_stated",
+        candidate_label="A",
+    )
+    with pytest.raises(ValidationError) as exc:
+        ItemInput(**data)
+    errors = exc.value.errors()
+    assert [(e["type"], e["loc"]) for e in errors] == [
+        ("E_STATE_VALUE_CONFLICT", ("odState",)),
+        ("E_STATE_VALUE_CONFLICT", ("gradeState",)),
+        ("E_STATE_VALUE_CONFLICT", ("lengthState",)),
+        ("E_GROUP_REQUIRED", ("groupCode",)),
+    ]
+    length = errors[2]["msg"]
+    assert "rangeClass" in length and "lengthValue" in length
+    assert "R3" not in str([e["msg"] for e in errors])
+
+
+def test_quantity_and_unit_errors_still_come_first():
+    data = item_data() | dict(qty_unit=None, od_value="1", od_unit=None, grade=None)
+    with pytest.raises(ValidationError) as exc:
+        ItemInput(**data)
+    assert [e["type"] for e in exc.value.errors()] == [
+        "E_QTY_UNIT_REQUIRED",
+        "E_UNIT_REQUIRED",
+        "E_STATE_VALUE_CONFLICT",
+    ]
+
+
+def test_conflict_hint_covers_value_given_with_non_stated_state():
+    # A value with tba must not be steered toward "stated" (would record TBA as stated).
+    data = item_data() | dict(due_state="tba", due_raw="TBA")
+    with pytest.raises(ValidationError) as exc:
+        ItemInput(**data)
+    [error] = exc.value.errors()
+    assert error["loc"] == ("dueState",)
+    assert "dueRaw を渡さない" in error["msg"]
+    assert "TBA" not in error["msg"]

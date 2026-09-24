@@ -58,6 +58,22 @@ class HeaderArguments(VersionArguments):
 
 
 class ItemArguments(VersionArguments):
+    """明細行をrows配列で一括登録する（1件以上）。各項目は「状態」と「値」の組で渡す。
+    状態と値は両方向で一致させる（stated なら値あり、stated 以外では値を渡さない）。
+    - odState/wallState/weightState=stated なら odValue/wallValue/weightValue と単位（odUnit 等）が必須。
+      stated 以外では値を渡さない。原表記は odRaw 等に別途残す
+    - gradeState/connectionState=stated なら grade/connection（正規化値）が必須。stated 以外では渡さない。
+      gradeRaw は原表記で常に必須
+    - rangeClass（R1/R2/R3 等）または lengthValue を渡したら lengthState は stated。
+      stated 以外では rangeClass も lengthValue も渡さない
+    - dueState/placeState=stated なら dueRaw/placeRaw が必須。stated 以外では dueRaw/placeRaw を渡さない
+    - qtyState=numeric のときだけ qtyValue と qtyUnit を渡す。qtyRaw は原表記で常に必須
+    - 数値（odValue・qtyValue 等）は10進の文字列（"13.375"）か整数で渡す。小数を JSON の数値で渡さない
+    - candidateLabel を付ける行（択一候補）には groupCode が必要
+    検証エラーは各行の状態と値の違反をまとめて返す（loc が該当項目）。一度に全部直して再登録する。
+    ただし型・必須の誤りがある行は、それを直した後に状態と値の違反が見つかることがある。
+    """
+
     rows: list[ItemInput] = Field(min_length=1)
 
 

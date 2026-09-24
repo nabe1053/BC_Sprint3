@@ -245,6 +245,9 @@ class RunRepository(DraftRepository):
             "ruleSetId": run.rule_set_id,
             "limits": run.limits,
         }
+        if tool == "job_finish":
+            # finish() stores the terminal fixed diagnostic code (e.g. tool_rejected).
+            step.trace_event = {**step.trace_event, "stopDetail": run.stage_detail}
 
     async def _export_or_fail(self, run_id, *, starting=False):
         if self.trace is None:
