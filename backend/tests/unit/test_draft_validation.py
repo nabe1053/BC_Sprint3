@@ -210,3 +210,70 @@ def test_header_explicit_states_require_evidence(field, state, attribute):
         N(item_id=None, field=field, document_id=1, locator="p.1", quote=state)
     )
     assert not kinds(s)
+
+
+@pytest.mark.parametrize(
+    "target_field", ["quote_deadline", "quoteDeadlineAt", "quote_deadline_raw"]
+)
+def test_deadline_without_time_or_tz_needs_case_level_question(target_field):
+    """04-db case_headers.quote_deadline_tz_state=`missing` なら確認事項が立つ（S10 Friday COB・TEST-05 #5）。"""
+    s = snapshot()
+    s.header.quote_deadline_raw = "Friday COB"
+    s.header.quote_deadline_tz_state = "missing"
+    s.evidences.append(
+        N(
+            item_id=None,
+            field="quote_deadline",
+            document_id=1,
+            locator="p.1",
+            quote="Friday COB",
+            raw_value="Friday COB",
+            adopted_value="Friday COB",
+        )
+    )
+    assert "missing_question" in kinds(s)
+    # 行に付けた確認事項では案件レベルの不足を満たさない
+    s.questions = [N(id=1, item_id=1, target_field=target_field, category="unknown")]
+    assert "missing_question" in kinds(s)
+    s.questions = [N(id=1, item_id=None, target_field=target_field, category="unknown")]
+    assert "missing_question" not in kinds(s)
+
+
+@pytest.mark.parametrize(
+    "raw,tz_state", [("2026-08-28 17:00 JST", "stated"), (None, "missing")]
+)
+def test_stated_or_absent_deadline_needs_no_question(raw, tz_state):
+    """時刻・TZ まで書かれた期限、または期限の記載自体が無い場合は対象外。"""
+    s = snapshot()
+    s.header.quote_deadline_raw = raw
+    s.header.quote_deadline_tz_state = tz_state
+    if raw:
+        s.evidences.append(
+            N(
+                item_id=None,
+                field="quote_deadline",
+                document_id=1,
+                locator="p.1",
+                quote=raw,
+                raw_value=raw,
+                adopted_value=raw,
+            )
+        )
+    assert "missing_question" not in kinds(s)
+
+
+def test_quantity_conflict_on_single_row_is_unsplit_conflict():
+    """数量の矛盾を1行に抱えたままにしない。CFL-n の候補2行で残す（X04・④3.3・TEST-05 #6）。"""
+    s = snapshot()
+    s.questions = [N(id=1, item_id=1, target_field="qty", category="conflict")]
+    assert "unsplit_conflict" in kinds(s)
+    s.items[0].group_code = "CFL-1"
+    s.items.append(N(**(vars(s.items[0]) | {"id": 2})))
+    s.evidences += [N(**(vars(e) | {"item_id": 2})) for e in list(s.evidences)]
+    assert "unsplit_conflict" not in kinds(s)
+
+
+def test_non_quantity_conflict_is_not_forced_into_candidate_rows():
+    s = snapshot()
+    s.questions = [N(id=1, item_id=1, target_field="grade", category="conflict")]
+    assert "unsplit_conflict" not in kinds(s)

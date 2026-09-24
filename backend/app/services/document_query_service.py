@@ -55,6 +55,11 @@ class DocumentRepositoryProtocol(Protocol):
     async def list_by_case(self, case_id: int) -> list[Document]:
         ...
 
+    async def list_intake_unreadable_locators(
+        self, document_ids: list[int]
+    ) -> dict[int, list[str]]:
+        ...
+
     async def list_pages(
         self, document_id: int, from_seq: int | None = None, to_seq: int | None = None
     ) -> list[DocumentPage]:
@@ -101,11 +106,20 @@ class DocumentQueryService:
 
     async def list_documents_for_case(
         self, case_id: int
-    ) -> tuple[Case, list[Document]]:
-        """#4: 案件配下の資料一覧（案件が無ければ E_NOT_FOUND）。"""
+    ) -> tuple[Case, list[tuple[Document, list[str]]]]:
+        """#4: 案件配下の資料一覧（案件が無ければ E_NOT_FOUND）。
+
+        各資料に受付時の読取不能範囲（locator 一覧）を添える。画面が「一部読取不能（p.2）」と
+        対象範囲を示すための材料で、読めたと扱わない根拠になる（③SCR-02・AE04）。
+        """
         case = await self._get_case(case_id)
         documents = await self.document_repository.list_by_case(case_id)
-        return case, documents
+        unreadable = await self.document_repository.list_intake_unreadable_locators(
+            [document.id for document in documents]
+        )
+        return case, [
+            (document, unreadable.get(document.id, [])) for document in documents
+        ]
 
     async def get_content(
         self, document_id: int, from_seq: int | None = None, to_seq: int | None = None

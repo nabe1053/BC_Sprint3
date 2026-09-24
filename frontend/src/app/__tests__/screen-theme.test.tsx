@@ -37,6 +37,8 @@ jest.mock("@/features/documents/hooks", () => ({
         fileName: "theme.txt",
         kind: "text",
         readStatus: "partial",
+        pageCount: 4,
+        unreadableLocators: ["p.2"],
       },
     ],
   }),

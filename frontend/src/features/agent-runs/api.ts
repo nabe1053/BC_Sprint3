@@ -2,6 +2,7 @@ import {
   startRunApiV1UiCasesCaseIdAgentRunsPost,
   getRunApiV1UiAgentRunsRunIdGet,
   getStepsApiV1UiAgentRunsRunIdStepsGet,
+  getActiveRunApiV1UiCasesCaseIdAgentRunsActiveGet,
 } from "@/shared/api/generated/ui";
 import type { AgentRunRequest } from "@/shared/api/generated/model";
 import { unwrapSuccess } from "@/shared/api/unwrap";
@@ -34,4 +35,14 @@ export async function getAgentRunSteps(runId: number, signal?: AbortSignal) {
     await getStepsApiV1UiAgentRunsRunIdStepsGet(runId, { signal }),
     200,
   ).steps;
+}
+// 画面を離れて戻っても進捗表示へ復帰するため、案件の実行中runを引く（無ければnull）。
+export async function getActiveRunId(caseId: number, signal?: AbortSignal) {
+  const { runId } = unwrapSuccess(
+    await getActiveRunApiV1UiCasesCaseIdAgentRunsActiveGet(caseId, { signal }),
+    200,
+  );
+  if (runId !== null && (!Number.isSafeInteger(runId) || runId <= 0))
+    throw new ApiError(200, { code: "E_UNEXPECTED_RESPONSE" });
+  return runId;
 }

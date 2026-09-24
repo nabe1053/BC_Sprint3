@@ -6,6 +6,7 @@ import {
   buildEditRequest,
   valueLabelKey,
   recordErrorKey,
+  evidenceKey,
 } from "../model";
 import { item, edit, question } from "../testing/fixtures";
 import { ApiError } from "@/shared/api/mutator";
@@ -174,4 +175,38 @@ it("API本文やdetailsを文言に使わない", () => {
     ),
   ).toBe("versions.errors.E_REQUEST_INVALID");
   expect(recordErrorKey(new Error("secret"))).toBe("versions.errors.unknown");
+});
+
+describe("evidenceKey: 根拠の対象項目を表示グループに正規化する（TEST-04 #3・TEST-05 #2）", () => {
+  it.each([
+    ["qty", "qty"],
+    ["qtyRaw", "qty"],
+    ["qty_value", "qty"],
+    ["qty_reference_note", "qty"],
+    ["od", "od"],
+    ["odRaw", "od"],
+    ["od_unit", "od"],
+    ["weightRaw", "weight"],
+    ["kindRaw", "kind"],
+    ["gradeRaw", "grade"],
+    ["connectionRaw", "connection"],
+    ["length", "length"],
+    ["lengthRaw", "length"],
+    ["rangeClass", "length"],
+    ["range_class", "length"],
+    ["due", "due"],
+    ["dueRaw", "due"],
+    ["place_raw", "place"],
+    ["usageNote", "usage_note"],
+    ["note", "note"],
+  ])("%s → %s", (field, key) => {
+    expect(evidenceKey(field)).toBe(key);
+  });
+
+  it.each(["end_a.od", "end_b.thread_end", "incoterms", ""])(
+    "表示グループに無い %s は null（その他の根拠として別に出す）",
+    (field) => {
+      expect(evidenceKey(field)).toBeNull();
+    },
+  );
 });

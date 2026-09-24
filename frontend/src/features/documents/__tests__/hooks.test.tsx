@@ -51,7 +51,14 @@ describe("useDocuments", () => {
 
   it("成功すると資料一覧を返す", async () => {
     mockedListDocuments.mockResolvedValue([
-      { documentId: 1, fileName: "a.pdf", kind: "pdf", readStatus: "success" },
+      {
+        documentId: 1,
+        fileName: "a.pdf",
+        kind: "pdf",
+        readStatus: "success",
+        pageCount: 1,
+        unreadableLocators: [],
+      },
     ]);
     const { result } = renderHookWithProviders(() => useDocuments(CASE_ID));
     await waitFor(() => expect(result.current.isLoading).toBe(false));
@@ -76,6 +83,8 @@ describe("useIntakeDocument", () => {
         fileName: "a.pdf",
         kind: "pdf",
         readStatus: "success",
+        pageCount: 1,
+        unreadableLocators: [],
       },
     ]);
     mockedIntakeDocument.mockResolvedValue({
@@ -145,6 +154,8 @@ describe("useIntakeDocument", () => {
         fileName: "note.zip",
         kind: "unsupported",
         readStatus: "unsupported",
+        pageCount: 1,
+        unreadableLocators: [],
       },
     ]);
     mockedIntakeDocument.mockRejectedValue(
@@ -184,6 +195,8 @@ describe("useIntakeDocument", () => {
           fileName: "note.zip",
           kind: "unsupported",
           readStatus: "unsupported",
+          pageCount: 1,
+          unreadableLocators: [],
         },
       ]),
     );

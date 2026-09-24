@@ -245,6 +245,8 @@ async def test_sdk_handler_round_trip_uses_existing_executor_and_records_once(
     assert options.include_partial_messages is True
     assert options.permission_mode == "default"
     assert options.setting_sources == []
+    # SDK の会話ログ（資料本文・ツール入出力）を ~/.claude/projects に残さない（TEST-08 #3・N02）。
+    assert options.extra_args == {"no-session-persistence": None}
     from pathlib import Path
 
     assert options.cwd and not (Path(options.cwd) / ".claude").exists()

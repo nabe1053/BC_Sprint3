@@ -3,12 +3,18 @@ import userEvent from "@testing-library/user-event";
 import { renderWithProviders } from "@/shared/testing/test-utils";
 import type { AgentRunResponse } from "@/shared/api/generated/model";
 import { ApiError } from "@/shared/api/mutator";
-import { useStartAgentRun, useAgentRun, useAgentRunSteps } from "../../hooks";
+import {
+  useStartAgentRun,
+  useAgentRun,
+  useAgentRunSteps,
+  useActiveRun,
+} from "../../hooks";
 import { AgentRunPanel } from "../AgentRunPanel";
 jest.mock("../../hooks", () => ({
   useStartAgentRun: jest.fn(),
   useAgentRun: jest.fn(),
   useAgentRunSteps: jest.fn(),
+  useActiveRun: jest.fn(),
 }));
 const start = jest.fn();
 const progress = useAgentRun as jest.Mock;
@@ -46,6 +52,7 @@ beforeEach(() => {
     isPending: false,
   });
   setRun();
+  (useActiveRun as jest.Mock).mockReturnValue({ data: undefined });
   steps.mockReturnValue({
     data: [],
     isError: false,
@@ -498,5 +505,40 @@ it.each([404, 500])(
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "案を作成" })).toBeEnabled();
     expect(start).toHaveBeenCalledTimes(1);
+  },
+);
+
+it("画面を開き直しても、案件の実行中runがあれば起動せずに進捗へ戻る（TEST-04 #1）", () => {
+  (useActiveRun as jest.Mock).mockReturnValue({ data: { runId: 3 } });
+  setRun({ ...running, stage: "extracting" });
+  renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
+  expect(start).not.toHaveBeenCalled();
+  expect(progress).toHaveBeenLastCalledWith(3);
+  expect(screen.getByText("明細を抽出中")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "準備中…" })).toBeDisabled();
+});
+it("実行中runが無ければ進捗を出さず起動できる", () => {
+  (useActiveRun as jest.Mock).mockReturnValue({ data: { runId: null } });
+  renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
+  expect(progress).toHaveBeenLastCalledWith(null);
+  expect(screen.getByRole("button", { name: "案を作成" })).toBeEnabled();
+});
+it.each([
+  ["reading", ["実行中", "未着手", "未着手"]],
+  ["extracting", ["完了", "実行中", "未着手"]],
+  ["self_checking", ["完了", "完了", "実行中"]],
+] as const)(
+  "段階%sを3ステップの文字ラベルで示す（資料読取→抽出→自己点検）",
+  async (stage, marks) => {
+    setRun({ ...running, stage });
+    renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
+    await launch();
+    const list = screen.getByRole("list", { name: "処理の段階" });
+    const items = within(list).getAllByRole("listitem");
+    expect(items.map((item) => item.textContent)).toEqual([
+      `資料の読取：${marks[0]}`,
+      `明細の抽出：${marks[1]}`,
+      `自己点検：${marks[2]}`,
+    ]);
   },
 );

@@ -135,6 +135,8 @@ describe("IntakePage: 読取結果の5区分表示", () => {
             fileName: `f-${readStatus}.pdf`,
             kind: "pdf",
             readStatus: readStatus as DocumentSummaryReadStatus,
+            pageCount: 1,
+            unreadableLocators: [],
           },
         ],
       });
@@ -156,12 +158,16 @@ describe("IntakePage: 読取結果の5区分表示", () => {
           fileName: "dup.pdf",
           kind: "pdf",
           readStatus: "success",
+          pageCount: 1,
+          unreadableLocators: [],
         },
         {
           documentId: 2,
           fileName: "dup.pdf",
           kind: "pdf",
           readStatus: "success",
+          pageCount: 1,
+          unreadableLocators: [],
         },
       ],
     });
@@ -169,6 +175,99 @@ describe("IntakePage: 読取結果の5区分表示", () => {
     renderWithProviders(<IntakePage caseId={CASE_ID} />);
     expect(screen.getAllByText("dup.pdf")).toHaveLength(2);
   });
+});
+
+describe("IntakePage: ページ数と読取不能の対象範囲（SCR-02・AE04）", () => {
+  it("PDF のページ数を「4ページ」と表示する（TEST-01 #2）", () => {
+    setUseDocuments({
+      data: [
+        {
+          documentId: 1,
+          fileName: "sample-06.pdf",
+          kind: "pdf",
+          readStatus: "success",
+          pageCount: 4,
+          unreadableLocators: [],
+        },
+      ],
+    });
+    setUseIntakeDocument();
+    renderWithProviders(<IntakePage caseId={CASE_ID} />);
+    const row = screen.getByRole("row", { name: /sample-06\.pdf/ });
+    expect(row).toHaveTextContent("4ページ");
+    expect(row).toHaveTextContent("成功");
+  });
+
+  it("xlsx はシート数、判定できない資料は「—」（0 で埋めない）", () => {
+    setUseDocuments({
+      data: [
+        {
+          documentId: 1,
+          fileName: "list.xlsx",
+          kind: "xlsx",
+          readStatus: "success",
+          pageCount: 3,
+          unreadableLocators: [],
+        },
+        {
+          documentId: 2,
+          fileName: "mail.eml",
+          kind: "eml",
+          readStatus: "success",
+          pageCount: null,
+          unreadableLocators: [],
+        },
+      ],
+    });
+    setUseIntakeDocument();
+    renderWithProviders(<IntakePage caseId={CASE_ID} />);
+    expect(screen.getByRole("row", { name: /list\.xlsx/ })).toHaveTextContent(
+      "3シート",
+    );
+    const mail = screen.getByRole("row", { name: /mail\.eml/ });
+    expect(mail).toHaveTextContent("—");
+    expect(mail).not.toHaveTextContent("0ページ");
+  });
+
+  it("一部読取不能は対象範囲つきで「一部読取不能（p.2）」と表示する（TEST-02 #1）", () => {
+    setUseDocuments({
+      data: [
+        {
+          documentId: 1,
+          fileName: "p2-image.pdf",
+          kind: "pdf",
+          readStatus: "partial",
+          pageCount: 4,
+          unreadableLocators: ["p.2", "p.4"],
+        },
+      ],
+    });
+    setUseIntakeDocument();
+    renderWithProviders(<IntakePage caseId={CASE_ID} />);
+    const row = screen.getByRole("row", { name: /p2-image\.pdf/ });
+    expect(row).toHaveTextContent("一部読取不能（p.2、p.4）");
+    expect(row).not.toHaveTextContent("成功");
+  });
+});
+
+it("読取不能範囲が多い（xlsx のセル単位等）ときは先頭3件と残り件数で示す", () => {
+  setUseDocuments({
+    data: [
+      {
+        documentId: 1,
+        fileName: "cells.xlsx",
+        kind: "xlsx",
+        readStatus: "partial",
+        pageCount: 1,
+        unreadableLocators: ["S!A1", "S!A2", "S!A3", "S!A4", "S!A5"],
+      },
+    ],
+  });
+  setUseIntakeDocument();
+  renderWithProviders(<IntakePage caseId={CASE_ID} />);
+  const row = screen.getByRole("row", { name: /cells\.xlsx/ });
+  expect(row).toHaveTextContent("一部読取不能（S!A1、S!A2、S!A3 他 2 件）");
+  expect(row).not.toHaveTextContent("S!A4");
 });
 
 describe("IntakePage: ファイル投入操作", () => {
@@ -325,7 +424,16 @@ it.each([
   "unsupported",
 ] as const)("%sの資料による起動可否", (readStatus) => {
   setUseDocuments({
-    data: [{ documentId: 1, fileName: "input.txt", kind: "text", readStatus }],
+    data: [
+      {
+        documentId: 1,
+        fileName: "input.txt",
+        kind: "text",
+        readStatus,
+        pageCount: 1,
+        unreadableLocators: [],
+      },
+    ],
   });
   setUseIntakeDocument();
   const { container } = renderWithProviders(<IntakePage caseId={CASE_ID} />);
@@ -346,6 +454,8 @@ it("読取可能資料があっても投入中・上限超過では起動でき�
         fileName: "input.txt",
         kind: "text",
         readStatus: "success",
+        pageCount: 1,
+        unreadableLocators: [],
       },
     ],
   });

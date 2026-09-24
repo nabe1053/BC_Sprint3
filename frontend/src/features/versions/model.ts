@@ -36,6 +36,43 @@ export const editableFields = [
   "note",
 ] as const;
 export type EditableField = (typeof editableFields)[number];
+
+// 根拠ドロワーの表示グループ。キーは完了条件の検証器（backend draft_validation）が
+// 要求する evidences.field の語彙（kind / od / qty / due …）と同じ。
+export const evidenceGroups = [
+  { key: "kind", fields: ["kind"] },
+  { key: "usage_note", fields: ["usage_note"] },
+  { key: "od", fields: ["od_value", "od_unit"] },
+  { key: "wall", fields: ["wall_value", "wall_unit"] },
+  { key: "weight", fields: ["weight_value", "weight_unit"] },
+  { key: "grade", fields: ["grade"] },
+  { key: "connection", fields: ["connection"] },
+  { key: "length", fields: ["range_class", "length_value", "length_unit"] },
+  { key: "qty", fields: ["qty_value", "qty_unit"] },
+  { key: "due", fields: ["due_raw"] },
+  { key: "place", fields: ["place_raw"] },
+  { key: "note", fields: ["note"] },
+] as const;
+export type EvidenceKey = (typeof evidenceGroups)[number]["key"];
+const evidenceAliases: Record<string, EvidenceKey> = {
+  range_class: "length",
+  qty_reference_note: "qty",
+};
+// エージェントが登録する field は表記が揺れる（qtyRaw / od_unit / rangeClass 等）。
+// 表示グループに正規化し、どこにも当たらないものは null（その他の根拠として出す）。
+export function evidenceKey(field: string): EvidenceKey | null {
+  const snake = field
+    .replace(/([a-z0-9])([A-Z])/g, "$1_$2")
+    .toLowerCase()
+    .trim();
+  const base = evidenceAliases[snake]
+    ? snake
+    : snake.replace(/_(raw|value|unit|state)$/, "");
+  const key = evidenceAliases[base] ?? base;
+  return evidenceGroups.some((group) => group.key === key)
+    ? (key as EvidenceKey)
+    : null;
+}
 export const filterStates = [
   "all",
   "questions",

@@ -114,6 +114,7 @@
       "columns": {
         "name": "原資料名",
         "kind": "形式",
+        "pages": "ページ／シート",
         "status": "読取結果"
       }
     },
@@ -164,7 +165,7 @@
     "requestError": "投入結果を確認できませんでした。一覧を再読み込みして記録を確認してから、必要な場合だけ再投入してください。",
     "unsupportedHint": "PDF / XLSX / EML / TXT の資料を選んでください。",
     "encryptedNote": "暗号化資料は現在の読取処理では「読取不能」として扱います。「暗号化により読取不能」は将来の判別用です。",
-    "sourceNote": "原資料名・形式は受付一覧に表示します。ページ数・シート数は現在の一覧情報では未提供です。",
+    "sourceNote": "原資料名・形式・ページ数（xlsx はシート数）・読取結果は受付一覧に表示します。",
     "limits": {
       "values": "仮上限：1案件あたり資料50件、1ファイル20MB、PDF 200ページ、xlsx 50シート。",
       "provisional": "仮上限。D02 の確定値ではありません。"
@@ -184,7 +185,14 @@
       "text": "TXT",
       "unsupported": "未対応形式"
     },
-    "eyebrow": "SCR-02 / DOCUMENTS"
+    "eyebrow": "SCR-02 / DOCUMENTS",
+    "pages": {
+      "pdf": "{{pages}}ページ",
+      "xlsx": "{{pages}}シート",
+      "none": "—"
+    },
+    "partialRange": "一部読取不能（{{ranges}}）",
+    "partialRangeMore": "一部読取不能（{{ranges}} 他 {{rest}} 件）"
   },
   "agentRuns": {
     "title": "案の作成",
@@ -264,7 +272,8 @@
         "unreadable": "読取不能"
       },
       "document": "資料番号：{{id}}",
-      "duration": "処理時間：{{ms}} ms"
+      "duration": "処理時間：{{ms}} ms",
+      "stagesLabel": "処理の段階"
     },
     "limit": {
       "detail": "{{label}}：{{actual}}{{unit}}（上限 {{limit}}{{unit}}）",
@@ -284,7 +293,18 @@
     },
     "versionNote": "実ファイルを抽出する処理ではありません。再実行は別の生成版になります。未生成の案件ではまだ版がありません",
     "carryOverResult": "前版の修正・確認記録は引き継がれていません（既存版は保全されています）",
-    "resetState": "状態を確認し直す"
+    "resetState": "状態を確認し直す",
+    "stageStep": {
+      "reading": "資料の読取",
+      "extracting": "明細の抽出",
+      "self_checking": "自己点検"
+    },
+    "stageMark": {
+      "done": "完了",
+      "current": "実行中",
+      "pending": "未着手"
+    },
+    "stageStepLine": "{{step}}：{{mark}}"
   },
   "versions": {
     "title": "Item List 確認",
@@ -439,7 +459,22 @@
       "changeReason": "変更理由",
       "priorValue": "変更前の値",
       "inherit": "継承候補です。確定した仕様として扱わず、原資料を確認してください。",
-      "questions": "この行の確認事項"
+      "questions": "この行の確認事項",
+      "groups": {
+        "kind": "品種",
+        "usage_note": "用途",
+        "od": "外径",
+        "wall": "肉厚",
+        "weight": "単重",
+        "grade": "材質",
+        "connection": "接続",
+        "length": "レンジ・定尺長",
+        "qty": "数量",
+        "due": "納期",
+        "place": "納地",
+        "note": "備考",
+        "other": "その他の根拠"
+      }
     },
     "edit": {
       "title": "値を訂正する",

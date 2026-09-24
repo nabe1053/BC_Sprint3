@@ -1,4 +1,9 @@
-import { startAgentRun, getAgentRun, getAgentRunSteps } from "../api";
+import {
+  startAgentRun,
+  getAgentRun,
+  getAgentRunSteps,
+  getActiveRunId,
+} from "../api";
 import { ApiError } from "@/shared/api/mutator";
 
 const originalFetch = global.fetch;
@@ -74,4 +79,16 @@ it("別runIdの応答を進捗として受け入れない", async () => {
   await expect(getAgentRun(3)).rejects.toMatchObject({
     code: "E_UNEXPECTED_RESPONSE",
   });
+});
+
+it("案件の実行中runを実生成クライアントで取得し、無ければnull", async () => {
+  respond(200, { runId: 5 });
+  expect(await getActiveRunId(8)).toBe(5);
+  expect(request.mock.calls[0][0]).toMatch(
+    /\/api\/v1\/ui\/cases\/8\/agent-runs\/active$/,
+  );
+  respond(200, { runId: null });
+  expect(await getActiveRunId(8)).toBeNull();
+  respond(200, { runId: -1 });
+  await expect(getActiveRunId(8)).rejects.toBeInstanceOf(ApiError);
 });

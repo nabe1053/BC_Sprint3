@@ -96,6 +96,8 @@ async def claude_policy(context, *, api_key):
                     max_turns=definition.MAX_TURNS,
                     permission_mode="default",
                     setting_sources=[],
+                    # 会話ログ（資料本文・ツール入出力）をディスクに残さない（TEST-08 #3・N02）。
+                    extra_args={"no-session-persistence": None},
                     cwd=cwd,
                     disallowed_tools=definition.DISALLOWED_TOOLS,
                     stderr=lambda line: None,

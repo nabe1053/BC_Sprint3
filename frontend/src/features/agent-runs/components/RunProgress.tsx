@@ -10,6 +10,8 @@ import {
   readProgress,
   stopReasonLabelKey,
   stageLabelKey,
+  stageSteps,
+  stepMark,
 } from "../model";
 
 export function RunProgress({
@@ -29,11 +31,38 @@ export function RunProgress({
   return (
     <Box role="status" aria-live="polite">
       {active ? (
-        <Typography>
-          {count
-            ? t("agentRuns.readingCount", count)
-            : t(stageLabelKey(run.stage))}
-        </Typography>
+        <>
+          <Typography>
+            {count
+              ? t("agentRuns.readingCount", count)
+              : t(stageLabelKey(run.stage))}
+          </Typography>
+          <Box
+            component="ol"
+            aria-label={t("agentRuns.steps.stagesLabel")}
+            sx={{ margin: 0, paddingLeft: `${tokens.spacing.s5}px` }}
+          >
+            {stageSteps.map((step, index) => {
+              const mark = stepMark(run.stage, index);
+              return (
+                <Typography
+                  component="li"
+                  key={step}
+                  sx={
+                    mark === "current"
+                      ? { fontWeight: tokens.typography.weight.semibold }
+                      : undefined
+                  }
+                >
+                  {t("agentRuns.stageStepLine", {
+                    step: t(`agentRuns.stageStep.${step}`),
+                    mark: t(`agentRuns.stageMark.${mark}`),
+                  })}
+                </Typography>
+              );
+            })}
+          </Box>
+        </>
       ) : complete ? (
         <>
           <Typography sx={{ color: tokens.colors.ok.main }}>

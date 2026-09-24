@@ -38,7 +38,7 @@ async def list_documents(
     service: DocumentQueryService = Depends(get_document_query_service),
 ) -> DocumentsListResponse:
     """#4: 案件配下の資料一覧・読取状態。"""
-    case, documents = await service.list_documents_for_case(case_id)
+    case, listings = await service.list_documents_for_case(case_id)
     return DocumentsListResponse(
         case_id=case.id,
         case_name=case.title,
@@ -48,8 +48,10 @@ async def list_documents(
                 file_name=d.file_name,
                 kind=d.kind,
                 read_status=d.read_status,
+                page_count=d.page_count,
+                unreadable_locators=locators,
             )
-            for d in documents
+            for d, locators in listings
         ],
     )
 

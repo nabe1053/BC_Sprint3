@@ -37,20 +37,32 @@ export function InventoryEntriesTable({ data }: { data: InventoryResponse }) {
         <Table
           aria-label={t("versions.inventory.entriesTitle")}
           sx={{
-            minWidth: "100%",
-            "& th, & td": { verticalAlign: "top" },
-            "& th": { whiteSpace: "nowrap" },
+            // 半幅パネルでも「対応」「状態」列が横スクロールの外に出ないよう、
+            // 列幅を固定して抜粋・状態を折り返す（TEST-06 #3）。
+            tableLayout: "fixed",
+            width: "100%",
+            "& th, & td": {
+              verticalAlign: "top",
+              whiteSpace: "normal",
+              overflowWrap: "anywhere",
+            },
           }}
         >
           <TableHead>
             <TableRow>
-              {["position", "sourceNo", "excerpt", "linkedItems", "state"].map(
-                (key) => (
-                  <TableCell key={key}>
-                    {t(`versions.inventory.columns.${key}`)}
-                  </TableCell>
-                ),
-              )}
+              {(
+                [
+                  ["position", "14%"],
+                  ["sourceNo", "10%"],
+                  ["excerpt", "36%"],
+                  ["linkedItems", "12%"],
+                  ["state", "28%"],
+                ] as const
+              ).map(([key, width]) => (
+                <TableCell key={key} sx={{ width }}>
+                  {t(`versions.inventory.columns.${key}`)}
+                </TableCell>
+              ))}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -58,25 +70,16 @@ export function InventoryEntriesTable({ data }: { data: InventoryResponse }) {
               const state = inventoryState(entry.judgement);
               return (
                 <TableRow key={entry.entryId}>
-                  <TableCell sx={{ whiteSpace: "nowrap" }}>
-                    {entry.position}
-                  </TableCell>
+                  <TableCell>{entry.position}</TableCell>
                   <TableCell>
                     {entry.sourceNo ?? t("versions.values.empty")}
                   </TableCell>
-                  <TableCell
-                    sx={{
-                      minWidth: `${tokens.spacing.s8 * 5}px`,
-                      overflowWrap: "anywhere",
-                    }}
-                  >
-                    {entry.excerpt}
-                  </TableCell>
-                  <TableCell sx={{ whiteSpace: "nowrap" }}>
+                  <TableCell>{entry.excerpt}</TableCell>
+                  <TableCell>
                     {entry.linkedItems.map((item) => item.rowCode).join(", ") ||
                       t("versions.values.empty")}
                   </TableCell>
-                  <TableCell sx={{ minWidth: `${tokens.spacing.s8 * 6}px` }}>
+                  <TableCell>
                     <Typography
                       sx={
                         state.tone

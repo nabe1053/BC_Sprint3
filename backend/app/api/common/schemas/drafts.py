@@ -94,6 +94,8 @@ class ViolationResponse(CamelModel):
         "unscanned_range",
         "orphan_question",
         "excluded_without_basis",
+        "missing_question",
+        "unsplit_conflict",
     ]
     detail: str
     item_id: int | None = None

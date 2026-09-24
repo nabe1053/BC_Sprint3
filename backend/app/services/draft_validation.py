@@ -22,6 +22,11 @@ def _present(value):
     return value is not None and (not isinstance(value, str) or bool(value.strip()))
 
 
+def _field_key(value):
+    """確認事項の targetField の表記揺れ（quoteDeadlineAt / quote_deadline_raw）を比較用に畳む。"""
+    return (value or "").replace("_", "").lower()
+
+
 def validate_snapshot(snapshot) -> ValidationResult:
     violations = []
     for document_id, locator in sorted(
@@ -141,6 +146,41 @@ def validate_snapshot(snapshot) -> ValidationResult:
             violations.append(
                 Violation(
                     "orphan_question", "確認事項の対象が不正です", question.item_id
+                )
+            )
+    header = snapshot.header
+    if (
+        header is not None
+        and _present(getattr(header, "quote_deadline_raw", None))
+        and getattr(header, "quote_deadline_tz_state", None) == "missing"
+    ):
+        # 04-db case_headers: quote_deadline_tz_state=missing なら確認事項が立つ（案件レベル）。
+        # 期限の記載自体が無い（raw NULL）場合は時刻・TZ の不足ではないので対象外。
+        if not any(
+            question.item_id is None
+            and _field_key(question.target_field).startswith("quotedeadline")
+            for question in snapshot.questions
+        ):
+            violations.append(
+                Violation(
+                    "missing_question",
+                    "見積期限の時刻・タイムゾーン不足の確認事項（案件レベル）がありません",
+                )
+            )
+    grouped = {row.id for row in snapshot.items if row.group_code}
+    for question in snapshot.questions:
+        # 数量の矛盾は1行に抱えず、CFL-n の候補2行で残す（X04・04-db 3.3）。
+        if (
+            getattr(question, "category", None) == "conflict"
+            and question.item_id in item_ids
+            and question.item_id not in grouped
+            and _field_key(question.target_field).startswith("qty")
+        ):
+            violations.append(
+                Violation(
+                    "unsplit_conflict",
+                    "数量の矛盾が1行のままです。候補2行（同一 groupCode）で残してください",
+                    question.item_id,
                 )
             )
     for entry in snapshot.inventory:

@@ -21,6 +21,21 @@ export function stageLabelKey(stage: string | null) {
   return `agentRuns.stage.${stages.find((value) => value === stage) ?? "pending"}`;
 }
 
+// 06 TEST-04 #1「資料 n/N 読取中 → 抽出中 → 自己点検中」の3段階。done は確定処理中。
+export const stageSteps = ["reading", "extracting", "self_checking"] as const;
+export function stepMark(stage: string | null, index: number) {
+  const position =
+    stage === "done"
+      ? stageSteps.length
+      : stageSteps.findIndex((value) => value === stage);
+  if (position < 0) return "pending" as const;
+  return index < position
+    ? ("done" as const)
+    : index === position
+      ? ("current" as const)
+      : ("pending" as const);
+}
+
 export type BlockedReason =
   "loading" | "documentsError" | "noReadable" | "limitExceeded" | "uploading";
 export function readProgress(detail: string | null) {

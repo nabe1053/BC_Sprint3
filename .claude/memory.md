@@ -157,6 +157,11 @@
   ⑩出力ボタンは outlined（primary は「担当者確認済みにする」1 つ）⑬`#40` は UI で未使用。影響範囲: `05-api-ipo.md` #22・`03-spec.md`:168 に書き戻し済み。
 - [AD-034] **共有 `AgentRunPanel` に `emphasis?: "primary" | "secondary"` を追加**（既定 primary で SCR-02 は不変）。理由: 03-spec が版の履歴パネルに再実行ボタンを求める一方、
   そのまま置くと design-guidelines「primary（塗り）は 1 画面 1 つ」に反し、既存テストが実際に RED になった / 影響範囲: SCR-03 からは `emphasis="secondary"`。起動ロジック・ガードレール・二重起動防止は不変。
+- [AD-035] **シナリオテスト TEST-01〜08 の Fail 修正で、研修者の就寝中に orchestrator（Claude メインセッション）が自律で決めた 5 点**（2026-09-24 研修者指示「判断は仰がずに進めてよい」。**朝の報告で研修者確認**）:
+  ①#4 に `pageCount`・`unreadableLocators`（受付時の読取不能範囲）を追加 ②新 API #14a `GET /ui/cases/{caseId}/agent-runs/active`（TODO-013 の再接続を兼ねる。UI 専用）
+  ③`validate_draft` に `missing_question`（期限の原文あり×TZ missing×案件レベル確認事項なし。04-db case_headers の既存規定の機械判定）・`unsplit_conflict`（数量の conflict 確認事項が選択グループ外の1行。X04）を追加
+  ④SYSTEM_PROMPT とツール説明に ALT/CFL・priorValue/changeReason・根拠 field 語彙・インベントリ粒度の規則（TODO-028 を含む）⑤SDK を `--no-session-persistence` で起動（会話ログを残さない。LN-070 の調査手段は失われる）。
+  影響範囲: 03-spec SCR-02・05-api-ipo #4/#14a/§3.4・agent-plan Part 1 と末尾補足に書き戻し済み。Codex 単独運用（AD-032）中だが、研修者が Claude に直接依頼したため Claude が orchestrator を兼ねた。
 
 ## 2. 確立した規約・パターン
 
@@ -260,6 +265,12 @@
 | T-602 | G6 出力 API #38,39,40（API） | web | T-601 | DONE | reviewer サブエージェント 1回目 RV-045: **P1 0・DONE 可**（P2-1 は並行作業由来・P3 3 は記録のみ・TODO-043） | 2026-09-13 |
 | T-603 | G6 出力ボタン・版の履歴（FE・SCR-03 内）＋ #22 `elapsedSec` 追補 | web | T-602 | DONE | 3回目 RV-048: **DONE 可**（P1/P2 0・P3 2 は記録のみ・TODO-046）。**G6 完了 ＝ Phase 2 初版完成** | 2026-09-13 |
 | F-1 | 改修: propose_items の引数契約とモデルの食い違い解消（数値 Schema・ツール説明・違反の全件返却・失敗内訳のトレース） | agent | T-203, T-205 | DONE | 2回目 RV-050: **DONE 可**（P1/P2 0・P3 は TODO-047）。指示書 `docs/f1-instructions.md`・`docs/f1-handoff.md` | 2026-09-24 |
+| F-2 | 改修: 受付一覧のページ数・読取不能範囲（#4 拡張＋SCR-02）TEST-01 #2・TEST-02 #1 | web | T-103 | DONE | RV-051（P2 0 該当）→ DONE | 2026-09-24 |
+| F-3 | 改修: 根拠ドロワーの項目対応を検証器の field 語彙に合わせる（evidenceKey 正規化・その他の根拠）TEST-04 #3・TEST-05 #2 | web | T-303 | DONE | RV-051 → DONE | 2026-09-24 |
+| F-4 | 改修: 択一/矛盾/変更/根拠語彙/棚卸し粒度をプロンプト・ツール説明へ＋`missing_question`・`unsplit_conflict` の機械判定 TEST-04 #4・TEST-05 #5/#6 | agent | T-205 | DONE | RV-051 P2-2 修正 → DONE | 2026-09-24 |
+| F-5 | 改修: 原明細一覧の列幅固定・折り返し（状態列が画面外）TEST-06 #3 | web | T-403 | DONE | RV-051 → DONE（jsdom 不可のためスクリーンショット検証） | 2026-09-24 |
+| F-6 | 改修: 実行中 run への自動復帰（#14a）と3段階表示 TEST-04 #1 | agent | T-204 | DONE | RV-051 P2-1 修正（期限切れ run の回収）→ DONE | 2026-09-24 |
+| F-7 | 改修: SDK 会話ログを残さない（`--no-session-persistence`）TEST-08 #3 | agent | T-205 | DONE | RV-051 → DONE（実測: 5 本実行で `~/.claude/projects` の run ディレクトリ増加 0） | 2026-09-24 |
 
 > **実施順（AD-011）**: T-201・T-202 クローズ → C-1 → **T-203 → T-204 → ミニ評価** →
 > G3（T-301〜303）・G4（T-401〜403）は並行可 → G5 → G6。
@@ -527,6 +538,9 @@
   新規 P3 2 件: ①`export-wiring.test.tsx` の 2 本目（別版の分離）は変異で落ちない弱い検査 ②`useExports` が `<details>` の開閉と無関係に初回描画で発火する（TODO-045 の直接原因）→ TODO-046。
 - [RV-049] F-1 1回目（reviewer サブエージェント）: P2 1。状態と値のヒント文とツール説明が「stated なら値が必要」の片方向だけで、`dueState=tba`＋`dueRaw` を渡すと LLM を stated へ誘導する → 両方向の文に修正し、逆方向のテストを追加。P3 5（「全件返す」が不正確 → 修正。残りは TODO-047）
 - [RV-050] F-1 2回目: P1/P2 0・**DONE 可**。新しい P3 1（ヒント文が単位に触れない。実装も拒否しないので誤りではない → TODO-047）
+- [RV-051] F-2〜F-7 1回目（reviewer サブエージェント・独立）: P1 0 / P2 2 / P3 3。P2-1 自動復帰が期限切れの running（再起動で取り残された run）に戻り、起動ボタンが「準備中」のまま解除経路を失う
+  → `RunService.active_run` で `recover_expired` を先に通す（統合テストで RED→GREEN）。P2-2 プロンプト規則を agent-plan 末尾補足だけに書き Part 1 の写しを更新していない → Part 1 に同文を追加。
+  P3: 全角コロンの JSX 直書き → i18n 化／xlsx のセル単位 locator が長く並ぶ → 先頭3件＋「他 n 件」（どちらも対応済み）／F-5 は jsdom で検証不能・`useActiveRun` 単体テストなし・「その他の根拠」は field 名を出さない（記録のみ・TODO-050）。
 
 ## 5. 学び・ハマりどころ（再発防止）
 
@@ -711,6 +725,12 @@
 - [LN-069] **i18n にキーを足したら使用箇所も同時に固定する。**未使用キー（dead key）が 3 回出た。未使用キー検出は Env フェーズ（`/r2b-env-sprint3`）の候補。
 - [LN-070] 実モデル実行の失敗原因は、トレース（引数ハッシュのみ）では追えない。SDK のセッション記録 `~/.claude/projects/-tmp-agent-run-<id>/*.jsonl` に、実際の tool_use 引数とツールの応答が残る（F-1 はここから特定した）。F-1 以降、検証失敗の path と type はトレースの observation.errors に残る
 - [LN-071] ツールの JSON Schema は LLM への契約そのもの。バリデータが拒否する形（例: Decimal に対する JSON number）を Schema が許すと、LLM は何度でも踏む。state と値の規則は両方向で書く（F-1・RV-049）
+- [LN-072] **「画面に出ない」Fail の多くは、生成側と表示側の語彙のずれだった。**エージェントは検証器が要求する `qty`/`od` で根拠を登録し、ドロワーは列名 `qty_value` で探していた（TEST-04 #3・TEST-05 #2）。
+  データは正しく DB にあるので API テストもツールテストも緑のまま。**生成側の語彙の SSOT（ここでは `draft_validation.py`）を表示側がどこで写しているか**を、スライスをまたいで照合する。
+- [LN-073] **jsdom はレイアウトを計算しないので「列が画面外」は単体テストで検出できない。**原因は親から継承した `white-space: nowrap` で、Playwright で `getComputedStyle` を取って初めて分かった。
+  表を足す／狭いパネルに置く UI は、実画面のスクリーンショット（scratchpad の `shot.py`：キャッシュ済み chromium を `executable_path` 指定）で確認する。
+- [LN-074] **LLM の出力の「揃い方」はプロンプトの規則だけでは安定しない。**同じ S10 で run 28 は期限の案件レベル確認事項を立て、run 36 は立てなかった。設計書に既に「〜なら確認事項が立つ」と書かれている完了要件は、`validate_draft` の違反種別にして自己修復ループに乗せる（F-4 `missing_question`）。
+- [LN-075] **`--no-session-persistence` は SDK のストリーム入力モードでも効く**（`--print` 限定と help にあるが実測で保存 0）。SDK は `extra_args` で CLI フラグを渡せる。以後、失敗解析に SDK 会話ログ（LN-070）は使えない → トレースの observation を厚くする方向で補う。
 
 ## 6. 未解決 / BLOCKED / TODO
 
@@ -836,3 +856,9 @@
 - [TODO-047] F-1 の記録のみ P3（RV-049/050）: ①trace の path に extra_forbidden の未知キー名が入り得る（伏せるか 04-db に許容と明記）②20 件で切ったことが残らない（`errorsTotal`）③UI API の `details.errors[].path` が `rows.0` から `rows.0.qtyState` 等に変わったが API テストで固定していない（code は不変）④B のテストは語句の有無だけを見ている ⑤ヒント文が単位に触れない。C-3 で判断。
 - [TODO-048] **研修者判断**: 3 回規則（`REPEATED_CALL_LIMIT`）を `(ツール名, code)` の単位で数えるため、中身の違う E_REQUEST_INVALID でも 3 回で `tool_rejected` になる（agent-plan.md:243「同一ツール×同一エラーコード」どおり）。エラーの中身まで比較するかは設計変更（F-1 決定 E）。
 - [TODO-049] **研修者判断**: `backend/.env` が `AGENT_MODE=claude` のままだと `test_run_regressions.py::test_definition_defaults_reach_reserved_run` が落ち、`make check` が赤になる（テストが .env に依存）。F-1 のゲートは `AGENT_MODE=local_dummy make check` で実行した。あわせて sample-10（AE02）の実モデル再評価も、外部送信の確認待ち。
+- [TODO-050] RV-051 の記録のみ P3: F-5 の表レイアウトは jsdom で検証不能（スクリーンショットのみ）／`useActiveRun` hook 単体テストなし・`setRunId(current ?? activeRunId)` の既存値保持分岐が未テスト／「その他の根拠」で `end_a.od` と `end_b.od` が引用と位置でしか区別できない（CV-019 で field 名は出さない）。C-3 で判断。
+- [TODO-051] **研修者判断**: TEST-04 #4 の期待値「除外4」の数え方が設計書から導けない。F-4 後の run 35/42（S06）は「明細8 → 出力11行（分割3）／対応なし0」は一致、除外は種別ごとに全要素を棚卸しして 20 件超（表題・案件情報・共通条件・見出し行・注記・脚注・提出要領・免責）。
+  ②5章は「小計・合計・共通条件・変更指示・注記・脚注・署名など」全要素の棚卸しを求めており、4 件にするには「どの要素を数えるか」の定義が要る（06 は正解データ未承認）。定義が決まればプロンプトの粒度規則を合わせる。
+- [TODO-052] **研修者作業**: Anthropic API のクレジット残高不足で実モデル run 40〜42（`missing_question`・`unsplit_conflict` 追加後の S10/X04/S06 確認）が `model_error` で未実施。補充後に再実行し、
+  あわせて `~/.claude/projects/-tmp-agent-run-*`（F-7 以前の 28 件・資料本文を含む）と `-tmp-persist-probe-osjh4t08`（F-7 の実測で作成。削除は権限で拒否された）を削除する。記録: `docs/evaluations/scenario-fix-2026-09-24.md`。
+- （解消）TODO-013 は F-6 の #14a で解消。TODO-028 は F-4 のプロンプト規則で解消（run 35/38 で脚注・注記・小計は excluded＋種別ラベル）。

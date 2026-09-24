@@ -18,6 +18,7 @@ import { useTranslation } from "react-i18next";
 import { visuallyHidden } from "@mui/utils";
 import { CaseMetadata } from "@/features/cases";
 import { AgentRunPanel } from "@/features/agent-runs";
+import type { DocumentSummary } from "@/shared/api/generated/model";
 import { ApiError } from "@/shared/api/mutator";
 import { tokens } from "@/shared/theme/tokens";
 import { Note, PageHeading } from "@/shared/ui";
@@ -58,6 +59,24 @@ const statusColor = {
   unsupported: tokens.colors.danger.main,
 };
 const gap = `${tokens.spacing.s4}px`;
+
+// xlsx はセル単位の locator になり得るため、先頭だけ示して残りは件数にする。
+const shownRanges = 3;
+function partialLabelArgs(locators: string[]) {
+  return {
+    ranges: locators.slice(0, shownRanges).join("、"),
+    rest: locators.length - shownRanges,
+  };
+}
+
+// ページ数は PDF=ページ・xlsx=シートとして意味を持つ。txt の 1（本文1単位）や
+// 判定できない null（.eml・破損）は件数として見せない（0 で埋めない・CV-003）。
+function pageKey(document: DocumentSummary) {
+  return document.pageCount !== null &&
+    (document.kind === "pdf" || document.kind === "xlsx")
+    ? document.kind
+    : "none";
+}
 
 export function IntakePage({ caseId }: { caseId: number }) {
   const { t } = useTranslation();
@@ -262,7 +281,7 @@ export function IntakePage({ caseId }: { caseId: number }) {
               <Table aria-label={t("documents.list.title")}>
                 <TableHead>
                   <TableRow>
-                    {["name", "kind", "status"].map((key) => (
+                    {["name", "kind", "pages", "status"].map((key) => (
                       <TableCell key={key}>
                         {t(`documents.list.columns.${key}`)}
                       </TableCell>
@@ -279,11 +298,24 @@ export function IntakePage({ caseId }: { caseId: number }) {
                         {t(`documents.kind.${document.kind}`)}
                       </TableCell>
                       <TableCell>
+                        {t(`documents.pages.${pageKey(document)}`, {
+                          pages: document.pageCount,
+                        })}
+                      </TableCell>
+                      <TableCell>
                         <Typography
                           component="span"
                           sx={{ color: statusColor[document.readStatus] }}
                         >
-                          {t(`documents.readStatus.${document.readStatus}`)}
+                          {document.readStatus === "partial" &&
+                          document.unreadableLocators.length
+                            ? t(
+                                document.unreadableLocators.length > shownRanges
+                                  ? "documents.partialRangeMore"
+                                  : "documents.partialRange",
+                                partialLabelArgs(document.unreadableLocators),
+                              )
+                            : t(`documents.readStatus.${document.readStatus}`)}
                         </Typography>
                       </TableCell>
                     </TableRow>

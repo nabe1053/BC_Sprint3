@@ -70,6 +70,10 @@ class ItemArguments(VersionArguments):
     - qtyState=numeric のときだけ qtyValue と qtyUnit を渡す。qtyRaw は原表記で常に必須
     - 数値（odValue・qtyValue 等）は10進の文字列（"13.375"）か整数で渡す。小数を JSON の数値で渡さない
     - candidateLabel を付ける行（択一候補）には groupCode が必要
+    - 客先が選ぶ択一（「A または B」「いずれか一方」）は候補ごとに別行にし、groupCode=ALT-n・
+      candidateLabel=候補名、数量は各行に原数量をそのまま入れる（合算・按分しない）
+    - 同一項目に相反する値があり優先関係（日付・版・訂正の明示）を資料から判定できないときは、
+      どちらも採用せず groupCode=CFL-n の候補2行として両方を残す（1行に併記しない）
     検証エラーは各行の状態と値の違反をまとめて返す（loc が該当項目）。一度に全部直して再登録する。
     ただし型・必須の誤りがある行は、それを直した後に状態と値の違反が見つかることがある。
     """
@@ -78,7 +82,13 @@ class ItemArguments(VersionArguments):
 
 
 class EvidenceArguments(VersionArguments):
-    """根拠をevidences配列で一括登録する（1件以上）。1件でも配列を使い、項目ごとの出典を残す。"""
+    """根拠をevidences配列で一括登録する（1件以上）。1件でも配列を使い、項目ごとの出典を残す。
+    field は次の語彙を使う（値と単位で分けない・Raw を付けない）。
+    明細行: kind / usage_note / od / wall / weight / grade / connection / length / qty / due / place / note
+    （両端仕様は end_a.od 等）。案件情報（itemId 省略）: inquiry_no / customer_name / due / place /
+    incoterms / quote_deadline。資料上で値が変更された（P.S.・訂正）ときは、採用した新値の根拠に
+    priorValue（資料上の旧値）と changeReason（採用理由）を必ず入れる。
+    """
 
     evidences: list[EvidenceInput] = Field(min_length=1)
 
@@ -94,6 +104,10 @@ class InventoryArguments(VersionArguments):
     statusはmapped（itemIdsが1件）、split（2件以上）、excluded・unmapped（空配列）のいずれか。
     excludedではbasisに除外理由を必ず記入する。excerptは原文の短い抜粋であり、要約に置換しない。
     sourceNoは資料にある原項番（無ければ省略）。明細にしない注記・署名等も根拠つきで棚卸しする。
+    粒度: 明細行は原項番1つを1要素とし、1行ならmapped、択一・内訳で2行以上にしたらsplit。
+    明細にしない要素（表題・発行元などの案件情報、共通条件、注記・脚注、表の見出し行、小計・合計行、
+    署名、免責）はexcludedにし、statusDetailに「除外（合計行）」「除外（脚注）」等の種別、basisに理由と
+    反映先の行を書く。注記・脚注が複数行に関わってもitemIdsで結ばない（splitは明細行の分割専用）。
     """
 
     entries: list[InventoryInput] = Field(min_length=1)

@@ -17,6 +17,11 @@ class AgentRunAccepted(CamelModel):
     started_at: datetime
 
 
+class ActiveRunResponse(CamelModel):
+    # 案件に実行中の run が無ければ null。
+    run_id: int | None
+
+
 class RunLimitsResponse(CamelModel):
     # NULL means legacy runs did not record this threshold; never invent a value.
     max_turns: int | None = None

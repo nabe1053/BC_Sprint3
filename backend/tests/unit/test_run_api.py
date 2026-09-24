@@ -36,6 +36,7 @@ def run_service():
             )
         ),
         steps=AsyncMock(return_value=[]),
+        active_run=AsyncMock(return_value=7),
     )
 
 
@@ -95,4 +96,16 @@ async def test_trace_is_ui_only_and_unknown_run_404(run_client, run_service):
     r = await run_client.get("/api/v1/ui/agent-runs/999/steps")
     assert r.status_code == 404
     r = await run_client.post("/api/v1/agent/cases/1/agent-runs", json={})
+    assert r.status_code == 404
+
+
+async def test_active_run_returns_run_id_or_null(run_client, run_service):
+    r = await run_client.get("/api/v1/ui/cases/3/agent-runs/active")
+    assert r.status_code == 200 and r.json() == {"runId": 7}
+    run_service.active_run.assert_awaited_once_with(3)
+    run_service.active_run.return_value = None
+    r = await run_client.get("/api/v1/ui/cases/3/agent-runs/active")
+    assert r.json() == {"runId": None}
+    # 実行中 run の参照は画面専用（エージェントのツールからは呼べない）。
+    r = await run_client.get("/api/v1/agent/cases/3/agent-runs/active")
     assert r.status_code == 404

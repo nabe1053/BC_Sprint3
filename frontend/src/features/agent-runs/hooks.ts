@@ -8,7 +8,12 @@ import type {
   AgentRunResponse,
   RunStepResponse,
 } from "@/shared/api/generated/model";
-import { startAgentRun, getAgentRun, getAgentRunSteps } from "./api";
+import {
+  startAgentRun,
+  getAgentRun,
+  getAgentRunSteps,
+  getActiveRunId,
+} from "./api";
 
 export function useStartAgentRun(caseId: number) {
   const pending = useRef<Promise<AgentRunAccepted> | null>(null);
@@ -67,5 +72,20 @@ export function useAgentRunSteps(runId: number | null, open: boolean) {
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
     staleTime: Infinity,
+  });
+}
+
+// 画面表示時に1回だけ、案件の実行中runを確認する（ポーリングはuseAgentRunが担う）。
+export function useActiveRun(caseId: number) {
+  return useQuery<{ runId: number | null }, Error>({
+    queryKey: ["agent-runs", "active", caseId],
+    queryFn: async ({ signal }) => ({
+      runId: await getActiveRunId(caseId, signal),
+    }),
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: 0,
+    gcTime: 0,
   });
 }

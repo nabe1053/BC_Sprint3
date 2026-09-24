@@ -343,6 +343,18 @@ class RunRepository(DraftRepository):
         await self._export_or_fail(run_id)
         return await self._get(run_id)
 
+    async def active_run_id(self, case_id):
+        """案件の実行中 run の ID（部分UNIQUEにより高々1件）。無ければ None。"""
+        if await self.session.get(Case, case_id) is None:
+            raise DraftError("E_NOT_FOUND", "案件が存在しません")
+        return (
+            await self.session.execute(
+                select(AgentRun.id).where(
+                    AgentRun.case_id == case_id, AgentRun.outcome == "running"
+                )
+            )
+        ).scalar_one_or_none()
+
     async def progress(self, run_id):
         run = await self._get(run_id)
         version = (

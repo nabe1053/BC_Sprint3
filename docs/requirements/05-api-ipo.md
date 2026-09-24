@@ -67,7 +67,7 @@
 | 1 | `/cases` | GET | 案件一覧（進捗ステータス・表示状態・送付可否つき。**初版 G1 実装は `progressStatus` のみ**。表示状態は G3（T-302）で `latestVersionId` として付与済み。送付可否は G5（T-502）で `latestSendoff`（最新版の最新 `sendoff_decisions.decision`・null 可）として付与する — memory AD-013 / AD-029 ⑬） | 不要 | UI |
 | 2 | `/cases` | POST | 案件を作成する | 不要 | UI |
 | 3 | `/cases/{caseId}` | GET | 案件の基本情報 | 不要 | UI |
-| 4 | `/cases/{caseId}/documents` | GET | 資料一覧と読取状態（**案件ID・案件名を併せて返す**） | 不要 | UI/AGENT |
+| 4 | `/cases/{caseId}/documents` | GET | 資料一覧と読取状態（**案件ID・案件名を併せて返す**）。各資料に `pageCount`（PDF=ページ数／xlsx=シート数／判定できなければ null）と `unreadableLocators`（受付時に記録した読取不能範囲。例 `["p.2"]`）を含める（2026-09-24 追記・シナリオテスト TEST-01 #2・TEST-02 #1） | 不要 | UI/AGENT |
 | 5 | `/cases/{caseId}/documents` | POST | 資料を投入する（受付・形式判定・テキスト抽出） | 不要 | UI |
 | 6 | `/documents/{documentId}/content` | GET | 本文・表セル値をページ／シート範囲で取得 | 不要 | UI/AGENT |
 | 7 | `/documents/{documentId}/email` | GET | .eml の構造（ヘッダ・本文・引用部・添付一覧） | 不要 | UI/AGENT |
@@ -88,6 +88,7 @@
 | 12 | `/cases/{caseId}/agent-runs` | POST | AGENT-01 を起動して案を作成する | 不要 | UI |
 | 13 | `/agent-runs/{runId}` | GET | 実行の進捗・結果・停止理由を取得する | 不要 | UI |
 | 14 | `/agent-runs/{runId}/steps` | GET | ツール呼び出しトレース（外部送信をしていない証跡） | 不要 | UI |
+| 14a | `/cases/{caseId}/agent-runs/active` | GET | 案件の実行中 run の ID（無ければ `runId: null`）。画面を離れた・再読込した後に進捗表示（#13 のポーリング）へ戻るために使う（2026-09-24 追加・TEST-04 #1・TODO-013） | 不要 | UI |
 
 ### D. 成果物の書き込み（AGENT-01 のツール・④C層）
 
@@ -367,7 +368,7 @@
 | フィールド | 意味 |
 |-----------|------|
 | `violations[]` | 違反の種別・対象行・内容。**空配列が合格**（完了条件の判定方法そのもの） |
-| `violations[].kind` | `unscanned_range` / `missing_evidence` / `missing_unit` / `missing_source_no` / `orphan_candidate` / `orphan_question` / `excluded_without_basis` |
+| `violations[].kind` | `unscanned_range` / `missing_evidence` / `missing_unit` / `missing_source_no` / `orphan_candidate` / `orphan_question` / `excluded_without_basis` / `missing_question` / `unsplit_conflict` |
 | `counts` | 明細数・確認事項数・インベントリ件数（画面の表示にも使う） |
 
 #### 違反種別と完了条件の対応（`agent-plan` 完了条件の機械判定リストの SSOT）
@@ -381,6 +382,8 @@
 | `orphan_candidate` | 選択グループ（`ALT-n` / `CFL-n`）の候補が1行しかない（**分割し損ね**または片方の取り落とし） | `items.group_code` ごとの行数 |
 | `orphan_question` | 確認事項の対象行が実在しない（完了条件⑥） | `questions.item_id` |
 | `excluded_without_basis` | 根拠のない除外がある | `source_inventory_entries`（CHECK の二重防御） |
+| `missing_question` | 見積期限の時刻・TZ が不足（`quote_deadline_tz_state='missing'`）なのに、案件レベル（`item_id` NULL）の確認事項が無い（完了条件⑥・④ case_headers「`missing` なら確認事項が立つ」。2026-09-24 追加・TEST-05 #5） | `case_headers` / `questions` |
+| `unsplit_conflict` | 数量の矛盾（`category='conflict'`・対象項目が数量）の確認事項が、選択グループに属さない1行に付いている（X04・④3.3「CFL-n の候補2行で残す」。2026-09-24 追加・TEST-05 #6） | `questions` / `items.group_code` |
 
 > **20 は読み取りだけを行う。**④`agent_runs.validation_result`（最終違反一覧）を書くのは **21 `POST /versions/{id}/finalize`**（中断時はジョブ側）であり、**GET である 20 は DB を更新しない**（安全メソッドに副作用を持たせない）。エージェントは自己点検のたびに 20 を呼ぶが、記録として残すのは最終判定である。
 > **`summed_group`（択一候補の合算）は種別に持たない。**④`items` が合計列を持たず、合算値を格納する場所自体が無いため、この違反は発生し得ない（構造で担保済み。空振りする判定を残すと「チェックしている」という誤った安心を与える）。代わりに、**分割し損ねを検出する `orphan_candidate`** を持つ。
@@ -566,7 +569,7 @@
 | 1 | `GET /cases` | — | 案件・進捗ステータス・状態・送付可否 | — |
 | — | （1 の進捗ステータスの導出元） | — | ①資料投入=案件があり確定版なし ②案の確認=確定版あり ③担当者確認=`versions.current_state='staff_checked'` ④上司の評価確認=`'review_checked'`（③2章。**①②は業務状態ではなく UI の表示区分**であり状態遷移の記録対象にしない） | — |
 | 2 | `POST /cases` | 案件ID・名称 | 案件 | 409 `E_DUPLICATE_CASE_CODE` |
-| 4 | `GET /cases/{id}/documents` | 案件ID | 資料一覧・読取状態 | 404 |
+| 4 | `GET /cases/{id}/documents` | 案件ID | 資料一覧・読取状態・ページ／シート数・受付時の読取不能範囲 | 404 |
 | 5 | `POST /cases/{id}/documents` | ファイル | 受付結果・読取状態 | 413 `E_LIMIT_EXCEEDED` / 415 `E_UNSUPPORTED_FORMAT`（**投入の事実は記録したうえで 415 を返す**。②FUNC-01 X01「未対応形式でも投入の事実は資料一覧に残す」と両立させるため、`details.documentId` に作成した資料IDを入れ、④`documents` は `kind='unsupported'` / `read_status='unsupported'` で1行残る。**413 は記録を残さない**＝上限超過は受け付け自体を拒否する） |
 | 6 | `GET /documents/{id}/content` | 範囲 | テキスト・セル値＋**ページごとの `readStatus`** | 409 `E_UNREADABLE`（**要求範囲が全体として読取不能のときのみ**。一部ページが読めない場合は 200 で返し当該ページを `unreadable` と示す。`agent-plan` の `read_document` が「画像のみページは `unreadable` を返す」契約であり、読めたページまで落とさない・N03） |
 | 7 | `GET /documents/{id}/email` | — | ヘッダ・本文・引用部・添付一覧 | 409 `E_NOT_EMAIL` |
@@ -575,6 +578,7 @@
 | 10 | `GET /documents/{id}/file` | — | 原ファイル（読取専用） | 404 |
 | 11 | `GET /rule-sets/{v}` | 規則版（`current` で現行版） | R01〜R08・論理項目定義 | 404 |
 | 14 | `GET /agent-runs/{id}/steps` | — | ツール呼び出しトレース | 404 |
+| 14a | `GET /cases/{id}/agent-runs/active` | 案件ID | 実行中 run の ID または null | 404 |
 | 15 | `POST /versions/{id}/header` | 案件情報（原文粒度） | 登録結果 | 400 `E_RAW_REQUIRED` / 409 `E_VERSION_FINALIZED` |
 | 17 | `POST /versions/{id}/evidence` | `itemId`（**任意**。省略＝案件レベル）・項目・原値・採用値・出典・引用 | 登録結果 | 400 `E_SOURCE_REF_REQUIRED` / 404 `E_NOT_FOUND`（**その版に属さない行**・④原則2） / 409 `E_VERSION_FINALIZED` / 409 `E_EVIDENCE_DUPLICATE`（同一項目に2件目。行の根拠・案件レベルの根拠それぞれで1件） |
 | 18 | `POST /versions/{id}/questions` | 対象・理由・候補 | 確認ID | 400 `E_TARGET_INVALID`（実在しない行） |

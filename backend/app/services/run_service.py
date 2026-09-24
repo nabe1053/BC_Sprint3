@@ -78,6 +78,15 @@ class RunService:
             ) from exc
         return run
 
+    async def active_run(self, case_id):
+        """画面を離れた後も進捗表示へ戻るための、案件の実行中 run（TEST-04 #1）。
+
+        期限切れの running は先に回収する（再起動で取り残された run に復帰させると、
+        起動ボタンが「準備中」のまま解除経路を失う。start と同じ回収を通す）。
+        """
+        await self.repository.recover_expired(case_id=case_id)
+        return await self.repository.active_run_id(case_id)
+
     async def progress(self, run_id):
         return await self.repository.progress(run_id)
 

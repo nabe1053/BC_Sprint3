@@ -50,6 +50,11 @@ FUNC-01〜10 のうち、**エージェントが担うのは FUNC-02〜07**（�
 - 根拠・確認事項は項目を集め、`evidences` / `questions` の配列で一括登録する（1件でも配列）。
 - `validate_draft` の違反はまとめて直してから再検証する。
 - `propose_items` は1回で全行を登録する。
+- 客先が選ぶ択一（「VAM TOP または VAM 21」等）は候補ごとに別行にし、同一 `groupCode`（`ALT-n`）・`candidateLabel` に候補名を入れ、各行に原数量をそのまま入れる（R06/R07。合算しない）。（2026-09-24 追加）
+- 同一項目に相反する値があり、優先関係（日付・版・訂正の明示）を資料から判定できないときは、どちらも採用せず同一 `groupCode`（`CFL-n`）の候補2行として両方を残し、各行に個別の出典を付け、`record_question`（`category=conflict`）を両行に立てる（X04）。1行に併記して潰さない。（2026-09-24 追加・`validate_draft` の `unsplit_conflict` で機械判定）
+- 資料上で値が変わった（P.S.・訂正・最新本文の指示）ときは新値を採用し、その根拠に `priorValue`（旧値）と `changeReason`（採用理由）を残す（AE02）。（2026-09-24 追加）
+- 根拠の `field` は `kind / usage_note / od / wall / weight / grade / connection / length / qty / due / place / note`（案件情報は `inquiry_no / customer_name / due / place / incoterms / quote_deadline`）。（2026-09-24 追加）
+- 原明細インベントリは、原項番1つを1要素（mapped / split）とし、明細にしない要素（案件情報・共通条件・注記・脚注・見出し行・小計/合計行・署名・免責）は `excluded` にして `statusDetail` に「除外（合計行）」等の種別、`basis` に理由と反映先の行を書く。注記・脚注は `itemIds` で結ばない（split は明細行の分割専用）。（2026-09-24 追加）
 
 #### インプット
 
@@ -306,3 +311,14 @@ T-205 L-4補足（実評価run 4）:
 - ツール入口のbegin_step/lockedを含むDomainErrorは固定codeのis_error応答へ変換する。予期しない例外はE_INTERNAL。CancelledErrorは再送出し、step未取得時はfail_stepを呼ばない。失敗記録の例外もツール結果を上書きしない。
 - runnerの防御境界はツール/方針の予期しない例外をfailed/worker_failedへ写す。後始末中のキャンセルは進行中例外・確定済み戻り値・期限停止を上書きしない。
 - jobsはworker taskの例外・キャンセルをworker_failed、ジョブ境界自身の中断をprocess_interruptedとして区別する。診断ログにはDomainError.code（無ければ型名）のみを出し、本文を出さない。
+
+### シナリオテスト Fail 修正の補足（2026-09-24、TEST-01〜08、memory F-4 / F-7）
+
+- システムプロンプトとツール説明に次を追記（`definition.SYSTEM_PROMPT`・`ItemArguments`・`EvidenceArguments`・`InventoryArguments` の説明）:
+  ①客先が選ぶ択一（「A または B」）は候補ごとに別行・同一 `groupCode`（`ALT-n`）・各行に原数量（R06/R07・AE01）
+  ②相反する値で優先関係を判定できないときは、どちらも採用せず `CFL-n` の候補2行＋`conflict` の確認事項（X04・TEST-05 #6）
+  ③資料上の変更（P.S.・訂正・最新本文の指示）は新値を採用し、根拠に `priorValue`・`changeReason` を残す（AE02・TEST-05 #2）
+  ④根拠の `field` 語彙は `validate_draft` が要求するもの（`kind / usage_note / od / wall / weight / grade / connection / length / qty / due / place / note`、案件情報は `inquiry_no / customer_name / due / place / incoterms / quote_deadline`）
+  ⑤原明細インベントリの粒度: 原項番1つ＝1要素（mapped / split）。明細にしない要素（案件情報・共通条件・注記・脚注・見出し行・小計/合計行・署名・免責）は `excluded`＋`statusDetail`（「除外（合計行）」等の種別）＋`basis`。注記・脚注は `itemIds` で結ばない（split は明細行の分割専用。TODO-028・TEST-04 #4）
+- 保存条件（T-205 実モデル接続）の補強: SDK を `--no-session-persistence`（`extra_args`）で起動し、Claude Code の会話ログ（資料本文・ツール入出力）を `~/.claude/projects/` に残さない（TEST-08 #3・N02）。この変更以前の実行分は同ディレクトリの `-tmp-agent-run-*` に残っている
+- `validate_draft` に違反種別を2つ追加（05-api-ipo §3.4 に追記）: `missing_question`（見積期限の原文があるのに時刻・TZ が無い＝`quote_deadline_tz_state='missing'` で、案件レベルの確認事項が無い。④ case_headers の規定を機械判定に。TEST-05 #5 が run 36 で再現した取りこぼし）／`unsplit_conflict`（数量の矛盾の確認事項が選択グループ外の1行に付いている。X04）

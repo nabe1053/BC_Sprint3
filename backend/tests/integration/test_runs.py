@@ -427,3 +427,32 @@ async def test_finish_respects_explicit_zero_turns(session, seeded):
     await session.commit()
     await r.finish(run.id, RunResult("outer_timeout", turns=0))
     assert (await r.progress(run.id))["turns"] == 0
+
+
+async def test_active_run_id_returns_running_run_of_case_only(session, seeded):
+    """実行中に画面を離れても進捗表示へ戻れるよう、案件の実行中 run を返す（TEST-04 #1）。"""
+    case, _, _ = seeded
+    assert await service(repo(session)).active_run(case.id) is None
+    run = await service(repo(session)).start(case.id)
+    assert await service(repo(session)).active_run(case.id) == run.id
+    await repo(session).finish(run.id, RunResult("failed"))
+    assert await service(repo(session)).active_run(case.id) is None
+
+
+async def test_active_run_for_missing_case_is_not_found(session, seeded):
+    with pytest.raises(DraftError) as e:
+        await service(repo(session)).active_run(999999)
+    assert e.value.code == "E_NOT_FOUND"
+
+
+async def test_active_run_recovers_expired_run_instead_of_resuming_it(session, seeded):
+    """期限切れの running（再起動で取り残された run）に画面を復帰させない。
+    復帰させると起動ボタンが「準備中」のまま行き止まりになる（RV-051 P2-1）。"""
+    case, _, _ = seeded
+    r = repo(session)
+    run = await service(r).start(case.id)
+    run.started_at = datetime.now(UTC) - timedelta(seconds=1000)
+    await session.commit()
+    assert await service(r).active_run(case.id) is None
+    view = await service(r).progress(run.id)
+    assert view["outcome"] == "stopped" and view["stop_reason"] == "outer_timeout"

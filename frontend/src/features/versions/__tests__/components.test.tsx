@@ -665,3 +665,80 @@ it("G5版一覧に現在版が無い場合は取得失敗として操作を出�
     screen.queryByRole("button", { name: "担当者確認済みにする" }),
   ).not.toBeInTheDocument();
 });
+
+const evidenceRow = {
+  evidenceId: 1,
+  rawValue: "x",
+  adoptedValue: "x",
+  documentId: 1,
+  locator: "p.2",
+  quote: "q",
+  appliedCondition: null,
+  conversionNote: null,
+  changeReason: null,
+  priorValue: null,
+};
+it("ドロワーは数量の根拠（field=qty）に旧値と採用理由を表示する（TEST-05 #2）", async () => {
+  mock.useItems.mockReturnValue(
+    query([
+      { ...item, qtyState: "numeric", qtyValue: "300", qtyUnit: "jts" },
+    ]) as never,
+  );
+  mock.useEvidence.mockReturnValue(
+    query([
+      {
+        ...evidenceRow,
+        field: "qty",
+        rawValue: "300 jts",
+        adoptedValue: "300 jts",
+        quote: "please revise item 1 to 300 jts",
+        changeReason: "最新本文の指示で数量を訂正",
+        priorValue: "240 jts",
+      },
+    ]) as never,
+  );
+  render();
+  await userEvent.click(screen.getByRole("button", { name: "詳細を見る" }));
+  const drawer = screen.getByRole("dialog");
+  const qty = within(drawer).getByRole("region", { name: "数量" });
+  expect(qty).toHaveTextContent("please revise item 1 to 300 jts");
+  expect(qty).toHaveTextContent("変更理由: 最新本文の指示で数量を訂正");
+  expect(qty).toHaveTextContent("変更前の値: 240 jts");
+  expect(qty).not.toHaveTextContent("根拠なし");
+});
+
+it("ドロワーは外径・長さ・品種の根拠を別名の field でも該当項目に出し、未知の field も落とさない（TEST-04 #3）", async () => {
+  mock.useEvidence.mockReturnValue(
+    query([
+      { ...evidenceRow, evidenceId: 1, field: "odRaw", quote: "外径の原文" },
+      {
+        ...evidenceRow,
+        evidenceId: 2,
+        field: "rangeClass",
+        quote: "レンジの原文",
+      },
+      { ...evidenceRow, evidenceId: 3, field: "kind", quote: "品種の原文" },
+      { ...evidenceRow, evidenceId: 4, field: "end_a.od", quote: "端Aの原文" },
+    ]) as never,
+  );
+  render();
+  await userEvent.click(
+    screen.getAllByRole("button", { name: "詳細を見る" })[0],
+  );
+  const drawer = screen.getByRole("dialog");
+  expect(
+    within(drawer).getByRole("region", { name: "外径" }),
+  ).toHaveTextContent("外径の原文");
+  expect(
+    within(drawer).getByRole("region", { name: "レンジ・定尺長" }),
+  ).toHaveTextContent("レンジの原文");
+  expect(
+    within(drawer).getByRole("region", { name: "品種" }),
+  ).toHaveTextContent("品種の原文");
+  const other = within(drawer).getByRole("region", { name: "その他の根拠" });
+  expect(other).toHaveTextContent("端Aの原文");
+  // 内部識別子を画面に出さない（CV-019）
+  expect(other).not.toHaveTextContent("end_a.od");
+  // 値と単位で同じ根拠を二重に表示しない
+  expect(within(drawer).getAllByText("外径の原文")).toHaveLength(1);
+});

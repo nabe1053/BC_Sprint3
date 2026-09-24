@@ -12,6 +12,8 @@ jest.mock("../../hooks", () => ({
         fileName: "input.txt",
         kind: "text",
         readStatus: "success",
+        pageCount: 1,
+        unreadableLocators: [],
       },
     ],
   }),
@@ -21,7 +23,11 @@ const originalFetch = global.fetch;
 const request = jest.fn();
 beforeEach(() => {
   request.mockReset();
-  global.fetch = request;
+  // 画面表示時の「実行中runの確認」は実行中なしで答え、起動・進捗の通信列だけを request で数える。
+  global.fetch = ((input: RequestInfo | URL, init?: RequestInit) =>
+    /\/agent-runs\/active$/.test(String(input))
+      ? Promise.resolve(response(200, { runId: null }))
+      : request(input, init)) as typeof fetch;
 });
 afterAll(() => {
   global.fetch = originalFetch;

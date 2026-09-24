@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import type {
+  EvidenceResponse,
   ItemCurrentResponse,
   ItemEditRequest,
   QuestionResponse,
@@ -16,7 +17,7 @@ import type {
 import { tokens } from "@/shared/theme/tokens";
 import { useDocuments } from "@/features/documents";
 import { useEvidence } from "../hooks";
-import { editableFields, itemQuestions } from "../model";
+import { evidenceGroups, evidenceKey, itemQuestions } from "../model";
 import { ItemValue } from "./ItemValue";
 import { EditForm } from "./EditForm";
 import { EditHistory } from "./EditHistory";
@@ -84,6 +85,8 @@ export function EvidenceDrawer({
   const evidence = useEvidence(versionId, item.itemId);
   const documents = useDocuments(caseId);
   const qs = itemQuestions(item, questions);
+  const others =
+    evidence.data?.filter((row) => evidenceKey(row.field) === null) ?? [];
   return (
     <Drawer
       anchor="right"
@@ -189,74 +192,57 @@ export function EvidenceDrawer({
               {!evidence.data?.length && (
                 <Typography>{t("versions.drawer.noEvidence")}</Typography>
               )}
-              {[...editableFields, "due_raw", "place_raw"].map((field) => {
+              {evidenceGroups.map((group) => {
                 const records =
-                  evidence.data?.filter((row) => row.field === field) ?? [];
-                const value = item[camel(field) as keyof ItemCurrentResponse];
-                const state = states[field]
-                  ? String(item[states[field]])
-                  : null;
+                  evidence.data?.filter(
+                    (row) => evidenceKey(row.field) === group.key,
+                  ) ?? [];
+                const headingId = `evidence-group-${group.key}`;
                 return (
                   <Box
-                    key={field}
+                    key={group.key}
+                    component="section"
+                    aria-labelledby={headingId}
                     sx={{
                       paddingBlock: `${tokens.spacing.s3}px`,
                       borderBottom: `${tokens.border.width}px solid ${tokens.colors.hair}`,
                       overflowWrap: "anywhere",
                     }}
                   >
-                    <Typography variant="h3">
-                      {t(
-                        field === "due_raw"
-                          ? "versions.columns.due"
-                          : field === "place_raw"
-                            ? "versions.header.place"
-                            : `versions.edit.fields.${field}`,
-                      )}
+                    <Typography variant="h3" id={headingId}>
+                      {t(`versions.drawer.groups.${group.key}`)}
                     </Typography>
-                    <ItemValue
-                      value={typeof value === "string" ? value : null}
-                      state={state}
-                    />
+                    {group.fields.map((field) => {
+                      const value =
+                        item[camel(field) as keyof ItemCurrentResponse];
+                      return (
+                        <Box key={field}>
+                          {group.fields.length > 1 && (
+                            <Typography variant="caption" component="span">
+                              {t(`versions.edit.fields.${field}`)}
+                              {": "}
+                            </Typography>
+                          )}
+                          <ItemValue
+                            value={typeof value === "string" ? value : null}
+                            state={
+                              states[field] ? String(item[states[field]]) : null
+                            }
+                          />
+                        </Box>
+                      );
+                    })}
                     {records.length ? (
                       records.map((row) => (
-                        <Box key={row.evidenceId}>
-                          <Typography>
-                            {documents.data?.find(
+                        <EvidenceRecord
+                          key={row.evidenceId}
+                          row={row}
+                          fileName={
+                            documents.data?.find(
                               (doc) => doc.documentId === row.documentId,
-                            )?.fileName ?? t("versions.drawer.documentMissing")}
-                          </Typography>
-                          <Typography variant="caption">
-                            {row.locator}
-                          </Typography>
-                          <Box
-                            component="blockquote"
-                            sx={{
-                              margin: 0,
-                              padding: `${tokens.spacing.s3}px`,
-                              borderLeft: `${tokens.border.quoteWidth}px solid ${tokens.colors.accent}`,
-                            }}
-                          >
-                            {row.quote}
-                          </Box>
-                          {(
-                            [
-                              "appliedCondition",
-                              "conversionNote",
-                              "changeReason",
-                              "priorValue",
-                            ] as const
-                          ).map(
-                            (key) =>
-                              row[key] && (
-                                <Typography key={key}>
-                                  {t(`versions.drawer.${key}`)}
-                                  {": "}
-                                  {row[key]}
-                                </Typography>
-                              ),
-                          )}
-                        </Box>
+                            )?.fileName
+                          }
+                        />
                       ))
                     ) : (
                       <Typography variant="caption" component="div">
@@ -266,6 +252,31 @@ export function EvidenceDrawer({
                   </Box>
                 );
               })}
+              {!!others.length && (
+                <Box
+                  component="section"
+                  aria-labelledby="evidence-group-other"
+                  sx={{
+                    paddingBlock: `${tokens.spacing.s3}px`,
+                    overflowWrap: "anywhere",
+                  }}
+                >
+                  <Typography variant="h3" id="evidence-group-other">
+                    {t("versions.drawer.groups.other")}
+                  </Typography>
+                  {others.map((row) => (
+                    <EvidenceRecord
+                      key={row.evidenceId}
+                      row={row}
+                      fileName={
+                        documents.data?.find(
+                          (doc) => doc.documentId === row.documentId,
+                        )?.fileName
+                      }
+                    />
+                  ))}
+                </Box>
+              )}
             </>
           )}
           {documents.isError && (
@@ -363,5 +374,50 @@ export function EvidenceDrawer({
         </Box>
       </Box>
     </Drawer>
+  );
+}
+
+function EvidenceRecord({
+  row,
+  fileName,
+}: {
+  row: EvidenceResponse;
+  fileName: string | undefined;
+}) {
+  const { t } = useTranslation();
+  return (
+    <Box>
+      <Typography>
+        {fileName ?? t("versions.drawer.documentMissing")}
+      </Typography>
+      <Typography variant="caption">{row.locator}</Typography>
+      <Box
+        component="blockquote"
+        sx={{
+          margin: 0,
+          padding: `${tokens.spacing.s3}px`,
+          borderLeft: `${tokens.border.quoteWidth}px solid ${tokens.colors.accent}`,
+        }}
+      >
+        {row.quote}
+      </Box>
+      {(
+        [
+          "appliedCondition",
+          "conversionNote",
+          "changeReason",
+          "priorValue",
+        ] as const
+      ).map(
+        (key) =>
+          row[key] && (
+            <Typography key={key}>
+              {t(`versions.drawer.${key}`)}
+              {": "}
+              {row[key]}
+            </Typography>
+          ),
+      )}
+    </Box>
   );
 }

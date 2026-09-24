@@ -10,7 +10,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { ApiError } from "@/shared/api/mutator";
 import { tokens } from "@/shared/theme/tokens";
-import { useStartAgentRun, useAgentRun } from "../hooks";
+import { useStartAgentRun, useAgentRun, useActiveRun } from "../hooks";
 import { startFailure, runLimitDetails, type BlockedReason } from "../model";
 import { RunProgress } from "./RunProgress";
 import { RunSteps } from "./RunSteps";
@@ -45,7 +45,16 @@ export function AgentRunPanel({
     null,
   );
   const lock = useRef(false);
+  const resumed = useRef(false);
   const start = useStartAgentRun(caseId);
+  const active = useActiveRun(caseId);
+  // 実行中に画面を離れた・再読込した場合も、同じrunの進捗表示へ戻る（TEST-04 #1）。
+  const activeRunId = active.data?.runId ?? null;
+  useEffect(() => {
+    if (resumed.current || activeRunId === null) return;
+    resumed.current = true;
+    setRunId((current) => current ?? activeRunId);
+  }, [activeRunId]);
   const run = useAgentRun(runId);
   // 資料を変えた場合に限り、資料由来のサーバー判定を再確認できる。
   const errorKind =

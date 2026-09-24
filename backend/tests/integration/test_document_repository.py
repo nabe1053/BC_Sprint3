@@ -199,3 +199,66 @@ async def test_search_pages_escapes_ilike_wildcards(db_session) -> None:
 
     matched_locators = {page.locator for doc, page in results if doc.id == document.id}
     assert matched_locators == {"p.1"}
+
+
+async def test_list_intake_unreadable_locators_returns_intake_ranges_only(
+    db_session,
+) -> None:
+    """受付時（agent_run_id IS NULL）の読取不能範囲だけを資料ごとに返す（SCR-02・AE04）。
+
+    実行中に記録された issue・範囲のない資料全体の issue・付随情報の欠落
+    （reference_missing）は「読取不能の対象範囲」ではないので含めない。
+    """
+    from app.models.agent_runs import AgentRun
+    from app.models.rule_sets import RuleSet
+
+    case = await _make_case(db_session)
+    repo = DocumentRepository(db_session)
+    partial = await repo.create_with_details(
+        _new_document(case.id, file_name="p2.pdf", read_status="partial", page_count=4),
+        issues=[
+            DocumentIssue(locator="p.4", issue_type="unreadable_page", detail="x"),
+            DocumentIssue(locator="p.2", issue_type="unreadable_page", detail="x"),
+            DocumentIssue(locator="p.3", issue_type="reference_missing", detail="x"),
+        ],
+    )
+    broken = await repo.create_with_details(
+        _new_document(case.id, file_name="broken.pdf", read_status="unreadable"),
+        issues=[DocumentIssue(locator=None, issue_type="unreadable_page", detail="x")],
+    )
+    clean = await repo.create_with_details(_new_document(case.id, file_name="ok.pdf"))
+    rule = RuleSet(rule_version="doc-repo-issues", rules={})
+    db_session.add(rule)
+    await db_session.flush()
+    run = AgentRun(
+        case_id=case.id,
+        rule_set_id=rule.id,
+        model="synthetic",
+        started_at=datetime.now(UTC),
+        outcome="failed",
+        impl_version="test",
+        limits={},
+    )
+    db_session.add(run)
+    await db_session.flush()
+    await repo.add_issue(
+        DocumentIssue(
+            document_id=partial.id,
+            agent_run_id=run.id,
+            locator="p.1",
+            issue_type="unreadable_page",
+            detail="実行中の記録",
+        )
+    )
+
+    result = await repo.list_intake_unreadable_locators(
+        [partial.id, broken.id, clean.id]
+    )
+
+    assert result == {partial.id: ["p.2", "p.4"]}
+
+
+async def test_list_intake_unreadable_locators_with_no_documents(db_session) -> None:
+    repo = DocumentRepository(db_session)
+
+    assert await repo.list_intake_unreadable_locators([]) == {}

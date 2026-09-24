@@ -108,3 +108,21 @@ async def test_get_content_raises_unreadable_when_all_pages_are_unreadable() -> 
 
     with pytest.raises(UnreadableError):
         await service.get_content(document_id=1)
+
+
+async def test_list_documents_for_case_attaches_intake_unreadable_locators() -> None:
+    """#4: 資料ごとに受付時の読取不能範囲を添える（一部読取不能の対象範囲を画面に出す）。"""
+    service, document_repo, case_repo = _make_service()
+    case_repo.get_by_id.return_value = object()
+    partial = _document(id=1, read_status="partial", page_count=4)
+    clean = _document(id=2)
+    document_repo.list_by_case.return_value = [partial, clean]
+    document_repo.list_intake_unreadable_locators.return_value = {1: ["p.2"]}
+
+    _, listings = await service.list_documents_for_case(case_id=1)
+
+    assert [(doc.id, locators) for doc, locators in listings] == [
+        (1, ["p.2"]),
+        (2, []),
+    ]
+    document_repo.list_intake_unreadable_locators.assert_awaited_once_with([1, 2])

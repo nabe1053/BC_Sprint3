@@ -25,7 +25,7 @@ from datetime import UTC, datetime
 
 from app.core.config import settings
 from app.models.cases import Case
-from app.models.documents import Document, DocumentPage, EmailPart
+from app.models.documents import Document, DocumentIssue, DocumentPage, EmailPart
 from app.repositories.case_repository import CaseRepository
 from app.repositories.document_repository import DocumentRepository
 
@@ -85,6 +85,37 @@ async def test_list_documents_ui_returns_case_id_and_name_and_documents(
     assert file_names == {"doc-a.pdf", "doc-b.pdf"}
     read_statuses = {d["fileName"]: d["readStatus"] for d in body["documents"]}
     assert read_statuses["doc-b.pdf"] == "partial"
+
+
+async def test_list_documents_returns_page_count_and_unreadable_locators(
+    client, db_session
+) -> None:
+    """#4: ページ／シート数と受付時の読取不能範囲を返す（SCR-02「PDF・4ページ」「一部読取不能（p.2）」）。
+
+    ページ数が判定できない資料（.eml・破損）は null のまま返す（0 で埋めない・CV-003）。
+    """
+    case = await _make_case(db_session, case_code="CASE-REF-PAGES")
+    doc_repo = DocumentRepository(db_session)
+    await doc_repo.create_with_details(
+        _new_document(case.id, file_name="p2.pdf", read_status="partial", page_count=4),
+        issues=[
+            DocumentIssue(
+                locator="p.2", issue_type="unreadable_page", detail="画像のみ"
+            )
+        ],
+    )
+    await doc_repo.create_with_details(
+        _new_document(case.id, file_name="mail.eml", kind="eml", page_count=None)
+    )
+
+    response = client.get(f"{CASES_PATH}/{case.id}/documents")
+
+    assert response.status_code == 200
+    rows = {d["fileName"]: d for d in response.json()["documents"]}
+    assert rows["p2.pdf"]["pageCount"] == 4
+    assert rows["p2.pdf"]["unreadableLocators"] == ["p.2"]
+    assert rows["mail.eml"]["pageCount"] is None
+    assert rows["mail.eml"]["unreadableLocators"] == []
 
 
 async def test_list_documents_ui_and_agent_return_same_body(client, db_session) -> None:

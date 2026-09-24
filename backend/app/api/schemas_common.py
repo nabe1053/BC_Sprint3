@@ -40,6 +40,10 @@ class DocumentSummary(CamelModel):
     file_name: str
     kind: DocumentKind
     read_status: DocumentReadStatus
+    # PDF=ページ数 / xlsx=シート数 / text=1。判定できない資料（.eml・破損）は null。
+    page_count: int | None
+    # 受付時に記録した読取不能範囲（`p.2` 等）。資料全体が読めない場合は readStatus が表す。
+    unreadable_locators: list[str]
 
 
 class DocumentsListResponse(CamelModel):

@@ -5,10 +5,23 @@
 
 from __future__ import annotations
 
+import re
+
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.documents import Document, DocumentIssue, DocumentPage, EmailPart
+
+# 「読取不能の対象範囲」として受付一覧に出す issue 種別。reference_missing は付随情報の
+# 欠落であり、読めなかった範囲ではない（04-db.md §3.3 T-201 補足）。
+_UNREADABLE_ISSUE_TYPES = ("unreadable_page", "encrypted", "unsupported")
+
+
+def _locator_order(locator: str) -> list:
+    """`p.10` が `p.2` より前に来ないよう、数字部分を数値として並べる。"""
+    return [
+        int(part) if part.isdigit() else part for part in re.split(r"(\d+)", locator)
+    ]
 
 
 class DocumentRepository:
@@ -46,6 +59,29 @@ class DocumentRepository:
         stmt = select(Document).where(Document.case_id == case_id).order_by(Document.id)
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
+
+    async def list_intake_unreadable_locators(
+        self, document_ids: list[int]
+    ) -> dict[int, list[str]]:
+        """受付時（agent_run_id IS NULL）に記録した読取不能範囲を資料ごとに返す。
+
+        範囲の無い資料全体の issue は含めない（資料全体の不能は read_status が表す）。
+        """
+        if not document_ids:
+            return {}
+        stmt = select(DocumentIssue.document_id, DocumentIssue.locator).where(
+            DocumentIssue.document_id.in_(document_ids),
+            DocumentIssue.agent_run_id.is_(None),
+            DocumentIssue.locator.is_not(None),
+            DocumentIssue.issue_type.in_(_UNREADABLE_ISSUE_TYPES),
+        )
+        found: dict[int, set[str]] = {}
+        for document_id, locator in (await self.session.execute(stmt)).all():
+            found.setdefault(document_id, set()).add(locator)
+        return {
+            document_id: sorted(locators, key=_locator_order)
+            for document_id, locators in found.items()
+        }
 
     async def count_by_case(self, case_id: int) -> int:
         stmt = (
