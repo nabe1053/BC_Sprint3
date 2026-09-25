@@ -560,7 +560,7 @@ const carried = (changes: object = {}) => ({
   judgementCount: 0,
   ...changes,
 });
-it("記録のある既存版があれば、案作成ボタンの直前に件数つきの引き継ぎ警告を出す（TEST-16 #2/#3）", () => {
+it("記録のある既存版があれば、案作成ボタンの直前に件数つきの引き継ぎ警告を出す（TEST-16 #2）", () => {
   (useCarryOver as jest.Mock).mockReturnValue({
     data: [
       carried(),

@@ -121,7 +121,7 @@ it("実HTTP400→明示確認POST202→GET200の成功で引き継ぎ通知と�
   });
   expect(request.mock.calls[2][1].method).toBe("GET");
 });
-it("資料投入画面は記録のある既存版の件数を案作成ボタンの直前に示す（TEST-16 #2/#3）", async () => {
+it("資料投入画面は記録のある既存版の件数を案作成ボタンの直前に示す（TEST-16 #2）", async () => {
   global.fetch = ((input: RequestInfo | URL) =>
     Promise.resolve(
       /\/agent-runs\/active$/.test(String(input))
