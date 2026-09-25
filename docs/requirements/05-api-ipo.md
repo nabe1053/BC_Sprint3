@@ -90,7 +90,7 @@
 | 12 | `/cases/{caseId}/agent-runs` | POST | AGENT-01 を起動して案を作成する | 不要 | UI |
 | 13 | `/agent-runs/{runId}` | GET | 実行の進捗・結果・停止理由を取得する | 不要 | UI |
 | 14 | `/agent-runs/{runId}/steps` | GET | ツール呼び出しトレース（外部送信をしていない証跡） | 不要 | UI |
-| 14a | `/cases/{caseId}/agent-runs/active` | GET | 案件の実行中 run の ID（無ければ `runId: null`）。画面を離れた・再読込した後に進捗表示（#13 のポーリング）へ戻るために使う（2026-09-24 追加・TEST-04 #1・TODO-013） | 不要 | UI |
+| 14a | `/cases/{caseId}/agent-runs/active` | GET | 案件の実行中 run の ID（無ければ `runId: null`）。画面を離れた・再読込した後に進捗表示（#13 のポーリング）へ戻るために使う（2026-09-24 追加・TEST-04 #1・TODO-013）。**2026-09-24 改訂（F-17）**: `latestRunId`（終了済みを含む案件の直近の run・無ければ null）を併せて返す。画面を離れている間に終わった run の結果（新しい版へのリンク・停止理由）を、戻ったときに表示するため。期限切れの running は先に回収する | 不要 | UI |
 
 ### D. 成果物の書き込み（AGENT-01 のツール・④C層）
 
@@ -580,7 +580,7 @@
 | 10 | `GET /documents/{id}/file` | — | 原ファイル（読取専用） | 404 |
 | 11 | `GET /rule-sets/{v}` | 規則版（`current` で現行版） | R01〜R08・論理項目定義 | 404 |
 | 14 | `GET /agent-runs/{id}/steps` | — | ツール呼び出しトレース | 404 |
-| 14a | `GET /cases/{id}/agent-runs/active` | 案件ID | 実行中 run の ID または null | 404 |
+| 14a | `GET /cases/{id}/agent-runs/active` | 案件ID | 実行中 run の ID または null・直近の run の ID または null（F-17） | 404 |
 | 15 | `POST /versions/{id}/header` | 案件情報（原文粒度） | 登録結果 | 400 `E_RAW_REQUIRED` / 409 `E_VERSION_FINALIZED` |
 | 17 | `POST /versions/{id}/evidence` | `itemId`（**任意**。省略＝案件レベル）・項目・原値・採用値・出典・引用 | 登録結果 | 400 `E_SOURCE_REF_REQUIRED` / 404 `E_NOT_FOUND`（**その版に属さない行**・④原則2） / 409 `E_VERSION_FINALIZED` / 409 `E_EVIDENCE_DUPLICATE`（同一項目に2件目。行の根拠・案件レベルの根拠それぞれで1件） |
 | 18 | `POST /versions/{id}/questions` | 対象・理由・候補 | 確認ID | 400 `E_TARGET_INVALID`（実在しない行） |

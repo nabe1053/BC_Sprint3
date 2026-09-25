@@ -20,6 +20,8 @@ class AgentRunAccepted(CamelModel):
 class ActiveRunResponse(CamelModel):
     # 案件に実行中の run が無ければ null。
     run_id: int | None
+    # 直近の run（終了済みを含む・F-17）。画面に戻ったとき結果を示すために使う。無ければ null。
+    latest_run_id: int | None
 
 
 class RunLimitsResponse(CamelModel):

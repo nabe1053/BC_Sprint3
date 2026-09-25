@@ -34,7 +34,10 @@ async def start_run(caseId: Id, body: AgentRunRequest, service: Service):
 
 @router.get("/cases/{caseId}/agent-runs/active", response_model=ActiveRunResponse)
 async def get_active_run(caseId: Id, service: Service):
-    return ActiveRunResponse(run_id=await service.active_run(caseId))
+    run_id = await service.active_run(caseId)
+    return ActiveRunResponse(
+        run_id=run_id, latest_run_id=await service.latest_run(caseId)
+    )
 
 
 @router.get("/agent-runs/{runId}", response_model=AgentRunResponse)

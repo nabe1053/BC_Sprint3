@@ -456,3 +456,24 @@ async def test_active_run_recovers_expired_run_instead_of_resuming_it(session, s
     assert await service(r).active_run(case.id) is None
     view = await service(r).progress(run.id)
     assert view["outcome"] == "stopped" and view["stop_reason"] == "outer_timeout"
+
+
+async def test_latest_run_returns_most_recent_run_even_after_it_finished(
+    session, seeded
+):
+    """F-17: 画面を離れている間に終わった run も、戻ったときに結果を表示できるようにする。"""
+    case, _, _ = seeded
+    assert await service(repo(session)).latest_run(case.id) is None
+    first = await service(repo(session)).start(case.id)
+    await repo(session).finish(first.id, RunResult("failed"))
+    second = await service(repo(session)).start(case.id, acknowledged_carry_over=True)
+    assert await service(repo(session)).latest_run(case.id) == second.id
+    await repo(session).finish(second.id, RunResult("completed"))
+    assert await service(repo(session)).latest_run(case.id) == second.id
+    assert await service(repo(session)).active_run(case.id) is None
+
+
+async def test_latest_run_for_missing_case_is_not_found(session, seeded):
+    with pytest.raises(DraftError) as e:
+        await service(repo(session)).latest_run(999999)
+    assert e.value.code == "E_NOT_FOUND"

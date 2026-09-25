@@ -73,24 +73,62 @@ it.each(["success", "failed", "stopped"] as const)(
     expect(get).toHaveBeenCalledTimes(2);
   },
 );
-it.each([404, 500])(
-  "GET%sはポーリングを止め、最後の進捗と通信エラーを維持",
-  async (status) => {
+it("GET404（run が無い）は再試行せずポーリングを止め、最後の進捗と通信エラーを維持", async () => {
+  get
+    .mockResolvedValueOnce(run())
+    .mockRejectedValueOnce(new ApiError(404, { code: "E_NOT_FOUND" }))
+    .mockResolvedValue(run());
+  const { result } = renderHookWithProviders(() => ({ ...useAgentRun(3) }));
+  await waitFor(() => expect(result.current.data?.outcome).toBe("running"));
+  await advance(2000);
+  await waitFor(() => expect(result.current.isError).toBe(true));
+  await advance(10000);
+  expect(get).toHaveBeenCalledTimes(2);
+  expect(result.current.isError).toBe(true);
+  expect(result.current.data?.runId).toBe(3);
+  expect(start).not.toHaveBeenCalled();
+});
+// F-17: 一時的な失敗（500・通信断）1回で恒久的に「通信中断」にしない。
+it.each([
+  ["500", () => new ApiError(500, { code: "E_UNKNOWN" })],
+  ["通信断", () => new TypeError("offline")],
+])(
+  "GET %s が1回だけなら再試行して進捗の表示を続ける",
+  async (_label, error) => {
     get
       .mockResolvedValueOnce(run())
-      .mockRejectedValueOnce(new ApiError(status, { code: "E_NOT_FOUND" }))
-      .mockResolvedValue(run());
+      .mockRejectedValueOnce(error())
+      .mockResolvedValue(run("success"));
     const { result } = renderHookWithProviders(() => ({ ...useAgentRun(3) }));
     await waitFor(() => expect(result.current.data?.outcome).toBe("running"));
     await advance(2000);
-    await waitFor(() => expect(result.current.isError).toBe(true));
-    await advance(10000);
-    expect(get).toHaveBeenCalledTimes(2);
-    expect(result.current.isError).toBe(true);
-    expect(result.current.data?.runId).toBe(3);
-    expect(start).not.toHaveBeenCalled();
+    await advance(3000);
+    await waitFor(() => expect(result.current.data?.outcome).toBe("success"));
+    expect(result.current.isError).toBe(false);
   },
 );
+it("応答の契約違反（200 の ApiError）は再試行しない", async () => {
+  get
+    .mockResolvedValueOnce(run())
+    .mockRejectedValue(new ApiError(200, { code: "E_UNEXPECTED_RESPONSE" }));
+  const { result } = renderHookWithProviders(() => ({ ...useAgentRun(3) }));
+  await waitFor(() => expect(result.current.data?.outcome).toBe("running"));
+  await advance(2000);
+  await waitFor(() => expect(result.current.isError).toBe(true));
+  expect(get).toHaveBeenCalledTimes(2);
+});
+it("GET の一時的な失敗が続けば3回再試行した後に通信エラーにする", async () => {
+  get
+    .mockResolvedValueOnce(run())
+    .mockRejectedValue(new ApiError(500, { code: "E_UNKNOWN" }));
+  const { result } = renderHookWithProviders(() => ({ ...useAgentRun(3) }));
+  await waitFor(() => expect(result.current.data?.outcome).toBe("running"));
+  await advance(2000);
+  await advance(20000);
+  await waitFor(() => expect(result.current.isError).toBe(true));
+  expect(get).toHaveBeenCalledTimes(1 + 1 + 3);
+  expect(result.current.data?.runId).toBe(3);
+});
 it("POSTはQueryClientのretry既定が1でも再送しない", async () => {
   start.mockRejectedValue(new TypeError("offline"));
   const client = new QueryClient({

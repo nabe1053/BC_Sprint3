@@ -35,6 +35,7 @@ export function AgentRunPanel({
   onBusyChange,
   emphasis = "primary",
   showCarryOver = false,
+  resumeLatest = false,
   documentNames,
 }: {
   caseId: number;
@@ -45,6 +46,8 @@ export function AgentRunPanel({
   emphasis?: "primary" | "secondary";
   // 資料投入画面（SCR-02）だけ、ボタン直前に件数つきの引き継ぎ警告を出す（03-spec SCR-02）。
   showCarryOver?: boolean;
+  // 資料投入画面だけ、実行中が無ければ直近の run の結果へ戻る（F-17）。
+  resumeLatest?: boolean;
   // 処理記録・上限エラーで資料を内部 ID ではなくファイル名で示す（memory AD-036 ⑤）。
   documentNames?: ReadonlyMap<number, string>;
 }) {
@@ -72,7 +75,11 @@ export function AgentRunPanel({
   const start = useStartAgentRun(caseId);
   const active = useActiveRun(caseId);
   // 実行中に画面を離れた・再読込した場合も、同じrunの進捗表示へ戻る（TEST-04 #1）。
-  const activeRunId = active.data?.runId ?? null;
+  // 実行中が無ければ直近の run（画面を離れている間に終わった結果）へ戻る（F-17）。
+  const activeRunId =
+    active.data?.runId ??
+    (resumeLatest ? active.data?.latestRunId : null) ??
+    null;
   useEffect(() => {
     if (resumed.current || activeRunId === null) return;
     resumed.current = true;

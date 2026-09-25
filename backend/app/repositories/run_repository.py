@@ -358,6 +358,19 @@ class RunRepository(DraftRepository):
             )
         ).scalar_one_or_none()
 
+    async def latest_run_id(self, case_id):
+        """案件の直近の run の ID（終了済みを含む。F-17）。無ければ None。"""
+        if await self.session.get(Case, case_id) is None:
+            raise DraftError("E_NOT_FOUND", "案件が存在しません")
+        return (
+            await self.session.execute(
+                select(AgentRun.id)
+                .where(AgentRun.case_id == case_id)
+                .order_by(AgentRun.id.desc())
+                .limit(1)
+            )
+        ).scalar_one_or_none()
+
     async def progress(self, run_id):
         run = await self._get(run_id)
         version = (

@@ -37,6 +37,7 @@ def run_service():
         ),
         steps=AsyncMock(return_value=[]),
         active_run=AsyncMock(return_value=7),
+        latest_run=AsyncMock(return_value=7),
     )
 
 
@@ -101,11 +102,17 @@ async def test_trace_is_ui_only_and_unknown_run_404(run_client, run_service):
 
 async def test_active_run_returns_run_id_or_null(run_client, run_service):
     r = await run_client.get("/api/v1/ui/cases/3/agent-runs/active")
-    assert r.status_code == 200 and r.json() == {"runId": 7}
+    assert r.status_code == 200 and r.json() == {"runId": 7, "latestRunId": 7}
     run_service.active_run.assert_awaited_once_with(3)
+    run_service.latest_run.assert_awaited_once_with(3)
+    # F-17: 実行中が無くても直近の run（終了済み）を返し、戻った画面で結果を示せる。
     run_service.active_run.return_value = None
+    run_service.latest_run.return_value = 5
     r = await run_client.get("/api/v1/ui/cases/3/agent-runs/active")
-    assert r.json() == {"runId": None}
+    assert r.json() == {"runId": None, "latestRunId": 5}
+    run_service.latest_run.return_value = None
+    r = await run_client.get("/api/v1/ui/cases/3/agent-runs/active")
+    assert r.json() == {"runId": None, "latestRunId": None}
     # 実行中 run の参照は画面専用（エージェントのツールからは呼べない）。
     r = await run_client.get("/api/v1/agent/cases/3/agent-runs/active")
     assert r.status_code == 404

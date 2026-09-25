@@ -603,7 +603,9 @@ it.each([404, 500])(
 );
 
 it("画面を開き直しても、案件の実行中runがあれば起動せずに進捗へ戻る（TEST-04 #1）", () => {
-  (useActiveRun as jest.Mock).mockReturnValue({ data: { runId: 3 } });
+  (useActiveRun as jest.Mock).mockReturnValue({
+    data: { runId: 3, latestRunId: 3 },
+  });
   setRun({ ...running, stage: "extracting" });
   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
   expect(start).not.toHaveBeenCalled();
@@ -611,8 +613,72 @@ it("画面を開き直しても、案件の実行中runがあれば起動せず�
   expect(screen.getByText("明細を抽出中")).toBeInTheDocument();
   expect(screen.getByRole("button", { name: "準備中…" })).toBeDisabled();
 });
+// F-17: 画面を離れている間に終わった run の結果を、戻ったときに示す（生成が止まったように見せない）。
+it("実行中が無く直近のrunが終わっていれば、その結果を示し、次の起動もできる", () => {
+  (useActiveRun as jest.Mock).mockReturnValue({
+    data: { runId: null, latestRunId: 4 },
+  });
+  setRun({
+    ...running,
+    runId: 4,
+    outcome: "success",
+    stage: "done",
+    stopReason: "completed",
+    versionId: 99,
+    isComplete: true,
+  });
+  renderWithProviders(
+    <AgentRunPanel caseId={8} blockedReason={null} resumeLatest />,
+  );
+  expect(start).not.toHaveBeenCalled();
+  expect(progress).toHaveBeenLastCalledWith(4);
+  expect(screen.getByText("案を作成しました")).toBeInTheDocument();
+  expect(
+    screen.getByRole("link", { name: "Item List を確認する" }),
+  ).toHaveAttribute("href", "/cases/8/versions/99");
+  expect(screen.getByRole("button", { name: "案を作成" })).toBeEnabled();
+});
+it.each(["failed", "stopped"] as const)(
+  "直近のrunが%sなら停止理由を示し、次の起動をふさがない",
+  (outcome) => {
+    (useActiveRun as jest.Mock).mockReturnValue({
+      data: { runId: null, latestRunId: 4 },
+    });
+    setRun({
+      ...running,
+      runId: 4,
+      outcome,
+      stage: "done",
+      stopReason: outcome === "failed" ? "failed" : "max_turns",
+    });
+    renderWithProviders(
+      <AgentRunPanel caseId={8} blockedReason={null} resumeLatest />,
+    );
+    expect(screen.queryByText("案を作成しました")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "案を作成" })).toBeEnabled();
+    expect(
+      screen.queryByRole("button", { name: "状態を確認し直す" }),
+    ).not.toBeInTheDocument();
+  },
+);
+it("版の履歴など resumeLatest の無い画面では、終わった直近のrunを表示しない", () => {
+  (useActiveRun as jest.Mock).mockReturnValue({
+    data: { runId: null, latestRunId: 4 },
+  });
+  renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
+  expect(progress).toHaveBeenLastCalledWith(null);
+});
+it("実行中のrunがあれば直近のrunより優先して進捗へ戻る", () => {
+  (useActiveRun as jest.Mock).mockReturnValue({
+    data: { runId: 6, latestRunId: 6 },
+  });
+  renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
+  expect(progress).toHaveBeenLastCalledWith(6);
+});
 it("実行中runが無ければ進捗を出さず起動できる", () => {
-  (useActiveRun as jest.Mock).mockReturnValue({ data: { runId: null } });
+  (useActiveRun as jest.Mock).mockReturnValue({
+    data: { runId: null, latestRunId: null },
+  });
   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
   expect(progress).toHaveBeenLastCalledWith(null);
   expect(screen.getByRole("button", { name: "案を作成" })).toBeEnabled();

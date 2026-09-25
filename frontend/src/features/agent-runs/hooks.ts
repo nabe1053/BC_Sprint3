@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { ApiError } from "@/shared/api/mutator";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type {
   AgentRunAccepted,
@@ -12,7 +13,7 @@ import {
   startAgentRun,
   getAgentRun,
   getAgentRunSteps,
-  getActiveRunId,
+  getRunResume,
   listCarryOver,
 } from "./api";
 
@@ -50,7 +51,11 @@ export function useAgentRun(runId: number | null) {
     queryKey: ["agent-runs", "progress", runId],
     queryFn: ({ signal }) => getAgentRun(runId!, signal),
     enabled: runId !== null && Number.isSafeInteger(runId) && runId > 0,
-    retry: false,
+    // 一時的な失敗（500・通信断）は3回まで再試行し、1回で「通信中断」にしない（F-17）。
+    // run が無い（404）・応答の契約違反など一時的でない失敗は再試行しない。
+    retry: (count, error) =>
+      count < 3 && (!(error instanceof ApiError) || error.status >= 500),
+    retryDelay: 2000,
     retryOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
@@ -76,13 +81,12 @@ export function useAgentRunSteps(runId: number | null, open: boolean) {
   });
 }
 
-// 画面表示時に1回だけ、案件の実行中runを確認する（ポーリングはuseAgentRunが担う）。
+// 画面表示時に1回だけ、案件の実行中runと直近のrunを確認する（ポーリングはuseAgentRunが担う）。
+// 直近のrunは、画面を離れている間に終わった結果を戻ったときに示すために使う（F-17）。
 export function useActiveRun(caseId: number) {
-  return useQuery<{ runId: number | null }, Error>({
+  return useQuery<{ runId: number | null; latestRunId: number | null }, Error>({
     queryKey: ["agent-runs", "active", caseId],
-    queryFn: async ({ signal }) => ({
-      runId: await getActiveRunId(caseId, signal),
-    }),
+    queryFn: ({ signal }) => getRunResume(caseId, signal),
     retry: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,

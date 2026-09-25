@@ -146,6 +146,7 @@ export function IntakePage({ caseId }: { caseId: number }) {
             key={caseId}
             caseId={caseId}
             showCarryOver
+            resumeLatest
             documentNames={
               new Map(
                 list.data?.map(({ documentId, fileName }) => [

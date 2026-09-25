@@ -2,7 +2,7 @@ import {
   startAgentRun,
   getAgentRun,
   getAgentRunSteps,
-  getActiveRunId,
+  getRunResume,
   listCarryOver,
 } from "../api";
 import { ApiError } from "@/shared/api/mutator";
@@ -82,16 +82,20 @@ it("別runIdの応答を進捗として受け入れない", async () => {
   });
 });
 
-it("案件の実行中runを実生成クライアントで取得し、無ければnull", async () => {
-  respond(200, { runId: 5 });
-  expect(await getActiveRunId(8)).toBe(5);
+it("案件の実行中runと直近のrunを実生成クライアントで取得し、無ければnull（F-17）", async () => {
+  respond(200, { runId: 5, latestRunId: 5 });
+  expect(await getRunResume(8)).toEqual({ runId: 5, latestRunId: 5 });
   expect(request.mock.calls[0][0]).toMatch(
     /\/api\/v1\/ui\/cases\/8\/agent-runs\/active$/,
   );
-  respond(200, { runId: null });
-  expect(await getActiveRunId(8)).toBeNull();
-  respond(200, { runId: -1 });
-  await expect(getActiveRunId(8)).rejects.toBeInstanceOf(ApiError);
+  respond(200, { runId: null, latestRunId: 4 });
+  expect(await getRunResume(8)).toEqual({ runId: null, latestRunId: 4 });
+  respond(200, { runId: null, latestRunId: null });
+  expect(await getRunResume(8)).toEqual({ runId: null, latestRunId: null });
+  respond(200, { runId: -1, latestRunId: null });
+  await expect(getRunResume(8)).rejects.toBeInstanceOf(ApiError);
+  respond(200, { runId: null, latestRunId: 0 });
+  await expect(getRunResume(8)).rejects.toBeInstanceOf(ApiError);
 });
 
 it("引き継ぎ警告の材料は版一覧#22のcarryOverを版番号つきで返す（TEST-16）", async () => {

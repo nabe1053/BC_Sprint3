@@ -37,15 +37,17 @@ export async function getAgentRunSteps(runId: number, signal?: AbortSignal) {
     200,
   ).steps;
 }
-// 画面を離れて戻っても進捗表示へ復帰するため、案件の実行中runを引く（無ければnull）。
-export async function getActiveRunId(caseId: number, signal?: AbortSignal) {
-  const { runId } = unwrapSuccess(
+/** 画面に戻ったときの復帰先（F-17）: 実行中の run と、終了済みを含む直近の run。 */
+export async function getRunResume(caseId: number, signal?: AbortSignal) {
+  const { runId, latestRunId } = unwrapSuccess(
     await getActiveRunApiV1UiCasesCaseIdAgentRunsActiveGet(caseId, { signal }),
     200,
   );
-  if (runId !== null && (!Number.isSafeInteger(runId) || runId <= 0))
+  const valid = (id: number | null) =>
+    id === null || (Number.isSafeInteger(id) && id > 0);
+  if (!valid(runId) || !valid(latestRunId))
     throw new ApiError(200, { code: "E_UNEXPECTED_RESPONSE" });
-  return runId;
+  return { runId, latestRunId };
 }
 // 案作成ボタン直前の引き継ぎ警告の材料。版一覧 #22 の carryOver（未取消の記録件数）を使う。
 export async function listCarryOver(caseId: number, signal?: AbortSignal) {

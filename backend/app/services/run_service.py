@@ -87,6 +87,11 @@ class RunService:
         await self.repository.recover_expired(case_id=case_id)
         return await self.repository.active_run_id(case_id)
 
+    async def latest_run(self, case_id):
+        """画面を離れている間に終わった run の結果へ戻るための、案件の直近の run（F-17）。"""
+        await self.repository.recover_expired(case_id=case_id)
+        return await self.repository.latest_run_id(case_id)
+
     async def progress(self, run_id):
         return await self.repository.progress(run_id)
 
