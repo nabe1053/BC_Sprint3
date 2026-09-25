@@ -181,7 +181,11 @@ export function IntakePage({ caseId }: { caseId: number }) {
             }
           />
         </Paper>
-        <Paper variant="outlined" sx={{ padding: gap, display: "grid", gap }}>
+        <Paper
+          variant="outlined"
+          // 左の案件情報が高いとき、伸びた高さを各行へ配らず上詰めにし、表の枠の下に空白ができないようにする。
+          sx={{ padding: gap, display: "grid", gap, alignContent: "start" }}
+        >
           <Typography variant="h2">{t("documents.intakeTitle")}</Typography>
           <Typography>{t("documents.intakeDescription")}</Typography>
           <Box sx={{ display: "grid", gap: `${tokens.spacing.s2}px` }}>

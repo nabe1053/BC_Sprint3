@@ -795,6 +795,8 @@
 - [LN-090] TanStack Query の `retry` 関数は「一時的な失敗か」（5xx・通信断＝非 ApiError）で判定する。404 や応答の契約違反（200 の ApiError）まで再試行すると表示が遅れるだけ（RV-059）。
 - [LN-091] 共有パネル（`AgentRunPanel`）に復帰・表示の仕様を足すときは、使っている画面（資料投入・版の履歴）を洗い出してから、仕様の対象画面と揃える（RV-059）。
 
+- [LN-092] `display: grid` の面（Paper）が横並びの親グリッドで高さを引き伸ばされると、余りが子の auto 行に配られて間隔が崩れる。子グリッドに `alignContent: "start"`、または面に `alignSelf: "start"` を付ける（F-16 の受付一覧の枠下の空白。reviewer DONE 可）。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
