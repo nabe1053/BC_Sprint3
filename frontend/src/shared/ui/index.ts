@@ -9,3 +9,4 @@ export { ScrollArea } from "./ScrollArea";
 export { FilterBar } from "./FilterBar";
 export { ProgressPips } from "./ProgressPips";
 export { Popover } from "./Popover";
+export { StatusNotice } from "./StatusNotice";

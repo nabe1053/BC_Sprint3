@@ -20,10 +20,20 @@ import {
 jest.mock("@/features/documents/api", () => ({
   listDocuments: jest.fn(),
   intakeDocument: jest.fn(),
+  excludeDocument: jest.fn(),
+  listDocumentExclusions: jest.fn(),
 }));
 
-import { listDocuments, intakeDocument } from "@/features/documents/api";
-import { useDocuments, useIntakeDocument } from "@/features/documents/hooks";
+import {
+  excludeDocument,
+  listDocuments,
+  intakeDocument,
+} from "@/features/documents/api";
+import {
+  useDocuments,
+  useExcludeDocument,
+  useIntakeDocument,
+} from "@/features/documents/hooks";
 
 const mockedListDocuments = listDocuments as jest.MockedFunction<
   typeof listDocuments
@@ -229,5 +239,29 @@ describe("useIntakeDocument", () => {
 
     expect(mockedIntakeDocument).toHaveBeenCalledTimes(2);
     await waitFor(() => expect(mockedListDocuments).toHaveBeenCalledTimes(3));
+  });
+});
+
+describe("useExcludeDocument（F-16）", () => {
+  it("除外が成功したら受付一覧（除外済み一覧を含む）と案件一覧を取り直させる", async () => {
+    (excludeDocument as jest.Mock).mockResolvedValue({
+      documentId: 7,
+      recordedBy: "担当",
+      recordedAt: "2026-09-13T01:00:00Z",
+    });
+    const queryClient = createTestQueryClient();
+    const invalidate = jest.spyOn(queryClient, "invalidateQueries");
+    const { result } = renderHookWithProviders(
+      () => useExcludeDocument(CASE_ID),
+      queryClient,
+    );
+    await act(async () => {
+      await result.current.mutateAsync({ documentId: 7, recordedBy: "担当" });
+    });
+    expect(excludeDocument).toHaveBeenCalledWith(CASE_ID, 7, "担当");
+    expect(invalidate).toHaveBeenCalledWith({
+      queryKey: ["documents", CASE_ID],
+    });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ["cases"] });
   });
 });

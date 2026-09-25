@@ -184,7 +184,7 @@ sample-10（GulfTex／.eml のスレッド。最新本文で item 1 の数量が
 
 | ツール名 | 必要な権限 | 備考 |
 |---------|-----------|------|
-| `list_case_documents` / `read_document` / `read_email` / `search_documents` | 当該案件の資料への読取のみ | 案件IDでスコープを固定。他案件へ到達できない（N01） |
+| `list_case_documents` / `read_document` / `read_email` / `search_documents` | 当該案件の資料への読取のみ | 案件IDでスコープを固定。他案件へ到達できない（N01）。**人が除外した資料（`document_exclusions`）は一覧・検索に出さず、読取も拒否する**（2026-09-24 追加・F-16・memory AD-036 ①。起動時の `inputDocuments` からも外す） |
 | `get_rules` | 規則セットの読取のみ | 規則の書き換え権限は与えない（N04：規則は設定として分離） |
 | `record_case_header` / `propose_items` / `record_evidence` / `record_question` / `record_source_inventory` / `report_unreadable` | **当該版への追記のみ** | 既存版・確定済み版への書き込み不可。追記型で旧値を上書きしない |
 | `validate_draft` | 当該版の読取のみ | 判定ロジックはアプリ側。エージェントが合否を自己申告しない |

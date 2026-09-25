@@ -21,6 +21,7 @@ from app.models import (
     Question,
     QuestionJudgement,
 )
+from app.repositories.document_repository import active_document
 from app.repositories.draft_repository import DraftRepository
 
 
@@ -126,7 +127,9 @@ class RunRepository(DraftRepository):
             docs = list(
                 (
                     await self.session.execute(
-                        select(Document).where(Document.case_id == case_id)
+                        select(Document).where(
+                            Document.case_id == case_id, active_document()
+                        )
                     )
                 ).scalars()
             )

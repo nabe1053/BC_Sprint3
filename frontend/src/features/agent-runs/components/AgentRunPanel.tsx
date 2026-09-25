@@ -12,7 +12,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { CASES_QUERY_KEY } from "@/shared/api/queryKeys";
 import { ApiError } from "@/shared/api/mutator";
 import { tokens } from "@/shared/theme/tokens";
-import { Note } from "@/shared/ui";
+import { Note, StatusNotice } from "@/shared/ui";
 import {
   useStartAgentRun,
   useAgentRun,
@@ -213,7 +213,8 @@ export function AgentRunPanel({
         </Typography>
       )}
       {errorKind && (
-        <Box role="alert">
+        // 起動の失敗は危険色、引き継ぎの確認は注意色の枠で目立たせる（F-16）。
+        <StatusNotice tone={carryOver ? "warn" : "danger"}>
           <Typography>{t(`agentRuns.startError.${errorKind}`)}</Typography>
           {limitDetails && (
             <>
@@ -248,11 +249,11 @@ export function AgentRunPanel({
               label={t("agentRuns.acknowledge")}
             />
           )}
-        </Box>
+        </StatusNotice>
       )}
       {runId !== null &&
         (run.isError ? (
-          <Box role="alert">
+          <StatusNotice tone="danger">
             <Typography>
               {t(
                 run.error instanceof ApiError && run.error.status === 404
@@ -261,7 +262,7 @@ export function AgentRunPanel({
               )}
             </Typography>
             <Typography>{t("agentRuns.connectionHint")}</Typography>
-          </Box>
+          </StatusNotice>
         ) : run.data ? (
           <RunProgress
             caseId={caseId}

@@ -21,8 +21,10 @@ import { AgentRunPanel } from "@/features/agent-runs";
 import type { DocumentSummary } from "@/shared/api/generated/model";
 import { ApiError } from "@/shared/api/mutator";
 import { tokens } from "@/shared/theme/tokens";
-import { Note, PageHeading } from "@/shared/ui";
+import { Note, PageHeading, StatusNotice } from "@/shared/ui";
 import { useDocuments, useIntakeDocument } from "../hooks";
+import { DocumentExcludeDialog } from "./DocumentExcludeDialog";
+import { ExcludedDocuments } from "./ExcludedDocuments";
 
 const limits = [
   "file_size",
@@ -88,6 +90,8 @@ export function IntakePage({ caseId }: { caseId: number }) {
   const [error, setError] = useState<unknown>(null);
   const [saved, setSaved] = useState(false);
   const [agentBusy, setAgentBusy] = useState(false);
+  const [excluding, setExcluding] = useState<DocumentSummary | null>(null);
+  const [showExcluded, setShowExcluded] = useState(false);
   const busy = submitting || intake.isPending;
   const limitExceeded =
     error instanceof ApiError && error.code === "E_LIMIT_EXCEEDED";
@@ -215,7 +219,8 @@ export function IntakePage({ caseId }: { caseId: number }) {
             <Typography role="status">{t("documents.success")}</Typography>
           )}
           {!!error && (
-            <Box role="alert">
+            // 投入の失敗は危険色の枠で目立たせる（F-16）。原因と直し方の文言は残す。
+            <StatusNotice tone="danger">
               {limitExceeded ? (
                 <>
                   <Typography>{t("documents.limitExceeded.title")}</Typography>
@@ -251,14 +256,14 @@ export function IntakePage({ caseId }: { caseId: number }) {
                   )}
                 </Typography>
               )}
-            </Box>
+            </StatusNotice>
           )}
           <Typography variant="h2">{t("documents.list.title")}</Typography>
           {list.isLoading && (
             <Typography role="status">{t("common.loading")}</Typography>
           )}
           {list.isError && (
-            <Box role="alert">
+            <StatusNotice tone="danger">
               <Typography>{t("documents.error.title")}</Typography>
               <Typography>
                 {t(
@@ -267,7 +272,7 @@ export function IntakePage({ caseId }: { caseId: number }) {
                     : "documents.error.hint",
                 )}
               </Typography>
-            </Box>
+            </StatusNotice>
           )}
           <Box>
             <Button
@@ -285,15 +290,29 @@ export function IntakePage({ caseId }: { caseId: number }) {
             </Box>
           )}
           {!!list.data?.length && (
-            <TableContainer>
-              <Table aria-label={t("documents.list.title")}>
+            <TableContainer component={Paper} variant="outlined">
+              <Table
+                aria-label={t("documents.list.title")}
+                sx={{
+                  // 枠・列の区切り・最終行の下線を持たせる（F-16）。罫線は hair の1段。
+                  "& th, & td": {
+                    borderRight: `${tokens.border.width}px solid ${tokens.colors.hair}`,
+                  },
+                  "& th:last-child, & td:last-child": { borderRight: 0 },
+                  "& tr:last-child td, & tr:last-child th": {
+                    borderBottom: 0,
+                  },
+                }}
+              >
                 <TableHead>
                   <TableRow>
-                    {["name", "kind", "pages", "status"].map((key) => (
-                      <TableCell key={key}>
-                        {t(`documents.list.columns.${key}`)}
-                      </TableCell>
-                    ))}
+                    {["name", "kind", "pages", "status", "action"].map(
+                      (key) => (
+                        <TableCell key={key}>
+                          {t(`documents.list.columns.${key}`)}
+                        </TableCell>
+                      ),
+                    )}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -326,11 +345,42 @@ export function IntakePage({ caseId }: { caseId: number }) {
                             : t(`documents.readStatus.${document.readStatus}`)}
                         </Typography>
                       </TableCell>
+                      <TableCell>
+                        <Button
+                          aria-label={t("documents.exclusion.buttonLabel", {
+                            name: document.fileName,
+                          })}
+                          disabled={busy || agentBusy}
+                          onClick={() => setExcluding(document)}
+                        >
+                          {t("documents.exclusion.button")}
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </TableContainer>
+          )}
+          <Box>
+            <Button
+              aria-expanded={showExcluded}
+              onClick={() => setShowExcluded((value) => !value)}
+            >
+              {t(
+                showExcluded
+                  ? "documents.exclusion.hide"
+                  : "documents.exclusion.show",
+              )}
+            </Button>
+            {showExcluded && <ExcludedDocuments caseId={caseId} />}
+          </Box>
+          {excluding && (
+            <DocumentExcludeDialog
+              caseId={caseId}
+              document={excluding}
+              onClose={() => setExcluding(null)}
+            />
           )}
           {/* AD-006: encryptedは将来の判別用。現在の読取不能と混同させない。 */}
           <Typography variant="body2">

@@ -8,11 +8,19 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
+  DocumentExclusionRecord,
   DocumentIntakeResponse,
   DocumentSummary,
+  ExcludedDocument,
 } from "@/shared/api/generated/model";
 import { ApiError } from "@/shared/api/mutator";
-import { intakeDocument, listDocuments } from "@/features/documents/api";
+import {
+  excludeDocument,
+  intakeDocument,
+  listDocumentExclusions,
+  listDocuments,
+} from "@/features/documents/api";
+import { CASES_QUERY_KEY } from "@/shared/api/queryKeys";
 
 export function documentsQueryKey(caseId: number) {
   return ["documents", caseId] as const;
@@ -46,5 +54,36 @@ export function useIntakeDocument(caseId: number) {
       }
       return undefined;
     },
+  });
+}
+
+export function documentExclusionsQueryKey(caseId: number) {
+  return ["documents", caseId, "exclusions"] as const;
+}
+
+/** F-16: 除外済みの資料。「除外済みの資料を表示」を開いたときだけ取得する。 */
+export function useDocumentExclusions(caseId: number, enabled: boolean) {
+  return useQuery<ExcludedDocument[], ApiError>({
+    queryKey: documentExclusionsQueryKey(caseId),
+    queryFn: () => listDocumentExclusions(caseId),
+    enabled,
+  });
+}
+
+/** F-16: 資料の除外。成功したら受付一覧・除外済み一覧・案件一覧を取り直す。 */
+export function useExcludeDocument(caseId: number) {
+  const queryClient = useQueryClient();
+  return useMutation<
+    DocumentExclusionRecord,
+    ApiError,
+    { documentId: number; recordedBy: string }
+  >({
+    mutationFn: ({ documentId, recordedBy }) =>
+      excludeDocument(caseId, documentId, recordedBy),
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: documentsQueryKey(caseId) }),
+        queryClient.invalidateQueries({ queryKey: CASES_QUERY_KEY }),
+      ]).then(() => undefined),
   });
 }

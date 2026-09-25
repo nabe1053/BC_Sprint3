@@ -164,11 +164,15 @@
   影響範囲: 03-spec SCR-02・05-api-ipo #4/#14a/§3.4・agent-plan Part 1 と末尾補足に書き戻し済み。Codex 単独運用（AD-032）中だが、研修者が Claude に直接依頼したため Claude が orchestrator を兼ねた。
 
 - [AD-036] **2026-09-24 研修者の画面確認による修正依頼（F-12〜F-17）で研修者が決めた 6 点**（2026-09-25 AskUserQuestion で確認済み）:
-  ①資料の「削除」は**物理削除せず除外扱い**（`documents.excluded_at/excluded_by`・記録者名必須・取消は作らない。04-db「削除経路を作らない」を改訂）
+  ①資料の「削除」は**物理削除せず除外扱い**（~~`documents.excluded_at/excluded_by`~~ → **D層 `document_exclusions` に追記**（無効: AD-037 参照）・記録者名必須・取消は作らない。04-db「削除経路を作らない」を改訂）
   ②案件一覧に「最新の状態＋記録者・日時」「確認事項 残 n / 全 N」「行展開で版の記録一覧」を出す（#1 拡張。ダッシュボード＝案件一覧の列）
   ③SCR-03/05/06 に**案件切替プルダウン**を置く（AD-024/027/031 の「セレクタは作らず URL で選ぶ」を覆す）④左上の名称を「引合書整理エージェント」に変更
   ⑤画面の残骸（SCR-xx 眉・フッター・模擬期注記・Scope 2・内部 ID/ツール名/ms 表記・仮 dashboard）を消す。日時は JST・分まで ⑥読取時間の短縮は**対応不要**。
   Codex 単独運用（AD-032）中だが、研修者が Claude に直接依頼したため Claude メインセッションが orchestrator を兼ねる（AD-035 と同じ扱い）。計画: F-12〜F-17。
+- [AD-037] **資料の除外は `documents` に列を足さず D層 `document_exclusions`（1資料1回・UNIQUE・recorder CHECK・updated_at なし）に追記する**（AD-036 ① の実装方式の訂正）。理由: 記録は追記型の D層に置く原則（04-db 3.4）と、A層の資料行を UPDATE しないため /
+  影響範囲: `active_document()` を資料集合を作る repository クエリ（受付一覧・件数上限・検索・起動検査・`inputDocuments`・完了判定の snapshot・エージェント書込の出典検査）に適用。既存版の根拠・棚卸し・出力・#6/#7/#10 は除外後も参照可。
+  除外は案件の行ロック内で実行中 run が無いときだけ（`E_RUN_IN_PROGRESS`）。MUI `Alert`／`color="error"` は oklch の状態色で実行時に落ちるため `shared/ui/StatusNotice` を使う。
+
 
 ## 2. 確立した規約・パターン
 
@@ -286,7 +290,7 @@
 | F-13 | 改修: ItemList の操作性（担当者確認ボタンの位置固定・照合☑の見出し/記録者表示/左固定・要約と対応状況の折返し） | web | - | DONE | 2回目 RV-055: **DONE 可**（P1 1 修正済み・P3 は TODO-056） | 2026-09-25 |
 | F-14 | 改修: レフトナビを最新版で開ける＋SCR-03/05/06 の案件切替プルダウン AD-036 ③ | web | F-12 | DONE | 2回目 RV-057: **DONE 可**（P2 1 修正済み・P3 は TODO-059） | 2026-09-25 |
 | F-15 | 改修: 案件一覧に最新状態・記録者/日時・確認事項の残数/母数・記録の展開（#1 拡張）AD-036 ② | web | F-12 | DONE | RV-056: P2 1 修正で **DONE 可**（P3 は TODO-057） | 2026-09-25 |
-| F-16 | 改修: 資料投入のエラー強調・受付一覧の罫線・資料の除外（論理削除・ツールも除外）AD-036 ① | agent | F-12 | PLANNED | - | 2026-09-25 |
+| F-16 | 改修: 資料投入のエラー強調・受付一覧の罫線・資料の除外（論理削除・ツールも除外）AD-036 ① | agent | F-12 | DONE | 2回目 RV-058: **DONE 可**（P1 1・P2 1 修正済み・P3 は TODO-060） | 2026-09-25 |
 | F-17 | 改修: 画面を離れて戻っても直近の run の進捗/結果を表示（#14a を latest に拡張）・ポーリング再試行 | agent | F-6 | PLANNED | - | 2026-09-25 |
 
 > **実施順（AD-011）**: T-201・T-202 クローズ → C-1 → **T-203 → T-204 → ミニ評価** →
@@ -573,6 +577,9 @@
 - [RV-057] F-14（reviewer サブエージェント 2 回）: 1回目 P2 layout 常駐の `CaseShell` が案件一覧を 1 回しか取らず、資料投入画面で案が確定しても左ナビが古い版／無効のまま
   → `shared/api/queryKeys.ts` の `CASES_QUERY_KEY` を実行終了時に agent-runs が無効化＋パス変化で再取得。P3 は「不明（undefined）」と「版なし（null）」の区別・セレクタの内部 ID 表示・件名欠けを修正。2回目 **DONE 可**（残 P3 は TODO-059）。
 
+- [RV-058] F-16（reviewer サブエージェント 2 回）: 1回目 **P1 完了判定の snapshot が除外済み資料の範囲を「未走査」に数え、1件でも除外するとエージェントが完了できない** → snapshot の `document_ids` に `active_document()`。
+  P2 書込系ツール（根拠・棚卸し）が除外済み資料を出典にできた → `DraftRepository._document_in_case` で拒否。P3 は #6/#7 の注記・仕様の StatusNotice 表記・padding トークン・UNIQUE 名・FE テスト 3 本・拒否テストのコード検査と対照ケース。2回目 **DONE 可**（残 P3 は TODO-060）。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -778,6 +785,10 @@
 - [LN-085] layout に常駐する部品の `useQuery` は画面移動で取り直されない（`refetchOnWindowFocus: false`）。他画面の更新を映すには無効化の経路（共有クエリキー `shared/api/queryKeys.ts`）かパス変化での再取得を用意する（RV-057 P2）。
 - [LN-086] 「不明（取得中・失敗）」と「無い」を同じ `null` にしない。理由の文言を誤る（RV-057 P3）。
 
+- [LN-087] 資料を「見えなくする」変更は、読取経路だけでなく**完了判定の材料（snapshot の範囲・issue・中断記録）**にも同じ条件を入れる。条件は資料集合を作る元の1箇所に入れると派生物に一括で効く。ガードレール追加時は正常系を `validate_draft` まで通すテストを入れる（RV-058 P1）。
+- [LN-088] MUI v5 の JS 色演算（`Alert`・`Button color="error"`・`alpha()`）は oklch の状態色トークンで実行時例外になる。jsdom の単体テスト（素のテーマ）では出ず、実ブラウザで発覚した。本番テーマで描画する `app/__tests__/screen-theme.test.tsx` に画面を足して検出する。
+- [LN-089] テスト DB（`octg_test`）は共有のため、`make check-be` 実行中に別の pytest（reviewer の部分実行など）を重ねると TRUNCATE とロック待ちで詰まる。詰まったら pytest を止め `pg_terminate_backend` で `octg_test` の接続を切って再実行する（単独なら 85 秒で完走）。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
@@ -915,3 +926,4 @@
 - [TODO-057] RV-056 の記録のみ P3: 案件一覧の記録展開で判断・訂正・照合がどの確認事項／行かを示さない（#28 に確認事項番号が無い）／`CaseListEntry.latest_state_event: Any` の型を Protocol 化／最新判断の組み立てが 3 リポジトリに重複（次に出たら共通化して CV へ）／`useCaseRecords` の `enabled` 引数は常に true。
 - [TODO-058] LN-084 の対策（jest の `testTimeout` 引き上げか `--maxWorkers` 指定を Makefile に入れるか）を研修者と決める。
 - [TODO-059] RV-057 の記録のみ P3: 案件一覧の取得失敗時も左ナビの理由が「読み込み中」のまま（失敗用の文言を渡す）／sessionStorage の直前案件が既に存在しない案件でもリンクを出す／sessionStorage 不可環境・案件一覧で何も覚えていないときのテストなし。
+- [TODO-060] RV-058 の記録のみ P3: `/agent/*` の #6/#7 HTTP は除外済みも返す（05 に注記済み。エージェントは in-process ツールで拒否）／除外済みの版を再検証すると除外後の範囲で判定される（docstring 明記）／`mocks/mockup.html` に除外・StatusNotice の反映なし（TODO-055 とまとめて `/design-spec`）。

@@ -9,6 +9,7 @@ from sqlalchemy import (
     ForeignKeyConstraint,
     Index,
     Text,
+    UniqueConstraint,
     text,
 )
 from sqlalchemy.orm import Mapped, mapped_column
@@ -146,3 +147,20 @@ class QuestionJudgement(RecordedBase):
     status: Mapped[str] = mapped_column(Text, nullable=False)
     resolution: Mapped[str] = mapped_column(Text, nullable=False)
     note: Mapped[str | None] = mapped_column(Text)
+
+
+class DocumentExclusion(RecordedBase):
+    """資料の除外（F-16・04-db `document_exclusions`）。資料・抽出結果は消さず追記だけ行う。"""
+
+    __tablename__ = "document_exclusions"
+    __table_args__ = (
+        CheckConstraint(
+            "trim(recorded_by) <> ''", name="ck_document_exclusions_recorder"
+        ),
+        UniqueConstraint("document_id", name="uq_document_exclusions_document_id"),
+    )
+    document_id: Mapped[int] = mapped_column(
+        BigInteger,
+        ForeignKey("documents.id", name="fk_document_exclusions_document"),
+        nullable=False,
+    )

@@ -7,6 +7,8 @@ from sqlalchemy.exc import IntegrityError
 from app.domain.draft_errors import DraftError
 from app.domain.draft_snapshot import DraftSnapshot
 from app.models.agent_runs import AgentRun, AgentRunStep
+from app.models.records import DocumentExclusion
+from app.repositories.document_repository import active_document
 from app.models.cases import Case
 from app.models.documents import Document, DocumentIssue, DocumentPage, EmailPart
 from app.models.drafts import (
@@ -132,6 +134,14 @@ class DraftRepository:
     async def _document_in_case(self, document_id, case_id):
         doc = await self.session.get(Document, document_id)
         require(doc is not None and doc.case_id == case_id)
+        # 人が除外した資料は出典・棚卸しの対象にしない（F-16・RV-058 P2）。
+        # 本 repository はエージェントの書込経路専用で、既存版の表示には使わない。
+        excluded = await self._one(
+            select(DocumentExclusion.id).where(
+                DocumentExclusion.document_id == document_id
+            )
+        )
+        require(excluded is None)
 
     async def save_header(self, version_id, data):
         async with self.edit(version_id):
@@ -261,7 +271,13 @@ class DraftRepository:
         snapshot.inventory = await self._all(
             select(InventoryEntry).where(InventoryEntry.version_id == version_id)
         )
-        document_ids = select(Document.id).where(Document.case_id == version.case_id)
+        # 除外済み（F-16）の資料は読取ツールが拒否するため、走査すべき範囲にも
+        # 受付時の issue にも数えない（数えると完了条件を満たせなくなる・RV-058 P1）。
+        # 除外は実行中の run が無いときにしか記録できない（案件の行ロック）ため、
+        # run の途中で範囲が変わることはない。既存版を再検証すると除外後の範囲で判定する。
+        document_ids = select(Document.id).where(
+            Document.case_id == version.case_id, active_document()
+        )
         pages = await self._all(
             select(DocumentPage).where(DocumentPage.document_id.in_(document_ids))
         )

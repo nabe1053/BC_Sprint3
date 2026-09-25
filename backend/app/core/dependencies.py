@@ -14,6 +14,7 @@ from app.repositories.document_repository import DocumentRepository
 from app.services.case_service import CaseService
 from app.services.document_intake_service import DocumentIntakeService
 from app.services.document_query_service import DocumentQueryService
+from app.services.document_exclusion_service import DocumentExclusionService
 
 
 def get_case_service(session: AsyncSession = Depends(get_db)) -> CaseService:
@@ -26,6 +27,14 @@ def get_document_intake_service(
     return DocumentIntakeService(DocumentRepository(session))
 
 
+def get_document_exclusion_service(
+    session: AsyncSession = Depends(get_db),
+) -> DocumentExclusionService:
+    return DocumentExclusionService(
+        DocumentRepository(session), CaseRepository(session)
+    )
+
+
 def get_document_query_service(
     session: AsyncSession = Depends(get_db),
 ) -> DocumentQueryService:
@@ -33,6 +42,7 @@ def get_document_query_service(
 
 
 __all__ = [
+    "get_document_exclusion_service",
     "get_db",
     "get_case_service",
     "get_document_intake_service",

@@ -7,10 +7,14 @@ from __future__ import annotations
 
 import re
 
-from sqlalchemy import func, select
+from sqlalchemy import exists, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.domain.draft_errors import DraftError
+from app.models.agent_runs import AgentRun
+from app.models.cases import Case
 from app.models.documents import Document, DocumentIssue, DocumentPage, EmailPart
+from app.models.records import DocumentExclusion
 
 # 「読取不能の対象範囲」として受付一覧に出す issue 種別。reference_missing は付随情報の
 # 欠落であり、読めなかった範囲ではない（04-db.md §3.3 T-201 補足）。
@@ -22,6 +26,11 @@ def _locator_order(locator: str) -> list:
     return [
         int(part) if part.isdigit() else part for part in re.split(r"(\d+)", locator)
     ]
+
+
+def active_document():
+    """除外されていない資料（F-16・04-db `document_exclusions`）の条件。"""
+    return ~exists().where(DocumentExclusion.document_id == Document.id)
 
 
 class DocumentRepository:
@@ -56,7 +65,12 @@ class DocumentRepository:
         return document
 
     async def list_by_case(self, case_id: int) -> list[Document]:
-        stmt = select(Document).where(Document.case_id == case_id).order_by(Document.id)
+        """除外済み（F-16）を除いた案件の資料。"""
+        stmt = (
+            select(Document)
+            .where(Document.case_id == case_id, active_document())
+            .order_by(Document.id)
+        )
         result = await self.session.execute(stmt)
         return list(result.scalars().all())
 
@@ -87,7 +101,7 @@ class DocumentRepository:
         stmt = (
             select(func.count())
             .select_from(Document)
-            .where(Document.case_id == case_id)
+            .where(Document.case_id == case_id, active_document())
         )
         result = await self.session.execute(stmt)
         return int(result.scalar_one())
@@ -137,6 +151,7 @@ class DocumentRepository:
             .join(DocumentPage, DocumentPage.document_id == Document.id)
             .where(
                 Document.case_id == case_id,
+                active_document(),
                 DocumentPage.text.ilike(f"%{escaped_query}%", escape="\\"),
             )
             .order_by(DocumentPage.document_id, DocumentPage.seq)
@@ -159,3 +174,54 @@ class DocumentRepository:
         await self.session.commit()
         await self.session.refresh(issue)
         return issue
+
+    async def is_excluded(self, document_id: int) -> bool:
+        stmt = select(exists().where(DocumentExclusion.document_id == document_id))
+        return bool((await self.session.execute(stmt)).scalar())
+
+    async def list_exclusions(
+        self, case_id: int
+    ) -> list[tuple[Document, DocumentExclusion]]:
+        """除外済みの資料と除外記録（#5b）。"""
+        stmt = (
+            select(Document, DocumentExclusion)
+            .join(DocumentExclusion, DocumentExclusion.document_id == Document.id)
+            .where(Document.case_id == case_id)
+            .order_by(DocumentExclusion.recorded_at, DocumentExclusion.id)
+        )
+        return [tuple(row) for row in (await self.session.execute(stmt)).all()]
+
+    async def exclude(
+        self, case_id: int, document_id: int, recorded_by: str, recorded_at
+    ) -> DocumentExclusion:
+        """資料を除外する（#5a）。案の作成（#12）と同じ案件の行ロックの中で、
+        実行中の run が無いことを確かめてから追記する（起動との競合で除外済みを読ませない）。"""
+        case = (
+            await self.session.execute(
+                select(Case).where(Case.id == case_id).with_for_update()
+            )
+        ).scalar_one_or_none()
+        document = await self.session.get(Document, document_id)
+        if case is None or document is None or document.case_id != case_id:
+            await self.session.rollback()
+            raise DraftError("E_NOT_FOUND", "資料が存在しません")
+        running = (
+            await self.session.execute(
+                select(AgentRun.id).where(
+                    AgentRun.case_id == case_id, AgentRun.outcome == "running"
+                )
+            )
+        ).first()
+        if running:
+            await self.session.rollback()
+            raise DraftError("E_RUN_IN_PROGRESS", "この案件は実行中です")
+        if await self.is_excluded(document_id):
+            await self.session.rollback()
+            raise DraftError("E_ALREADY_EXCLUDED", "この資料は除外済みです")
+        record = DocumentExclusion(
+            document_id=document_id, recorded_by=recorded_by, recorded_at=recorded_at
+        )
+        self.session.add(record)
+        await self.session.commit()
+        await self.session.refresh(record)
+        return record

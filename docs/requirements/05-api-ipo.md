@@ -67,8 +67,10 @@
 | 1 | `/cases` | GET | 案件一覧（進捗ステータス・表示状態・送付可否つき。**初版 G1 実装は `progressStatus` のみ**。表示状態は G3（T-302）で `latestVersionId` として付与済み。送付可否は G5（T-502）で `latestSendoff`（最新版の最新 `sendoff_decisions.decision`・null 可）として付与する — memory AD-013 / AD-029 ⑬）。**2026-09-24 改訂（F-15・memory AD-036 ②）**: 最新の確定版について `latestStateEvent`（#22 と同じ `StateEventRecord`・記録者/日時つき・無ければ null）・`questionTotal`（案件レベルを含む確認事項の総数）・`unresolvedCount`（#22 と同じ未解決の定義）を付与する。版が無い案件は 3 項目とも null。記録の一覧は行の展開時に #28 を版ごとに取得する。SELECT 回数は案件数に依らず一定（5 回） | 不要 | UI |
 | 2 | `/cases` | POST | 案件を作成する | 不要 | UI |
 | 3 | `/cases/{caseId}` | GET | 案件の基本情報 | 不要 | UI |
-| 4 | `/cases/{caseId}/documents` | GET | 資料一覧と読取状態（**案件ID・案件名を併せて返す**）。各資料に `pageCount`（PDF=ページ数／xlsx=シート数／判定できなければ null）と `unreadableLocators`（受付時に記録した読取不能範囲。例 `["p.2"]`）を含める（2026-09-24 追記・シナリオテスト TEST-01 #2・TEST-02 #1） | 不要 | UI/AGENT |
+| 4 | `/cases/{caseId}/documents` | GET | 資料一覧と読取状態（**案件ID・案件名を併せて返す**）。各資料に `pageCount`（PDF=ページ数／xlsx=シート数／判定できなければ null）と `unreadableLocators`（受付時に記録した読取不能範囲。例 `["p.2"]`）を含める（2026-09-24 追記・シナリオテスト TEST-01 #2・TEST-02 #1）。**除外済みの資料は返さない**（F-16。除外済みは #5b で取得）。なお #6・#7（本文・メール構造）は既存版の根拠表示と共用のため除外済みでも返す。エージェントの読取は in-process ツール（`read_document`・`read_email`）で行い、そちらは除外済みを拒否する | 不要 | UI/AGENT |
 | 5 | `/cases/{caseId}/documents` | POST | 資料を投入する（受付・形式判定・テキスト抽出） | 不要 | UI |
+| 5a | `/cases/{caseId}/documents/{documentId}/exclusion` | POST | 資料を除外する（`{recordedBy}` 必須・201 で `{documentId, recordedBy, recordedAt}`）。物理削除しない。案件外の資料は `E_NOT_FOUND`（404）、除外済みは `E_ALREADY_EXCLUDED`（409）、実行中の run があれば `E_RUN_IN_PROGRESS`（409）、記録者名が空なら `E_RECORDER_REQUIRED`（400）。2026-09-24 追加（F-16・memory AD-036 ①） | 不要 | UI |
+| 5b | `/cases/{caseId}/document-exclusions` | GET | 除外済みの資料と除外者・日時の一覧（受付一覧の「除外済みを表示」用）。2026-09-24 追加（F-16） | 不要 | UI |
 | 6 | `/documents/{documentId}/content` | GET | 本文・表セル値をページ／シート範囲で取得 | 不要 | UI/AGENT |
 | 7 | `/documents/{documentId}/email` | GET | .eml の構造（ヘッダ・本文・引用部・添付一覧） | 不要 | UI/AGENT |
 | 8 | `/cases/{caseId}/search` | GET | 案件内の参照解決（「本文3.2項による」等） | 不要 | AGENT |
@@ -657,6 +659,7 @@
 | `E_RECORDER_REQUIRED` | 記録者名が空。**AI は補完しない** | ②7章, FUNC-08 |
 | `E_FIELD_NOT_EDITABLE` | 編集対象外の項目（**422**。認可ではなく契約違反なので 403 は使わない・0.1） | X11, ③SCR-04 |
 | `E_ALREADY_UNDONE` | 取消済みの記録の再取消 | ④D層 |
+| `E_ALREADY_EXCLUDED` | 除外済みの資料の再除外（5a・F-16） | ④D層 `document_exclusions` |
 | `E_ALREADY_CONFIRMED` | 未取消の確認が既にある行・版への再記録 | ④`confirmations` の部分UNIQUE |
 | `E_STAFF_CHECK_INCOMPLETE` | 未照合の行が残る | FUNC-08, ③SCR-03 |
 | `E_COVERAGE_NOT_RECORDED` | 網羅性確認が未記録 | FUNC-08, ③SCR-05 |

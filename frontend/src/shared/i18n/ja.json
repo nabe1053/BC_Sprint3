@@ -143,7 +143,8 @@
         "name": "原資料名",
         "kind": "形式",
         "pages": "ページ／シート",
-        "status": "読取結果"
+        "status": "読取結果",
+        "action": "操作"
       }
     },
     "empty": {
@@ -219,7 +220,32 @@
       "none": "—"
     },
     "partialRange": "一部読取不能（{{ranges}}）",
-    "partialRangeMore": "一部読取不能（{{ranges}} 他 {{rest}} 件）"
+    "partialRangeMore": "一部読取不能（{{ranges}} 他 {{rest}} 件）",
+    "exclusion": {
+      "button": "除外",
+      "buttonLabel": "{{name}} を除外",
+      "title": "資料を除外する",
+      "target": "対象：{{name}}",
+      "description": "資料そのものは削除しません。受付一覧と次の案の作成から外れ、エージェントも読みません。作成済みの版の根拠には残ります。除外は取り消せません。",
+      "recorder": "除外者名",
+      "recorderHint": "入力必須です。AI は補完しません。",
+      "cancel": "キャンセル",
+      "submit": "除外する",
+      "pending": "除外中…",
+      "errors": {
+        "E_RUN_IN_PROGRESS": "案の作成中は除外できません。作成が終わってから、もう一度除外してください。",
+        "E_ALREADY_EXCLUDED": "この資料は既に除外されています。一覧を再読み込みしてください。",
+        "E_NOT_FOUND": "資料が見つかりません。一覧を再読み込みしてください。",
+        "E_RECORDER_REQUIRED": "除外者名を入力してください。AI は補完しません。",
+        "unknown": "除外できませんでした。通信状態を確認し、もう一度お試しください。"
+      },
+      "show": "除外済みの資料を表示",
+      "hide": "除外済みの資料を閉じる",
+      "listLabel": "除外済みの資料",
+      "entry": "{{name}} — 除外：{{by}} / {{at}}",
+      "empty": "除外済みの資料はありません。",
+      "loadError": "除外済みの資料を取得できませんでした。再読み込みしてください。"
+    }
   },
   "agentRuns": {
     "title": "案の作成",

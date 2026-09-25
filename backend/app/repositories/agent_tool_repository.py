@@ -41,6 +41,8 @@ class AgentToolRepository(DraftRepository):
     async def document(self, document_id):
         document = await self.documents.get_by_id(document_id)
         require(document is not None and document.case_id == self.context.case_id)
+        # 人が除外した資料は読ませない（F-16・agent-plan ツール権限）。
+        require(not await self.documents.is_excluded(document_id))
         return document
 
     async def list_documents(self):
