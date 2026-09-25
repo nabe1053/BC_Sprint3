@@ -23,7 +23,11 @@ import {
   filterItems,
   recordErrorKey,
 } from "../model";
-import { StaffCheckAction } from "./StaffCheckAction";
+import {
+  StaffCheckButton,
+  StaffCheckNotice,
+  useStaffCheck,
+} from "./StaffCheckAction";
 import { BounceBanner } from "./BounceBanner";
 import { VersionSummary } from "./VersionSummary";
 import { VersionHistory } from "./VersionHistory";
@@ -51,6 +55,12 @@ export function ItemListPage({
   const mutations = useRecordMutations(versionId, caseId);
   const [recordedBy, setRecordedBy] = useState("");
   const [recorderInvalid, setRecorderInvalid] = useState(false);
+  const staffCheck = useStaffCheck({
+    caseId,
+    versionId,
+    recordedBy,
+    onRecorderInvalid: setRecorderInvalid,
+  });
   const [filters, setFilters] = useState({ ...emptyFilters });
   const [selected, setSelected] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -133,14 +143,6 @@ export function ItemListPage({
         description={t("versions.description")}
         actions={
           <>
-            {ready && version.data && (
-              <StaffCheckAction
-                caseId={caseId}
-                version={version.data}
-                recordedBy={recordedBy}
-                onRecorderInvalid={setRecorderInvalid}
-              />
-            )}
             {ready && (
               <ExportButton
                 versionId={versionId}
@@ -152,9 +154,24 @@ export function ItemListPage({
             <Button component={Link} href="/cases">
               {t("versions.back")}
             </Button>
+            {ready && version.data && (
+              <StaffCheckButton
+                caseId={caseId}
+                version={version.data}
+                pending={staffCheck.pending}
+                onCheck={() => void staffCheck.check()}
+              />
+            )}
           </>
         }
       />
+      {ready && version.data && (
+        <StaffCheckNotice
+          caseId={caseId}
+          version={version.data}
+          error={staffCheck.error}
+        />
+      )}
       {loading ? (
         <Typography role="status">{t("common.loading")}</Typography>
       ) : loadError ? (

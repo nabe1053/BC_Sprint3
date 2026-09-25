@@ -10,20 +10,23 @@ import { tokens } from "@/shared/theme/tokens";
 import { useApprovalMutations } from "../hooks";
 import { buildStateEventRequest } from "../model";
 import { ApprovalError } from "./ApprovalError";
-export function StaffCheckAction({
+/**
+ * 担当者確認の操作と結果表示を分ける（F-13）。ボタンは見出し右端に置き、
+ * 未解決の注記・失敗表示は見出しの下の行に出して、押下前後でボタンの位置を動かさない。
+ */
+export function useStaffCheck({
   caseId,
-  version,
+  versionId,
   recordedBy,
   onRecorderInvalid,
 }: {
   caseId: number;
-  version: VersionResponse;
+  versionId: number;
   recordedBy: string;
   onRecorderInvalid: (invalid: boolean) => void;
 }) {
-  const { t } = useTranslation(),
-    router = useRouter(),
-    mutations = useApprovalMutations(caseId, version.versionId),
+  const router = useRouter(),
+    mutations = useApprovalMutations(caseId, versionId),
     [error, setError] = useState<unknown>(null),
     [pending, setPending] = useState(false),
     lock = useRef(false);
@@ -37,7 +40,7 @@ export function StaffCheckAction({
       await mutations.transition.mutateAsync(
         buildStateEventRequest("staff_checked", recordedBy),
       );
-      router.push(`/cases/${caseId}/versions/${version.versionId}/approval`);
+      router.push(`/cases/${caseId}/versions/${versionId}/approval`);
     } catch (cause) {
       setError(cause);
       onRecorderInvalid(
@@ -48,36 +51,56 @@ export function StaffCheckAction({
       setPending(false);
     }
   }
+  return { check, pending, error };
+}
+
+export function StaffCheckButton({
+  caseId,
+  version,
+  pending,
+  onCheck,
+}: {
+  caseId: number;
+  version: VersionResponse;
+  pending: boolean;
+  onCheck: () => void;
+}) {
+  const { t } = useTranslation();
+  return version.currentState === "draft" ? (
+    <Button variant="contained" disabled={pending} onClick={onCheck}>
+      {t("versions.staffCheck.button")}
+    </Button>
+  ) : (
+    <Button
+      component={Link}
+      href={`/cases/${caseId}/versions/${version.versionId}/approval`}
+    >
+      {t("versions.staffCheck.link")}
+    </Button>
+  );
+}
+
+export function StaffCheckNotice({
+  caseId,
+  version,
+  error,
+}: {
+  caseId: number;
+  version: VersionResponse;
+  error: unknown;
+}) {
+  const { t } = useTranslation();
+  const note =
+    version.currentState === "draft" && version.counts.unresolvedCount > 0;
+  if (!note && !error) return null;
   return (
     <Box>
-      {version.currentState === "draft" ? (
-        <>
-          <Button
-            variant="contained"
-            disabled={pending}
-            onClick={() => void check()}
-          >
-            {t("versions.staffCheck.button")}
-          </Button>
-          {version.counts.unresolvedCount > 0 && (
-            <Typography
-              variant="caption"
-              component="div"
-              sx={{ color: tokens.colors.warn.main }}
-            >
-              {t("versions.staffCheck.unresolvedNote", {
-                unresolved: version.counts.unresolvedCount,
-              })}
-            </Typography>
-          )}
-        </>
-      ) : (
-        <Button
-          component={Link}
-          href={`/cases/${caseId}/versions/${version.versionId}/approval`}
-        >
-          {t("versions.staffCheck.link")}
-        </Button>
+      {note && (
+        <Typography variant="body2" sx={{ color: tokens.colors.warn.main }}>
+          {t("versions.staffCheck.unresolvedNote", {
+            unresolved: version.counts.unresolvedCount,
+          })}
+        </Typography>
       )}
       <ApprovalError
         error={error}

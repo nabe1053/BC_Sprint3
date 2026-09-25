@@ -51,6 +51,13 @@ export function ApprovalTable({
             whiteSpace: "nowrap",
             borderColor: tokens.colors.hair,
           },
+          // 確認事項の対応状況・要約は折り返して隣の列へはみ出さない（F-13）。
+          "& td.wrap": {
+            whiteSpace: "normal",
+            overflowWrap: "anywhere",
+            minWidth: "16em",
+            maxWidth: "24em",
+          },
         }}
       >
         <TableHead>
@@ -183,7 +190,7 @@ export function ApprovalTable({
                 {!item.history.some((e) => e.undoneAt === null) &&
                   t("common.notAvailable")}
               </TableCell>
-              <TableCell>
+              <TableCell className="wrap">
                 {itemQuestions(item, questions).map((q) => (
                   <Box key={q.questionId}>
                     <Typography>

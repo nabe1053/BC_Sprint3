@@ -25,6 +25,7 @@ import {
   QuestionJudgementForm,
   type JudgementInput,
 } from "./QuestionJudgementForm";
+import { formatDateTime } from "@/shared/lib/datetime";
 export function ItemTable({
   items,
   questions,
@@ -55,6 +56,22 @@ export function ItemTable({
           width: "max-content",
           minWidth: "100%",
           "& td, & th": { whiteSpace: "nowrap", verticalAlign: "top" },
+          // 出典と照合の☑は横スクロールしても左端に残す（F-13）。
+          // `:first-of-type` は行 ID の `th`（scope=row）にも当たるため class で指す。
+          "& .sticky": {
+            position: "sticky",
+            left: 0,
+            zIndex: tokens.z.sticky,
+            background: tokens.colors.paper,
+            borderRight: `${tokens.border.width}px solid ${tokens.colors.divider}`,
+          },
+          // 確認事項の要約・判断は折り返して隣の列へはみ出さない（F-13）。
+          "& td.wrap": {
+            whiteSpace: "normal",
+            overflowWrap: "anywhere",
+            minWidth: "16em",
+            maxWidth: "24em",
+          },
         }}
       >
         <TableHead>
@@ -80,7 +97,11 @@ export function ItemTable({
               "note",
               "details",
             ].map((key) => (
-              <TableCell key={key} sx={{ whiteSpace: "nowrap" }}>
+              <TableCell
+                key={key}
+                className={key === "match" ? "sticky" : undefined}
+                sx={{ whiteSpace: "nowrap" }}
+              >
                 {t(`versions.columns.${key}`)}
               </TableCell>
             ))}
@@ -130,7 +151,7 @@ export function ItemTable({
                   },
                 }}
               >
-                <TableCell>
+                <TableCell className="sticky">
                   <Checkbox
                     checked={!!item.rowMatch}
                     disabled={busy}
@@ -141,6 +162,14 @@ export function ItemTable({
                       }),
                     }}
                   />
+                  {item.rowMatch && (
+                    <Typography variant="caption" component="div">
+                      {t("versions.recorded", {
+                        by: item.rowMatch.recordedBy,
+                        at: formatDateTime(item.rowMatch.recordedAt),
+                      })}
+                    </Typography>
+                  )}
                 </TableCell>
                 <TableCell component="th" scope="row">
                   {item.rowCode}
@@ -215,19 +244,25 @@ export function ItemTable({
                     )}
                   </Typography>
                 </TableCell>
-                <TableCell>
+                <TableCell className="wrap">
                   {qs.length
                     ? qs.map((q) => (
-                        <Typography key={q.questionId}>{q.reason}</Typography>
+                        <Typography key={q.questionId}>
+                          {t("versions.questionSummary", {
+                            code: q.questionCode,
+                            reason: q.reason,
+                          })}
+                        </Typography>
                       ))
                     : t("versions.noQuestions")}
                 </TableCell>
                 <TableCell>{item.sourceNo}</TableCell>
-                <TableCell colSpan={3}>
+                <TableCell colSpan={3} className="wrap">
                   {qs.map((q) => (
                     <QuestionJudgementForm
                       key={q.questionId}
                       question={q}
+                      showReason={false}
                       recordedBy={recordedBy}
                       onRecord={onJudge}
                       busy={busy}

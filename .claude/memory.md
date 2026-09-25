@@ -283,7 +283,7 @@
 | F-10 | 改修: SCR-02 の案作成ボタン直前に件数つきの引き継ぎ警告（#22 carryOver）TEST-16 #2 | web | T-204 | DONE | RV-052 P3-2/3 修正 → DONE | 2026-09-25 |
 | F-11 | 改修: `CFL-n` の候補行を「択一」ではなく「矛盾候補（要判断）」と表示（状態列・タグ・絞り込み名・件数名）TEST-05 #6 | web | F-4 | DONE | RV-053 P2 修正 → DONE | 2026-09-25 |
 | F-12 | 改修: 表示の整理（名称「引合書整理エージェント」・SCR 眉/フッター/模擬期注記/Scope 2/内部 ID の削除・日時 JST 分表示）AD-036 ④⑤ | web | - | DONE | 2回目 RV-054: **DONE 可**（P2 2 修正済み・P3 は TODO-055） | 2026-09-25 |
-| F-13 | 改修: ItemList の操作性（担当者確認ボタンの位置固定・照合☑の見出し/記録者表示/左固定・要約と対応状況の折返し） | web | - | PLANNED | - | 2026-09-25 |
+| F-13 | 改修: ItemList の操作性（担当者確認ボタンの位置固定・照合☑の見出し/記録者表示/左固定・要約と対応状況の折返し） | web | - | DONE | 2回目 RV-055: **DONE 可**（P1 1 修正済み・P3 は TODO-056） | 2026-09-25 |
 | F-14 | 改修: レフトナビを最新版で開ける＋SCR-03/05/06 の案件切替プルダウン AD-036 ③ | web | F-12 | PLANNED | - | 2026-09-25 |
 | F-15 | 改修: 案件一覧に最新状態・記録者/日時・確認事項の残数/母数・記録の展開（#1 拡張）AD-036 ② | web | F-12 | PLANNED | - | 2026-09-25 |
 | F-16 | 改修: 資料投入のエラー強調・受付一覧の罫線・資料の除外（論理削除・ツールも除外）AD-036 ① | agent | F-12 | PLANNED | - | 2026-09-25 |
@@ -564,6 +564,9 @@
 - [RV-054] F-12（reviewer サブエージェント 2 回）: 1回目 P2-1 ブランド名が 232px 幅で 1 字折り返す恐れ → fs3＋nowrap（実ブラウザで 1 行を確認）／
   P2-2 資料 ID を消しただけで「どの資料か」が失われた → `AgentRunPanel.documentNames` でファイル名に置換／P3 は 0.1 秒未満表記・`job_interrupted` ラベル・`i18n.exists` で一元化・D02 表記の言い換え＋検出を修正。2回目 **DONE 可**（残 P3 は TODO-055）。
 
+- [RV-055] F-13（reviewer サブエージェント 2 回）: 1回目 P1 左固定のセレクタ `td:first-of-type, th:first-of-type` が行 ID の `th scope=row` にも当たり、横スクロール時に☑を隠す → 専用 class `sticky`＋DOM テスト。
+  P3 は 03-spec 書き戻し・要約列に確認事項番号（判断欄と対応づけ）を修正。2回目 **DONE 可**（残 P3 は TODO-056）。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -761,6 +764,8 @@
 - [LN-080] composition root（`app/api/dependencies.py`）を通すテストは `settings.AGENT_MODE` 等の実行モードを明示固定する。`backend/.env` が `AGENT_MODE=claude` のとき `test_definition_defaults_reach_reserved_run` が落ちていた（F-12 で固定）。
 - [LN-081] 固定幅（左ナビ 232px）の文言は jsdom で検証できない。「字数×サイズ×(1+letterSpacing)＋付随要素」で見積もり、`nowrap` と実ブラウザのスクリーンショット（`~/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome --headless=new --screenshot`）で確認する。
 
+- [LN-082] 表の特定列だけにスタイルを当てるときは `:first-of-type`・`:nth-child` を使わず専用 class で指し、「どのセルに有り・無いか」を DOM テストする。MUI の `TableCell component="th" scope="row"` が行の途中に `th` を入れるため（RV-055 P1）。位置系の不具合は横スクロールした状態もスクリーンショットで確認する（`scratchpad` の playwright スクリプトで `scrollLeft` を設定）。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
@@ -894,3 +899,4 @@
 - [TODO-053] **研修者確認**: TEST-13 #5（案件レベルの未解決の注記）は再現しなかった。S10 の担当者確認済み版（case 24 / v28・案件レベルの未解決 1 件）で行をクリックすると「行に紐づかない案件レベルの未解決 1 件があります」が出る。実施した案件・版を確認し、案件レベルの確認事項の無い版だった場合は、F-4 `missing_question` 入りの実モデル再評価（TODO-052）で S10 に期限の確認事項が立つかを見る。記録: `docs/evaluations/scenario-fix-2026-09-25.md`。
 - [TODO-054] F-11 の残り（RV-053 P3）: ①`docs/requirements/mocks/mockup.html` の絞り込み名・changeTags・noChanges 文言・状態列・`data-tone` 正規表現に「矛盾候補」が無い（`/design-spec` で更新）②SCR-06 の表のグループ列に種別ラベルを添えるか（任意）③件数を「択一グループ」「矛盾グループ」に分けるか（API 変更を伴う・研修者判断）。あわせて TEST-05 #6 は研修者の案件 v29 が修正前の版なので、実モデルで X04 を再実行して判定し直す（TODO-052 のクレジット補充が前提）。
 - [TODO-055] RV-054 の記録のみ P3: IntakePage→AgentRunPanel の `documentNames` 受け渡しの結合テストなし／BounceBanner・EditHistory・EvidenceDrawer rowMatch の JST 表示の画面テストなし／`mocks/mockup.html` に旧名称・SCR 眉・フッター・Scope 2 が残る（次の `/design-spec` で反映）。
+- [TODO-056] RV-055 の記録のみ P3: `ItemTable` の class 名 `sticky` が汎用的（表内に別部品を入れるなら改名）／`StaffCheckAction.tsx` のファイル名と export（`useStaffCheck`・`StaffCheckButton`・`StaffCheckNotice`）の不一致。

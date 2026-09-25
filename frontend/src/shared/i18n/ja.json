@@ -400,7 +400,7 @@
       "unresolved": "未解決のみ"
     },
     "columns": {
-      "match": "照合",
+      "match": "出典と照合",
       "rowCode": "行ID",
       "kind": "品種",
       "od": "外径",
@@ -845,6 +845,7 @@
         "rejected": "送付不可"
       },
       "sendoffShort": "送付 {{state}}"
-    }
+    },
+    "questionSummary": "{{code}} {{reason}}"
   }
 }

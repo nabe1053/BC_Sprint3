@@ -787,3 +787,81 @@ it("CFL-n の行は状態列で択一と区別して「矛盾候補（要判断�
   expect(screen.getByText("矛盾候補（要判断）")).toBeVisible();
   expect(screen.queryByText("択一")).not.toBeInTheDocument();
 });
+
+// ---- F-13: ItemList 確認の操作性（2026-09-24 研修者の修正依頼） ----
+const heading = () => document.querySelector("header") as HTMLElement;
+it("担当者確認の未解決注記は見出しのアクション列に入れず、ボタンを見出し右端に置く（F-13）", () => {
+  render();
+  const button = screen.getByRole("button", { name: "担当者確認済みにする" });
+  expect(heading()).toContainElement(button);
+  const note = screen.getByText(/未解決 2 件のまま担当者確認済みにできます/);
+  expect(heading()).not.toContainElement(note);
+  const actions = heading().querySelectorAll("button, a");
+  expect(actions[actions.length - 1]).toBe(button);
+});
+it("担当者確認の失敗表示は見出しの外に出し、ボタンの位置を変えない（F-13）", async () => {
+  staffTransition.mockRejectedValue(
+    new ApiError(409, {
+      code: "E_STAFF_CHECK_INCOMPLETE",
+      details: {
+        unmatchedItemIds: [4],
+        unmatchedRowCodes: ["R1"],
+        coverageRecorded: false,
+      },
+    }),
+  );
+  render();
+  fireEvent.change(screen.getByLabelText("担当者名（記録に共用）"), {
+    target: { value: "担当者" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "担当者確認済みにする" }));
+  const message = await screen.findByText(/未照合 1 行（R1）/);
+  expect(heading()).not.toContainElement(message);
+});
+it("照合の列は「出典と照合」と名乗り、記録者と日時（JST）を☑の下に示す（F-13）", () => {
+  mock.useItems.mockReturnValue(
+    query([
+      {
+        ...item,
+        rowMatch: {
+          confirmationId: 1,
+          recordedBy: "照合者",
+          recordedAt: "2026-09-13T01:00:00Z",
+        },
+      },
+    ]) as never,
+  );
+  render();
+  const table = screen.getByRole("table", { name: i18n.t("versions.title") });
+  expect(
+    within(table).getByRole("columnheader", { name: "出典と照合" }),
+  ).toBeInTheDocument();
+  const row = within(table).getAllByRole("row")[1];
+  expect(
+    within(row).getByRole("checkbox", {
+      name: /行 R1 の重要項目を出典と照合した/,
+    }),
+  ).toBeChecked();
+  expect(
+    within(row).getByText("照合者 / 2026-09-13 10:00"),
+  ).toBeInTheDocument();
+});
+it("一覧の判断フォームは確認事項の要約を繰り返さない（要約は要約列だけ・F-13）", () => {
+  render();
+  const table = screen.getByRole("table", { name: i18n.t("versions.title") });
+  expect(within(table).getAllByText(/材質を照会/)).toHaveLength(1);
+  // 要約と判断欄は確認事項の番号で対応づける（1行に複数の確認事項がある場合）。
+  expect(within(table).getByText("Q1 材質を照会")).toBeInTheDocument();
+});
+it("左固定は「出典と照合」列だけで、行 ID の見出しセル（th scope=row）には掛けない（F-13）", () => {
+  render();
+  const table = screen.getByRole("table", { name: i18n.t("versions.title") });
+  const sticky = table.querySelectorAll(".sticky");
+  expect(sticky).toHaveLength(1 + within(table).getAllByRole("row").length - 1);
+  within(table)
+    .getAllByRole("rowheader")
+    .forEach((cell) => expect(cell).not.toHaveClass("sticky"));
+  within(table)
+    .getAllByRole("row")
+    .forEach((row) => expect(row.firstElementChild).toHaveClass("sticky"));
+});

@@ -14,11 +14,14 @@ export function QuestionJudgementForm({
   recordedBy,
   onRecord,
   busy,
+  showReason = true,
 }: {
   question: QuestionResponse;
   recordedBy: string;
   onRecord: (input: JudgementInput) => Promise<boolean>;
   busy: boolean;
+  // 一覧では要約を「確認事項の要約」列に出すため繰り返さない（F-13）。
+  showReason?: boolean;
 }) {
   const { t } = useTranslation();
   const [status, setStatus] = useState<JudgementRequest["status"]>(
@@ -49,7 +52,11 @@ export function QuestionJudgementForm({
       }}
       sx={{ display: "grid", gap: `${tokens.spacing.s2}px` }}
     >
-      <Typography variant="body2">{question.reason}</Typography>
+      {showReason ? (
+        <Typography variant="body2">{question.reason}</Typography>
+      ) : (
+        <Typography variant="caption">{question.questionCode}</Typography>
+      )}
       <Box
         sx={{
           display: "flex",
