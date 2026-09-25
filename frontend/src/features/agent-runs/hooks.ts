@@ -13,6 +13,7 @@ import {
   getAgentRun,
   getAgentRunSteps,
   getActiveRunId,
+  listCarryOver,
 } from "./api";
 
 export function useStartAgentRun(caseId: number) {
@@ -87,5 +88,17 @@ export function useActiveRun(caseId: number) {
     refetchOnReconnect: false,
     staleTime: 0,
     gcTime: 0,
+  });
+}
+
+// 引き継ぎ警告は資料投入画面でだけ使う（enabled=false の画面では取得しない）。
+export function useCarryOver(caseId: number, enabled: boolean) {
+  return useQuery({
+    queryKey: ["agent-runs", "carry-over", caseId],
+    queryFn: ({ signal }) => listCarryOver(caseId, signal),
+    enabled,
+    retry: false,
+    refetchOnWindowFocus: false,
+    staleTime: 0,
   });
 }

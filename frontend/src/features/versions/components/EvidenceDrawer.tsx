@@ -7,6 +7,7 @@ import {
   FormControlLabel,
   Typography,
 } from "@mui/material";
+import { useId } from "react";
 import { useTranslation } from "react-i18next";
 import type {
   EvidenceResponse,
@@ -385,14 +386,24 @@ function EvidenceRecord({
   fileName: string | undefined;
 }) {
   const { t } = useTranslation();
+  const quoteId = useId();
   return (
     <Box>
       <Typography>
-        {fileName ?? t("versions.drawer.documentMissing")}
+        {t("versions.drawer.rawValueLine", { value: row.rawValue })}
       </Typography>
-      <Typography variant="caption">{row.locator}</Typography>
+      <Typography variant="caption" component="div">
+        {t("versions.drawer.sourceLine", {
+          file: fileName ?? t("versions.drawer.documentMissing"),
+          locator: row.locator,
+        })}
+      </Typography>
+      <Typography variant="caption" component="div" id={quoteId}>
+        {t("versions.drawer.quote")}
+      </Typography>
       <Box
         component="blockquote"
+        aria-labelledby={quoteId}
         sx={{
           margin: 0,
           padding: `${tokens.spacing.s3}px`,

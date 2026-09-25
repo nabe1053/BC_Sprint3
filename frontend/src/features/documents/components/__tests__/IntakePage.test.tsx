@@ -41,6 +41,24 @@ const mockedUseIntakeDocument = useIntakeDocument as jest.Mock;
 
 const CASE_ID = 1;
 
+// 案作成パネルは実物を使う。画面表示時の引き継ぎ警告（版一覧）は「記録のある版なし」で答え、
+// それ以外の通信はこのテストの対象外なので従来どおり失敗させる。
+const originalFetch = global.fetch;
+beforeEach(() => {
+  global.fetch = ((input: RequestInfo | URL) =>
+    /\/cases\/\d+\/versions$/.test(String(input))
+      ? Promise.resolve({
+          ok: true,
+          status: 200,
+          headers: new Headers({ "Content-Type": "application/json" }),
+          json: async () => ({ versions: [] }),
+        })
+      : Promise.reject(new TypeError("offline"))) as typeof fetch;
+});
+afterAll(() => {
+  global.fetch = originalFetch;
+});
+
 function setUseDocuments(overrides: Partial<ReturnType<typeof useDocuments>>) {
   mockedUseDocuments.mockReturnValue({
     data: undefined,

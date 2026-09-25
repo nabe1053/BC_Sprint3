@@ -142,6 +142,7 @@ export function IntakePage({ caseId }: { caseId: number }) {
           <AgentRunPanel
             key={caseId}
             caseId={caseId}
+            showCarryOver
             onBusyChange={setAgentBusy}
             inputRevision={JSON.stringify(
               list.data?.map(({ documentId, readStatus }) => [

@@ -137,7 +137,7 @@ it("空名でPOSTせず、trimした名前とkindだけを一度記録", async (
   fireEvent.click(screen.getByRole("button", { name: "記録" }));
   expect(confirm).not.toHaveBeenCalled();
   expect(screen.getByRole("alert")).toHaveTextContent(
-    i18n.t("versions.errors.E_RECORDER_REQUIRED"),
+    i18n.t("versions.inventory.recorderRequired"),
   );
   fireEvent.change(name(), { target: { value: "  確認者  " } });
   fireEvent.click(screen.getByRole("button", { name: "記録" }));
@@ -324,4 +324,28 @@ test("notice explains extraction blind spots and uses polite record guidance", (
   expect(
     screen.getByText("取り消すと前提は未達に戻ります"),
   ).toBeInTheDocument();
+});
+it("画面を戻って名前が空のまま取消すと、欄をエラーにして理由を示し再取得は出さない（TEST-11 #4）", async () => {
+  data({
+    summary: {
+      ...inventory.summary,
+      coverage: {
+        confirmationId: 51,
+        recordedBy: "応答者",
+        recordedAt: "2026-09-13T01:23:45Z",
+      },
+    },
+  });
+  render();
+  fireEvent.click(screen.getByRole("button", { name: "取消" }));
+  expect(undo).not.toHaveBeenCalled();
+  expect(name()).toHaveAttribute("aria-invalid", "true");
+  expect(name()).toHaveAccessibleDescription(
+    i18n.t("versions.inventory.recorderRequired"),
+  );
+  expect(
+    screen.queryByRole("button", { name: "再取得" }),
+  ).not.toBeInTheDocument();
+  fireEvent.change(name(), { target: { value: "取消者" } });
+  expect(name()).toHaveAttribute("aria-invalid", "false");
 });

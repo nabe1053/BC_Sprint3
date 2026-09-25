@@ -8,6 +8,7 @@ import {
   useAgentRun,
   useAgentRunSteps,
   useActiveRun,
+  useCarryOver,
 } from "../../hooks";
 import { AgentRunPanel } from "../AgentRunPanel";
 jest.mock("../../hooks", () => ({
@@ -15,6 +16,7 @@ jest.mock("../../hooks", () => ({
   useAgentRun: jest.fn(),
   useAgentRunSteps: jest.fn(),
   useActiveRun: jest.fn(),
+  useCarryOver: jest.fn(),
 }));
 const start = jest.fn();
 const progress = useAgentRun as jest.Mock;
@@ -53,6 +55,11 @@ beforeEach(() => {
   });
   setRun();
   (useActiveRun as jest.Mock).mockReturnValue({ data: undefined });
+  (useCarryOver as jest.Mock).mockReturnValue({
+    data: [],
+    isError: false,
+    isLoading: false,
+  });
   steps.mockReturnValue({
     data: [],
     isError: false,
@@ -542,3 +549,96 @@ it.each([
     ]);
   },
 );
+
+const carried = (changes: object = {}) => ({
+  versionId: 44,
+  versionNo: 2,
+  editCount: 1,
+  rowMatchConfirmed: 8,
+  rowMatchTotal: 8,
+  coverageRecorded: true,
+  judgementCount: 0,
+  ...changes,
+});
+it("記録のある既存版があれば、案作成ボタンの直前に件数つきの引き継ぎ警告を出す（TEST-16 #2/#3）", () => {
+  (useCarryOver as jest.Mock).mockReturnValue({
+    data: [
+      carried(),
+      carried({
+        versionId: 43,
+        versionNo: 1,
+        editCount: 0,
+        rowMatchConfirmed: 0,
+        coverageRecorded: false,
+      }),
+    ],
+    isError: false,
+    isLoading: false,
+  });
+  renderWithProviders(
+    <AgentRunPanel caseId={40} blockedReason={null} showCarryOver />,
+  );
+  expect(useCarryOver).toHaveBeenCalledWith(40, true);
+  const warning = screen.getByRole("region", { name: "記録の引き継ぎ警告" });
+  expect(warning).toHaveTextContent(
+    "v2：訂正 1件・照合 8/8行・網羅性確認 済・確認事項の判断 0件",
+  );
+  // 記録の無い版は数えない
+  expect(warning).not.toHaveTextContent("v1：");
+  expect(warning).toHaveTextContent("新版は作成案から始まり");
+  expect(warning).toHaveTextContent("既存版は保全されます");
+  // ボタンの直前に置く
+  const button = screen.getByRole("button", { name: "案を作成" });
+  expect(
+    warning.compareDocumentPosition(button) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+});
+it("記録のある版が無い・指定の無い画面では引き継ぎ警告を出さない", () => {
+  (useCarryOver as jest.Mock).mockReturnValue({
+    data: [
+      carried({ editCount: 0, rowMatchConfirmed: 0, coverageRecorded: false }),
+    ],
+    isError: false,
+    isLoading: false,
+  });
+  const view = renderWithProviders(
+    <AgentRunPanel caseId={40} blockedReason={null} showCarryOver />,
+  );
+  expect(
+    screen.queryByRole("region", { name: "記録の引き継ぎ警告" }),
+  ).not.toBeInTheDocument();
+  view.unmount();
+  (useCarryOver as jest.Mock).mockReturnValue({
+    data: [carried()],
+    isError: false,
+    isLoading: false,
+  });
+  renderWithProviders(<AgentRunPanel caseId={40} blockedReason={null} />);
+  expect(useCarryOver).toHaveBeenLastCalledWith(40, false);
+  expect(
+    screen.queryByRole("region", { name: "記録の引き継ぎ警告" }),
+  ).not.toBeInTheDocument();
+});
+it("引き継ぎ件数を取得できなければ、件数を出さずに取得失敗と起動時の確認を示し再取得できる", async () => {
+  (useCarryOver as jest.Mock).mockReturnValue({
+    data: undefined,
+    isError: true,
+    isLoading: false,
+  });
+  const refetchCarryOver = jest.fn();
+  (useCarryOver as jest.Mock).mockReturnValue({
+    data: undefined,
+    isError: true,
+    isLoading: false,
+    refetch: refetchCarryOver,
+  });
+  renderWithProviders(
+    <AgentRunPanel caseId={40} blockedReason={null} showCarryOver />,
+  );
+  const alert = screen.getByRole("alert");
+  expect(alert).toHaveTextContent(
+    "既存版の記録件数を取得できませんでした。記録がある場合は、案の作成時に引き継がれないことの確認を求めます。",
+  );
+  await userEvent.click(within(alert).getByRole("button", { name: "再取得" }));
+  expect(refetchCarryOver).toHaveBeenCalledTimes(1);
+});

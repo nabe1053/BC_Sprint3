@@ -249,9 +249,12 @@ it("ドロワーは絞り込み後の順に前後移動し、根拠のHTMLとURL
   expect(
     within(drawer).getByText("<script>https://private.test</script>"),
   ).toBeVisible();
-  expect(within(drawer).getByText("<b>https://private.test</b>")).toBeVisible();
+  expect(
+    within(drawer).getByText("出典: <b>https://private.test</b> · body:1"),
+  ).toBeVisible();
   expect(within(drawer).queryByRole("link")).not.toBeInTheDocument();
   expect(drawer.querySelector("script")).toBeNull();
+  expect(drawer.querySelector("b")).toBeNull();
   await userEvent.click(within(drawer).getByRole("button", { name: "次の行" }));
   expect(
     within(drawer).getByRole("heading", { name: "行 R2 · Casing" }),
@@ -741,4 +744,31 @@ it("ドロワーは外径・長さ・品種の根拠を別名の field でも該
   expect(other).not.toHaveTextContent("end_a.od");
   // 値と単位で同じ根拠を二重に表示しない
   expect(within(drawer).getAllByText("外径の原文")).toHaveLength(1);
+});
+
+it("ドロワーの根拠は原表記・出典・原文抜粋を見出しつきで区別する（TEST-09 #1）", async () => {
+  mock.useEvidence.mockReturnValue(
+    query([
+      {
+        ...evidenceRow,
+        field: "qty",
+        rawValue: "260 / JTS",
+        adoptedValue: "260 JTS",
+        locator: "C6/D6",
+        quote: "CSG 13-3/8 68.00# K55 BTC R-3 260 JTS",
+      },
+    ]) as never,
+  );
+  render();
+  await userEvent.click(
+    screen.getAllByRole("button", { name: "詳細を見る" })[0],
+  );
+  const qty = within(screen.getByRole("dialog")).getByRole("region", {
+    name: "数量",
+  });
+  expect(qty).toHaveTextContent("原表記: 260 / JTS");
+  expect(qty).toHaveTextContent("出典: <b>https://private.test</b> · C6/D6");
+  const quote = within(qty).getByRole("blockquote", { name: "原文抜粋" });
+  expect(quote).toHaveTextContent("CSG 13-3/8 68.00# K55 BTC R-3 260 JTS");
+  expect(within(qty).getByText("原文抜粋")).toBeInTheDocument();
 });

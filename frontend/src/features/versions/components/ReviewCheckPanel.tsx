@@ -1,4 +1,5 @@
 "use client";
+import { useId } from "react";
 import { Box, Button, Paper, TextField, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import type { VersionResponse } from "@/shared/api/generated/model";
@@ -24,7 +25,8 @@ export function ReviewCheckPanel({
   invalid: boolean;
 }) {
   const { t } = useTranslation(),
-    ready = canReview(state);
+    ready = canReview(state),
+    nameId = useId();
   return (
     <Paper
       component="section"
@@ -42,12 +44,20 @@ export function ReviewCheckPanel({
         {t("versions.approval.review.title")}
       </Typography>
       <TextField
+        id={nameId}
         label={t("versions.approval.review.recorder")}
         value={recordedBy}
         onChange={(e) => onName(e.target.value)}
-        helperText={t("versions.approval.review.recorderHint")}
+        // 拒否理由は欄の下に出す。表の上のエラー行だけでは見落とし、
+        // 直前の評価確認の記録行を「記録された」と誤読する（TEST-14 #1）。
+        error={invalid}
+        helperText={t(
+          invalid
+            ? "versions.approval.review.recorderRequired"
+            : "versions.approval.review.recorderHint",
+        )}
         InputLabelProps={{ shrink: true }}
-        inputProps={{ "aria-required": true, "aria-invalid": invalid }}
+        inputProps={{ "aria-required": true }}
       />
       <Box
         sx={{

@@ -171,7 +171,15 @@ export function ApprovalPage({
               <ReviewCheckPanel
                 state={version.data.currentState}
                 recordedBy={name}
-                onName={setName}
+                onName={(value) => {
+                  setName(value);
+                  // 名前の入力で「名前が空」の拒否表示だけを解除する（他のエラーは残す）。
+                  if (
+                    error instanceof ApiError &&
+                    error.code === "E_RECORDER_REQUIRED"
+                  )
+                    setError(null);
+                }}
                 busy={busy}
                 rows={
                   new Set(records.data.unlinkedComments.map((c) => c.itemId))

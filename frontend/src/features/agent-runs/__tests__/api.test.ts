@@ -3,6 +3,7 @@ import {
   getAgentRun,
   getAgentRunSteps,
   getActiveRunId,
+  listCarryOver,
 } from "../api";
 import { ApiError } from "@/shared/api/mutator";
 
@@ -91,4 +92,40 @@ it("案件の実行中runを実生成クライアントで取得し、無けれ�
   expect(await getActiveRunId(8)).toBeNull();
   respond(200, { runId: -1 });
   await expect(getActiveRunId(8)).rejects.toBeInstanceOf(ApiError);
+});
+
+it("引き継ぎ警告の材料は版一覧#22のcarryOverを版番号つきで返す（TEST-16）", async () => {
+  const carryOver = {
+    editCount: 1,
+    rowMatchConfirmed: 8,
+    rowMatchTotal: 8,
+    coverageRecorded: true,
+    judgementCount: 2,
+  };
+  respond(200, {
+    versions: [
+      {
+        versionId: 44,
+        versionNo: 2,
+        currentState: "staff_checked",
+        finalizedAt: "2026-09-24T21:41:29Z",
+        isComplete: true,
+        createdAt: "2026-09-24T21:37:12Z",
+        unresolvedCount: 0,
+        carryOver,
+        latestStateEvent: null,
+        latestBounce: null,
+        latestSendoff: null,
+        bounced: false,
+        needsRecheck: false,
+        elapsedSec: null,
+      },
+    ],
+  });
+  expect(await listCarryOver(40)).toEqual([
+    { versionId: 44, versionNo: 2, ...carryOver },
+  ]);
+  expect(request.mock.calls[0][0]).toMatch(
+    /\/api\/v1\/ui\/cases\/40\/versions$/,
+  );
 });

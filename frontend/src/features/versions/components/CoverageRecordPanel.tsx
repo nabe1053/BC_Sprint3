@@ -1,8 +1,9 @@
 "use client";
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { Box, Button, Paper, TextField, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import type { RowMatchResponse } from "@/shared/api/generated/model";
+import { ApiError } from "@/shared/api/mutator";
 import { tokens } from "@/shared/theme/tokens";
 import { useCoverageMutations } from "../hooks";
 import { buildCoverageRequest, inventoryErrorKey } from "../model";
@@ -19,6 +20,9 @@ export function CoverageRecordPanel({
   const mutations = useCoverageMutations(versionId);
   const [recordedBy, setRecordedBy] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // 名前が空の拒否は通信・データの問題ではないので、再取得ではなく入力欄で示す（TEST-11 #4）。
+  const [nameMissing, setNameMissing] = useState(false);
+  const nameId = useId();
   const [busy, setBusy] = useState(false);
   const lock = useRef(false);
   const gap = `${tokens.spacing.s4}px`;
@@ -29,6 +33,7 @@ export function CoverageRecordPanel({
       lock.current = true;
       setBusy(true);
       setError(null);
+      setNameMissing(false);
       if (coverage)
         await mutations.undoConfirmation.mutateAsync({
           confirmationId: coverage.confirmationId,
@@ -36,7 +41,9 @@ export function CoverageRecordPanel({
         });
       else await mutations.confirm.mutateAsync(input);
     } catch (cause) {
-      setError(inventoryErrorKey(cause));
+      if (cause instanceof ApiError && cause.code === "E_RECORDER_REQUIRED")
+        setNameMissing(true);
+      else setError(inventoryErrorKey(cause));
     } finally {
       lock.current = false;
       setBusy(false);
@@ -59,12 +66,22 @@ export function CoverageRecordPanel({
         {t("versions.inventory.recordTitle")}
       </Typography>
       <TextField
+        id={nameId}
         required
         InputLabelProps={{ shrink: true }}
         label={t("versions.inventory.recorder")}
-        helperText={t("versions.inventory.recorderHint")}
+        error={nameMissing}
+        helperText={t(
+          nameMissing
+            ? "versions.inventory.recorderRequired"
+            : "versions.inventory.recorderHint",
+        )}
+        FormHelperTextProps={nameMissing ? { role: "alert" } : undefined}
         value={recordedBy}
-        onChange={(event) => setRecordedBy(event.target.value)}
+        onChange={(event) => {
+          setRecordedBy(event.target.value);
+          setNameMissing(false);
+        }}
         disabled={busy}
       />
       <Typography>

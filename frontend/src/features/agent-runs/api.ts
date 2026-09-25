@@ -3,6 +3,7 @@ import {
   getRunApiV1UiAgentRunsRunIdGet,
   getStepsApiV1UiAgentRunsRunIdStepsGet,
   getActiveRunApiV1UiCasesCaseIdAgentRunsActiveGet,
+  listVersionsApiV1UiCasesCaseIdVersionsGet,
 } from "@/shared/api/generated/ui";
 import type { AgentRunRequest } from "@/shared/api/generated/model";
 import { unwrapSuccess } from "@/shared/api/unwrap";
@@ -45,4 +46,15 @@ export async function getActiveRunId(caseId: number, signal?: AbortSignal) {
   if (runId !== null && (!Number.isSafeInteger(runId) || runId <= 0))
     throw new ApiError(200, { code: "E_UNEXPECTED_RESPONSE" });
   return runId;
+}
+// 案作成ボタン直前の引き継ぎ警告の材料。版一覧 #22 の carryOver（未取消の記録件数）を使う。
+export async function listCarryOver(caseId: number, signal?: AbortSignal) {
+  return unwrapSuccess(
+    await listVersionsApiV1UiCasesCaseIdVersionsGet(caseId, { signal }),
+    200,
+  ).versions.map(({ versionId, versionNo, carryOver }) => ({
+    versionId,
+    versionNo,
+    ...carryOver,
+  }));
 }

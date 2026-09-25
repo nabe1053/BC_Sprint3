@@ -10,8 +10,19 @@ import {
 import { useTranslation } from "react-i18next";
 import { ApiError } from "@/shared/api/mutator";
 import { tokens } from "@/shared/theme/tokens";
-import { useStartAgentRun, useAgentRun, useActiveRun } from "../hooks";
-import { startFailure, runLimitDetails, type BlockedReason } from "../model";
+import { Note } from "@/shared/ui";
+import {
+  useStartAgentRun,
+  useAgentRun,
+  useActiveRun,
+  useCarryOver,
+} from "../hooks";
+import {
+  startFailure,
+  runLimitDetails,
+  carryOverVersions,
+  type BlockedReason,
+} from "../model";
 import { RunProgress } from "./RunProgress";
 import { RunSteps } from "./RunSteps";
 
@@ -21,6 +32,7 @@ export function AgentRunPanel({
   inputRevision = "",
   onBusyChange,
   emphasis = "primary",
+  showCarryOver = false,
 }: {
   caseId: number;
   blockedReason: BlockedReason | null;
@@ -28,9 +40,14 @@ export function AgentRunPanel({
   onBusyChange?: (busy: boolean) => void;
   // primary（塗り）は1画面1つ。既に primary がある画面では "secondary" で置く。
   emphasis?: "primary" | "secondary";
+  // 資料投入画面（SCR-02）だけ、ボタン直前に件数つきの引き継ぎ警告を出す（03-spec SCR-02）。
+  showCarryOver?: boolean;
 }) {
   const { t } = useTranslation();
   const reasonId = useId();
+  const carryOverId = useId();
+  const carryOverCounts = useCarryOver(caseId, showCarryOver);
+  const carried = carryOverVersions(carryOverCounts.data ?? []);
   const [runId, setRunId] = useState<number | null>(null);
   const [acknowledgedRunId, setAcknowledgedRunId] = useState<number | null>(
     null,
@@ -129,6 +146,45 @@ export function AgentRunPanel({
       }}
     >
       <Typography variant="h2">{t("agentRuns.title")}</Typography>
+      {showCarryOver && carryOverCounts.isError && (
+        <Box role="alert">
+          <Typography>{t("agentRuns.carryOverNotice.error")}</Typography>
+          <Button
+            variant="outlined"
+            onClick={() => void carryOverCounts.refetch()}
+          >
+            {t("agentRuns.carryOverNotice.reload")}
+          </Button>
+        </Box>
+      )}
+      {showCarryOver && carried.length > 0 && (
+        <Box component="section" aria-labelledby={carryOverId}>
+          <Note>
+            <Typography
+              id={carryOverId}
+              component="b"
+              sx={{ fontWeight: tokens.typography.weight.bold }}
+            >
+              {t("agentRuns.carryOverNotice.title")}
+            </Typography>
+            {carried.map((row) => (
+              <Typography key={row.versionId}>
+                {t("agentRuns.carryOverNotice.line", {
+                  version: row.versionNo,
+                  edits: row.editCount,
+                  matched: row.rowMatchConfirmed,
+                  total: row.rowMatchTotal,
+                  coverage: t(
+                    `agentRuns.carryOverNotice.coverage.${row.coverageRecorded ? "yes" : "no"}`,
+                  ),
+                  judgements: row.judgementCount,
+                })}
+              </Typography>
+            ))}
+            <Typography>{t("agentRuns.carryOverNotice.body")}</Typography>
+          </Note>
+        </Box>
+      )}
       <Button
         variant={emphasis === "primary" ? "contained" : "outlined"}
         disabled={blocked}

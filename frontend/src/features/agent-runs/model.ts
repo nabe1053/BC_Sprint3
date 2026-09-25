@@ -143,3 +143,22 @@ export function runLimitDetails(value: unknown) {
       : null;
   return { kind, actual, limit, documentId };
 }
+
+export type CarryOverRow = {
+  versionId: number;
+  versionNo: number;
+  editCount: number;
+  rowMatchConfirmed: number;
+  rowMatchTotal: number;
+  coverageRecorded: boolean;
+  judgementCount: number;
+};
+// サーバーの引き継ぎ判定（未取消の訂正・確認、判断の有無）と同じ条件で、記録のある版だけを残す。
+export const carryOverVersions = (rows: readonly CarryOverRow[]) =>
+  rows.filter(
+    (row) =>
+      row.editCount > 0 ||
+      row.rowMatchConfirmed > 0 ||
+      row.coverageRecorded ||
+      row.judgementCount > 0,
+  );

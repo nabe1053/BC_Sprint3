@@ -245,6 +245,14 @@
       "notFound": "案件またはルールが見つかりません。案件一覧から選び直してください。"
     },
     "acknowledge": "新版へ引き継がれないことを確認しました",
+    "carryOverNotice": {
+      "title": "記録の引き継ぎ警告",
+      "line": "v{{version}}：訂正 {{edits}}件・照合 {{matched}}/{{total}}行・網羅性確認 {{coverage}}・確認事項の判断 {{judgements}}件",
+      "coverage": { "yes": "済", "no": "未" },
+      "body": "案を作成すると新版は作成案から始まり、上記の記録は新版へ引き継がれません（自動マージは対象外）。既存版は保全されます。",
+      "error": "既存版の記録件数を取得できませんでした。記録がある場合は、案の作成時に引き継がれないことの確認を求めます。",
+      "reload": "再取得"
+    },
     "diagnostic": {
       "worker_failed": "処理中にエラーが発生しました",
       "process_interrupted": "処理が中断されました",
@@ -454,6 +462,8 @@
       "noEvidence": "この行の根拠は登録されていません",
       "documentMissing": "資料名を取得できません",
       "quote": "原文抜粋",
+      "rawValueLine": "原表記: {{value}}",
+      "sourceLine": "出典: {{file}} · {{locator}}",
       "appliedCondition": "適用条件",
       "conversionNote": "換算の注記",
       "changeReason": "変更理由",
@@ -581,6 +591,7 @@
       "openDocumentLabel": "元資料を開く：{{name}}",
       "scopeNote": "全ページ・全シート・本文と、追加・別紙・脚注の有無を確認します。この対応表に抽出漏れ検出機能はありません",
       "recordTitle": "網羅性確認の記録",
+      "recorderRequired": "確認者名（取消時は取消者名）を入力してください。入力するまで記録・取消は行われません。AI は補完しません。",
       "recorder": "確認者名（取消時は取消者名）",
       "recorderHint": "AI は補完しません",
       "record": "記録",
@@ -662,6 +673,7 @@
         "title": "① 評価確認 — 原資料への適合を確認する",
         "recorder": "確認者名（必須）",
         "recorderHint": "評価確認・差し戻し・行コメントの記録者になります。AI は補完しません。",
+        "recorderRequired": "確認者名を入力してください。入力するまで評価確認・差し戻し・行コメントは記録されません。AI は補完しません。",
         "approve": "評価確認済みにする",
         "bounce": "差し戻す",
         "hint": "差し戻しは表右端の行コメント（{{rows}} 行）を理由にします。評価確認済みは送付承認ではありません。",

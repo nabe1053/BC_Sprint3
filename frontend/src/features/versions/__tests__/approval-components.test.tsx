@@ -437,3 +437,17 @@ it("API導出の差し戻し中・再確認と現在の送付判断を表示す�
     screen.getByText("現在：保留 ／ 判断者 ／ 2026-09-13T01:00:00Z"),
   ).toBeVisible();
 });
+it("空名で評価確認を押すと確認者名の欄そのものをエラーにして理由を示す（TEST-14 #1）", async () => {
+  render();
+  fireEvent.click(screen.getByRole("button", { name: "評価確認済みにする" }));
+  expect(transition).not.toHaveBeenCalled();
+  const field = screen.getByLabelText("確認者名（必須）");
+  await waitFor(() =>
+    expect(field).toHaveAccessibleDescription(
+      "確認者名を入力してください。入力するまで評価確認・差し戻し・行コメントは記録されません。AI は補完しません。",
+    ),
+  );
+  expect(field.closest(".MuiInputBase-root")).toHaveClass("Mui-error");
+  fireEvent.change(field, { target: { value: "評価者" } });
+  expect(field.closest(".MuiInputBase-root")).not.toHaveClass("Mui-error");
+});
