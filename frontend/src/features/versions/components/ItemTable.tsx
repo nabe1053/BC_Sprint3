@@ -22,7 +22,7 @@ import { muiColor } from "@/shared/theme/mui-color";
 import { hasEdits, itemQuestions, rowState } from "../model";
 import { DimensionValue, ItemValue } from "./ItemValue";
 import {
-  QuestionJudgementForm,
+  QuestionJudgementCells,
   type JudgementInput,
 } from "./QuestionJudgementForm";
 import { formatDateTime } from "@/shared/lib/datetime";
@@ -257,18 +257,12 @@ export function ItemTable({
                     : t("versions.noQuestions")}
                 </TableCell>
                 <TableCell>{item.sourceNo}</TableCell>
-                <TableCell colSpan={3} className="wrap">
-                  {qs.map((q) => (
-                    <QuestionJudgementForm
-                      key={q.questionId}
-                      question={q}
-                      showReason={false}
-                      recordedBy={recordedBy}
-                      onRecord={onJudge}
-                      busy={busy}
-                    />
-                  ))}
-                </TableCell>
+                <QuestionJudgementCells
+                  questions={qs}
+                  recordedBy={recordedBy}
+                  onRecord={onJudge}
+                  busy={busy}
+                />
                 <TableCell>
                   <Button
                     variant="outlined"

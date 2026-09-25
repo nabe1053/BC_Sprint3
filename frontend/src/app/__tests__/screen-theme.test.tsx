@@ -57,7 +57,8 @@ it.each(["cases", "intake"])(
         {view === "cases" ? <CaseListPage /> : <IntakePage caseId={1} />}
       </Providers>,
     );
-    expect(screen.getByRole("table")).toBeInTheDocument();
+    // 資料投入画面は案件情報と受付一覧の2つの表を持つ。
+    expect(screen.getAllByRole("table").length).toBeGreaterThan(0);
     expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
   },
 );

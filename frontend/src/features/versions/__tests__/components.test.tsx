@@ -223,7 +223,9 @@ it("判断selectを変えただけではPOSTせず行の記録ボタンで送る
     target: { value: "担当" },
   });
   const form = screen.getByRole("form", { name: "確認事項 Q1" });
-  fireEvent.change(within(form).getByLabelText("対応状況"), {
+  // 選択欄は対応状況の列にあり、記録フォーム（判断内容の列）とは別セル。
+  const row = form.closest("tr") as HTMLElement;
+  fireEvent.change(within(row).getByLabelText("対応状況"), {
     target: { value: "judged" },
   });
   expect(mutate).not.toHaveBeenCalled();
@@ -235,6 +237,28 @@ it("判断selectを変えただけではPOSTせず行の記録ボタンで送る
     note: null,
     recordedBy: "担当",
   });
+});
+it("判断の入力欄は対応状況・解決状態・判断内容の各列に1つずつ収まる", () => {
+  render();
+  const table = screen.getByRole("table", { name: /Item List/ });
+  const headers = within(table)
+    .getAllByRole("columnheader")
+    .map((cell) => cell.textContent);
+  const row = within(table).getByRole("rowheader", { name: "R1" })
+    .parentElement as HTMLElement;
+  const cellOf = (column: string) =>
+    row.children[headers.indexOf(column)] as HTMLElement;
+  expect(within(cellOf("対応状況")).getByLabelText("対応状況")).toHaveValue(
+    "open",
+  );
+  expect(within(cellOf("解決状態")).getByLabelText("解決状態")).toHaveValue(
+    "unresolved",
+  );
+  expect(within(cellOf("判断内容")).getByLabelText("判断内容")).toBeVisible();
+  expect(
+    within(cellOf("判断内容")).getByRole("button", { name: "記録" }),
+  ).toBeVisible();
+  expect(within(cellOf("対応状況")).queryByLabelText("解決状態")).toBeNull();
 });
 it("ドロワーは絞り込み後の順に前後移動し、根拠のHTMLとURLは文字列", async () => {
   render();
