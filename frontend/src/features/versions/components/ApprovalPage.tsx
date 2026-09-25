@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Box, Button, Typography } from "@mui/material";
@@ -39,9 +39,12 @@ import { formatDateTime } from "@/shared/lib/datetime";
 export function ApprovalPage({
   caseId,
   versionId,
+  caseSwitcher,
 }: {
   caseId: number;
   versionId: number;
+  // 対象案件の切替（app/ のルートが cases feature の部品を渡す。memory AD-036 ③）。
+  caseSwitcher?: ReactNode;
 }) {
   const { t } = useTranslation(),
     router = useRouter(),
@@ -125,6 +128,7 @@ export function ApprovalPage({
     >
       <PageHeading
         title={t("versions.approval.title")}
+        after={caseSwitcher}
         description={t("versions.approval.description")}
         actions={
           <Button

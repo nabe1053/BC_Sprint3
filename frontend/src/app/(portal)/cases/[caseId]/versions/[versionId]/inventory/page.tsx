@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { CaseSelect } from "@/features/cases";
 import { InventoryPage } from "@/features/versions";
 export default async function InventoryReviewRoute({
   params,
@@ -22,6 +23,7 @@ export default async function InventoryReviewRoute({
       key={`${caseNumber}:${versionNumber}`}
       caseId={caseNumber}
       versionId={versionNumber}
+      caseSwitcher={<CaseSelect caseId={caseNumber} target="inventory" />}
     />
   );
 }

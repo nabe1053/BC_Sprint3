@@ -729,3 +729,29 @@ it("引き継ぎ件数を取得できなければ、件数を出さずに取得�
   await userEvent.click(within(alert).getByRole("button", { name: "再取得" }));
   expect(refetchCarryOver).toHaveBeenCalledTimes(1);
 });
+
+// F-14（RV-057 P2）: 案が確定したら案件一覧（左ナビの最新版・案件一覧の件数）を取り直させる。
+it("実行が終わったら案件一覧のキャッシュを無効化する", async () => {
+  setRun({
+    ...running,
+    outcome: "success",
+    stage: "done",
+    stopReason: "completed",
+    versionId: 99,
+    isComplete: true,
+  });
+  const { queryClient } = renderWithProviders(
+    <AgentRunPanel caseId={8} blockedReason={null} />,
+  );
+  const invalidate = jest.spyOn(queryClient, "invalidateQueries");
+  await launch();
+  expect(invalidate).toHaveBeenCalledWith({ queryKey: ["cases"] });
+});
+it("実行中のあいだは案件一覧を無効化しない", async () => {
+  const { queryClient } = renderWithProviders(
+    <AgentRunPanel caseId={8} blockedReason={null} />,
+  );
+  const invalidate = jest.spyOn(queryClient, "invalidateQueries");
+  await launch();
+  expect(invalidate).not.toHaveBeenCalledWith({ queryKey: ["cases"] });
+});

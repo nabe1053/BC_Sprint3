@@ -8,6 +8,8 @@ import {
   Typography,
 } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import { useQueryClient } from "@tanstack/react-query";
+import { CASES_QUERY_KEY } from "@/shared/api/queryKeys";
 import { ApiError } from "@/shared/api/mutator";
 import { tokens } from "@/shared/theme/tokens";
 import { Note } from "@/shared/ui";
@@ -77,6 +79,14 @@ export function AgentRunPanel({
     setRunId((current) => current ?? activeRunId);
   }, [activeRunId]);
   const run = useAgentRun(runId);
+  // 実行が終わったら案件一覧（左ナビの最新版・件数）を取り直させる（F-14・RV-057 P2）。
+  const queryClient = useQueryClient();
+  const finished =
+    runId !== null && !!run.data && run.data.outcome !== "running";
+  useEffect(() => {
+    if (finished)
+      void queryClient.invalidateQueries({ queryKey: CASES_QUERY_KEY });
+  }, [finished, runId, queryClient]);
   // 資料を変えた場合に限り、資料由来のサーバー判定を再確認できる。
   const errorKind =
     failure &&

@@ -1,4 +1,5 @@
 "use client";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { Box, Button, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -14,9 +15,12 @@ import { InventoryItemsTable } from "./InventoryItemsTable";
 export function InventoryPage({
   caseId,
   versionId,
+  caseSwitcher,
 }: {
   caseId: number;
   versionId: number;
+  // 対象案件の切替（app/ のルートが cases feature の部品を渡す。memory AD-036 ③）。
+  caseSwitcher?: ReactNode;
 }) {
   const { t } = useTranslation();
   const inventory = useInventory(versionId),
@@ -51,6 +55,7 @@ export function InventoryPage({
     >
       <PageHeading
         title={t("versions.inventory.title")}
+        after={caseSwitcher}
         description={
           s
             ? t("versions.inventory.description", {

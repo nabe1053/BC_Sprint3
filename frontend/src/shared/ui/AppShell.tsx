@@ -1,5 +1,5 @@
 "use client";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Box, Typography } from "@mui/material";
@@ -41,10 +41,54 @@ export function routeContext(pathname: string) {
   return { caseId, versionId };
 }
 
-export function AppShell({ children }: { children: ReactNode }) {
+const LAST_CASE_KEY = "shell.lastCaseId";
+
+function readLastCase(): string | null {
+  try {
+    return window.sessionStorage.getItem(LAST_CASE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function writeLastCase(caseId: string) {
+  try {
+    window.sessionStorage.setItem(LAST_CASE_KEY, caseId);
+  } catch {
+    // 保存できない環境では直前の案件を覚えない（URL の文脈だけで動く）。
+  }
+}
+
+/**
+ * 左ナビの行き先。URL の案件・版を優先し、版が URL に無いときは案件の最新版で開く。
+ * 案件も URL に無いとき（案件一覧）は、このタブで直前に開いた案件を使う（memory AD-036 ③）。
+ */
+export function AppShell({
+  children,
+  latestVersionOf,
+}: {
+  children: ReactNode;
+  // undefined＝不明（取得中・失敗）、null＝版がまだ無い。
+  latestVersionOf?: (caseId: number) => number | null | undefined;
+}) {
   const { t } = useTranslation();
   const pathname = usePathname() ?? "";
-  const { caseId, versionId } = routeContext(pathname);
+  const route = routeContext(pathname);
+  const [lastCase, setLastCase] = useState<string | null>(null);
+  useEffect(() => {
+    if (route.caseId) {
+      writeLastCase(route.caseId);
+      setLastCase(route.caseId);
+    } else setLastCase(readLastCase());
+  }, [route.caseId]);
+  const caseId = route.caseId ?? lastCase;
+  const latest = caseId ? latestVersionOf?.(Number(caseId)) : null;
+  const versionId = route.versionId ?? (latest != null ? String(latest) : null);
+  const disabledReason = !caseId
+    ? "shell.navNeedsCase"
+    : latest === undefined && latestVersionOf
+      ? "shell.navLoading"
+      : "shell.navNeedsVersion";
   const [collapsed, setCollapsed] = useState(false);
   const navWidth = collapsed ? layout.navWidthCollapsed : layout.navWidth;
   return (
@@ -198,7 +242,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Box
                 key={item.key}
                 aria-disabled="true"
-                title={t("shell.navNeedsCase")}
+                title={t(disabledReason)}
                 sx={{ ...shared, opacity: 0.45, cursor: "not-allowed" }}
               >
                 {body}

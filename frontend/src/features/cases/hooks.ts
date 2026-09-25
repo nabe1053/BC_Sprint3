@@ -13,6 +13,7 @@ import type {
   RecordsResponse,
 } from "@/shared/api/generated/model";
 import type { ApiError } from "@/shared/api/mutator";
+import { CASES_QUERY_KEY } from "@/shared/api/queryKeys";
 import {
   createCase,
   listCases,
@@ -22,7 +23,7 @@ import {
 
 export type CreateCaseInput = CaseCreateRequest;
 
-export const casesQueryKey = () => ["cases"] as const;
+export const casesQueryKey = () => CASES_QUERY_KEY;
 export const caseQueryKey = (caseId: number) => ["cases", caseId] as const;
 
 export function useCases() {

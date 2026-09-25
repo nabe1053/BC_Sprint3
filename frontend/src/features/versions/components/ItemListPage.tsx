@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -42,9 +42,12 @@ import {
 export function ItemListPage({
   caseId,
   versionId,
+  caseSwitcher,
 }: {
   caseId: number;
   versionId: number;
+  // 対象案件の切替（app/ のルートが cases feature の部品を渡す。memory AD-036 ③）。
+  caseSwitcher?: ReactNode;
 }) {
   const { t } = useTranslation();
   const version = useVersion(versionId);
@@ -140,6 +143,7 @@ export function ItemListPage({
     <Box sx={{ display: "grid", gap, minWidth: 0 }}>
       <PageHeading
         title={t("versions.title")}
+        after={caseSwitcher}
         description={t("versions.description")}
         actions={
           <>

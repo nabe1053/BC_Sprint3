@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { CaseSelect } from "@/features/cases";
 import { ApprovalPage } from "@/features/versions";
 export default async function ApprovalRoute({
   params,
@@ -22,6 +23,7 @@ export default async function ApprovalRoute({
       key={`${caseNumber}:${versionNumber}`}
       caseId={caseNumber}
       versionId={versionNumber}
+      caseSwitcher={<CaseSelect caseId={caseNumber} target="approval" />}
     />
   );
 }

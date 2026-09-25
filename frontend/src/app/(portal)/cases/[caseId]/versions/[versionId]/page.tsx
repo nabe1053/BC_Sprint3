@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { CaseSelect } from "@/features/cases";
 import { ItemListPage } from "@/features/versions";
 export default async function ItemReviewRoute({
   params,
@@ -22,6 +23,7 @@ export default async function ItemReviewRoute({
       key={`${caseNumber}:${versionNumber}`}
       caseId={caseNumber}
       versionId={versionNumber}
+      caseSwitcher={<CaseSelect caseId={caseNumber} target="items" />}
     />
   );
 }

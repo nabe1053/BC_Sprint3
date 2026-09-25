@@ -15,6 +15,11 @@ jest.mock("next/navigation", () => ({
 }));
 jest.mock("@/features/cases", () => ({
   CaseListPage: () => <div>cases view</div>,
+  CaseSelect: ({ caseId, target }: { caseId: number; target: string }) => (
+    <div>
+      select {caseId} {target}
+    </div>
+  ),
 }));
 jest.mock("@/features/documents", () => ({
   IntakePage: ({ caseId }: { caseId: number }) => <div>case {caseId}</div>,
@@ -47,34 +52,43 @@ jest.mock("@/features/versions", () => ({
   ApprovalPage: ({
     caseId,
     versionId,
+    caseSwitcher,
   }: {
     caseId: number;
     versionId: number;
+    caseSwitcher?: React.ReactNode;
   }) => (
     <div>
       approval case {caseId} version {versionId}
+      {caseSwitcher}
     </div>
   ),
   InventoryPage: ({
     caseId,
     versionId,
+    caseSwitcher,
   }: {
     caseId: number;
     versionId: number;
+    caseSwitcher?: React.ReactNode;
   }) => (
     <div>
       inventory case {caseId} version {versionId}
+      {caseSwitcher}
     </div>
   ),
   ItemListPage: ({
     caseId,
     versionId,
+    caseSwitcher,
   }: {
     caseId: number;
     versionId: number;
+    caseSwitcher?: React.ReactNode;
   }) => (
     <div>
       case {caseId} version {versionId}
+      {caseSwitcher}
     </div>
   ),
 }));
@@ -139,5 +153,20 @@ it.each(["0", "-1", "1.5", "abc", "9007199254740992"])(
     await expect(
       Approval({ params: Promise.resolve({ caseId: "8", versionId: bad }) }),
     ).rejects.toThrow("not found");
+  },
+);
+
+// F-14: SCR-03/05/06 に案件切替プルダウンを置く（memory AD-036 ③）。
+it.each([
+  [ItemReview, "items"],
+  [InventoryReview, "inventory"],
+  [Approval, "approval"],
+] as const)(
+  "版ルートは案件切替に同じ画面の行き先（%#）を渡す",
+  async (Route, target) => {
+    renderWithProviders(
+      await Route({ params: Promise.resolve({ caseId: "8", versionId: "9" }) }),
+    );
+    expect(screen.getByText(`select 8 ${target}`)).toBeInTheDocument();
   },
 );

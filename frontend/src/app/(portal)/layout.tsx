@@ -1,9 +1,9 @@
-import { AppShell } from "@/shared/ui";
+import { CaseShell } from "@/features/cases";
 
 export default function PortalLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <AppShell>{children}</AppShell>;
+  return <CaseShell>{children}</CaseShell>;
 }
