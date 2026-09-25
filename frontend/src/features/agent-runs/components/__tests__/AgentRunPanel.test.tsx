@@ -149,7 +149,8 @@ it.each([true, false])(
     renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
     await launch();
     expect(screen.getByText("案を作成しました")).toBeInTheDocument();
-    expect(screen.getByText("版番号：99")).toBeInTheDocument();
+    // 内部の版 ID は画面に出さない（memory AD-036 ⑤）。版へはリンクで移る。
+    expect(screen.queryByText(/版番号|99/)).not.toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Item List を確認する" }),
     ).toBeInTheDocument();
@@ -204,7 +205,9 @@ it.each([
   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
   await launch();
   expect(screen.queryByText("案を作成しました")).not.toBeInTheDocument();
-  expect(screen.queryByText(/版番号/)).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("link", { name: "Item List を確認する" }),
+  ).not.toBeInTheDocument();
 });
 it.each([404, 500])("GET %sのエラーは古いrunningより優先", async (status) => {
   setRun(running, new ApiError(status, { code: "E_NOT_FOUND" }));
@@ -309,8 +312,92 @@ it("stepsはseq順・生HTMLとリンクを実行しない", async () => {
     screen.getByRole("list", { name: "処理記録" }),
   ).getAllByRole("listitem");
   expect(rows[0]).toHaveTextContent("p.1");
+  // 内部のツール名・資料 ID・ms 表記は出さず、処理の名前と秒で示す（memory AD-036 ⑤）。
+  expect(rows[0]).toHaveTextContent("資料を読取：正常");
+  expect(rows[0]).toHaveTextContent("処理時間：0.1 秒未満");
+  expect(rows[0]).not.toHaveTextContent("read_document");
+  expect(rows[0]).not.toHaveTextContent("資料番号");
+  expect(rows[0]).not.toHaveTextContent("資料：");
   expect(rows[1]).toHaveTextContent('<a href="https://example.com">unsafe</a>');
   expect(screen.queryByRole("link")).not.toBeInTheDocument();
+});
+it("処理記録は資料をファイル名で示し、引数の要約・未知のツール名を出さない", async () => {
+  steps.mockReturnValue({
+    data: [
+      {
+        stepId: 1,
+        seq: 1,
+        argsDigest: "hash",
+        argsSummary: "documentId=1 secret-args",
+        toolName: "read_document",
+        documentId: 1,
+        locator: null,
+        resultStatus: "ok",
+        durationMs: 1234,
+        parentStepId: null,
+      },
+      {
+        stepId: 2,
+        seq: 2,
+        argsDigest: "hash",
+        argsSummary: null,
+        toolName: "job_interrupted",
+        documentId: null,
+        locator: null,
+        resultStatus: "error",
+        durationMs: null,
+        parentStepId: null,
+      },
+      {
+        stepId: 3,
+        seq: 3,
+        argsDigest: "hash",
+        argsSummary: null,
+        toolName: "unknown_tool_x",
+        documentId: null,
+        locator: null,
+        resultStatus: "ok",
+        durationMs: null,
+        parentStepId: null,
+      },
+    ],
+    isError: false,
+  });
+  renderWithProviders(
+    <AgentRunPanel
+      caseId={8}
+      blockedReason={null}
+      documentNames={new Map([[1, "sample-01.pdf"]])}
+    />,
+  );
+  const user = await launch();
+  await user.click(screen.getByRole("button", { name: "処理記録を表示" }));
+  const rows = within(
+    screen.getByRole("list", { name: "処理記録" }),
+  ).getAllByRole("listitem");
+  expect(rows[0]).toHaveTextContent("資料：sample-01.pdf");
+  expect(rows[0]).toHaveTextContent("処理時間：1.2 秒");
+  expect(rows[0]).not.toHaveTextContent("secret-args");
+  expect(rows[1]).toHaveTextContent("実行の中断：エラー");
+  expect(rows[2]).toHaveTextContent("その他の処理：正常");
+  expect(rows[2]).not.toHaveTextContent("unknown_tool_x");
+});
+it("起動413の対象資料はファイル名で示す", async () => {
+  start.mockRejectedValue(
+    new ApiError(413, {
+      code: "E_LIMIT_EXCEEDED",
+      details: { kind: "pdfPages", actual: 201, limit: 200, documentId: 7 },
+    }),
+  );
+  renderWithProviders(
+    <AgentRunPanel
+      caseId={8}
+      blockedReason={null}
+      documentNames={new Map([[7, "big.pdf"]])}
+    />,
+  );
+  await launch();
+  expect(screen.getByRole("alert")).toHaveTextContent("対象資料：big.pdf");
 });
 it.each([
   ["documents", "資料件数", "件", 51, 50],
@@ -331,7 +418,7 @@ it.each([
     expect(screen.getByRole("alert")).toHaveTextContent(
       `${label}：${actual}${unit}（上限 ${limit}${unit}）`,
     );
-    expect(screen.getByRole("alert")).toHaveTextContent("対象資料番号：7");
+    expect(screen.getByRole("alert")).not.toHaveTextContent(/資料番号/);
   },
 );
 it("起動413の未知detailsは安全な上限案内を保持", async () => {
@@ -375,15 +462,15 @@ it("資料由来400は資料変更まで再POST不可、資料変更後は明示
   await user.click(screen.getByRole("button", { name: "案を作成" }));
   expect(start).toHaveBeenCalledTimes(2);
 });
-it("版の注記は起動ボタン近傍に常時表示される", async () => {
+it("模擬期の注記（実ファイルを抽出する処理ではありません）は出さない", async () => {
   renderWithProviders(<AgentRunPanel caseId={8} blockedReason={null} />);
-  const note =
-    "実ファイルを抽出する処理ではありません。再実行は別の生成版になります。未生成の案件ではまだ版がありません";
   expect(
-    within(screen.getByRole("region", { name: "案の作成" })).getByText(note),
-  ).toBeInTheDocument();
+    screen.queryByText(/実ファイルを抽出する処理/),
+  ).not.toBeInTheDocument();
   await launch();
-  expect(screen.getByText(note)).toBeInTheDocument();
+  expect(
+    screen.queryByText(/実ファイルを抽出する処理/),
+  ).not.toBeInTheDocument();
 });
 it("実API相当のelapsedSec小数は切り捨てた秒で表示する", async () => {
   setRun({ ...running, elapsedSec: 12.3456789 });

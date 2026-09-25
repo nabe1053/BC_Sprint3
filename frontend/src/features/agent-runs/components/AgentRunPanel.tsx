@@ -33,6 +33,7 @@ export function AgentRunPanel({
   onBusyChange,
   emphasis = "primary",
   showCarryOver = false,
+  documentNames,
 }: {
   caseId: number;
   blockedReason: BlockedReason | null;
@@ -42,8 +43,11 @@ export function AgentRunPanel({
   emphasis?: "primary" | "secondary";
   // 資料投入画面（SCR-02）だけ、ボタン直前に件数つきの引き継ぎ警告を出す（03-spec SCR-02）。
   showCarryOver?: boolean;
+  // 処理記録・上限エラーで資料を内部 ID ではなくファイル名で示す（memory AD-036 ⑤）。
+  documentNames?: ReadonlyMap<number, string>;
 }) {
   const { t } = useTranslation();
+  const documentName = (id: number) => documentNames?.get(id) ?? null;
   const reasonId = useId();
   const carryOverId = useId();
   const carryOverCounts = useCarryOver(caseId, showCarryOver);
@@ -193,7 +197,6 @@ export function AgentRunPanel({
       >
         {t(pending || running ? "agentRuns.pending" : "agentRuns.start")}
       </Button>
-      <Typography variant="body2">{t("agentRuns.versionNote")}</Typography>
       {blockedReason && (
         <Typography id={reasonId}>
           {t(`agentRuns.blocked.${blockedReason}`)}
@@ -212,13 +215,14 @@ export function AgentRunPanel({
                   limit: limitDetails.limit,
                 })}
               </Typography>
-              {limitDetails.documentId !== null && (
-                <Typography>
-                  {t("agentRuns.limit.document", {
-                    id: limitDetails.documentId,
-                  })}
-                </Typography>
-              )}
+              {limitDetails.documentId !== null &&
+                documentName(limitDetails.documentId) && (
+                  <Typography>
+                    {t("agentRuns.limit.document", {
+                      name: documentName(limitDetails.documentId),
+                    })}
+                  </Typography>
+                )}
             </>
           )}
           {carryOver && (
@@ -262,7 +266,9 @@ export function AgentRunPanel({
           {t("agentRuns.resetState")}
         </Button>
       )}
-      {runId !== null && <RunSteps key={runId} runId={runId} />}
+      {runId !== null && (
+        <RunSteps key={runId} runId={runId} documentName={documentName} />
+      )}
     </Box>
   );
 }

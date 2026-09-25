@@ -35,6 +35,7 @@ import { ApprovalTable } from "./ApprovalTable";
 import { ApprovalListsDrawer } from "./ApprovalListsDrawer";
 import { EvidenceDrawer } from "./EvidenceDrawer";
 import { ApprovalError } from "./ApprovalError";
+import { formatDateTime } from "@/shared/lib/datetime";
 export function ApprovalPage({
   caseId,
   versionId,
@@ -99,7 +100,7 @@ export function ApprovalPage({
     row
       ? t("versions.approval.meta.recorded", {
           by: row.recordedBy,
-          at: row.recordedAt,
+          at: formatDateTime(row.recordedAt),
         })
       : t("versions.approval.meta.unrecorded");
   const rows = records.data
@@ -123,7 +124,6 @@ export function ApprovalPage({
       }}
     >
       <PageHeading
-        eyebrow={t("versions.approval.eyebrow")}
         title={t("versions.approval.title")}
         description={t("versions.approval.description")}
         actions={

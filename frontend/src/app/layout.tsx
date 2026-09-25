@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "OCTG Item List Agent",
+  title: "引合書整理エージェント",
 };
 
 export default function RootLayout({

@@ -4,6 +4,7 @@ import { Box, Button, TextField, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import type { BounceCommentRecord } from "@/shared/api/generated/model";
 import { tokens } from "@/shared/theme/tokens";
+import { formatDateTime } from "@/shared/lib/datetime";
 export function BounceCommentCell({
   itemId,
   rowCode,
@@ -57,7 +58,7 @@ export function BounceCommentCell({
           {t("versions.approval.bounce.recorded", {
             comment: c.comment,
             by: c.recordedBy,
-            at: c.recordedAt,
+            at: formatDateTime(c.recordedAt),
           })}
         </Typography>
       ))}

@@ -13,10 +13,11 @@ import {
 import { useTranslation } from "react-i18next";
 import { AgentRunPanel } from "@/features/agent-runs";
 import { tokens } from "@/shared/theme/tokens";
-import { Note, Pill, Popover, ScrollArea } from "@/shared/ui";
+import { Note, Popover, ScrollArea } from "@/shared/ui";
 import { useExports, useVersionHistory } from "../hooks";
 import { findVersionListItem, integrityLabelKey } from "../model";
 import { ExportButton } from "./ExportButton";
+import { formatDateTime } from "@/shared/lib/datetime";
 
 const gap = `${tokens.spacing.s3}px`;
 
@@ -93,7 +94,7 @@ export function VersionHistory({
                         </Typography>
                       )}
                     </TableCell>
-                    <TableCell>{version.finalizedAt}</TableCell>
+                    <TableCell>{formatDateTime(version.finalizedAt)}</TableCell>
                     <TableCell>
                       {version.elapsedSec === null
                         ? t("versions.history.elapsedUnrecorded")
@@ -194,7 +195,7 @@ export function VersionHistory({
                 {`${t("versions.export.history.fileName")}: ${record.fileName}`}
               </Typography>
               <Typography variant="body2">
-                {`${t("versions.export.history.exportedAt")}: ${record.exportedAt}`}
+                {`${t("versions.export.history.exportedAt")}: ${formatDateTime(record.exportedAt)}`}
               </Typography>
               <Typography variant="body2">
                 {`${t("versions.export.history.stateAtExport")}: ${t(
@@ -223,10 +224,6 @@ export function VersionHistory({
         )}
       </Box>
       <Note>{t("versions.history.compareNote")}</Note>
-      <Box sx={{ display: "flex", gap, alignItems: "center" }}>
-        <Pill tone="neutral">{t("versions.history.scope2")}</Pill>
-        <Button disabled>{t("versions.history.compare")}</Button>
-      </Box>
     </Popover>
   );
 }

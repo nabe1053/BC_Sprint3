@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import type { ItemEditRecord } from "@/shared/api/generated/model";
 import { tokens } from "@/shared/theme/tokens";
 import { valueLabelKey } from "../model";
+import { formatDateTime } from "@/shared/lib/datetime";
 export function EditHistory({
   history,
   onUndo,
@@ -43,7 +44,7 @@ export function EditHistory({
             <Typography variant="caption">
               {t("versions.recorded", {
                 by: edit.recordedBy,
-                at: edit.recordedAt,
+                at: formatDateTime(edit.recordedAt),
               })}
             </Typography>
             {edit.undoneAt ? (
@@ -52,7 +53,7 @@ export function EditHistory({
                 <Typography variant="caption">
                   {t("versions.recorded", {
                     by: edit.undoneBy,
-                    at: edit.undoneAt,
+                    at: formatDateTime(edit.undoneAt),
                   })}
                 </Typography>
               </>

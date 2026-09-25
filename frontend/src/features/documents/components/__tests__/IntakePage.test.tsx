@@ -400,7 +400,7 @@ it("仮上限・実API・二重投入・例示の注記と見出しを表示す�
   }
   expect(
     screen.getByText(i18n.t("documents.limits.provisional")),
-  ).toHaveTextContent("D02");
+  ).toHaveTextContent("確定値ではありません");
   expect(screen.getByTestId("case-metadata")).toBeInTheDocument();
   expect(screen.getAllByRole("heading", { level: 1 })).toHaveLength(1);
   expect(screen.getByRole("button", { name: /案を作成/ })).toBeDisabled();

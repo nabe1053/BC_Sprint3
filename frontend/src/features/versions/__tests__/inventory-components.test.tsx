@@ -183,7 +183,7 @@ it("記録済みは応答名日時と取消のみ・取消者名必須でpath ID
     screen.queryByRole("button", { name: "更新" }),
   ).not.toBeInTheDocument();
   expect(
-    screen.getByText("記録済み：応答者 / 2026-09-13T01:23:45Z"),
+    screen.getByText("記録済み：応答者 / 2026-09-13 10:23"),
   ).toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: "取消" }));
   expect(undo).not.toHaveBeenCalled();

@@ -26,6 +26,7 @@ import {
   QuestionJudgementForm,
   type JudgementInput,
 } from "./QuestionJudgementForm";
+import { formatDateTime } from "@/shared/lib/datetime";
 const states: Record<string, keyof ItemCurrentResponse> = {
   od_value: "odState",
   od_unit: "odState",
@@ -308,7 +309,7 @@ export function EvidenceDrawer({
           <Typography variant="caption">
             {t("versions.recorded", {
               by: item.rowMatch.recordedBy,
-              at: item.rowMatch.recordedAt,
+              at: formatDateTime(item.rowMatch.recordedAt),
             })}
           </Typography>
         )}
@@ -362,7 +363,7 @@ export function EvidenceDrawer({
                     <Typography variant="caption">
                       {t("versions.recorded", {
                         by: q.latest.recordedBy,
-                        at: q.latest.recordedAt,
+                        at: formatDateTime(q.latest.recordedAt),
                       })}
                     </Typography>
                   )}

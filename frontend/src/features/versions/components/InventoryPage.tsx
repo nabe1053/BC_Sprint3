@@ -50,7 +50,6 @@ export function InventoryPage({
       }}
     >
       <PageHeading
-        eyebrow={t("versions.inventory.eyebrow")}
         title={t("versions.inventory.title")}
         description={
           s

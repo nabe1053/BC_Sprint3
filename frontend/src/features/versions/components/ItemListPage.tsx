@@ -129,7 +129,6 @@ export function ItemListPage({
   return (
     <Box sx={{ display: "grid", gap, minWidth: 0 }}>
       <PageHeading
-        eyebrow={t("versions.eyebrow")}
         title={t("versions.title")}
         description={t("versions.description")}
         actions={

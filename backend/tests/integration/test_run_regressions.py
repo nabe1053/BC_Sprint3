@@ -15,7 +15,11 @@ from tests.fixtures.run_support import service
 async def test_definition_defaults_reach_reserved_run(session, seeded, monkeypatch):
     monkeypatch.setattr(definition, "MAX_TURNS", 7)
     monkeypatch.setattr(definition, "DUMMY_MODEL_ID", "synthetic-model")
+    from app.api import dependencies
     from app.api.dependencies import get_run_service
+
+    # backend/.env の AGENT_MODE（研修者が実モデル評価で claude にする）に依存させない。
+    monkeypatch.setattr(dependencies.settings, "AGENT_MODE", "local_dummy")
 
     # Exercise the composition factory without starting jobs or opening another DB.
     monkeypatch.setattr(

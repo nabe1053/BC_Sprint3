@@ -7,6 +7,7 @@ import type {
   QuestionResponse,
 } from "@/shared/api/generated/model";
 import { tokens } from "@/shared/theme/tokens";
+import { formatDateTime } from "@/shared/lib/datetime";
 export type JudgementInput = JudgementRequest & { questionId: number };
 export function QuestionJudgementForm({
   question,
@@ -103,7 +104,7 @@ export function QuestionJudgementForm({
         {question.latest
           ? t("versions.recorded", {
               by: question.latest.recordedBy,
-              at: question.latest.recordedAt,
+              at: formatDateTime(question.latest.recordedAt),
             })
           : t("versions.question.unrecorded")}
       </Typography>

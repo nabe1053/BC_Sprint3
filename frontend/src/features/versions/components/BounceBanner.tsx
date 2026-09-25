@@ -3,6 +3,7 @@ import { Box, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import type { VersionListItem } from "@/shared/api/generated/model";
 import { tokens } from "@/shared/theme/tokens";
+import { formatDateTime } from "@/shared/lib/datetime";
 export function BounceBanner({ item }: { item: VersionListItem }) {
   const { t } = useTranslation();
   return (
@@ -15,7 +16,7 @@ export function BounceBanner({ item }: { item: VersionListItem }) {
           <Typography variant="caption">
             {t("versions.staffCheck.bouncedBy", {
               by: item.latestBounce.recordedBy,
-              at: item.latestBounce.recordedAt,
+              at: formatDateTime(item.latestBounce.recordedAt),
             })}
           </Typography>
           {item.latestBounce.reason.split("\n").map((line, index) => (

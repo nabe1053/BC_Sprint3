@@ -7,6 +7,7 @@ import { ApiError } from "@/shared/api/mutator";
 import { tokens } from "@/shared/theme/tokens";
 import { useCoverageMutations } from "../hooks";
 import { buildCoverageRequest, inventoryErrorKey } from "../model";
+import { formatDateTime } from "@/shared/lib/datetime";
 export function CoverageRecordPanel({
   versionId,
   coverage,
@@ -88,7 +89,7 @@ export function CoverageRecordPanel({
         {coverage
           ? t("versions.inventory.recorded", {
               name: coverage.recordedBy,
-              at: coverage.recordedAt,
+              at: formatDateTime(coverage.recordedAt),
             })
           : t("versions.inventory.unrecorded")}
       </Typography>

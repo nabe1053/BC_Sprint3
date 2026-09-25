@@ -380,9 +380,7 @@ it("照合取消は応答のconfirmationIdを送り、訂正取消後も履歴�
   view.rerender(<ItemListPage caseId={8} versionId={9} />);
   const drawer = screen.getByRole("dialog");
   expect(within(drawer).getByText("取消済み")).toBeVisible();
-  expect(
-    within(drawer).getByText("取消者 / 2026-09-13T02:00:00Z"),
-  ).toBeVisible();
+  expect(within(drawer).getByText("取消者 / 2026-09-13 11:00")).toBeVisible();
   expect(
     within(drawer).queryByRole("button", { name: "取り消す" }),
   ).not.toBeInTheDocument();

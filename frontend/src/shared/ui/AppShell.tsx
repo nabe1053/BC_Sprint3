@@ -97,64 +97,39 @@ export function AppShell({ children }: { children: ReactNode }) {
           {collapsed ? "›" : "‹"}
         </Box>
         {!collapsed && (
-          <>
-            <Typography
-              component="b"
+          <Typography
+            component="b"
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              // 232px の左ナビ幅で 1 行に収める（fs4 では最後の 1 字が折り返す）。
+              fontSize: `${typography.size.fs3}px`,
+              fontWeight: typography.weight.bold,
+              lineHeight: 1.1,
+              whiteSpace: "nowrap",
+            }}
+          >
+            <Box
+              aria-hidden="true"
               sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                fontSize: `${typography.size.fs5}px`,
+                display: "grid",
+                placeItems: "center",
+                width: "26px",
+                height: "26px",
+                borderRadius: `${radius.sm}px`,
+                boxShadow: shadow.sm,
+                background: colors.accent,
+                color: colors.onDark,
                 fontWeight: typography.weight.bold,
-                lineHeight: 1.1,
+                fontSize: `${typography.size.fs3}px`,
+                flex: "none",
               }}
             >
-              <Box
-                aria-hidden="true"
-                sx={{
-                  display: "grid",
-                  placeItems: "center",
-                  width: "26px",
-                  height: "26px",
-                  borderRadius: `${radius.sm}px`,
-                  boxShadow: shadow.sm,
-                  background: colors.accent,
-                  color: colors.onDark,
-                  fontWeight: typography.weight.bold,
-                  fontSize: `${typography.size.fs3}px`,
-                  flex: "none",
-                }}
-              >
-                {t("shell.brandMark")}
-              </Box>
-              {t("shell.brand")}
-              <Typography
-                component="em"
-                sx={{
-                  fontStyle: "normal",
-                  fontWeight: typography.weight.normal,
-                  color: colors.n[600],
-                }}
-              >
-                {t("shell.brandSub")}
-              </Typography>
-            </Typography>
-            <Typography
-              component="span"
-              sx={{
-                fontSize: `${typography.size.fs1}px`,
-                letterSpacing: typography.letterSpacing.caps,
-                textTransform: "uppercase",
-                color: colors.n[600],
-                paddingLeft: "36px",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-              }}
-            >
-              {t("shell.tagline")}
-            </Typography>
-          </>
+              {t("shell.brandMark")}
+            </Box>
+            <span>{t("shell.brand")}</span>
+          </Typography>
         )}
       </Box>
       <Box
@@ -277,17 +252,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           {t("shell.banner")}
         </Box>
         {children}
-        <Box
-          component="footer"
-          sx={{
-            padding: `${spacing.s6}px 0 0`,
-            fontSize: `${typography.size.fs2}px`,
-            color: colors.n[500],
-            letterSpacing: typography.letterSpacing.tight,
-          }}
-        >
-          {t("shell.footer")}
-        </Box>
       </Box>
     </>
   );

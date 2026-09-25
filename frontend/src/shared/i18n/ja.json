@@ -7,10 +7,8 @@
     "backToCases": "案件一覧へ"
   },
   "shell": {
-    "brandMark": "O",
-    "brand": "OCTG",
-    "brandSub": "Item List",
-    "tagline": "SPRINT 3 · 引合 Item List 作成支援",
+    "brandMark": "引",
+    "brand": "引合書整理エージェント",
     "navLabel": "左ナビゲーション",
     "navOpen": "ナビゲーションを開く",
     "navClose": "ナビゲーションを閉じる",
@@ -22,8 +20,7 @@
       "inventory": "網羅性照合",
       "approval": "引合書承認"
     },
-    "banner": "記録の真実源はこのアプリ内です。出力した .xlsx は書き出した時点の写しで、編集してもアプリ側には戻りません。担当者名・確認者名は入力必須で、AI は補完しません。",
-    "footer": "01 / 02 / 03 / 06 に基づくローカル実装 · デザイントークンは 03-spec.md 3章で確定"
+    "banner": "記録の真実源はこのアプリ内です。出力した .xlsx は書き出した時点の写しで、編集してもアプリ側には戻りません。担当者名・確認者名は入力必須で、AI は補完しません。"
   },
   "cases": {
     "list": {
@@ -55,8 +52,7 @@
         "hold": "保留",
         "approved": "承認"
       },
-      "sendoff": "送付可否",
-      "eyebrow": "SCR-01 / DOCUMENTS"
+      "sendoff": "送付可否"
     },
     "progress": {
       "intake": "1/4 資料投入",
@@ -168,7 +164,7 @@
     "sourceNote": "原資料名・形式・ページ数（xlsx はシート数）・読取結果は受付一覧に表示します。",
     "limits": {
       "values": "仮上限：1案件あたり資料50件、1ファイル20MB、PDF 200ページ、xlsx 50シート。",
-      "provisional": "仮上限。D02 の確定値ではありません。"
+      "provisional": "仮の上限です（確定値ではありません）。"
     },
     "examples": {
       "title": "例外表示を確認する",
@@ -185,7 +181,6 @@
       "text": "TXT",
       "unsupported": "未対応形式"
     },
-    "eyebrow": "SCR-02 / DOCUMENTS",
     "pages": {
       "pdf": "{{pages}}ページ",
       "xlsx": "{{pages}}シート",
@@ -228,7 +223,6 @@
       "unknown": "完了結果を確認できませんでした"
     },
     "partial": "一部完了：確認が必要な箇所が残っています",
-    "version": "版番号：{{versionId}}",
     "resultNote": "Item List を確認する",
     "stoppedHint": "資料と処理記録を確認してください。自動では再実行しません。",
     "notFound": "実行が見つかりません。進捗の取得を停止しました。",
@@ -248,7 +242,10 @@
     "carryOverNotice": {
       "title": "記録の引き継ぎ警告",
       "line": "v{{version}}：訂正 {{edits}}件・照合 {{matched}}/{{total}}行・網羅性確認 {{coverage}}・確認事項の判断 {{judgements}}件",
-      "coverage": { "yes": "済", "no": "未" },
+      "coverage": {
+        "yes": "済",
+        "no": "未"
+      },
       "body": "案を作成すると新版は作成案から始まり、上記の記録は新版へ引き継がれません（自動マージは対象外）。既存版は保全されます。",
       "error": "既存版の記録件数を取得できませんでした。記録がある場合は、案の作成時に引き継がれないことの確認を求めます。",
       "reload": "再取得"
@@ -279,13 +276,30 @@
         "error": "エラー",
         "unreadable": "読取不能"
       },
-      "document": "資料番号：{{id}}",
-      "duration": "処理時間：{{ms}} ms",
-      "stagesLabel": "処理の段階"
+      "duration": "処理時間：{{seconds}} 秒",
+      "stagesLabel": "処理の段階",
+      "tool": {
+        "list_case_documents": "資料の一覧を取得",
+        "read_document": "資料を読取",
+        "read_email": "メールを読取",
+        "search_documents": "資料を検索",
+        "get_rules": "判定ルールを取得",
+        "record_case_header": "案件情報を記録",
+        "propose_items": "明細案を作成",
+        "record_evidence": "根拠を記録",
+        "record_question": "確認事項を記録",
+        "record_source_inventory": "原明細の棚卸しを記録",
+        "report_unreadable": "読取不能を記録",
+        "validate_draft": "作成案を点検",
+        "finalize_draft": "作成案を確定",
+        "other": "その他の処理",
+        "job_interrupted": "実行の中断"
+      },
+      "document": "資料：{{name}}",
+      "durationShort": "処理時間：0.1 秒未満"
     },
     "limit": {
       "detail": "{{label}}：{{actual}}{{unit}}（上限 {{limit}}{{unit}}）",
-      "document": "対象資料番号：{{id}}",
       "label": {
         "documents": "資料件数",
         "fileBytes": "ファイルサイズ",
@@ -297,9 +311,9 @@
         "fileBytes": "バイト",
         "pdfPages": "ページ",
         "xlsxSheets": "シート"
-      }
+      },
+      "document": "対象資料：{{name}}"
     },
-    "versionNote": "実ファイルを抽出する処理ではありません。再実行は別の生成版になります。未生成の案件ではまだ版がありません",
     "carryOverResult": "前版の修正・確認記録は引き継がれていません（既存版は保全されています）",
     "resetState": "状態を確認し直す",
     "stageStep": {
@@ -535,10 +549,8 @@
       "elapsedNote": "生成所要は起動から作成案の確定までの経過時間です。AI の待ち時間は人の作業時間に含めません。",
       "unresolved": "未解決 {{count}} 件",
       "carryOverWarning": "再実行すると新版は作成案から始まります。この版の訂正・照合・判断の記録は新版へ引き継がれません（自動マージは対象外）。既存版は保全されます。",
-      "compare": "2 版を比較",
       "compareNote": "初版は版を別に保持して人が比較します。",
       "summary": "版の履歴（{{count}}）",
-      "scope2": "Scope 2",
       "columns": {
         "version": "版",
         "createdAt": "作成日時",
@@ -643,8 +655,7 @@
       "errors": {
         "E_ALREADY_CONFIRMED": "網羅性確認は既に記録されています。最新の記録を表示します"
       },
-      "countsLabel": "照合件数",
-      "eyebrow": "SCR-05 / WORKSPACE"
+      "countsLabel": "照合件数"
     },
     "approval": {
       "title": "引合書承認",
@@ -779,8 +790,7 @@
         "E_COMMENT_REQUIRED": "行コメントを入力してから記録してください。空のコメントは記録できません。",
         "E_RECORDER_REQUIRED": "確認者名を入力してください。AI は補完しません。",
         "E_RECORDER_REQUIRED_SENDOFF": "判断者を入力してください。AI は補完しません。"
-      },
-      "eyebrow": "SCR-06 / WORKSPACE"
+      }
     },
     "staffCheck": {
       "button": "担当者確認済みにする",
@@ -835,7 +845,6 @@
         "rejected": "送付不可"
       },
       "sendoffShort": "送付 {{state}}"
-    },
-    "eyebrow": "SCR-03 / WORKSPACE"
+    }
   }
 }

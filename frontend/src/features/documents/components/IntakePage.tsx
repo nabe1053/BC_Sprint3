@@ -116,7 +116,6 @@ export function IntakePage({ caseId }: { caseId: number }) {
   return (
     <Box sx={{ display: "grid", gap }}>
       <PageHeading
-        eyebrow={t("documents.eyebrow")}
         title={t("documents.title")}
         description={t("documents.description")}
         actions={
@@ -143,6 +142,14 @@ export function IntakePage({ caseId }: { caseId: number }) {
             key={caseId}
             caseId={caseId}
             showCarryOver
+            documentNames={
+              new Map(
+                list.data?.map(({ documentId, fileName }) => [
+                  documentId,
+                  fileName,
+                ]),
+              )
+            }
             onBusyChange={setAgentBusy}
             inputRevision={JSON.stringify(
               list.data?.map(({ documentId, readStatus }) => [

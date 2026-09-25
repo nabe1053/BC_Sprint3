@@ -78,7 +78,6 @@ export function CaseListPage() {
   return (
     <Box sx={{ display: "grid", gap }}>
       <PageHeading
-        eyebrow={t("cases.list.eyebrow")}
         title={t("cases.list.title")}
         description={t("cases.list.description")}
         actions={

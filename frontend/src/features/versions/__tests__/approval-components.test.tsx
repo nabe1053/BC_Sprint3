@@ -106,9 +106,7 @@ it("h1・primaryは1つ、7要約・メタ・未解決注記・10列を表示す
     screen.getByText(/未解決 2 件を含めて評価確認を終えられます/),
   ).toBeVisible();
   expect(
-    screen.getByText(
-      "<b>https://example.test</b> — 上司 / 2026-09-13T01:00:00Z",
-    ),
+    screen.getByText("<b>https://example.test</b> — 上司 / 2026-09-13 10:00"),
   ).toBeVisible();
   expect(document.querySelector('a[href="https://example.test"]')).toBeNull();
 });
@@ -434,7 +432,7 @@ it("API導出の差し戻し中・再確認と現在の送付判断を表示す�
   expect(screen.getByText("差し戻し中（作成案には戻りません）")).toBeVisible();
   expect(screen.getByText(/再確認が必要（評価確認済みの後に/)).toBeVisible();
   expect(
-    screen.getByText("現在：保留 ／ 判断者 ／ 2026-09-13T01:00:00Z"),
+    screen.getByText("現在：保留 ／ 判断者 ／ 2026-09-13 10:00"),
   ).toBeVisible();
 });
 it("空名で評価確認を押すと確認者名の欄そのものをエラーにして理由を示す（TEST-14 #1）", async () => {

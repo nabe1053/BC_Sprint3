@@ -137,7 +137,7 @@ describe("VersionHistory", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("初回の出力")).toBeInTheDocument();
   });
-  it("再実行・引き継ぎ警告・出力シートの説明・写しの注記・比較枠を出す", () => {
+  it("再実行・引き継ぎ警告・出力シートの説明・写しの注記を出し、スコープ外の比較枠は出さない", () => {
     setup();
     expect(screen.getByTestId("agent-run-panel")).toBeInTheDocument();
     expect(screen.getByText(/新版へ引き継がれません/)).toBeInTheDocument();
@@ -148,7 +148,15 @@ describe("VersionHistory", () => {
     expect(
       screen.getByText(/編集内容はアプリに取り込まれません/),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "2 版を比較" })).toBeDisabled();
+    expect(
+      screen.queryByRole("button", { name: "2 版を比較" }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Scope 2")).not.toBeInTheDocument();
+    // 作成日時・出力日時は JST・分まで（memory AD-036 ⑤）
+    expect(
+      screen.getByRole("cell", { name: "2026-09-13 10:00" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/出力日時: 2026-09-13 09:00/)).toBeInTheDocument();
   });
   it("未生成のときは案作成への誘導を出す", () => {
     mock.useVersionHistory.mockReturnValue(query([]) as never);

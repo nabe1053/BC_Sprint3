@@ -73,9 +73,6 @@ export function RunProgress({
               {t("agentRuns.partial")}
             </Typography>
           )}
-          <Typography>
-            {t("agentRuns.version", { versionId: run.versionId })}
-          </Typography>
           <Button
             component={Link}
             href={`/cases/${caseId}/versions/${run.versionId}`}

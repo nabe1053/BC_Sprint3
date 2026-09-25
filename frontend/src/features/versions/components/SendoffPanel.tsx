@@ -10,6 +10,7 @@ import { ApiError } from "@/shared/api/mutator";
 import { tokens } from "@/shared/theme/tokens";
 import { buildSendoffRequest } from "../model";
 import { ApprovalError } from "./ApprovalError";
+import { formatDateTime } from "@/shared/lib/datetime";
 export function SendoffPanel({
   caseId,
   versionId,
@@ -117,7 +118,9 @@ export function SendoffPanel({
             `versions.approval.sendoff.state.${current?.decision ?? "undecided"}`,
           ),
           by: current?.recordedBy ?? t("versions.approval.meta.unrecorded"),
-          at: current?.recordedAt ?? t("common.notAvailable"),
+          at: current
+            ? formatDateTime(current.recordedAt)
+            : t("common.notAvailable"),
         })}
       </Typography>
       <ApprovalError

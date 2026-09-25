@@ -110,7 +110,9 @@ it("実HTTP400→明示確認POST202→GET200の成功で引き継ぎ通知と�
   await screen.findByText(
     "前版の修正・確認記録は引き継がれていません（既存版は保全されています）",
   );
-  expect(screen.getByText("版番号：99")).toBeInTheDocument();
+  expect(
+    screen.getByRole("link", { name: "Item List を確認する" }),
+  ).toHaveAttribute("href", "/cases/8/versions/99");
   expect(screen.getByText("経過 12 秒・2 ターン")).toBeInTheDocument();
   expect(
     screen.queryByText("処理記録を保存できませんでした"),
