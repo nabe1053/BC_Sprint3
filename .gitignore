@@ -43,3 +43,11 @@ Thumbs.db
 # Codex 用のローカルミラー（規約の正は CLAUDE.md / .claude/。複製をコミットしない）
 .agents/
 .codex/
+
+# 容量上限試験の大容量ファイル（docs/test-data/make_test_files.py で再生成する）
+docs/test-data/limit-exact/text-20mb.txt
+docs/test-data/limit-over/text-20mb-plus-1byte.txt
+
+# Windows からコピーした際の代替データストリームの残骸（メールアドレス等のプロパティを含むためコミットしない）
+*:OECustomProperty
+*:Zone.Identifier
