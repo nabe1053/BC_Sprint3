@@ -285,7 +285,7 @@
 | F-12 | 改修: 表示の整理（名称「引合書整理エージェント」・SCR 眉/フッター/模擬期注記/Scope 2/内部 ID の削除・日時 JST 分表示）AD-036 ④⑤ | web | - | DONE | 2回目 RV-054: **DONE 可**（P2 2 修正済み・P3 は TODO-055） | 2026-09-25 |
 | F-13 | 改修: ItemList の操作性（担当者確認ボタンの位置固定・照合☑の見出し/記録者表示/左固定・要約と対応状況の折返し） | web | - | DONE | 2回目 RV-055: **DONE 可**（P1 1 修正済み・P3 は TODO-056） | 2026-09-25 |
 | F-14 | 改修: レフトナビを最新版で開ける＋SCR-03/05/06 の案件切替プルダウン AD-036 ③ | web | F-12 | PLANNED | - | 2026-09-25 |
-| F-15 | 改修: 案件一覧に最新状態・記録者/日時・確認事項の残数/母数・記録の展開（#1 拡張）AD-036 ② | web | F-12 | PLANNED | - | 2026-09-25 |
+| F-15 | 改修: 案件一覧に最新状態・記録者/日時・確認事項の残数/母数・記録の展開（#1 拡張）AD-036 ② | web | F-12 | DONE | RV-056: P2 1 修正で **DONE 可**（P3 は TODO-057） | 2026-09-25 |
 | F-16 | 改修: 資料投入のエラー強調・受付一覧の罫線・資料の除外（論理削除・ツールも除外）AD-036 ① | agent | F-12 | PLANNED | - | 2026-09-25 |
 | F-17 | 改修: 画面を離れて戻っても直近の run の進捗/結果を表示（#14a を latest に拡張）・ポーリング再試行 | agent | F-6 | PLANNED | - | 2026-09-25 |
 
@@ -567,6 +567,9 @@
 - [RV-055] F-13（reviewer サブエージェント 2 回）: 1回目 P1 左固定のセレクタ `td:first-of-type, th:first-of-type` が行 ID の `th scope=row` にも当たり、横スクロール時に☑を隠す → 専用 class `sticky`＋DOM テスト。
   P3 は 03-spec 書き戻し・要約列に確認事項番号（判断欄と対応づけ）を修正。2回目 **DONE 可**（残 P3 は TODO-056）。
 
+- [RV-056] F-15（reviewer サブエージェント 1 回＋修正）: P2 記録展開の 3 状態のうち空・読込中のテストが無く、テスト名が「失敗・空」を名乗っていた → 空・読込中を個別に検証し改名。
+  P3 のうち `version_summaries` の型注釈を修正。#1 の SELECT 回数予算は 2→5（案件数に依らず一定・`test_api_approvals`）。**DONE 可**（残 P3 は TODO-057）。
+
 ## 5. 学び・ハマりどころ（再発防止）
 
 - [LN-001] **reader を1つ直したら、残り3つを同じ観点で必ず見る。**3ラウンド連続で「1つだけ直して他が非対称」
@@ -766,6 +769,9 @@
 
 - [LN-082] 表の特定列だけにスタイルを当てるときは `:first-of-type`・`:nth-child` を使わず専用 class で指し、「どのセルに有り・無いか」を DOM テストする。MUI の `TableCell component="th" scope="row"` が行の途中に `th` を入れるため（RV-055 P1）。位置系の不具合は横スクロールした状態もスクリーンショットで確認する（`scratchpad` の playwright スクリプトで `scrollLeft` を設定）。
 
+- [LN-083] 3 状態（読込中・エラー・空）の UI テストは状態ごとに別々に検証する。テスト名が検証内容より広いと欠けに気づけない（RV-056 P2）。
+- [LN-084] 2026-09-25、同じ PC で他の Claude セッションが動いていると FE の既存テスト（ItemList の 1.5〜3.4 秒級）が jest 既定 5 秒を超えて `make check-fe` が時間切れで落ちることがある。F-12 時点のコミットでも同じ所要（53 秒/スイート）で、コード起因ではない。単独実行・`npx jest --maxWorkers=2` では全件緑。
+
 ## 6. 未解決 / BLOCKED / TODO
 
 - [TODO-008]（解消: AD-013 で暫定案どおり決定）T-103 SCR-01 の設計判断2件: ①05-api-ipo #1 は「表示状態・送付可否つき」だが
@@ -900,3 +906,5 @@
 - [TODO-054] F-11 の残り（RV-053 P3）: ①`docs/requirements/mocks/mockup.html` の絞り込み名・changeTags・noChanges 文言・状態列・`data-tone` 正規表現に「矛盾候補」が無い（`/design-spec` で更新）②SCR-06 の表のグループ列に種別ラベルを添えるか（任意）③件数を「択一グループ」「矛盾グループ」に分けるか（API 変更を伴う・研修者判断）。あわせて TEST-05 #6 は研修者の案件 v29 が修正前の版なので、実モデルで X04 を再実行して判定し直す（TODO-052 のクレジット補充が前提）。
 - [TODO-055] RV-054 の記録のみ P3: IntakePage→AgentRunPanel の `documentNames` 受け渡しの結合テストなし／BounceBanner・EditHistory・EvidenceDrawer rowMatch の JST 表示の画面テストなし／`mocks/mockup.html` に旧名称・SCR 眉・フッター・Scope 2 が残る（次の `/design-spec` で反映）。
 - [TODO-056] RV-055 の記録のみ P3: `ItemTable` の class 名 `sticky` が汎用的（表内に別部品を入れるなら改名）／`StaffCheckAction.tsx` のファイル名と export（`useStaffCheck`・`StaffCheckButton`・`StaffCheckNotice`）の不一致。
+- [TODO-057] RV-056 の記録のみ P3: 案件一覧の記録展開で判断・訂正・照合がどの確認事項／行かを示さない（#28 に確認事項番号が無い）／`CaseListEntry.latest_state_event: Any` の型を Protocol 化／最新判断の組み立てが 3 リポジトリに重複（次に出たら共通化して CV へ）／`useCaseRecords` の `enabled` 引数は常に true。
+- [TODO-058] LN-084 の対策（jest の `testTimeout` 引き上げか `--maxWorkers` 指定を Makefile に入れるか）を研修者と決める。

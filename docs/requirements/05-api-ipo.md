@@ -64,7 +64,7 @@
 
 | # | エンドポイント | メソッド | 機能 | 認証 | 必要権限 |
 |---|--------------|---------|------|------|---------|
-| 1 | `/cases` | GET | 案件一覧（進捗ステータス・表示状態・送付可否つき。**初版 G1 実装は `progressStatus` のみ**。表示状態は G3（T-302）で `latestVersionId` として付与済み。送付可否は G5（T-502）で `latestSendoff`（最新版の最新 `sendoff_decisions.decision`・null 可）として付与する — memory AD-013 / AD-029 ⑬） | 不要 | UI |
+| 1 | `/cases` | GET | 案件一覧（進捗ステータス・表示状態・送付可否つき。**初版 G1 実装は `progressStatus` のみ**。表示状態は G3（T-302）で `latestVersionId` として付与済み。送付可否は G5（T-502）で `latestSendoff`（最新版の最新 `sendoff_decisions.decision`・null 可）として付与する — memory AD-013 / AD-029 ⑬）。**2026-09-24 改訂（F-15・memory AD-036 ②）**: 最新の確定版について `latestStateEvent`（#22 と同じ `StateEventRecord`・記録者/日時つき・無ければ null）・`questionTotal`（案件レベルを含む確認事項の総数）・`unresolvedCount`（#22 と同じ未解決の定義）を付与する。版が無い案件は 3 項目とも null。記録の一覧は行の展開時に #28 を版ごとに取得する。SELECT 回数は案件数に依らず一定（5 回） | 不要 | UI |
 | 2 | `/cases` | POST | 案件を作成する | 不要 | UI |
 | 3 | `/cases/{caseId}` | GET | 案件の基本情報 | 不要 | UI |
 | 4 | `/cases/{caseId}/documents` | GET | 資料一覧と読取状態（**案件ID・案件名を併せて返す**）。各資料に `pageCount`（PDF=ページ数／xlsx=シート数／判定できなければ null）と `unreadableLocators`（受付時に記録した読取不能範囲。例 `["p.2"]`）を含める（2026-09-24 追記・シナリオテスト TEST-01 #2・TEST-02 #1） | 不要 | UI/AGENT |
@@ -566,7 +566,7 @@
 
 | # | エンドポイント | 主な入力 | 主な出力 | 主なエラー |
 |---|--------------|---------|---------|-----------|
-| 1 | `GET /cases` | — | 案件・進捗ステータス・状態・送付可否 | — |
+| 1 | `GET /cases` | — | 案件・進捗ステータス・状態・送付可否・最新の状態イベント・確認事項の残数/母数（F-15） | — |
 | — | （1 の進捗ステータスの導出元） | — | ①資料投入=案件があり確定版なし ②案の確認=確定版あり ③担当者確認=`versions.current_state='staff_checked'` ④上司の評価確認=`'review_checked'`（③2章。**①②は業務状態ではなく UI の表示区分**であり状態遷移の記録対象にしない） | — |
 | 2 | `POST /cases` | 案件ID・名称 | 案件 | 409 `E_DUPLICATE_CASE_CODE` |
 | 4 | `GET /cases/{id}/documents` | 案件ID | 資料一覧・読取状態・ページ／シート数・受付時の読取不能範囲 | 404 |

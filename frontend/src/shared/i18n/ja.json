@@ -29,13 +29,14 @@
       "intakeLink": "投入画面へ",
       "footnote": "進捗ステータスは4段階で表示します。表示状態と送付可否は別の列です。上司の評価確認は原資料への適合確認であり、対外送付の承認ではありません。",
       "description": "案件を選び、資料投入と確認の進捗を把握します。",
-      "versionNote": "確認者・日時は承認画面で記録します",
+      "versionNote": "確認・判断は Item List 確認・引合書承認の画面で記録します。記録の一覧は各行の「記録を表示」で確認できます。",
       "columns": {
         "code": "照会番号",
         "case": "案件",
         "items": "明細",
         "progress": "進捗ステータス",
         "state": "表示状態",
+        "questions": "確認事項",
         "sendoff": "送付可否",
         "action": "操作"
       },
@@ -52,7 +53,9 @@
         "hold": "保留",
         "approved": "承認"
       },
-      "sendoff": "送付可否"
+      "sendoff": "送付可否",
+      "questionCount": "残 {{unresolved}} / 全 {{total}}",
+      "recordedBy": "{{by}} / {{at}}"
     },
     "progress": {
       "intake": "1/4 資料投入",
@@ -98,6 +101,26 @@
       "unavailableNote": "納期・納地・見積期限は現在の案件情報では未提供です。原資料を確認してください。",
       "error": "案件情報を取得できませんでした。通信状況を確認して再読み込みしてください。",
       "notFound": "案件が見つかりません。案件一覧から選び直してください。"
+    },
+    "records": {
+      "show": "記録を表示",
+      "hide": "記録を閉じる",
+      "showLabel": "{{code}} の記録を表示",
+      "hideLabel": "{{code}} の記録を閉じる",
+      "listLabel": "{{code}} の記録",
+      "error": "記録を取得できませんでした。通信状態を確認し、もう一度「記録を表示」を押してください。",
+      "empty": "この版にはまだ記録がありません。Item List 確認で担当者名を入れて照合・判断を記録すると、ここに表示されます。",
+      "entry": "{{label}} — {{by}} / {{at}}",
+      "undone": "（取消：{{by}} / {{at}}）",
+      "kinds": {
+        "edit": "訂正",
+        "rowMatch": "出典と照合",
+        "coverage": "網羅性確認",
+        "judgement": "確認事項の判断：{{value}}",
+        "state": "状態：{{value}}",
+        "bounce": "差し戻し",
+        "sendoff": "送付可否：{{value}}"
+      }
     }
   },
   "documents": {

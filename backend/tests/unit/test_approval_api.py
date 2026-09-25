@@ -397,8 +397,12 @@ async def test_agent_write_is_absent_and_nonpositive_version_is_rejected(approva
 
 @pytest.mark.parametrize("decision", [None, "approved"])
 async def test_case_list_includes_latest_sendoff(approval_http, decision):
+    from app.services.case_service import CaseListEntry
+
     case = N(id=3, case_code="C", customer_name=None, title=None, created_at=AT)
-    approval_http.cases.list_cases.return_value = [(case, "staff_checked", 7, decision)]
+    approval_http.cases.list_cases.return_value = [
+        CaseListEntry(case, "staff_checked", 7, decision)
+    ]
     response = await approval_http.client.get("/api/v1/ui/cases")
     assert response.status_code == 200
     assert response.json()["cases"][0] == {
@@ -410,7 +414,39 @@ async def test_case_list_includes_latest_sendoff(approval_http, decision):
         "progressStatus": "staff_checked",
         "latestVersionId": 7,
         "latestSendoff": decision,
+        "latestStateEvent": None,
+        "questionTotal": None,
+        "unresolvedCount": None,
     }
+
+
+async def test_case_list_includes_latest_state_event_and_question_counts(approval_http):
+    """F-15: 最新の状態イベント（記録者・日時）と確認事項の残数・母数を返す。"""
+    from app.services.case_service import CaseListEntry
+
+    case = N(id=3, case_code="C", customer_name=None, title=None, created_at=AT)
+    event = N(
+        id=11,
+        from_state="draft",
+        to_state="staff_checked",
+        recorded_by="山田",
+        recorded_at=AT,
+        unresolved_count=1,
+    )
+    approval_http.cases.list_cases.return_value = [
+        CaseListEntry(case, "staff_checked", 7, None, event, 4, 1)
+    ]
+    response = await approval_http.client.get("/api/v1/ui/cases")
+    row = response.json()["cases"][0]
+    assert row["latestStateEvent"] == {
+        "stateEventId": 11,
+        "fromState": "draft",
+        "toState": "staff_checked",
+        "recordedBy": "山田",
+        "recordedAt": AT.isoformat().replace("+00:00", "Z"),
+        "unresolvedCount": 1,
+    }
+    assert (row["questionTotal"], row["unresolvedCount"]) == (4, 1)
 
 
 def test_openapi_version_extension_and_case_sendoff_are_required_nullable_contracts():
@@ -427,7 +463,12 @@ def test_openapi_version_extension_and_case_sendoff_are_required_nullable_contra
         "needsRecheck",
     }
     assert required <= set(schemas["VersionListItem"]["required"])
-    assert "latestSendoff" in schemas["CaseListItem"]["required"]
+    assert {
+        "latestSendoff",
+        "latestStateEvent",
+        "questionTotal",
+        "unresolvedCount",
+    } <= set(schemas["CaseListItem"]["required"])
     for key in ("latestStateEvent", "latestBounce", "latestSendoff"):
         assert {"type": "null"} in schemas["VersionListItem"]["properties"][key][
             "anyOf"

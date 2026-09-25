@@ -11,6 +11,8 @@ from app.api.ui.schemas.cases import (
     CaseListResponse,
     CaseResponse,
 )
+from app.api.ui.schemas.approvals import StateEventRecord
+from app.api.ui.schemas.records import record_response
 from app.core.dependencies import get_case_service
 from app.services.case_service import CaseService
 
@@ -51,19 +53,26 @@ async def list_cases(
     service: CaseService = Depends(get_case_service),
 ) -> CaseListResponse:
     """#1: 案件一覧・進捗ステータス。"""
-    pairs = await service.list_cases()
+    entries = await service.list_cases()
     items = [
         CaseListItem(
-            case_id=case.id,
-            case_code=case.case_code,
-            customer_name=case.customer_name,
-            title=case.title,
-            created_at=case.created_at,
-            progress_status=progress_status,
-            latest_version_id=latest_version_id,
-            latest_sendoff=latest_sendoff,
+            case_id=entry.case.id,
+            case_code=entry.case.case_code,
+            customer_name=entry.case.customer_name,
+            title=entry.case.title,
+            created_at=entry.case.created_at,
+            progress_status=entry.progress_status,
+            latest_version_id=entry.latest_version_id,
+            latest_sendoff=entry.latest_sendoff,
+            latest_state_event=record_response(
+                StateEventRecord, entry.latest_state_event, "state_event_id"
+            )
+            if entry.latest_state_event is not None
+            else None,
+            question_total=entry.question_total,
+            unresolved_count=entry.unresolved_count,
         )
-        for case, progress_status, latest_version_id, latest_sendoff in pairs
+        for entry in entries
     ]
     return CaseListResponse(cases=items)
 

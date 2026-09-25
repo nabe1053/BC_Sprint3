@@ -25,9 +25,14 @@ jest.mock("next/navigation", () => ({ useRouter: () => ({ push: mockPush }) }));
 jest.mock("@/features/cases/hooks", () => ({
   useCases: jest.fn(),
   useCreateCase: jest.fn(),
+  useCaseRecords: jest.fn(),
 }));
 
-import { useCases, useCreateCase } from "@/features/cases/hooks";
+import {
+  useCaseRecords,
+  useCases,
+  useCreateCase,
+} from "@/features/cases/hooks";
 import { CaseListPage } from "@/features/cases/components/CaseListPage";
 
 const mockedUseCases = useCases as jest.Mock;
@@ -42,6 +47,9 @@ const sampleCase = {
   progressStatus: "draft_review" as const,
   latestVersionId: 1,
   latestSendoff: null,
+  latestStateEvent: null,
+  questionTotal: null,
+  unresolvedCount: null,
 };
 
 function setUseCases(overrides: Partial<ReturnType<typeof useCases>>) {
@@ -203,7 +211,7 @@ it("版の状態と確認記録の案内を表示し案件を開ける", () => {
   setUseCreateCase();
   renderWithProviders(<CaseListPage />);
   expect(screen.getByText(i18n.t("cases.list.versionNote"))).toHaveTextContent(
-    "確認者・日時は承認画面で記録します",
+    "記録の一覧は各行の「記録を表示」で確認できます",
   );
   expect(screen.getByText(i18n.t("cases.list.footnote"))).toHaveTextContent(
     "対外送付の承認ではありません",
@@ -261,5 +269,153 @@ it.each([
   setUseCases({ data: [{ ...sampleCase, latestSendoff }] });
   renderWithProviders(<CaseListPage />);
   const row = screen.getByRole("row", { name: /S04/ });
-  expect(within(row).getAllByRole("cell")[4]).toHaveTextContent(label);
+  // 列: 案件・明細・進捗・表示状態・確認事項（F-15 で追加）・送付可否…（照会番号は rowheader）
+  expect(within(row).getAllByRole("cell")[5]).toHaveTextContent(label);
+});
+
+// ---- F-15: 案件一覧の確認履歴・確認事項（2026-09-24 研修者の修正依頼・memory AD-036 ②） ----
+const mockedUseCaseRecords = useCaseRecords as jest.Mock;
+const checkedCase = {
+  ...sampleCase,
+  progressStatus: "staff_checked" as const,
+  latestStateEvent: {
+    stateEventId: 5,
+    fromState: "draft" as const,
+    toState: "staff_checked" as const,
+    recordedBy: "山田",
+    recordedAt: "2026-09-13T01:00:00Z",
+    unresolvedCount: 2,
+  },
+  questionTotal: 5,
+  unresolvedCount: 2,
+};
+const records = {
+  edits: [],
+  confirmations: [
+    {
+      confirmationId: 2,
+      kind: "row_match",
+      itemId: 4,
+      recordedBy: "照合者",
+      recordedAt: "2026-09-13T00:30:00Z",
+      undoneAt: null,
+      undoneBy: null,
+    },
+  ],
+  judgements: [],
+  stateEvents: [checkedCase.latestStateEvent],
+  bounces: [],
+  unlinkedComments: [],
+  sendoffDecisions: [],
+};
+
+describe("F-15 案件一覧の確認履歴と確認事項", () => {
+  beforeEach(() => {
+    mockedUseCaseRecords.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    });
+  });
+
+  it("確認事項の残数と母数、表示状態の記録者・日時（JST）を列で示す", () => {
+    setUseCases({ data: [checkedCase] });
+    setUseCreateCase();
+    renderWithProviders(<CaseListPage />);
+    const row = screen.getAllByRole("row")[1];
+    expect(
+      screen.getByRole("columnheader", { name: "確認事項" }),
+    ).toBeInTheDocument();
+    expect(within(row).getByText("残 2 / 全 5")).toBeInTheDocument();
+    expect(within(row).getByText("担当者確認済み")).toBeInTheDocument();
+    expect(
+      within(row).getByText("山田 / 2026-09-13 10:00"),
+    ).toBeInTheDocument();
+  });
+
+  it("版の無い案件は確認事項を「—」とし、記録の展開を出さない", () => {
+    setUseCases({
+      data: [
+        { ...sampleCase, progressStatus: "intake", latestVersionId: null },
+      ],
+    });
+    setUseCreateCase();
+    renderWithProviders(<CaseListPage />);
+    const row = screen.getAllByRole("row")[1];
+    expect(
+      within(row).queryByRole("button", { name: /記録を表示/ }),
+    ).not.toBeInTheDocument();
+    expect(mockedUseCaseRecords).not.toHaveBeenCalledWith(1, true);
+  });
+
+  it("「記録を表示」で展開したときだけ版の記録を取得し、新しい順に記録者・日時つきで並べる", async () => {
+    setUseCases({ data: [checkedCase] });
+    setUseCreateCase();
+    mockedUseCaseRecords.mockImplementation((_versionId, enabled) => ({
+      data: enabled ? records : undefined,
+      isLoading: false,
+      isError: false,
+    }));
+    renderWithProviders(<CaseListPage />);
+    expect(mockedUseCaseRecords).not.toHaveBeenCalledWith(1, true);
+    const toggle = screen.getByRole("button", { name: "S04 の記録を表示" });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    await userEvent.click(toggle);
+    expect(mockedUseCaseRecords).toHaveBeenLastCalledWith(1, true);
+    expect(
+      screen.getByRole("button", { name: "S04 の記録を閉じる" }),
+    ).toHaveAttribute("aria-expanded", "true");
+    const list = screen.getByRole("list", { name: "S04 の記録" });
+    const entries = within(list).getAllByRole("listitem");
+    expect(entries[0]).toHaveTextContent("状態：担当者確認済み");
+    expect(entries[0]).toHaveTextContent("山田 / 2026-09-13 10:00");
+    expect(entries[1]).toHaveTextContent("出典と照合");
+    expect(entries[1]).toHaveTextContent("照合者 / 2026-09-13 09:30");
+  });
+
+  it("記録の取得失敗は原因と直し方を示す", async () => {
+    setUseCases({ data: [checkedCase] });
+    setUseCreateCase();
+    mockedUseCaseRecords.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+    });
+    renderWithProviders(<CaseListPage />);
+    await userEvent.click(
+      screen.getByRole("button", { name: "S04 の記録を表示" }),
+    );
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "記録を取得できませんでした",
+    );
+  });
+
+  it.each([
+    [
+      "空",
+      { data: { ...records, confirmations: [], stateEvents: [] } },
+      "この版にはまだ記録がありません",
+    ],
+    ["読込中", { isLoading: true }, "読み込み中..."],
+  ] as const)(
+    "記録が%sのときは専用の表示を出し、エラーにしない",
+    async (label, state, text) => {
+      setUseCases({ data: [checkedCase] });
+      setUseCreateCase();
+      mockedUseCaseRecords.mockReturnValue({
+        data: undefined,
+        isLoading: false,
+        isError: false,
+        ...state,
+      });
+      renderWithProviders(<CaseListPage />);
+      await userEvent.click(
+        screen.getByRole("button", { name: "S04 の記録を表示" }),
+      );
+      expect(screen.getByText(text, { exact: false })).toBeInTheDocument();
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+      if (label === "読込中")
+        expect(screen.getByRole("status")).toHaveTextContent(text);
+    },
+  );
 });

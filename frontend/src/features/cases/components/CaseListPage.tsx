@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { Fragment, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
@@ -22,7 +22,9 @@ import {
 import { tokens } from "@/shared/theme/tokens";
 import { PageHeading, Panel, ProgressPips, ScrollArea } from "@/shared/ui";
 import { ApiError } from "@/shared/api/mutator";
+import { formatDateTime } from "@/shared/lib/datetime";
 import { useCases, useCreateCase } from "../hooks";
+import { CaseRecords } from "./CaseRecords";
 
 const stages = [
   "intake",
@@ -38,6 +40,7 @@ export function CaseListPage() {
   const list = useCases();
   const create = useCreateCase();
   const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState<number | null>(null);
   const [caseCode, setCaseCode] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [title, setTitle] = useState("");
@@ -116,6 +119,7 @@ export function CaseListPage() {
                     "items",
                     "progress",
                     "state",
+                    "questions",
                     "sendoff",
                     "action",
                   ].map((key) => (
@@ -127,64 +131,120 @@ export function CaseListPage() {
               </TableHead>
               <TableBody>
                 {list.data.map((item) => (
-                  <TableRow key={item.caseId}>
-                    <TableCell component="th" scope="row">
-                      {item.caseCode}
-                    </TableCell>
-                    <TableCell>
-                      <Typography>
-                        {item.title ?? t("common.notAvailable")}
-                      </Typography>
-                      <Typography variant="caption">
-                        {item.customerName ?? t("common.notAvailable")}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>{t("common.notAvailable")}</TableCell>
-                    <TableCell>
-                      <ProgressPips
-                        label={t(`cases.progress.${item.progressStatus}`)}
-                        step={stages.indexOf(item.progressStatus) + 1}
-                        total={stages.length}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      {t(`cases.list.states.${item.progressStatus}`)}
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        sx={{
-                          color:
-                            item.latestSendoff === "approved"
-                              ? tokens.colors.ok.main
-                              : item.latestSendoff === "hold"
-                                ? tokens.colors.warn.main
-                                : tokens.colors.text,
-                        }}
-                      >
-                        {item.latestSendoff
-                          ? t(`cases.list.sendoffState.${item.latestSendoff}`)
+                  <Fragment key={item.caseId}>
+                    <TableRow>
+                      <TableCell component="th" scope="row">
+                        {item.caseCode}
+                      </TableCell>
+                      <TableCell>
+                        <Typography>
+                          {item.title ?? t("common.notAvailable")}
+                        </Typography>
+                        <Typography variant="caption">
+                          {item.customerName ?? t("common.notAvailable")}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>{t("common.notAvailable")}</TableCell>
+                      <TableCell>
+                        <ProgressPips
+                          label={t(`cases.progress.${item.progressStatus}`)}
+                          step={stages.indexOf(item.progressStatus) + 1}
+                          total={stages.length}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Typography>
+                          {t(`cases.list.states.${item.progressStatus}`)}
+                        </Typography>
+                        {item.latestStateEvent && (
+                          <Typography variant="caption" component="div">
+                            {t("cases.list.recordedBy", {
+                              by: item.latestStateEvent.recordedBy,
+                              at: formatDateTime(
+                                item.latestStateEvent.recordedAt,
+                              ),
+                            })}
+                          </Typography>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {item.questionTotal !== null &&
+                        item.unresolvedCount !== null
+                          ? t("cases.list.questionCount", {
+                              unresolved: item.unresolvedCount,
+                              total: item.questionTotal,
+                            })
                           : t("common.notAvailable")}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        component={Link}
-                        href={`/cases/${item.caseId}/intake`}
-                        variant="outlined"
-                      >
-                        {t("cases.list.intakeLink")}
-                      </Button>
-                      {item.latestVersionId !== null && (
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          sx={{
+                            color:
+                              item.latestSendoff === "approved"
+                                ? tokens.colors.ok.main
+                                : item.latestSendoff === "hold"
+                                  ? tokens.colors.warn.main
+                                  : tokens.colors.text,
+                          }}
+                        >
+                          {item.latestSendoff
+                            ? t(`cases.list.sendoffState.${item.latestSendoff}`)
+                            : t("common.notAvailable")}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
                         <Button
                           component={Link}
-                          href={`/cases/${item.caseId}/versions/${item.latestVersionId}`}
+                          href={`/cases/${item.caseId}/intake`}
                           variant="outlined"
                         >
-                          {t("cases.list.openCase")}
+                          {t("cases.list.intakeLink")}
                         </Button>
+                        {item.latestVersionId !== null && (
+                          <Button
+                            component={Link}
+                            href={`/cases/${item.caseId}/versions/${item.latestVersionId}`}
+                            variant="outlined"
+                          >
+                            {t("cases.list.openCase")}
+                          </Button>
+                        )}
+                        {item.latestVersionId !== null && (
+                          <Button
+                            aria-expanded={expanded === item.caseId}
+                            aria-label={t(
+                              expanded === item.caseId
+                                ? "cases.records.hideLabel"
+                                : "cases.records.showLabel",
+                              { code: item.caseCode },
+                            )}
+                            onClick={() =>
+                              setExpanded(
+                                expanded === item.caseId ? null : item.caseId,
+                              )
+                            }
+                          >
+                            {t(
+                              expanded === item.caseId
+                                ? "cases.records.hide"
+                                : "cases.records.show",
+                            )}
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                    {expanded === item.caseId &&
+                      item.latestVersionId !== null && (
+                        <TableRow>
+                          <TableCell colSpan={8}>
+                            <CaseRecords
+                              caseCode={item.caseCode}
+                              versionId={item.latestVersionId}
+                            />
+                          </TableCell>
+                        </TableRow>
                       )}
-                    </TableCell>
-                  </TableRow>
+                  </Fragment>
                 ))}
               </TableBody>
             </Table>

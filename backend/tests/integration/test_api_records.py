@@ -106,8 +106,8 @@ async def test_latest_case_version_and_version_list_ignore_unfinalized(db_sessio
     await db_session.commit()
     cases = await CaseService(CaseRepository(db_session)).list_cases()
     assert [
-        (case.id, status, latest_id, sendoff)
-        for case, status, latest_id, sendoff in cases
+        (r.case.id, r.progress_status, r.latest_version_id, r.latest_sendoff)
+        for r in cases
     ] == [(seed.case.id, "staff_checked", second.id, None)]
     versions = await RecordService(RecordRepository(db_session)).list_versions(
         seed.case.id

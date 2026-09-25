@@ -38,6 +38,9 @@ const sampleCase = {
   progressStatus: "intake" as const,
   latestVersionId: null,
   latestSendoff: null,
+  latestStateEvent: null,
+  questionTotal: null,
+  unresolvedCount: null,
 };
 
 beforeEach(() => {

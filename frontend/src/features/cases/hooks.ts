@@ -10,9 +10,15 @@ import type {
   CaseCreateRequest,
   CaseListItem,
   CaseResponse,
+  RecordsResponse,
 } from "@/shared/api/generated/model";
 import type { ApiError } from "@/shared/api/mutator";
-import { createCase, listCases, getCase } from "@/features/cases/api";
+import {
+  createCase,
+  listCases,
+  getCase,
+  listVersionRecords,
+} from "@/features/cases/api";
 
 export type CreateCaseInput = CaseCreateRequest;
 
@@ -41,5 +47,14 @@ export function useCase(caseId: number) {
   return useQuery<CaseResponse, ApiError>({
     queryKey: caseQueryKey(caseId),
     queryFn: () => getCase(caseId),
+  });
+}
+
+/** F-15: 行を展開したときだけ版の記録を取得する（一覧表示のたびに全版を引かない）。 */
+export function useCaseRecords(versionId: number, enabled: boolean) {
+  return useQuery<RecordsResponse, ApiError>({
+    queryKey: ["cases", "records", versionId] as const,
+    queryFn: () => listVersionRecords(versionId),
+    enabled,
   });
 }

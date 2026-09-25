@@ -3,10 +3,11 @@
 from datetime import datetime
 from typing import Annotated, Literal
 
-from pydantic import StringConstraints
+from pydantic import Field, StringConstraints
 
 from app.api.schemas_base import CamelModel, CamelRequestModel
 from app.domain.record_types import SendoffState
+from app.api.ui.schemas.approvals import StateEventRecord
 
 ProgressStatus = Literal["intake", "draft_review", "staff_checked", "review_checked"]
 
@@ -48,6 +49,10 @@ class CaseListItem(CamelModel):
     progress_status: ProgressStatus
     latest_version_id: int | None
     latest_sendoff: SendoffState | None
+    # F-15: 最新の状態イベント（記録者・日時）と確認事項の残数・母数。版が無い案件は null。
+    latest_state_event: StateEventRecord | None
+    question_total: int | None = Field(ge=0)
+    unresolved_count: int | None = Field(ge=0)
 
 
 class CaseListResponse(CamelModel):

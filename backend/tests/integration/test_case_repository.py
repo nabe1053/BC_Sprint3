@@ -86,3 +86,65 @@ async def test_non_unique_integrity_error_is_not_translated(db_session) -> None:
         await repo.create(Case(case_code=None, customer_name=None, title=None))
 
     assert not isinstance(exc_info.value, DuplicateCaseCodeError)
+
+
+async def test_version_summaries_returns_questions_with_latest_judgement_and_state_event(
+    db_session,
+) -> None:
+    """F-15: 案件一覧の材料。版ごとに確認事項（最新の判断つき）と最新の状態イベントを返す。"""
+    from datetime import UTC, datetime, timedelta
+
+    from app.models import Question, QuestionJudgement
+    from tests.fixtures.record_data import seed_record_version
+
+    seed = await seed_record_version(db_session, state="staff_checked")
+    other = await seed_record_version(db_session)
+    q1 = Question(
+        version_id=seed.version.id,
+        item_id=seed.item.id,
+        question_code="Q1",
+        target_field="grade",
+        reason="材質",
+    )
+    q2 = Question(
+        version_id=seed.version.id,
+        item_id=None,
+        question_code="Q2",
+        target_field="due",
+        reason="納期",
+    )
+    db_session.add_all([q1, q2])
+    await db_session.flush()
+    at = datetime.now(UTC)
+    db_session.add_all(
+        [
+            QuestionJudgement(
+                question_id=q1.id,
+                status="judged",
+                resolution="unresolved",
+                recorded_by="担当",
+                recorded_at=at,
+            ),
+            QuestionJudgement(
+                question_id=q1.id,
+                status="judged",
+                resolution="resolved",
+                recorded_by="担当",
+                recorded_at=at + timedelta(minutes=1),
+            ),
+        ]
+    )
+    await db_session.commit()
+
+    summaries = await CaseRepository(db_session).version_summaries(
+        [seed.version.id, other.version.id]
+    )
+
+    mine = summaries[seed.version.id]
+    assert [row["question"].question_code for row in mine["questions"]] == ["Q1", "Q2"]
+    assert mine["questions"][0]["latest"].resolution == "resolved"
+    assert mine["questions"][1]["latest"] is None
+    assert mine["latest_state_event"].to_state == "staff_checked"
+    assert mine["latest_state_event"].recorded_by == "fixture"
+    assert summaries[other.version.id] == {"questions": [], "latest_state_event": None}
+    assert await CaseRepository(db_session).version_summaries([]) == {}

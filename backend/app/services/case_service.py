@@ -7,10 +7,10 @@ Service は SQLAlchemy を import しない（中-D: services が ORM を直接�
 
 from __future__ import annotations
 
-from typing import Protocol
+from typing import Any, NamedTuple, Protocol
 
 from app.models.cases import Case
-from app.domain.record_types import SendoffState
+from app.domain.record_types import SendoffState, unresolved_question_ids
 from app.services.exceptions import DuplicateCaseCodeError, NotFoundError
 
 
@@ -18,6 +18,21 @@ class LatestVersion(Protocol):
     id: int
     current_state: str
     latest_sendoff: SendoffState | None
+
+
+class CaseListEntry(NamedTuple):
+    """#1 案件一覧の1件（F-15 で最新の状態イベントと確認事項の残数・母数を追加）。
+
+    版が無い案件は latest_state_event・question_total・unresolved_count が None。
+    """
+
+    case: Case
+    progress_status: str
+    latest_version_id: int | None
+    latest_sendoff: SendoffState | None
+    latest_state_event: Any = None
+    question_total: int | None = None
+    unresolved_count: int | None = None
 
 
 class CaseRepositoryProtocol(Protocol):
@@ -31,6 +46,9 @@ class CaseRepositoryProtocol(Protocol):
         ...
 
     async def latest_versions(self, case_ids: list[int]) -> dict[int, LatestVersion]:
+        ...
+
+    async def version_summaries(self, version_ids: list[int]) -> dict[int, dict]:
         ...
 
     async def create(self, case: Case) -> Case:
@@ -77,28 +95,37 @@ class CaseService:
         case = Case(case_code=case_code, customer_name=customer_name, title=title)
         return await self.case_repository.create(case)
 
-    async def list_cases(
-        self
-    ) -> list[tuple[Case, str, int | None, SendoffState | None]]:
-        """案件一覧と確定済み最新版への到達情報を返す（AD-022）。"""
+    async def list_cases(self) -> list[CaseListEntry]:
+        """案件一覧と確定済み最新版への到達情報を返す（AD-022・F-15）。"""
         cases = await self.case_repository.list()
         latest = await self.case_repository.latest_versions([case.id for case in cases])
+        summaries = await self.case_repository.version_summaries(
+            [version.id for version in latest.values()]
+        )
         result = []
         for case in cases:
             version = latest.get(case.id)
-            status = "intake"
-            if version is not None:
-                status = (
-                    version.current_state
-                    if version.current_state in ("staff_checked", "review_checked")
-                    else "draft_review"
-                )
+            if version is None:
+                result.append(CaseListEntry(case, "intake", None, None))
+                continue
+            status = (
+                version.current_state
+                if version.current_state in ("staff_checked", "review_checked")
+                else "draft_review"
+            )
+            summary = summaries.get(version.id) or {
+                "questions": [],
+                "latest_state_event": None,
+            }
             result.append(
-                (
+                CaseListEntry(
                     case,
                     status,
-                    version.id if version is not None else None,
-                    version.latest_sendoff if version is not None else None,
+                    version.id,
+                    version.latest_sendoff,
+                    summary["latest_state_event"],
+                    len(summary["questions"]),
+                    len(unresolved_question_ids(summary["questions"])),
                 )
             )
         return result

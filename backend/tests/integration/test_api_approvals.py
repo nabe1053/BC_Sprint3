@@ -237,7 +237,8 @@ async def test_case_latest_sendoff_uses_latest_finalized_version_and_constant_qu
     db_session.add(newer)
     await db_session.commit()
     second, count2 = await measured()
-    assert count1 == count2 == 2
+    # 案件一覧・最新版（2）＋ F-15 の確認事項・判断・状態イベント（3）。案件数に依らず一定。
+    assert count1 == count2 == 5
     assert {row["caseId"] for row in second} == {case_id, empty.id}
     assert all(row["latestSendoff"] is None for row in second)
     assert (

@@ -18,7 +18,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.cases import Case
 from app.models.versions import Version
-from app.models.approvals import SendoffDecision
+from app.models.approvals import SendoffDecision, VersionStateEvent
+from app.models.drafts import Question
+from app.models.records import QuestionJudgement
 from app.services.exceptions import DuplicateCaseCodeError
 
 _UNIQUE_VIOLATION_SQLSTATE = "23505"
@@ -99,3 +101,47 @@ class CaseRepository:
             )
         ).all()
         return {row.case_id: row for row in rows}
+
+    async def version_summaries(self, version_ids: list[int]) -> dict[int, dict]:
+        """案件一覧（#1）の材料: 版ごとの確認事項（最新の判断つき）と最新の状態イベント（F-15）。
+
+        版数に依らず 3 回の SELECT で引く。未解決の判定は Service（domain）で行う。
+        """
+        if not version_ids:
+            return {}
+        grouped = {
+            version_id: {"questions": [], "latest_state_event": None}
+            for version_id in version_ids
+        }
+        questions = list(
+            (
+                await self.session.execute(
+                    select(Question)
+                    .where(Question.version_id.in_(version_ids))
+                    .order_by(Question.id)
+                )
+            ).scalars()
+        )
+        # 確認事項が 0 件でも SELECT 回数を変えない（案件・版の数に依らない回数を保つ）。
+        latest = {}
+        for judgement in (
+            await self.session.execute(
+                select(QuestionJudgement)
+                .where(QuestionJudgement.question_id.in_([q.id for q in questions]))
+                .order_by(QuestionJudgement.recorded_at, QuestionJudgement.id)
+            )
+        ).scalars():
+            latest[judgement.question_id] = judgement
+        for question in questions:
+            grouped[question.version_id]["questions"].append(
+                {"question": question, "latest": latest.get(question.id)}
+            )
+        for event in (
+            await self.session.execute(
+                select(VersionStateEvent)
+                .where(VersionStateEvent.version_id.in_(version_ids))
+                .order_by(VersionStateEvent.recorded_at, VersionStateEvent.id)
+            )
+        ).scalars():
+            grouped[event.version_id]["latest_state_event"] = event
+        return grouped

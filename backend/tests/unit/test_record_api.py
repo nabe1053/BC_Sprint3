@@ -150,10 +150,12 @@ async def record_http():
             }
         ),
     )
+    from app.services.case_service import CaseListEntry
+
     cases = N(
         list_cases=AsyncMock(
             return_value=[
-                (
+                CaseListEntry(
                     N(
                         id=2,
                         case_code="C",

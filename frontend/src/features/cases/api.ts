@@ -10,11 +10,13 @@ import {
   createCaseApiV1UiCasesPost,
   getCaseApiV1UiCasesCaseIdGet,
   listCasesApiV1UiCasesGet,
+  listRecordsApiV1UiVersionsVersionIdRecordsGet,
 } from "@/shared/api/generated/ui";
 import type {
   CaseCreateRequest,
   CaseListItem,
   CaseResponse,
+  RecordsResponse,
 } from "@/shared/api/generated/model";
 
 export async function listCases(): Promise<CaseListItem[]> {
@@ -31,4 +33,14 @@ export async function createCase(
 
 export async function getCase(caseId: number): Promise<CaseResponse> {
   return unwrapSuccess(await getCaseApiV1UiCasesCaseIdGet(caseId), 200);
+}
+
+/** F-15: 案件一覧の行を展開したときの版の記録（#28）。 */
+export async function listVersionRecords(
+  versionId: number,
+): Promise<RecordsResponse> {
+  return unwrapSuccess(
+    await listRecordsApiV1UiVersionsVersionIdRecordsGet(versionId),
+    200,
+  );
 }

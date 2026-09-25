@@ -104,6 +104,48 @@ async def test_case_progress_uses_latest_finalized_version(state, expected):
             if state is None
             else {3: N(id=7, current_state=state, latest_sendoff=None)}
         ),
+        version_summaries=AsyncMock(
+            return_value={}
+            if state is None
+            else {7: {"questions": [], "latest_state_event": None}}
+        ),
     )
     result = await CaseService(repository).list_cases()
-    assert result == [(case, expected, None if state is None else 7, None)]
+    assert [
+        (r.case, r.progress_status, r.latest_version_id, r.latest_sendoff)
+        for r in result
+    ] == [(case, expected, None if state is None else 7, None)]
+
+
+async def test_case_list_counts_unresolved_questions_and_latest_state_event():
+    """F-15: 確認事項の残数と母数（案件レベル含む）・最新の状態イベントを案件一覧に載せる。"""
+    from types import SimpleNamespace as N
+
+    case, event = N(id=3), N(to_state="staff_checked", recorded_by="山田")
+    q = lambda i: N(id=i)  # noqa: E731
+    repository = N(
+        list=AsyncMock(return_value=[case, N(id=4)]),
+        latest_versions=AsyncMock(
+            return_value={
+                3: N(id=7, current_state="staff_checked", latest_sendoff="hold")
+            }
+        ),
+        version_summaries=AsyncMock(
+            return_value={
+                7: {
+                    "questions": [
+                        {"question": q(1), "latest": None},
+                        {"question": q(2), "latest": N(resolution="resolved")},
+                        {"question": q(3), "latest": N(resolution="unresolved")},
+                    ],
+                    "latest_state_event": event,
+                }
+            }
+        ),
+    )
+    first, second = await CaseService(repository).list_cases()
+    repository.version_summaries.assert_awaited_once_with([7])
+    assert (first.question_total, first.unresolved_count) == (3, 2)
+    assert first.latest_state_event is event
+    assert (second.question_total, second.unresolved_count) == (None, None)
+    assert second.latest_state_event is None
