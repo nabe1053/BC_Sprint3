@@ -206,3 +206,11 @@ it("状態詳細は行IDだけを抽出し内部IDや生メッセージを返さ
   expect(model.stateTone(version.currentState)).toBeNull();
   expect(model.stateTone("review_checked")).toBe("ok");
 });
+it("変更タグは CFL-n を矛盾候補、それ以外のグループを択一として分ける（X04）", () => {
+  expect(
+    model.changeTags({ ...item, qtyState: "numeric", groupCode: "CFL-2" }, []),
+  ).toEqual(["conflict"]);
+  expect(
+    model.changeTags({ ...item, qtyState: "numeric", groupCode: "ALT-1" }, []),
+  ).toEqual(["choice"]);
+});

@@ -355,7 +355,7 @@
       "itemCount": "明細",
       "questionItemCount": "確認事項のある行",
       "tbaItemCount": "数量TBA",
-      "choiceGroupCount": "択一グループ",
+      "choiceGroupCount": "択一・矛盾グループ",
       "matchedCount": "照合済み",
       "editCount": "訂正",
       "editedItemCount": "訂正のある明細 {{count}} 行",
@@ -380,7 +380,7 @@
       "all": "全件",
       "questions": "確認事項あり",
       "tba": "数量TBA",
-      "choice": "択一候補",
+      "choice": "択一・矛盾の候補",
       "unmatched": "未照合のみ",
       "edited": "訂正済みのみ",
       "unresolved": "未解決のみ"
@@ -418,6 +418,7 @@
     "rowState": {
       "tba": "数量未確定",
       "choice": "択一",
+      "conflict": "矛盾候補（要判断）",
       "inherit": "継承候補",
       "questions": "要確認",
       "clear": "警告なし（原資料との照合は必要）",
@@ -722,7 +723,7 @@
         "close": "閉じる",
         "changesTitle": "変更・判断事項（{{total}} 行）",
         "unresolvedTitle": "未解決事項（{{total}} 件）",
-        "noChanges": "変更・択一・TBA・継承候補・訂正・判断のある行はありません。",
+        "noChanges": "変更・択一・矛盾候補・TBA・継承候補・訂正・判断のある行はありません。",
         "noRowChanges": "この行に変更・判断事項はありません。原資料との照合は必要です。",
         "noUnresolved": "未解決の確認事項はありません。",
         "noRowUnresolved": "この行に未解決の確認事項はありません。",
@@ -731,6 +732,7 @@
       },
       "tags": {
         "choice": "択一 {{group}}",
+        "conflict": "矛盾候補 {{group}}",
         "tba": "数量TBA",
         "inherit": "継承候補",
         "edited": "担当者訂正 {{total}} 件",

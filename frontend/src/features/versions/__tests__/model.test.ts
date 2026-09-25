@@ -210,3 +210,24 @@ describe("evidenceKey: 根拠の対象項目を表示グループに正規化す
     },
   );
 });
+it("CFL-n の候補行は択一ではなく資料の矛盾として状態を分ける（X04・04-db group_code）", () => {
+  expect(
+    rowState({ ...item, qtyState: "numeric", groupCode: "CFL-2" }, []),
+  ).toEqual({ key: "versions.rowState.conflict", tone: "warn" });
+  expect(
+    rowState({ ...item, qtyState: "numeric", groupCode: "ALT-1" }, []),
+  ).toEqual({ key: "versions.rowState.choice", tone: "warn" });
+});
+
+it("絞り込み「択一・矛盾の候補」は ALT 行と CFL 行の両方を残す", () => {
+  const rows = [
+    { ...item, itemId: 1, groupCode: "ALT-1" },
+    { ...item, itemId: 2, groupCode: "CFL-2" },
+    { ...item, itemId: 3, groupCode: null },
+  ];
+  expect(
+    filterItems(rows, [], { ...emptyFilters, status: "choice" }).map(
+      (row) => row.itemId,
+    ),
+  ).toEqual([1, 2]);
+});

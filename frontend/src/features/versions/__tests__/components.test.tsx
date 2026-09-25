@@ -147,7 +147,7 @@ it("明細・7件数・版の状態・TBA・択一・旧値を文字で示し合
     "明細",
     "確認事項のある行",
     "数量TBA",
-    "択一グループ",
+    "択一・矛盾グループ",
     "照合済み",
     "訂正",
     "未解決の確認事項",
@@ -771,4 +771,21 @@ it("ドロワーの根拠は原表記・出典・原文抜粋を見出しつき�
   const quote = within(qty).getByRole("blockquote", { name: "原文抜粋" });
   expect(quote).toHaveTextContent("CSG 13-3/8 68.00# K55 BTC R-3 260 JTS");
   expect(within(qty).getByText("原文抜粋")).toBeInTheDocument();
+});
+
+it("CFL-n の行は状態列で択一と区別して「矛盾候補（要判断）」と表示する（TEST-05 #6・X04）", () => {
+  mock.useItems.mockReturnValue(
+    query([
+      {
+        ...item,
+        qtyState: "numeric",
+        qtyValue: "90",
+        qtyUnit: "本",
+        groupCode: "CFL-2",
+      },
+    ]) as never,
+  );
+  render();
+  expect(screen.getByText("矛盾候補（要判断）")).toBeVisible();
+  expect(screen.queryByText("択一")).not.toBeInTheDocument();
 });

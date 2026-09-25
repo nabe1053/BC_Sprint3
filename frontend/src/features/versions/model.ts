@@ -102,6 +102,9 @@ export const itemQuestions = (
 ) => questions.filter((q) => q.itemId === item.itemId);
 export const hasEdits = (item: ItemCurrentResponse) =>
   item.history.some((edit) => edit.undoneAt === null);
+// 04-db group_code の命名規則: ALT-n = 客先が選ぶ択一、CFL-n = 資料の記載が相反する併記（X04）。
+export const groupKind = (groupCode: string) =>
+  groupCode.startsWith("CFL-") ? ("conflict" as const) : ("choice" as const);
 export function rowState(
   item: ItemCurrentResponse,
   questions: readonly QuestionResponse[],
@@ -110,7 +113,7 @@ export function rowState(
     item.qtyState === "tba"
       ? "tba"
       : item.groupCode
-        ? "choice"
+        ? groupKind(item.groupCode)
         : item.isInheritCandidate
           ? "inherit"
           : itemQuestions(item, questions).length
@@ -350,8 +353,10 @@ export function changeTags(
   item: ItemCurrentResponse,
   questions: readonly QuestionResponse[],
 ) {
-  const tags: ("choice" | "tba" | "inherit" | "edited" | "judged")[] = [];
-  if (item.groupCode) tags.push("choice");
+  const tags: (
+    "choice" | "conflict" | "tba" | "inherit" | "edited" | "judged"
+  )[] = [];
+  if (item.groupCode) tags.push(groupKind(item.groupCode));
   if (item.qtyState === "tba") tags.push("tba");
   if (item.isInheritCandidate) tags.push("inherit");
   if (hasEdits(item)) tags.push("edited");

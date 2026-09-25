@@ -451,3 +451,19 @@ it("空名で評価確認を押すと確認者名の欄そのものをエラー�
   fireEvent.change(field, { target: { value: "評価者" } });
   expect(field.closest(".MuiInputBase-root")).not.toHaveClass("Mui-error");
 });
+
+it("変更・判断事項の一覧は CFL-n の行を「矛盾候補」のピルで示す（X04）", () => {
+  const d = approvalData();
+  renderWithProviders(
+    <ApprovalListsDrawer
+      items={[{ ...d.items[0], groupCode: "CFL-2" }]}
+      questions={[]}
+      itemId={null}
+      onClose={jest.fn()}
+      onAll={jest.fn()}
+      onEvidence={jest.fn()}
+    />,
+  );
+  expect(screen.getByText("矛盾候補 CFL-2")).toBeInTheDocument();
+  expect(screen.queryByText(/^択一 /)).not.toBeInTheDocument();
+});
